@@ -22,7 +22,7 @@ Total Goals scored in Premier League fixtures from season 1993/94 to 2023/24
 
 mean(PL_goals$goals) # Find mean number of goals over all fixtures
 
-mean(subset(PL_goals$goals, PL_goals$season == 2023)) # Find mean number of goals over fixtures  2023/24 season
+mean(subset(PL_goals$goals, PL_goals$season == "2023-24")) # Find mean number of goals over fixtures  2023/24 season
 
 hist(PL_goals$goals, col="lightblue", xlab= "Number of Goals", main = "Histogram of goals per game in Premier League Matches") # histogram of all goals data
 

@@ -19,10 +19,12 @@ Imports:
     ggplot2,
     grid,
     gridExtra,
+    latex2exp,
     magrittr,
     MASS,
     reshape2,
     scales,
     shiny,
     shinydashboard,
-    shinyjs
+    shinyjs,
+    stringi

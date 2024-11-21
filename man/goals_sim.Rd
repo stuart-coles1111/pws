@@ -2,29 +2,39 @@
 % Please edit documentation in R/goals_sim.R
 \name{goals_sim}
 \alias{goals_sim}
-\title{Simulate goals}
+\title{Simulate goals in multiple games}
 \usage{
 goals_sim(
-  x,
+  n_sim = 10000,
   pois_mean = 100,
   beta_alpha_1 = 0.01,
   beta_alpha_2 = 0.5,
-  seed = NULL
+  plot_max = 12,
+  seed = 111
 )
 }
 \arguments{
+\item{n_sim}{Number of games to simulate}
+
 \item{pois_mean}{Average number of events per game}
 
 \item{beta_alpha_1}{First parameter that affects probability events become goals}
 
 \item{beta_alpha_2}{Second parameter that affects probability events become goals}
 
+\item{plot_max}{Maximum value for subsequent plotting (optional)}
+
 \item{seed}{Set seed to enable identical simulation across calls}
 }
+\value{
+list containing number of simulated goals per game and a frequency table
+}
 \description{
-Simulates goals as described in Chapter 1
+Simulates goals in multiple games as described in Chapter 1 of Playing With Statistics
 }
 \examples{
-goals_sim()
+goals_per_match <- goals_sim()
+head(goals_per_match$data, 20)
+barplot(Frequency ~ Goals, data = goals_per_match$table, col = "lightblue")
 
 }

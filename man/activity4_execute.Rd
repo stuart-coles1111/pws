@@ -9,7 +9,7 @@ activity4_execute(bank = 25, bankmax = 250)
 \arguments{
 \item{bank}{Initial bank size}
 
-\item{bankmax}{MAximum value of bank. If reached execution terminates.}
+\item{bankmax}{Maximum value of bank. If reached execution terminates.}
 }
 \value{
 summary information from execution of activity 4

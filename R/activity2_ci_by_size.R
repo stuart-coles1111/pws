@@ -6,28 +6,34 @@
 #' @param n_throws Vector of numbers of simulated dice throws
 #' @param nrep Number of repetitions for each experiment
 #' @param Theta True value of Theta
+#' @param alpha confidence level
+#' @param width width of error bars
 #' @param epsilon Determines scale of plot
 #' @param seed Set seed to enable identical simulation across calls
 #'
-#' @returns  Boxplots (as defined in Playing With Statistics) showing distribution of estimator in simulated repeats of Activity 2 with different numbers of throws of dice
+#' @returns  Confidence intervals for Theta in simulated repeats of Activity 2 with different numbers of throws of dice
 #' @examples
-#' activity2_boxplots_by_size()
+#' activity2_ci_by_size()
 #'
 #' @export
 #'
 #'
-activity2_boxplots_by_size <-
+activity2_ci_by_size <-
     function(n_throws = c(10, 25, 50, 100, 250, 500, 1000, 2500, 5000),
              nrep = 10000,
              Theta = 7.5,
+             alpha = 0.95,
+             width = 0.1,
              epsilon = 3,
              seed = NULL) {
         if (!is.null(seed)) set.seed(seed)
         resample_mat <- c()
+        p <- qnorm((1+alpha)/2)
+
         for (i in 1:length(n_throws)) {
             scores <- activity2_data_sim(n_throws = n_throws[i], plot = FALSE)$score
             resample_out <-
-                activity2_resample_est(scores, nrep = nrep, plot = FALSE)
+                activity2_se(scores, nrep = nrep, plot = FALSE)
             resample_mat <-
                 rbind(resample_mat, cbind(n_throws[i], resample_out[["resample"]]))
         }
@@ -36,19 +42,22 @@ activity2_boxplots_by_size <-
         df <- resample_mat  %>%
             dplyr::group_by(run) %>%
             dplyr::summarise(
-                s1 = quantile(estimate, .025),
-                s2 = quantile(estimate, .25),
-                s3 = mean(estimate),
-                s4 = quantile(estimate, .75),
-                s5 = quantile(estimate, .975)
+                s1 = mean(estimate) - p * sd(estimate),
+                s2 = mean(estimate),
+                s3 = mean(estimate) + p * sd(estimate),
             )
         df$run <- as.factor(df$run)
         df$dummy <- 1:length(n_throws) %>% as.factor
         df$n_throws <- n_throws
-        ggplot2::ggplot(df,  ggplot2::aes( x = n_throws ,group = n_throws, lower = s2, upper = s4 ,middle = s3, ymin = s1, ymax = s5)) +
-            ggplot2::geom_boxplot(stat = "identity", fill = "lightblue",  width = 0.2) +
+        ggplot2::ggplot(df) +
+            ggplot2::geom_point(ggplot2::aes(n_throws, s2), colour = "steelblue") +
+            ggplot2::geom_errorbar(ggplot2::aes(x = n_throws, ymin = s1, ymax = s3), width = width) +
             ggplot2::coord_flip()   +
-            ggplot2::scale_x_continuous(trans = 'log10') + ggplot2::ylim(Theta - epsilon, Theta + epsilon) +
-            ggplot2::ylab("Score") + ggplot2::xlab("Number of throws")
+            ggplot2::scale_x_continuous(trans = 'log10') +
+            ggplot2::ylim(Theta - epsilon, Theta + epsilon) +
+            ggplot2::ylab(latex2exp::TeX("$\\Theta $")) +
+            ggplot2::xlab("Number of throws") +
+            ggplot2::geom_hline(yintercept = Theta, colour="red")
+
 
     }

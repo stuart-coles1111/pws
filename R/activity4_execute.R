@@ -3,7 +3,7 @@
 #' Individual execution of Activity 4 of Playing With Statistics
 #'
 #' @param bank Initial bank size
-#' @param bankmax MAximum value of bank. If reached execution terminates.
+#' @param bankmax Maximum value of bank. If reached execution terminates.
 #'
 #' @returns  summary information from execution of activity 4
 #' @examples

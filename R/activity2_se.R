@@ -1,24 +1,28 @@
-#' Activity 2 resampling of estimates
+#' Activity 2 resampling to obtain standard error of estimates
 #'
-#' Generates boxplot of Theta estimates based on resampling, as described in Activity 2 of Playing With Statistics
+#' Generates error plot of Theta estimates based on resampling, as described in Activity 2 of Playing With Statistics
 #'
 #' @param dice_scores Values of original sample of scores
 #' @param nrep  Number of resamples
-#' @param plot Should boxplot be drawn (TRUE/FALSE)?
+#' @param alpha confidence level
+#' @param plot Should confidence interval be drawn (TRUE/FALSE)?
+#' @param width width of confidence interval error bars
 #' @param seed Set seed to enable identical simulation across calls
 #'
 #' @returns  invisible list containing mean, standard deviation, enumeration and quantiles of estimates based on resamples
 #' @examples
 #'
 #' estimates <- activity2_data_sim(plot = FALSE)
-#' activity2_resample_est(estimates$score)
+#' activity2_se(estimates$score)
 #' @export
 #'
 #'
-activity2_resample_est <-
+activity2_se <-
     function(dice_scores,
              nrep = 10000,
+             alpha = .95,
              plot = TRUE,
+             width = 0.1,
              seed = NULL) {
         if(!is.null(seed)) set.seed(seed)
         resample <- c()
@@ -27,35 +31,30 @@ activity2_resample_est <-
                 sample(dice_scores, length(dice_scores), replace = TRUE) %>% mean
         }
 
-        stats <-
-            c(
-                min = quantile(resample, .025),
-                lower = quantile(resample, .25),
-                middle = mean(resample),
-                upper = quantile(resample, .75),
-                max = quantile(resample, .975)
-            )
+        p <- qnorm((1+alpha)/2)
+        me <- mean(resample)
+        se <- sd(resample)
+
 
         df <-
             data.frame(
                 x = "",
-                ymin = stats[1],
-                lower = stats[2],
-                middle = stats[3],
-                upper = stats[4],
-                ymax = stats[5]
+                lower = me - p * se,
+                middle = me,
+                upper =  me + p * se
             )
         rownames(df) <- "value"
 
 
         if (plot) {
             p <-
-                ggplot2::ggplot(df, ggplot2::aes( x = x,lower = lower, upper = upper, middle = middle,  ymin = ymin, ymax = ymax)) +
-                ggplot2::geom_boxplot(stat = "identity", fill = "lightblue", width = 0.25) +
+                ggplot2::ggplot(df) +
+                ggplot2::geom_errorbar(ggplot2::aes(x = x, ymin = lower, ymax = upper), width = width) +
+                ggplot2::geom_point(ggplot2::aes(x, middle), colour = "steelblue") +
                 ggplot2::coord_flip() +
                 ggplot2::xlab("") +
                 ggplot2::theme(axis.ticks.y = ggplot2::element_blank()) +
-                ggplot2::ylab("Score")
+                ggplot2::ylab(latex2exp::TeX("$\\Theta $"))
 
             print(p)
         }
