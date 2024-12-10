@@ -39,7 +39,8 @@ colnames(bank) <- paste0("t", 1:nteams)
 pool <- matrix(as.integer(pool_init), nr = 1, nc = 6) %>% as.data.frame
 colnames(pool) <- c("Red Rum", "Secretariat", "Seabiscuit","Shergar","Galileo","Best Mate")
 
-price <- sum(pool) /(pool + nominal_stake - pool_init) + 1
+#price <- sum(pool) /(pool + nominal_stake - pool_init) + 1
+price <- (sum(pool) + nominal_stake) /(pool + nominal_stake - pool_init)
 
 winnings <- data.frame()
 
@@ -239,7 +240,7 @@ server <- function(input, output, session) {
       values$total_stake[horse, team] <- values$total_stake[horse, team] + real_stake
       values$current_pool[horse] <- values$current_pool[horse] + real_stake
       values$bank_updated[team] <- values$bank_updated[team] - real_stake
-      values$price <- sum(values$current_pool) / (values$current_pool + nominal_stake - pool_init) + 1
+      values$price <- (sum(values$current_pool) + nominal_stake) / (values$current_pool + nominal_stake - pool_init)
       commission <- (allowed_time-remaining_time())/allowed_time*commission_max
       values$commission_entry <- commission
       values$current_pool_adj[horse] <- values$current_pool_adj[horse] + ((real_stake * (1 - commission)) %>% round(-2))
@@ -261,7 +262,7 @@ server <- function(input, output, session) {
       values$total_stake[horse, team] <- values$total_stake[horse, team] - stake
       values$current_pool[horse] <- values$current_pool[horse] - stake
       values$bank_updated[team] <- values$bank_updated[team] + stake
-      values$price <- sum(values$current_pool) / (values$current_pool + nominal_stake - pool_init) + 1
+      values$price <- (sum(values$current_pool) + nominal_stake) / (values$current_pool + nominal_stake - pool_init)
       values$current_pool_adj[horse] <- values$current_pool_adj[horse] - ((stake * (1 - commission)) %>% round(-2))
       values$total_stake_net[horse, team] <- values$total_stake_net[horse, team] - ((stake * (1 - commission)) %>% round(-2))
     }
@@ -361,7 +362,7 @@ server <- function(input, output, session) {
     values$total_stake <- total_stake
     values$total_stake_net <- total_stake
 
-    values$price <- sum(pool)  /(pool + nominal_stake - pool_init) + 1
+    values$price <- (sum(pool) + nominal_stake)  /(pool + nominal_stake - pool_init)
     output$header_text <- renderText(
       paste(
         "Race number ",

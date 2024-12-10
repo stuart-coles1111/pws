@@ -4,12 +4,14 @@
 \alias{activity7_smarties_q2}
 \title{Analysis of Smarties question 2}
 \usage{
-activity7_smarties_q2(data_df, nrep = 10000)
+activity7_smarties_q2(data_df, nrep = 10000, bins = 10)
 }
 \arguments{
 \item{data_df}{dataframe containing data}
 
 \item{nrep}{number of simulations for calculation of sampling distribution}
+
+\item{bins}{number of bins for histogram}
 }
 \value{
 histogram of sampling distribution
