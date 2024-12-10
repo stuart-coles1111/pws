@@ -22,7 +22,7 @@ goals_sim <- function(n_sim = 10000,
                       beta_alpha_1 = 0.01,
                       beta_alpha_2 = 0.2,
                       plot_max = 10,
-                      seed = 111) {
+                      seed = 112) {
     if (!is.null(seed))
         set.seed(seed)
     res <- lapply(
@@ -32,15 +32,17 @@ goals_sim <- function(n_sim = 10000,
         beta_alpha_1 = beta_alpha_1,
         beta_alpha_2 = beta_alpha_2
     )  %>% unlist
-    res_df <- res %>% table %>% as.data.frame
+    res_f <- factor(res, levels = 0:max(max(res), plot_max))
+    res_df <- res_f %>% table %>% as.data.frame
     colnames(res_df) <- c("Goals", "Frequency")
-    res_df$Goals <- factor(
-        res_df$Goals,
-        levels = 0:ifelse(
-            is.null(plot_max),
-            res_df$Goals %>% as.numeric %>% max,
-            plot_max
-        )
-    )
+    res_df$Goals <- as.numeric(levels(res_df$Goals))[res_df$Goals]
+#    res_df$Goals <- factor(
+#        res_df$Goals,
+#        levels = 0:ifelse(
+#            is.null(plot_max),
+#            res_df$Goals %>% as.numeric %>% max,
+#            plot_max
+#        )
+#    )
     list(data = res, table = res_df)
 }
