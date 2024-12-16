@@ -10,7 +10,8 @@ activity1_s2_analysis(
   x_low = 1,
   x_up = 20,
   include_data = TRUE,
-  print_summary = TRUE
+  print_summary = TRUE,
+  width = 0.05
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ activity1_s2_analysis(
 \item{include_data}{include data in plots? (TRUE/FALSE)}
 
 \item{print_summary}{print summary of results?  (TRUE/FALSE)}
+
+\item{width}{sizes of frequency plot bars}
 }
 \value{
 list containing theoretical and sample statistics for statistic 2 in activity 1

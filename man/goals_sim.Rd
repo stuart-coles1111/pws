@@ -6,11 +6,11 @@
 \usage{
 goals_sim(
   n_sim = 10000,
-  pois_mean = 100,
-  beta_alpha_1 = 0.01,
-  beta_alpha_2 = 0.5,
-  plot_max = 12,
-  seed = 111
+  pois_mean = 25,
+  beta_alpha_1 = 0.02,
+  beta_alpha_2 = 0.2,
+  plot_max = 10,
+  seed = 112
 )
 }
 \arguments{

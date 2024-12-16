@@ -19,7 +19,7 @@
 #'
 goals_sim <- function(n_sim = 10000,
                       pois_mean = 25,
-                      beta_alpha_1 = 0.01,
+                      beta_alpha_1 = 0.02,
                       beta_alpha_2 = 0.2,
                       plot_max = 10,
                       seed = 112) {

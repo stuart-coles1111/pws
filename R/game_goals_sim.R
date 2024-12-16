@@ -1,7 +1,7 @@
 game_goals_sim <-
     function(x,
              pois_mean = 25,
-             beta_alpha_1 = 0.01,
+             beta_alpha_1 = 0.02,
              beta_alpha_2 = 0.2,
              seed = NULL) {
         if(!is.null(seed)) set.seed(seed)

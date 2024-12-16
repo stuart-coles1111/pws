@@ -8,6 +8,8 @@
 #' @param x_up Upper limit for plotting
 #' @param include_data include data in plots? (TRUE/FALSE)
 #' @param print_summary  print summary of results?  (TRUE/FALSE)
+#' @param width sizes of frequency plot bars
+
 #'
 #' @returns  list containing theoretical and sample statistics for statistic 2 in activity 1
 #' @examples
@@ -21,7 +23,8 @@ activity1_s2_analysis <- function(data_mat,
                                   x_low = 1,
                                   x_up = 20,
                                   include_data = TRUE,
-                                  print_summary = TRUE) {
+                                  print_summary = TRUE,
+                                  width = 0.25) {
     x_range <- x_low:x_up
     x_range_ext <- (x_low - 1):x_up
     probs <-
@@ -47,7 +50,7 @@ activity1_s2_analysis <- function(data_mat,
     if (include_data) {
         p <-
             ggplot2::ggplot(plot_df, ggplot2::aes(x, freqs, fill = method)) +
-            ggplot2::geom_bar(stat = "identity", position = 'dodge2') +
+            ggplot2::geom_bar(stat = "identity", position = 'dodge2', width = 2 * width) +
             ggplot2::xlab("Longest run") + ggplot2::ylab("Frequency") +
             ggplot2::scale_fill_manual(values = c("#F8766D", "#00BFC4")) +
             ggplot2::labs(fill = "Frequencies")
@@ -58,7 +61,7 @@ activity1_s2_analysis <- function(data_mat,
                 subset(plot_df, method == "theoretical"),
                 ggplot2::aes(x, probs, fill = method)
             ) +
-            ggplot2::geom_bar(stat = "identity", position = 'dodge2') +
+            ggplot2::geom_bar(stat = "identity", position = 'dodge2', width = width) +
             ggplot2::xlab("Longest run") + ggplot2::ylab("Probability") +
             ggplot2::theme(legend.position = "none") +
             ggplot2::scale_fill_manual(values = c("#00BFC4")) +
