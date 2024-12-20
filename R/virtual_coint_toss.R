@@ -35,7 +35,7 @@ virtual_coin_toss <- function(bank = 25, startTime, count, bankmax) {
         cat("=======================================", fill = T)
         cat(paste0(
             coin_toss,
-            ': you win. Current bank is $',
+            ': you win $', stake, '. Current bank is $',
             min(bank, bankmax)
         ),
         fill = T)
@@ -45,8 +45,8 @@ virtual_coin_toss <- function(bank = 25, startTime, count, bankmax) {
     if (coin_toss != bet) {
         bank <- round(bank - stake, 2)
         cat("=======================================", fill = T)
-        cat(paste0(coin_toss, ': you lose. Current bank is $', bank),
-            fill = T)
+        cat(paste0(coin_toss, ': you lose $', stake, '. Current bank is $', bank),
+                    fill = T)
         cat("=======================================", fill = T)
     }
 
