@@ -19,6 +19,7 @@ Imports:
     ggplot2,
     grid,
     gridExtra,
+    gtools,
     latex2exp,
     magrittr,
     MASS,

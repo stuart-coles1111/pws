@@ -11,7 +11,7 @@ activity1_s1_analysis(
   x_up = 40,
   include_data = TRUE,
   print_summary = TRUE,
-  width = 0.05
+  width = 0.25
 )
 }
 \arguments{
