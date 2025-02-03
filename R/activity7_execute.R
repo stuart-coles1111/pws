@@ -257,9 +257,9 @@ activity7_execute <- function(weight = c(4, 2, 3), mu = 193, sd = 10, rand = FAL
         cat('*** CONGRATULATIONS ***')
         cat("\n")
         cat("\n")
-        cat('you beat the world record')
+        cat(crayon::green('you beat the world record'))
     }
-    else cat('you failed to beat the world record')
+    else cat(crayon::red('you failed to beat the world record'))
     cat("\n")
     cat("\n")
 
