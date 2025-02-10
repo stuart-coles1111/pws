@@ -2,9 +2,6 @@
 #'
 #' Individual execution of Activity 7 of Playing With Statistics
 #'
-#' @param weight weights for spend effects on different categories
-#' @param mu baseline distance
-#' @param sd standard deviation of distances
 #' @param rand randomise settings? (TRUE/FALSE)
 #'
 #' @returns  NULL
@@ -14,12 +11,22 @@
 #' @export
 #'
 #'
-activity7_execute <- function(weight = c(4, 2, 3), mu = 193, sd = 10, rand = FALSE){
+activity7_execute <- function(rand = FALSE){
+
+    #base mean....
+    mu <- 193
 
     if(rand == TRUE){
         weight <- gtools::rdirichlet(1, rep(10, 3)) * 9
         sd <- exp(rnorm(1, log(10), 0.25))
     }
+    else{
+        # default weights...
+        weight <- c(4, 2, 3)
+        # default sd...
+        sd <- 10
+    }
+
 
 
     options(warn = -1)

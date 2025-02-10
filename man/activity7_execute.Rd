@@ -4,15 +4,9 @@
 \alias{activity7_execute}
 \title{Execute Activity 7}
 \usage{
-activity7_execute(weight = c(4, 2, 3), mu = 193, sd = 10, rand = FALSE)
+activity7_execute(rand = FALSE)
 }
 \arguments{
-\item{weight}{weights for spend effects on different categories}
-
-\item{mu}{baseline distance}
-
-\item{sd}{standard deviation of distances}
-
 \item{rand}{randomise settings? (TRUE/FALSE)}
 }
 \description{

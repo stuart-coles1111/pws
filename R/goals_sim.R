@@ -22,7 +22,7 @@ goals_sim <- function(n_sim = 10000,
                       beta_alpha_1 = 0.02,
                       beta_alpha_2 = 0.2,
                       plot_max = 10,
-                      seed = 112) {
+                      seed = NULL) {
     if (!is.null(seed))
         set.seed(seed)
     res <- lapply(
