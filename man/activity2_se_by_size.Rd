@@ -5,7 +5,7 @@
 \title{Analyse Activity 2 with Different Number of Throws}
 \usage{
 activity2_se_by_size(
-  n_throws = c(10, 25, 50, 100, 250, 500, 1000, 2500, 5000),
+  n_rounds = c(10, 25, 50, 100, 250, 500, 1000, 2500, 5000),
   nrep = 10000,
   Theta = 7.5,
   transform_se = F,
@@ -14,7 +14,7 @@ activity2_se_by_size(
 )
 }
 \arguments{
-\item{n_throws}{Vector of numbers of simulated dice throws}
+\item{n_rounds}{Vector of rounds of simulated dice throws}
 
 \item{nrep}{Number of repetitions for each experiment}
 

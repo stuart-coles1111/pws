@@ -3,7 +3,7 @@
 #' Generates data from which your aim is to guess the parameter Theta, as described in Activity 2 of Playing With Statistics
 #'
 #'
-#' @param n_throws Number of simulated dice throws
+#' @param n_rounds Number of rounds of simulated dice throws
 #' @param plot Should histogram be drawn (TRUE/FALSE)?
 #' @param n_bins Number of bins for (optional) histogram
 #' @param Theta True value of Theta
@@ -17,7 +17,7 @@
 #' @export
 #'
 activity2_data_sim <-
-    function(n_throws = 30,
+    function(n_rounds = 30,
              plot = TRUE,
              n_bins = 10,
              Theta = 7.5,
@@ -25,7 +25,7 @@ activity2_data_sim <-
         if(!is.null(seed)) set.seed(seed)
         f <- function(j)
             sample(1:6, 1 + rpois(1, Theta - 1), replace = T) %>% sum
-        score <- sapply(1:n_throws, f) / 3.5
+        score <- sapply(1:n_rounds, f) / 3.5
         results <- list(score = score, mean_score = mean(score))
         if (plot) {
             df <- data.frame(score = results$score)

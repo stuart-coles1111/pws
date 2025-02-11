@@ -5,7 +5,7 @@
 \title{Activity 2 data simulation}
 \usage{
 activity2_data_sim(
-  n_throws = 30,
+  n_rounds = 30,
   plot = TRUE,
   n_bins = 10,
   Theta = 7.5,
@@ -13,7 +13,7 @@ activity2_data_sim(
 )
 }
 \arguments{
-\item{n_throws}{Number of simulated dice throws}
+\item{n_rounds}{Number of rounds of simulated dice throws}
 
 \item{plot}{Should histogram be drawn (TRUE/FALSE)?}
 
