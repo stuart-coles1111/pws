@@ -5,7 +5,7 @@
 \title{Simulate xG}
 \usage{
 xGsim(
-  n_data = 10000,
+  n_data,
   bodypar = 0.2,
   distpar = 0.2,
   anglepar = 3,
@@ -14,7 +14,7 @@ xGsim(
   dist_body_inter = -0.25,
   body_coeff = -0.05,
   angle_coeff = -0.8,
-  seed = 99
+  seed = NULL
 )
 }
 \arguments{

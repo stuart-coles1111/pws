@@ -3,6 +3,7 @@
 #' Individual execution of Activity 7 of Playing With Statistics
 #'
 #' @param rand randomise settings? (TRUE/FALSE)
+#' @param seed value of seed for rnadom number generator
 #'
 #' @returns  NULL
 #' @examples
@@ -11,7 +12,9 @@
 #' @export
 #'
 #'
-activity7_execute <- function(rand = FALSE){
+activity7_execute <- function(rand = FALSE, seed = NULL){
+
+    if(!is.null(seed)) set.seed(seed)
 
     #base mean....
     mu <- 193

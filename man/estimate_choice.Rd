@@ -4,33 +4,22 @@
 \alias{estimate_choice}
 \title{Estimate choice exercise}
 \usage{
-estimate_choice(
-  theta = 5,
-  m1 = 5,
-  sd1 = 1.5,
-  m2 = 4.75,
-  sd2 = 0.25,
-  rho = 0.75
-)
+estimate_choice(theta = 0, sd = 1, n_dat = 10, seed = NULL)
 }
 \arguments{
-\item{theta}{value of parameter to be estimated}
+\item{theta}{mean of normal distribution}
 
-\item{m1}{mean of first estimator}
+\item{sd}{standard deviation of normal distribution}
 
-\item{sd1}{standard deviation of first estimator}
+\item{n_dat}{sample size}
 
-\item{m2}{mean of second estimator}
-
-\item{sd2}{standard deviation of second estimator}
-
-\item{xG_mod}{fitted xG model}
+\item{seed}{seed for random number generator}
 }
 \value{
 pair of estimates
 }
 \description{
-Provides 2 estimates of a quantity as required in Chapter 5 of Playing With Statistics
+Provides 2 estimates of a population quantity as described in Chapter 5 of Playing With Statistics
 }
 \examples{
 estimate_choice()

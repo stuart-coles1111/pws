@@ -4,10 +4,12 @@
 \alias{activity7_execute}
 \title{Execute Activity 7}
 \usage{
-activity7_execute(rand = FALSE)
+activity7_execute(rand = FALSE, seed = NULL)
 }
 \arguments{
 \item{rand}{randomise settings? (TRUE/FALSE)}
+
+\item{seed}{value of seed for rnadom number generator}
 }
 \description{
 Individual execution of Activity 7 of Playing With Statistics
