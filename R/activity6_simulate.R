@@ -6,6 +6,7 @@
 #' @param n_games_per_match number of games per match
 #' @param n_rounds_for_estimation number of rounds to use for data collection prior to estimation
 #' @param nsim number of matches to simulate when calculating predictions
+#' @param seed value of seed for random number generator
 #'
 #' @returns value of tournament winner and their win probability at point of estimation
 #' @examples
@@ -17,7 +18,11 @@
 activity6_simulate<- function(nrounds = 5,
                                     n_games_per_match = 5,
                                     n_rounds_for_estimation = 2,
-                                    nsim = 1000) {
+                                    nsim = 1000,
+                                    seed = NULL) {
+
+    if(!is.null(seed)) set.seed(seed)
+
     if (n_games_per_match < 1 |
         n_games_per_match %% 2 != 1)
         return("n_games_per_match must be positive odd integer")
@@ -139,7 +144,7 @@ activity6_simulate<- function(nrounds = 5,
     invisible(readline(prompt="Press [enter] to continue"))
 
     pars <-
-        optim(c(0, 0, 0, 0), pws:::activty6_neg_log_lik, dice_history = estimation_df)$par
+        optim(c(0, 0, 0, 0), pws:::activity6_neg_log_lik, dice_history = estimation_df)$par
 
     cat("\n\n")
 

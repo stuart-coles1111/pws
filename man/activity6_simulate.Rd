@@ -8,7 +8,8 @@ activity6_simulate(
   nrounds = 5,
   n_games_per_match = 5,
   n_rounds_for_estimation = 2,
-  nsim = 1000
+  nsim = 1000,
+  seed = NULL
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ activity6_simulate(
 \item{n_rounds_for_estimation}{number of rounds to use for data collection prior to estimation}
 
 \item{nsim}{number of matches to simulate when calculating predictions}
+
+\item{seed}{value of seed for random number generator}
 }
 \value{
 value of tournament winner and their win probability at point of estimation
