@@ -103,6 +103,8 @@ activity7_execute <- function(rand = FALSE, seed = NULL){
 
     while(fail){
         fail <- FALSE
+        cat(paste0('Choose spend on the 3 categories: Technique, Materials and Fitness: \n'), fill=T)
+        cat("\n")
         spend1 <- readline(prompt = "Enter 3 values separated by a comma: ") %>% strsplit(',') %>% unlist %>% as.numeric
         spend1 <- round(spend1, 2)
         if(length(spend1)!=3){
@@ -212,15 +214,17 @@ activity7_execute <- function(rand = FALSE, seed = NULL){
 
     cat("\n")
 
-    cat(paste0('Choose additional spend on the 3 categories: Technique, Materials and Fitness: \n'), fill=T)
+    cat(paste0('Choose additional spending on the 3 categories: Technique, Materials and Fitness: \n'), fill=T)
     cat("\n")
 
-    cat(paste0('Choose spend on the 3 categories: Technique, Materials and Fitness: \n'), fill=T)
     cat(paste0('Maximum allowable remaining for each category is: \n'))
     cat(paste0('Technique: ', 10 - tech_spend1,  '\n'))
     cat(paste0('Materials: ', 10 - mat_spend1,  '\n'))
     cat(paste0('Fitness: ', 10 - fit_spend1,  '\n'))
     cat("\n")
+    cat(paste0('Subject to total available spend of ', bank, ' units. \n'))
+    cat("\n")
+
 
     fail <- TRUE
 
