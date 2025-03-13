@@ -4,10 +4,12 @@
 \alias{activity6_randomise_players}
 \title{Player randomisation for Activity 6}
 \usage{
-activity6_randomise_players(players)
+activity6_randomise_players(players, seed = NULL)
 }
 \arguments{
 \item{players}{Character vector of player names}
+
+\item{seed}{value of seed for random number generator}
 }
 \value{
 dataframe with columns:

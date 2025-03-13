@@ -4,7 +4,7 @@
 \alias{data_dredge}
 \title{Illustration of Effects of Data Dredging}
 \usage{
-data_dredge(n_data = 100, n_var = 50, sig_x = 10, sig_y = 5, seed = 3)
+data_dredge(n_data = 100, n_var = 50, sig_x = 10, sig_y = 5, seed = NULL)
 }
 \arguments{
 \item{n_data}{number of rows of data}

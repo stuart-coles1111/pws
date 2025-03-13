@@ -15,9 +15,9 @@
 #' @export
 #'
 #'
-data_dredge <- function(n_data = 100, n_var = 50, sig_x = 10, sig_y = 5, seed = 3){
+data_dredge <- function(n_data = 100, n_var = 50, sig_x = 10, sig_y = 5, seed = NULL){
 
-    set.seed(seed)
+    if(!is.null(seed)) set.seed(seed)
 
     y<-rnorm(n_data, 0, sig_y)
 

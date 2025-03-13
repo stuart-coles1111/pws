@@ -246,7 +246,8 @@ activity6_simulate<- function(nrounds = 5,
     cat("\n\n")
     invisible(readline(prompt="Press [enter] to continue"))
 
-    cat("Tournament winner", winners, "\n")
+    cat("Tournament winner", winners, "...\n")
+    invisible(readline(prompt="Press [enter] to continue"))
     cat("Had win probability", winner_df[match(winners, winner_df$Player), 2], "after round", n_rounds_for_estimation)
     invisible()
 
