@@ -32,8 +32,8 @@ activity2_data_sim <-
             p <-
                 ggplot2::ggplot(df, ggplot2::aes(x = score, y = ggplot2::after_stat(density))) +
                 ggplot2::geom_histogram(bins = n_bins, fill = "lightblue", colour = "black") +
-                ggplot2::scale_x_continuous(breaks = pretty_breaks()) +
-                ggplot2::scale_y_continuous(breaks = pretty_breaks()) +
+                ggplot2::scale_x_continuous(breaks = scales::pretty_breaks()) +
+                ggplot2::scale_y_continuous(breaks = scales::pretty_breaks()) +
                 ggplot2::xlab("Score") +
                 ggplot2::ylab("Density")
             plot(p)
