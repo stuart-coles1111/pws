@@ -35,6 +35,19 @@ activity7_execute <- function(rand = FALSE, seed = NULL){
     options(warn = -1)
     bank_0 <- 10
     data_cost <- 10
+    cat(paste0('Your objective is to beat the world record ski jump of 253.5 m'), fill=T)
+    cat(paste0('There is a training phase and a competition phase'), fill=T)
+    cat(paste0('In each phase you can spend resources in each of 3 categories: Technique, Materials and Fitness'), fill=T)
+    cat(paste0('You can also buy historical data to help you decide how to spend in these categories'), fill=T)
+    cat(paste0('In each phase you have a total of $10,000 to spend'), fill=T)
+    cat(paste0('Spending is measured in resource units: one unit corresponds to $1000'), fill=T)
+    cat(paste0('In each phase you can use some of your resources to buy data'), fill=T)
+    cat(paste0('Such data may be helpful in deciding how to allocate your remaining resources'), fill=T)
+    cat(paste0('One unit of resource buys 10 rows of data'), fill=T)
+    cat(paste0('The maximum spend in each of the 3 catgories over the 2 phases is 10 units'), fill=T)
+    cat(fill=T)
+    cat('Training Phase...')
+    cat(fill=T)
 
     cat(paste0('Initial bank: ', bank_0, ' units\n'), fill=T)
     cat('You can buy data for analysis\n')
@@ -143,6 +156,9 @@ activity7_execute <- function(rand = FALSE, seed = NULL){
     cat("\n")
     go <- readline(prompt = "Press any key to continue\n")
 
+    cat(fill=T)
+    cat('Competition Phase...\n')
+    cat(fill=T)
 
     bank_0 <- 10
     cat(paste0('Additional funds available: ', bank_0, ' units\n'), fill=T)
