@@ -191,8 +191,12 @@ server <- function(input, output, session) {
         # this is just for example purposes
         # what i'd really like to do is activate the stake enter button automatically at specified time points
         # with specified values of team, horse and stake
+        # of course, the app fails to pick up the correct values of team/horse/stake
+        # but there's another problem....
+        # the button gets clicked immediately and then every 5000 ms after
+        # whereas what i want is the button to be clicked just once after (say) 5000 ms
 
-        invalidateLater(5000)
+        shiny::invalidateLater(5000)
         team <- 5
         horse <- 5
         stake <- 10
