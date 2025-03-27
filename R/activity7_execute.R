@@ -35,6 +35,8 @@ activity7_execute <- function(rand = FALSE, seed = NULL){
     options(warn = -1)
     bank_0 <- 10
     data_cost <- 10
+    cat(fill=T)
+    cat(paste0('      *****************************       '), fill=T)
     cat(paste0('Your objective is to beat the world record ski jump of 253.5 m'), fill=T)
     cat(paste0('There is a training phase and a competition phase'), fill=T)
     cat(paste0('In each phase you can spend resources in each of 3 categories: Technique, Materials and Fitness'), fill=T)
@@ -46,15 +48,17 @@ activity7_execute <- function(rand = FALSE, seed = NULL){
     cat(paste0('One unit of resource buys 10 rows of data'), fill=T)
     cat(paste0('The maximum spend in each of the 3 catgories over the 2 phases is 10 units'), fill=T)
     cat(fill=T)
+    cat(paste0('      *****************************       '), fill=T)
+    cat(fill=T)
     cat('Training Phase...')
     cat(fill=T)
 
     cat(paste0('Initial bank: ', bank_0, ' units\n'), fill=T)
     cat('You can buy data for analysis\n')
     cat(paste0('1 unit buys ', data_cost, ' rows of data\n'), fill=T)
-    ndata_1 <- readline(prompt = "How many rows of data would you like to buy? \n ")  %>% as.numeric
+    spend_1 <- readline(prompt = "How many units will you spend on data? \n ")  %>% as.numeric %>% round(1)
 
-    spend_1 <- ndata_1 / data_cost
+    ndata_1 <- spend_1 * data_cost
     bank <- (bank_0 - spend_1) %>% round(1)
 
     while(bank < 0){
@@ -166,11 +170,13 @@ activity7_execute <- function(rand = FALSE, seed = NULL){
     cat("\n")
     cat(paste0('1 unit buys ', data_cost, ' rows of data'), fill=T)
     cat("\n")
-    ndata_2 <- readline(prompt = "How many rows of data would you like to buy? ")  %>% as.numeric
+    spend_2 <- readline(prompt = "How many units will you spend on data? \n ")  %>% as.numeric %>% round(1)
     cat("\n")
 
-    spend_2 <- ndata_2 / data_cost
+
+    ndata_2 <- spend_2 * data_cost
     bank <- (bank_0 - spend_2) %>% round(1)
+
 
     while(bank < 0){
         cat("Not enough money", fill=T)
