@@ -33,7 +33,7 @@ activity2_ci_by_size <-
         for (i in 1:length(n_rounds)) {
             scores <- activity2_data_sim(n_rounds = n_rounds[i], plot = FALSE)$score
             resample_out <-
-                activity2_se(scores, nrep = nrep, plot = FALSE)
+                activity2_se(scores, nrep = nrep, plot = FALSE, print_results = FALSE)
             resample_mat <-
                 rbind(resample_mat, cbind(n_rounds[i], resample_out[["resample"]]))
         }

@@ -10,7 +10,8 @@ activity2_se(
   alpha = 0.95,
   plot = TRUE,
   width = 0.1,
-  seed = NULL
+  seed = NULL,
+  print_results = TRUE
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ activity2_se(
 \item{width}{width of confidence interval error bars}
 
 \item{seed}{Set seed to enable identical simulation across calls}
+
+\item{print_results}{Print standard error and confidence intervals to screen (TRUE/FALSE)?}
 }
 \value{
 invisible list containing mean, standard deviation, enumeration and quantiles of estimates based on resamples

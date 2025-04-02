@@ -8,6 +8,7 @@
 #' @param plot Should confidence interval be drawn (TRUE/FALSE)?
 #' @param width width of confidence interval error bars
 #' @param seed Set seed to enable identical simulation across calls
+#' @param print_results Print standard error and confidence intervals to screen (TRUE/FALSE)?
 #'
 #' @returns  invisible list containing mean, standard deviation, enumeration and quantiles of estimates based on resamples
 #' @examples
@@ -23,7 +24,8 @@ activity2_se <-
              alpha = .95,
              plot = TRUE,
              width = 0.1,
-             seed = NULL) {
+             seed = NULL,
+             print_results = TRUE) {
         if(!is.null(seed)) set.seed(seed)
         resample <- c()
         for (i in 1:nrep) {
@@ -57,6 +59,11 @@ activity2_se <-
                 ggplot2::ylab(latex2exp::TeX("$\\Theta $"))
 
             print(p)
+        }
+
+        if(print_results){
+            cat('Standard error = ', sd(resample) %>% round(2), fill=T)
+            cat(100*alpha, '% confidence interval = [', df[1, 2]%>% round(2), ',',df[1, 4] %>% round(2), ']', fill=T)
         }
 
         return(list(

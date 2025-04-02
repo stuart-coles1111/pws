@@ -8,7 +8,9 @@ activity2_data_sim(
   n_rounds = 30,
   plot = TRUE,
   n_bins = 10,
-  Theta = 7.5,
+  Theta = NULL,
+  rand_Theta = FALSE,
+  show_Theta = FALSE,
   seed = NULL
 )
 }
@@ -20,6 +22,10 @@ activity2_data_sim(
 \item{n_bins}{Number of bins for (optional) histogram}
 
 \item{Theta}{True value of Theta}
+
+\item{rand_Theta}{randomise Theta (TRUE/FALSE)? if TRUE, Theta argument is ignored}
+
+\item{show_Theta}{show Theta in output (TRUE/FALSE)?}
 
 \item{seed}{Set seed to enable identical simulation across calls}
 }

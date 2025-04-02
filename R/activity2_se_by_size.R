@@ -32,7 +32,7 @@ activity2_se_by_size <-
                             Theta = Theta,
                             plot = FALSE)$score
             s[i] <-
-                activity2_se(scores, nrep = nrep, plot = FALSE)[["sd"]]
+                activity2_se(scores, nrep = nrep, plot = FALSE, print_results = FALSE)[["sd"]]
         }
         df <-
             data.frame(
