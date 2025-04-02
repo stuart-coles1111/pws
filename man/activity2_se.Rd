@@ -37,6 +37,6 @@ Generates error plot of Theta estimates based on resampling, as described in Act
 }
 \examples{
 
-estimates <- activity2_data_sim(plot = FALSE)
+estimates <- activity2_game_sim(plot = FALSE)
 activity2_se(estimates$score)
 }

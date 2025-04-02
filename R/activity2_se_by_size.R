@@ -28,7 +28,7 @@ activity2_se_by_size <-
         s <- c()
         for (i in 1:length(n_rounds)) {
             scores <-
-                activity2_data_sim(n_rounds = n_rounds[i],
+                activity2_game_sim(n_rounds = n_rounds[i],
                             Theta = Theta,
                             plot = FALSE)$score
             s[i] <-

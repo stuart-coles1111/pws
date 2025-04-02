@@ -31,7 +31,7 @@ activity2_ci_by_size <-
         p <- qnorm((1+alpha)/2)
 
         for (i in 1:length(n_rounds)) {
-            scores <- activity2_data_sim(n_rounds = n_rounds[i], plot = FALSE)$score
+            scores <- activity2_game_sim(n_rounds = n_rounds[i], plot = FALSE)$score
             resample_out <-
                 activity2_se(scores, nrep = nrep, plot = FALSE, print_results = FALSE)
             resample_mat <-

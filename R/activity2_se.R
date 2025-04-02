@@ -13,7 +13,7 @@
 #' @returns  invisible list containing mean, standard deviation, enumeration and quantiles of estimates based on resamples
 #' @examples
 #'
-#' estimates <- activity2_data_sim(plot = FALSE)
+#' estimates <- activity2_game_sim(plot = FALSE)
 #' activity2_se(estimates$score)
 #' @export
 #'
