@@ -4,7 +4,7 @@ horse_pics <- paste0("horse", 1:6,".jpg")
 # set commission maximum
 commission_max <- 0.2
 
-allowed_time <- 20
+allowed_time <- 180
 
 pool_init <- 100
 
@@ -196,11 +196,36 @@ server <- function(input, output, session) {
         # the button gets clicked immediately and then every 5000 ms after
         # whereas what i want is the button to be clicked just once after (say) 5000 ms
 
-        shiny::invalidateLater(5000)
-        team <- 5
-        horse <- 5
-        stake <- 10
         shinyjs::click("stake_enter")
+        shiny::invalidateLater(5000)
+        auto_team <- 5
+        auto_horse <- 5
+        auto_stake <- 10
+        team <- auto_team %>% as.numeric
+        horse <- auto_horse %>% as.numeric
+        real_stake <- auto_stake * 100
+
+        values$team_entry <- team
+        values$horse_entry <- horse
+        values$stake_entry <- real_stake
+        values$undo_status <- 0L
+
+        new_bank <- values$bank_updated[team] - real_stake
+        if(new_bank < 0){
+            values$undo_status <- 1L
+            shiny::showModal(shiny::modalDialog(title = "Pool message", "Negative Bank: Bet declined"))
+        }
+        else{
+            values$total_stake[horse, team] <- values$total_stake[horse, team] + real_stake
+            values$current_pool[horse] <- values$current_pool[horse] + real_stake
+            values$bank_updated[team] <- values$bank_updated[team] - real_stake
+            values$price <- (sum(values$current_pool) + nominal_stake) / (values$current_pool + nominal_stake - pool_init)
+            commission <- (allowed_time-remaining_time())/allowed_time*commission_max
+            values$commission_entry <- commission
+            values$current_pool_adj[horse] <- values$current_pool_adj[horse] + ((real_stake * (1 - commission)) %>% round(-2))
+            values$total_stake_net[horse, team] <- values$total_stake_net[horse, team] + ((real_stake * (1 - commission)) %>% round(-2))
+        }
+
 
     })
 
