@@ -8,8 +8,7 @@ activity2_se_by_size(
   n_rounds = c(10, 25, 50, 100, 250, 500, 1000, 2500, 5000),
   nrep = 10000,
   Theta = 7.5,
-  transform_se = F,
-  log_trans = F,
+  transform_n = F,
   seed = NULL
 )
 }
@@ -20,11 +19,9 @@ activity2_se_by_size(
 
 \item{Theta}{True value of Theta}
 
-\item{log_trans}{Plot both axes on log scale? (True/False)}
+\item{transform_n}{Transform number of rounds? (True/False)}
 
 \item{seed}{Set seed to enable identical simulation across calls}
-
-\item{transform_sd}{Transform Standard Error? (True/False)}
 }
 \value{
 Standard errors calculated by resampling of estimates of Theta in Activity 2 with different numbers of throws of dice

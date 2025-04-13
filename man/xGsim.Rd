@@ -45,6 +45,6 @@ pars: the model parameters used in simulating the model
 Simulates xG according to model with specified parameters from a specified number of scoring opportunities
 }
 \examples{
-xGsim()
+xGsim(n_data = 10000, seed = 99)
 
 }

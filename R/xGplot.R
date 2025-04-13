@@ -7,12 +7,15 @@
 #' @param plotlim axis limit for plotting
 #' @returns plots showing fitted xG values and data for simulated xG data
 #' @examples
-#' xG_data <- xGsim()
+#' xG_data <- xGsim(n_data = 10000, seed = 99)
 #' xGplot(xG_data)
 #' @export
 #'
 #'
 xGplot <- function(xG_data, plotlim = 60) {
+
+        xG_data$data$goal <- factor(xG_data$data$goal)
+
     pl1 <- ggplot2::ggplot(subset(xG_data$data, body == "Foot")) +
         ggplot2::geom_point(ggplot2::aes(x, y, color = goal), size = 0.1) +
         ggplot2::xlim(-plotlim, plotlim) + ggplot2::ylim(0, plotlim) +

@@ -22,7 +22,7 @@ activity2_se <-
     function(dice_scores,
              nrep = 10000,
              alpha = .95,
-             plot = TRUE,
+             plot = FALSE,
              width = 0.1,
              seed = NULL,
              print_results = TRUE) {

@@ -17,7 +17,7 @@
 #' data: the simulated data
 #' pars: the model parameters used in simulating the model
 #' @examples
-#' xGsim()
+#' xGsim(n_data = 10000, seed = 99)
 #'
 #' @export
 #'
@@ -60,8 +60,8 @@ xGsim <-
         df$y <- (distance * cos(df$angle * pi / 180)) %>% round(3)
         df <-
             df[, c("x", "y", "distance", "angle", "body", "prob_true", "goal")]
-        df$goal <- factor(df$goal)
-        list(
+
+            list(
             data = df,
             pars = c(
                 intercept,

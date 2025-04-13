@@ -18,6 +18,6 @@ plots showing fitted xG values and data for simulated xG data
 Fits an xG model  to data simulated using the xGsim function
 }
 \examples{
-xG_data <- xGsim()
+xG_data <- xGsim(n_data = 10000, seed = 99)
 xGplot(xG_data)
 }
