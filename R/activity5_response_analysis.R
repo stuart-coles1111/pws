@@ -4,7 +4,7 @@
 #'
 #' @param G best guess
 #' @param S measure of accuracy
-#' @param T true answer
+#' @param Theta true answer
 #' @param alpha probability of interval
 #' @param lines add lines to plots
 #' @param final show plot for final score only (TRUE/FALSE)
@@ -19,7 +19,7 @@
 #'
 activity5_response_analysis <- function(G,
                              S,
-                             T,
+                             Theta,
                              alpha = 0.95,
                              lines = FALSE,
                              final_score_only = FALSE,
@@ -40,8 +40,8 @@ activity5_response_analysis <- function(G,
         p1 <-
             ggplot2::ggplot(ggplot2::aes(x = x, y = y), data = m) +
             ggplot2::geom_line(colour = "indianred4") +
-            ggplot2::geom_vline(xintercept = T, color = 'red') +
-            ggplot2::xlab('T') + ggplot2::ylab('') +
+            ggplot2::geom_vline(xintercept = Theta, color = 'red') +
+            ggplot2::xlab(latex2exp::TeX("$\\Theta $")) + ggplot2::ylab('') +
             ggplot2::ggtitle('Normal Score') +
             pws:::shade_curve(m, G - S, G + S, fill = "lightblue") +
             ggplot2::xlim(min(x), max(x)) +
@@ -52,8 +52,8 @@ activity5_response_analysis <- function(G,
         p2 <-
             ggplot2::ggplot(ggplot2::aes(x = x, y = z), data = m) +
             ggplot2::geom_line(colour = "indianred4") +
-            ggplot2::geom_vline(xintercept = T, color = 'red') +
-            ggplot2::xlab('T') +
+            ggplot2::geom_vline(xintercept = Theta, color = 'red') +
+            ggplot2::xlab(latex2exp::TeX("$\\Theta $")) +
             ggplot2::ylab('') +
             ggplot2::ggtitle(paste0('Final Score = ', round(score, 2))) +
             ggplot2::geom_hline(yintercept = score, color = 'green') +
@@ -65,7 +65,7 @@ activity5_response_analysis <- function(G,
         p1 <-
             ggplot2::ggplot(ggplot2::aes(x = x, y = y), data = m) +
             ggplot2::geom_line(colour = "indianred4") +
-            ggplot2::xlab('T') + ylab('') +
+            ggplot2::xlab(latex2exp::TeX("$\\Theta $")) + ylab('') +
             ggplot2::ggtitle('Normal Score') +
             pws:::shade_curve(m, G - S, G + S, fill = "lightblue") +
             ggplot2::xlim(min(x), max(x)) +
@@ -75,7 +75,7 @@ activity5_response_analysis <- function(G,
         p2 <-
             ggplot2::ggplot(ggplot2::aes(x = x, y = z), data = m) +
             ggplot2::geom_line(colour = "indianred4") +
-            ggplot2::xlab('T') +
+            ggplot2::xlab(latex2exp::TeX("$\\Theta $")) +
             ggplot2::ylab('') +
             ggplot2::ggtitle(paste0('Final Score = ', round(score, 2))) +
             ggplot2::xlim(min(x), max(x)) +

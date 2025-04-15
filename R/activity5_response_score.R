@@ -4,7 +4,7 @@
 #'
 #' @param G vector of best guesses (one per question)
 #' @param S vector of measure of accuracy (one per question)
-#' @param T true answer (one per question)
+#' @param Theta true answer (one per question)
 #' @param alpha probability of interval
 #' @param dp decimal places for score
 #'
@@ -18,12 +18,12 @@
 #' @export
 #'
 #'
-activity5_response_score <- function(G, S, T, alpha = 0.95, dp = 2) {
+activity5_response_score <- function(G, S, Theta, alpha = 0.95, dp = 2) {
     #calculate standard deviation based on probability of interval
     sigma <- S / qnorm((1 + alpha) / 2)
 
     #calculate score
-    score <- dnorm(G, T, sigma, log = TRUE) %>% round(dp)
+    score <- dnorm(G, Theta, sigma, log = TRUE) %>% round(dp)
 
     list(scores = score,
          total_score = sum(score),

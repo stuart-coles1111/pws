@@ -10,7 +10,7 @@
 #'
 #' @returns list containing
 #' - scores summary of score per question
-#' - total_scorer sum of scores across questions
+#' - total_score sum of scores across questions
 #' @examples
 #' team1_score  <- subset(activity5_responses_sm,team == 1)
 #' quiz_score_matrix(team1_score, activity5_quiz_answers) #scores per question and total score for team 1
@@ -29,7 +29,7 @@ activity5_matrix_analysis <-
                 question = 1:10,
                 G = score_matrix$G,
                 S = score_matrix$S,
-                T = answers$Answer,
+                Theta = answers$Answer,
                 score = score
             )
 

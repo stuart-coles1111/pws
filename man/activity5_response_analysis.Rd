@@ -7,7 +7,7 @@
 activity5_response_analysis(
   G,
   S,
-  T,
+  Theta,
   alpha = 0.95,
   lines = FALSE,
   final_score_only = FALSE,
@@ -19,7 +19,7 @@ activity5_response_analysis(
 
 \item{S}{measure of accuracy}
 
-\item{T}{true answer}
+\item{Theta}{true answer}
 
 \item{alpha}{probability of interval}
 

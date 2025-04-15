@@ -27,6 +27,6 @@ estimate_choice <-
         estimate[2] <- exp(mean(y) + var(y)/2)
         estimate <- estimate %>% round(3)
         df <-
-            data.frame(estimate1 = estimate[1], estimate2 = estimate[2])
+            data.frame(estimate1 = estimate[1], estimate2 = estimate[2], row.names = "")
         return(df)
     }
