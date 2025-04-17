@@ -42,7 +42,7 @@ activity5_response_analysis <- function(G,
             ggplot2::geom_line(colour = "indianred4") +
             ggplot2::geom_vline(xintercept = Theta, color = 'red') +
             ggplot2::xlab(latex2exp::TeX("$\\Theta $")) + ggplot2::ylab('') +
-            ggplot2::ggtitle('Normal Score') +
+            ggplot2::ggtitle(paste0('Normal Score: G = ', G, ', S = ',S)) +
             pws:::shade_curve(m, G - S, G + S, fill = "lightblue") +
             ggplot2::xlim(min(x), max(x)) +
             ggplot2::theme(axis.text = ggplot2::element_text(size = 12),
@@ -66,7 +66,7 @@ activity5_response_analysis <- function(G,
             ggplot2::ggplot(ggplot2::aes(x = x, y = y), data = m) +
             ggplot2::geom_line(colour = "indianred4") +
             ggplot2::xlab(latex2exp::TeX("$\\Theta $")) + ylab('') +
-            ggplot2::ggtitle('Normal Score') +
+            ggplot2::ggtitle(paste0('Normal Score: G = ', G, ', S = ',S)) +
             pws:::shade_curve(m, G - S, G + S, fill = "lightblue") +
             ggplot2::xlim(min(x), max(x)) +
             ggplot2::theme(axis.text = ggplot2::element_text(size = 12),
