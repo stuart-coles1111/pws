@@ -25,7 +25,7 @@ activity5_response_analysis <- function(G,
                              final_score_only = FALSE,
                              dp = 2) {
     #get score information
-    score <- pws::activity5_response_score(G, S, T, alpha, dp = dp)
+    score <- pws::activity5_response_score(G, S, Theta, alpha, dp = dp)
     sigma <- score$sigma
     score <- score$scores
 
