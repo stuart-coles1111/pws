@@ -19,7 +19,7 @@ activity5_matrix_analysis(score_matrix, answers, alpha = 0.95, dp = 2)
 list containing
 \itemize{
 \item scores summary of score per question
-\item total_scorer sum of scores across questions
+\item total_score sum of scores across questions
 }
 }
 \description{

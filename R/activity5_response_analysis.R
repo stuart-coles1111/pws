@@ -4,11 +4,12 @@
 #'
 #' @param G best guess
 #' @param S measure of accuracy
-#' @param Theta true answer
+#' @param Theta true answer (if data not NULL, just give index of dataset)
 #' @param alpha probability of interval
 #' @param lines add lines to plots
 #' @param final show plot for final score only (TRUE/FALSE)
 #' @param dp decimal places for score
+#' @param data dataset (if any) containing answers
 #'
 #' @returns graphical analysis of score for quiz question
 #' @examples
@@ -21,7 +22,7 @@ activity5_response_analysis <- function(G,
                              S,
                              Theta,
                              alpha = 0.95,
-                             lines = FALSE,
+                             lines = TRUE,
                              final_score_only = FALSE,
                              dp = 2) {
     #get score information

@@ -4,14 +4,14 @@
 \alias{activity5_response_score}
 \title{Quiz Score Calculation}
 \usage{
-activity5_response_score(G, S, T, alpha = 0.95, dp = 2)
+activity5_response_score(G, S, Theta, alpha = 0.95, dp = 2)
 }
 \arguments{
 \item{G}{vector of best guesses (one per question)}
 
 \item{S}{vector of measure of accuracy (one per question)}
 
-\item{T}{true answer (one per question)}
+\item{Theta}{true answer (one per question)}
 
 \item{alpha}{probability of interval}
 

@@ -9,9 +9,10 @@ activity5_response_analysis(
   S,
   Theta,
   alpha = 0.95,
-  lines = FALSE,
+  lines = TRUE,
   final_score_only = FALSE,
-  dp = 2
+  dp = 2,
+  data = NULL
 )
 }
 \arguments{
@@ -19,13 +20,15 @@ activity5_response_analysis(
 
 \item{S}{measure of accuracy}
 
-\item{Theta}{true answer}
+\item{Theta}{true answer (if data not NULL, just give index of dataset)}
 
 \item{alpha}{probability of interval}
 
 \item{lines}{add lines to plots}
 
 \item{dp}{decimal places for score}
+
+\item{data}{dataset (if any) containing answers}
 
 \item{final}{show plot for final score only (TRUE/FALSE)}
 }
