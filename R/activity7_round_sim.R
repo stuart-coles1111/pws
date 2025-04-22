@@ -1,4 +1,4 @@
-activity6_round_sim <-
+activity7_round_sim <-
     function(home_player,
              away_player,
              n_games_per_match = 5) {

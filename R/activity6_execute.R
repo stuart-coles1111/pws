@@ -1,18 +1,18 @@
-#' Execute Activity 7
+#' Execute Activity 6
 #'
-#' Individual execution of Activity 7 of Playing With Statistics
+#' Individual execution of Activity 6 of Playing With Statistics
 #'
 #' @param rand randomise settings? (TRUE/FALSE)
 #' @param seed value of seed for rnadom number generator
 #'
 #' @returns  NULL
 #' @examples
-#' activity7_execute()
+#' activity6_execute()
 #'
 #' @export
 #'
 #'
-activity7_execute <- function(rand = FALSE, seed = NULL){
+activity6_execute <- function(rand = FALSE, seed = NULL){
 
     if(!is.null(seed)) set.seed(seed)
 

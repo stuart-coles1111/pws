@@ -1,4 +1,4 @@
-#' Execute Activity 6
+#' Execute Activity 7
 #'
 #' Manage dice tournament in Activity 6 of Playing With Statistics
 #'
@@ -10,12 +10,12 @@
 #'
 #' @returns value of tournament winner and their win probability at point of estimation
 #' @examples
-#' activity6_run_tournament()
+#' activity7_run_tournament()
 #'
 #' @export
 #'
 #'
-activity6_run_tournament <- function(nrounds = 5,
+activity7_run_tournament <- function(nrounds = 5,
                             n_games_per_match = 5,
                             n_rounds_for_estimation = 2,
                             nsim = 1000,
@@ -64,7 +64,7 @@ activity6_run_tournament <- function(nrounds = 5,
     cont <- T
     while(cont){
         cont <- F
-        results <- readline("Enter number of home wins per game. Separate entries by space; finish with Return: ")
+        results <- readline("Enter number of home wins per match Separate entries by space; finish with Return: ")
         results <-  strsplit(results, "\\s+") %>% unlist
         if(length(results) != ng){
             cont <- T
@@ -117,7 +117,7 @@ activity6_run_tournament <- function(nrounds = 5,
         cont <- T
         while(cont){
             cont <- F
-            results <- readline("Enter number of home wins per game. Separate entries by space; finish with Return: ")
+            results <- readline("Enter number of home wins per match Separate entries by space; finish with Return: ")
             results <-  strsplit(results, "\\s+") %>% unlist
             if(length(results) != ng){
                 cont <- T
@@ -159,7 +159,7 @@ activity6_run_tournament <- function(nrounds = 5,
     invisible(readline(prompt="Press [enter] to continue"))
 
     pars <-
-        optim(c(0, 0, 0, 0), pws:::activity6_neg_log_lik, dice_history = estimation_df)$par
+        optim(c(0, 0, 0, 0), pws:::activity7_neg_log_lik, dice_history = estimation_df)$par
 
     cat("\n\n Parameter Estimates:\n")
     full_pars <- c(0, pars)
@@ -181,7 +181,7 @@ activity6_run_tournament <- function(nrounds = 5,
             home_colours_sim <- player_colours[players_home_sim]
             away_colours_sim <- player_colours[players_away_sim]
             results_sim <-
-                pws:::activity6_round_sim_using_fits(pars,
+                pws:::activity7_round_sim_using_fits(pars,
                                                      home_colours_sim,
                                                      away_colours_sim,
                                                      n_games_per_match = n_games_per_match)
@@ -240,7 +240,7 @@ activity6_run_tournament <- function(nrounds = 5,
         cont <- T
         while(cont){
             cont <- F
-            results <- readline("Enter number of home wins per game. Separate entries by space; finish with Return: ")
+            results <- readline("Enter number of home wins per match Separate entries by space; finish with Return: ")
             results <-  strsplit(results, "\\s+") %>% unlist
             if(length(results) != ng){
                 cont <- T

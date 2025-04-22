@@ -11,8 +11,7 @@ activity5_response_analysis(
   alpha = 0.95,
   lines = TRUE,
   final_score_only = FALSE,
-  dp = 2,
-  data = NULL
+  dp = 2
 )
 }
 \arguments{
@@ -28,9 +27,9 @@ activity5_response_analysis(
 
 \item{dp}{decimal places for score}
 
-\item{data}{dataset (if any) containing answers}
-
 \item{final}{show plot for final score only (TRUE/FALSE)}
+
+\item{data}{dataset (if any) containing answers}
 }
 \value{
 graphical analysis of score for quiz question

@@ -1,4 +1,4 @@
-activity6_round_sim_using_fits <-
+activity7_round_sim_using_fits <-
     function(pars,
              home_player,
              away_player,

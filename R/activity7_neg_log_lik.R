@@ -1,4 +1,4 @@
-activity6_neg_log_lik <- function(p, dice_history) {
+activity7_neg_log_lik <- function(p, dice_history) {
     colours <- c('blue', 'red', 'yellow', 'green')
     home_ind <- match(dice_history$home_colours, colours)
     away_ind <- match(dice_history$away_colours, colours)
