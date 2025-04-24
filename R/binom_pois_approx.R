@@ -13,17 +13,17 @@
 #'
 #' @returns graphical comparison of Binomial and Poisson probability distributions
 #' @examples
-#' binom_pois_approx(lambda=5)
+#' binom_pois_approx(lambda = 10)
 #'
 #' @export
 #'
 #'
 binom_pois_approx <-
-    function(lambda = 5,
-             step = 5,
+    function(lambda = 10,
+             step = 30,
              n = seq(lambda, lambda + 8 * step, by = step),
              ncol = 3,
-             scales = "fixed",
+             scales = "free",
              xlim = c(0, 3 * lambda),
              approx = TRUE) {
         labels <- paste0("n = ", n)

@@ -5,11 +5,11 @@
 \title{Binomial-Poisson approximation}
 \usage{
 binom_pois_approx(
-  lambda = 5,
-  step = 5,
+  lambda = 10,
+  step = 30,
   n = seq(lambda, lambda + 8 * step, by = step),
   ncol = 3,
-  scales = "fixed",
+  scales = "free",
   xlim = c(0, 3 * lambda),
   approx = TRUE
 )
@@ -36,6 +36,6 @@ graphical comparison of Binomial and Poisson probability distributions
 Compare Binomial and Poisson Distributions with Identical Means as function of n
 }
 \examples{
-binom_pois_approx(lambda=5)
+binom_pois_approx(lambda = 10)
 
 }
