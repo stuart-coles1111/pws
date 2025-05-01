@@ -256,7 +256,7 @@ server <- function(input, output, session) {
         bet_horse <- sample(1:6, nbets, replace = TRUE)
         bets_df <- data.frame(bet_times = bet_times, bet_team = bet_team, bet_horse = bet_horse)
         bets_df <- dplyr::arrange(bets_df, bet_times)
-        bets_df$proportions <- runif(nbets)
+        bets_df$proportions <- runif(nbets, 0, 0.1)
         values[["bets_df"]] <- bets_df
     })
 
