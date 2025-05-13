@@ -12,6 +12,10 @@ nominal_stake <- 100
 
 winnings_init <- rep(0, 10)
 
+bet_rate <- 5 # all other teams make at least 1 bet per race. bet_rate is average number of total bets per race above this number
+
+bet_proportion <- 0.1 # bet proportion sets  window for robo-bets. e.g. with 0.1, robo-bets are between 0% and 10% of current bank
+
 # function for race simulation
 simulate_race <- function(ratings = c(10, 40, 20, 60, 25, 30)){
     df <- data.frame(horse = 1:6, ratings = ratings)
@@ -39,7 +43,6 @@ colnames(bank) <- paste0("t", 1:nteams)
 pool <- matrix(as.integer(pool_init), nr = 1, nc = 6) %>% as.data.frame
 colnames(pool) <- c("Red Rum", "Secretariat", "Seabiscuit","Shergar","Galileo","Best Mate")
 
-#price <- sum(pool) /(pool + nominal_stake - pool_init) + 1
 price <- (sum(pool) + nominal_stake) /(pool + nominal_stake - pool_init)
 
 winnings <- data.frame()
@@ -49,9 +52,7 @@ ui <- shinydashboard::dashboardPage(skin = "green",
                                     shinydashboard::dashboardSidebar(
                                         width = 300,
 
-                                        shiny::selectInput("team", "Team", choices = list("Team 1" = 1, "Team 2" = 2, "Team 3" = 3, "Team 4" = 4
-                                                                                          , "Team 5" = 5, "Team 6" = 6, "Team 7" = 7, "Team 8" = 8
-                                                                                          , "Team 9" = 9, "Team 10" = 10), width='60%'),
+                                        shiny::selectInput("team", "Team", choices = list("Team 1" = 1), width='60%'),
 
                                         shiny::selectInput("horse", "Horse", choices = list("1: Red Rum" = 1, "2: Secretariat" = 2, "3: Seabiscuit" = 3, "4: Shergar" = 4
                                                                                             , "5: Galileo" = 5, "6: Best Mate" = 6), width='60%'),
@@ -182,74 +183,60 @@ server <- function(input, output, session) {
     })
 
 
-# this is an attempt to force stake enter button and enter bet values automatically
-# doesn't work but i think the shinyjs::click("stake_enter") is the correct way
-# but currently the bet is entered immediately without waiting and also team, horse, stake values are incorrect
-# also tried input$team etc but wasn't allowed. also tried to make values reactive but didn't work.
+
     shiny::observe({
 
-        # this is just for example purposes
-        # what i'd really like to do is activate the stake enter button automatically at specified time points
-        # with specified values of team, horse and stake
-        # of course, the app fails to pick up the correct values of team/horse/stake
-        # but there's another problem....
-        # the button gets clicked immediately and then every 5000 ms after
-        # whereas what i want is the button to be clicked just once after (say) 5000 ms
+        bets <- values[["bets_df"]]
 
-        shinyjs::click("stake_enter")
-        shiny::invalidateLater(5000)
-        auto_team <- 5
-        auto_horse <- 5
-        auto_stake <- 10
-        team <- auto_team %>% as.numeric
-        horse <- auto_horse %>% as.numeric
-        real_stake <- auto_stake * 100
+        bet_times <- unique(bets$bet_times)
+        bet_times_remaining <- allowed_time - bet_times
 
-        values$team_entry <- team
-        values$horse_entry <- horse
-        values$stake_entry <- real_stake
-        values$undo_status <- 0L
+        if (any(bet_times_remaining == remaining_time())) {
 
-        new_bank <- values$bank_updated[team] - real_stake
-        if(new_bank < 0){
-            values$undo_status <- 1L
-            shiny::showModal(shiny::modalDialog(title = "Pool message", "Negative Bank: Bet declined"))
-        }
-        else{
+            idx <- which(bet_times_remaining == remaining_time())
+
+            # which team bet
+            team <- as.numeric(bets[idx, "bet_team"])
+
+            # which horse bet
+            horse <- as.numeric(bets[idx, "bet_horse"])
+
+            real_stake <- round(as.numeric(values$bank_updated[team] * bets[idx, "proportions"]), 0)
+
+            new_bank <- values$bank_updated[team] - real_stake
+
             values$total_stake[horse, team] <- values$total_stake[horse, team] + real_stake
             values$current_pool[horse] <- values$current_pool[horse] + real_stake
             values$bank_updated[team] <- values$bank_updated[team] - real_stake
             values$price <- (sum(values$current_pool) + nominal_stake) / (values$current_pool + nominal_stake - pool_init)
-            commission <- (allowed_time-remaining_time())/allowed_time*commission_max
+            commission <- (allowed_time-remaining_time()) / allowed_time * commission_max
             values$commission_entry <- commission
             values$current_pool_adj[horse] <- values$current_pool_adj[horse] + ((real_stake * (1 - commission)) %>% round(-2))
             values$total_stake_net[horse, team] <- values$total_stake_net[horse, team] + ((real_stake * (1 - commission)) %>% round(-2))
+
+            # remove bet from values$bets - i.e get whatever bets are still remaining
+            values[["bets_df"]] <- values[["bets_df"]][-idx, ]
         }
-
-
     })
 
 
 
-# i've added this bit so that every time the start_timer button is pressed, to signify the start of the betting period
-    # for a new race, this stuff simulates the bet times, team number, horce number and staking proportion for
-    # all teams from 2-6 for this race. i've stored this here in bets_df. i'd then like to automatically click the
-    # "stake enter" button at the appropriate times and with these values of team and horse number, and with the
-    # stake calculated from the simulated proportion. (e.g. if bank is 1000 and proportion is 0.1, stake is 100 etc)
 
     shiny::observeEvent(input$start_timer, {
-        bet_rate <- 5
         bet_horse <- c()
-        nbets <- rpois(1, bet_rate) + 5
+        nbets <- rpois(1, bet_rate) + nteams - 1
         bet_times <- sample(1:(allowed_time-1), nbets)
-        bet_horse_ind <- sample(1:nbets, 5, replace = FALSE)
-        bet_horse[bet_horse_ind] <- 2:6
-        rem_ind <- setdiff(1:nbets,bet_horse_ind)
-        rem_horse <- sample(2:6, length(rem_ind), replace = TRUE)
-        bet_horse[rem_ind] <- rem_horse
-        bets_df <- data.frame(bet_times = bet_times, bet_horse = bet_horse)
+        bet_team_ind <- sample(1:nbets, nteams - 1, replace = FALSE)
+        bet_team <- rep(NA, nbets)
+        bet_team[bet_team_ind] <- 2:nteams
+        rem_ind <- setdiff(1:nbets,bet_team_ind)
+        rem_team <- sample(2:nteams, length(rem_ind), replace = TRUE)
+        bet_team[rem_ind] <- rem_team
+        bet_horse <- sample(1:6, nbets, replace = TRUE)
+        bets_df <- data.frame(bet_times = bet_times, bet_team = bet_team, bet_horse = bet_horse)
         bets_df <- dplyr::arrange(bets_df, bet_times)
-        bets_df$proportions <- runif(nbets)
+        bets_df$proportions <- runif(nbets, 0, bet_proportion)
+        values[["bets_df"]] <- bets_df
     })
 
     #define reactive values
@@ -269,9 +256,7 @@ server <- function(input, output, session) {
                                     stake_entry = 0L,
                                     commission_entry = 0L,
                                     undo_status = 1L,
-                                    auto_team = 2,
-                                    auto_horse = 3,
-                                    auto_stake = 5)
+                                    bets_df = data.frame())
 
     ## plot data.frames
 
@@ -292,7 +277,6 @@ server <- function(input, output, session) {
     })
 
     currentWinnings <- shiny::reactive({
-        #        validate(need(!is.null(winnings) && nrow(winnings) > 0, "Pending race result"))
         shiny::validate(need(values$racing_now == 1, ""))
         data.frame(team = 1:nteams,
                    winnings = values$winnings %>% as.numeric)
