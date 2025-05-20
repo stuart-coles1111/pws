@@ -6,6 +6,16 @@
 #'
 #' @export
 #'
+
+
 activity8_run_app_sim <- function() {
-    shiny::runApp("~/pws/inst/shiny/app_horse_race_game_sim.R")
+
+    appDir <- system.file("shiny", "app_horse_race_game_sim.R", package = "pws")
+
+    if (appDir == "") {
+        stop("Could not find directory pws. Try re-installing.", call. = FALSE)
+    }
+
+    shiny::runApp(appDir, display.mode = "normal")
 }
+
