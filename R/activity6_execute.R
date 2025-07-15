@@ -3,7 +3,7 @@
 #' Individual execution of Activity 6 of Playing With Statistics
 #'
 #' @param rand randomise settings? (TRUE/FALSE)
-#' @param seed value of seed for rnadom number generator
+#' @param seed Value of seed for rnadom number generator
 #'
 #' @returns  NULL
 #' @examples
@@ -73,33 +73,34 @@ activity6_execute <- function(rand = FALSE, seed = NULL){
         d1 <- pws:::mski_sim(ndata_1, weight = weight, mu = mu, sd = sd)
         cat('\nThese are your data:\n')
         print(d1)
-
-        d1_r <- reshape2::melt(d1, id.vars = c("jump_length"))
-
-        l1 <- lm(jump_length ~ technique, data = d1)$coefficients
-        l2 <- lm(jump_length ~ materials, data = d1)$coefficients
-        l3 <- lm(jump_length ~ fitness, data = d1)$coefficients
+        d1_r <- reshape2::melt(d1, id.vars = c("Jump_Length"))
+        colnames(d1_r)[3] <- "Value"
+        l1 <- lm(Jump_Length ~ Technique, data = d1)$coefficients
+        l2 <- lm(Jump_Length ~ Materials, data = d1)$coefficients
+        l3 <- lm(Jump_Length ~ Fitness, data = d1)$coefficients
 
         ta <- rbind(l1,l2,l3)
         colnames(ta) <- c('inctercept', 'gradient')
-        rownames(ta) <- c('technique', 'materials', 'fitness')
+        rownames(ta) <- c('Technique', 'Materials', 'Fitness')
 
         cat("\n")
         cat('Jump Length Regressions:')
         cat("\n")
         cat("\n")
 
-        (ggplot2::ggplot(d1_r, ggplot2::aes(value, jump_length)) +ggplot2::facet_wrap(~variable) +
-                ggplot2::geom_point(colour = "steelblue") + ggplot2::geom_smooth(method=lm, colour = "red")) %>%
-            print %>% suppressMessages
+        p <- (ggplot2::ggplot(d1_r, ggplot2::aes(Value, Jump_Length)) +ggplot2::facet_wrap(~variable) +
+                ggplot2::geom_point(colour = "steelblue") + ggplot2::geom_smooth(method=lm, colour = "red")) +
+        ggplot2::ylab("Jump Length (metres)") + ggplot2::theme(strip.text = ggplot2::element_text(size=18), axis.text=ggplot2::element_text(size=12),
+                                                               axis.title=ggplot2::element_text(size=14))
+            print (p) %>% suppressMessages
 
-        l1 <- lm(jump_length ~ technique, data = d1)$coefficients
-        l2 <- lm(jump_length ~ materials, data = d1)$coefficients
-        l3 <- lm(jump_length ~ fitness, data = d1)$coefficients
+        l1 <- lm(Jump_Length ~ Technique, data = d1)$coefficients
+        l2 <- lm(Jump_Length ~ Materials, data = d1)$coefficients
+        l3 <- lm(Jump_Length ~ Fitness, data = d1)$coefficients
 
         ta <- rbind(l1,l2,l3)
         colnames(ta) <- c('inctercept', 'gradient')
-        rownames(ta) <- c('technique', 'materials', 'fitness')
+        rownames(ta) <- c('Technique', 'Materials', 'Fitness')
 
         print(ta %>% round(2))
         cat("\n")
@@ -122,19 +123,19 @@ activity6_execute <- function(rand = FALSE, seed = NULL){
         fail <- FALSE
         cat(paste0('Choose spend on the 3 categories: Technique, Materials and Fitness: \n'), fill=T)
         cat("\n")
-        spend1 <- readline(prompt = "Enter 3 values separated by a comma: ") %>% strsplit(',') %>% unlist %>% as.numeric
+        spend1 <- readline(prompt = "Enter 3 Values separated by a comma: ") %>% strsplit(',') %>% unlist %>% as.numeric
         spend1 <- round(spend1, 2)
         if(length(spend1)!=3){
             fail <- TRUE
-            cat('3 values needed\n')
+            cat('3 Values needed\n')
         }
         else if(any(is.na(spend1))){
             fail <- TRUE
-            cat('all values must be numeric\n')
+            cat('all Values must be numeric\n')
         }
         else if(any(spend1 < 0)){
             fail <- TRUE
-            cat('all values must be positive\n')
+            cat('all Values must be positive\n')
         }
         else if(any(spend1 > 10)){
             fail <- TRUE
@@ -187,7 +188,8 @@ activity6_execute <- function(rand = FALSE, seed = NULL){
 
 
     d2 <- pws:::mski_sim(ndata_2, weight = weight, mu = mu, sd = sd)
-    d2_r <- reshape2::melt(rbind(d1,d2), id.vars = c("jump_length"))
+    d2_r <- reshape2::melt(rbind(d1,d2), id.vars = c("Jump_Length"))
+    colnames(d2_r)[3] <- "Value"
 
     if((ndata_1 + ndata_2) > 0){
         cat('These are your complete data:', fill=T)
@@ -197,30 +199,32 @@ activity6_execute <- function(rand = FALSE, seed = NULL){
         print(d1)
         cat("\n")
 
-        l1 <- lm(jump_length ~ technique, data = d1)$coefficients
-        l2 <- lm(jump_length ~ materials, data = d1)$coefficients
-        l3 <- lm(jump_length ~ fitness, data = d1)$coefficients
+        l1 <- lm(Jump_Length ~ Technique, data = d1)$coefficients
+        l2 <- lm(Jump_Length ~ Materials, data = d1)$coefficients
+        l3 <- lm(Jump_Length ~ Fitness, data = d1)$coefficients
 
         ta <- rbind(l1,l2,l3)
         colnames(ta) <- c('inctercept', 'gradient')
-        rownames(ta) <- c('technique', 'materials', 'fitness')
+        rownames(ta) <- c('Technique', 'Materials', 'Fitness')
 
         cat("\n")
         cat('Jump Length Regressions:')
         cat("\n")
         cat("\n")
 
-        (ggplot2::ggplot(d2_r, ggplot2::aes(value, jump_length)) +ggplot2::facet_wrap(~variable) +
-                ggplot2::geom_point(colour = "steelblue") + ggplot2::geom_smooth(method=lm, colour = "red")) %>%
-            print %>% suppressMessages
+        p <- (ggplot2::ggplot(d2_r, ggplot2::aes(Value, Jump_Length)) +ggplot2::facet_wrap(~variable) +
+                ggplot2::geom_point(colour = "steelblue") + ggplot2::geom_smooth(method=lm, colour = "red")) +
+        ggplot2::ylab("Jump Length (metres)") +  ggplot2::theme(strip.text = ggplot2::element_text(size=18), axis.text=ggplot2::element_text(size=12),
+                                                                  axis.title=ggplot2::element_text(size=14))
+            print(p) %>% suppressMessages
 
-        l1 <- lm(jump_length ~ technique, data = d1)$coefficients
-        l2 <- lm(jump_length ~ materials, data = d1)$coefficients
-        l3 <- lm(jump_length ~ fitness, data = d1)$coefficients
+        l1 <- lm(Jump_Length ~ Technique, data = d1)$coefficients
+        l2 <- lm(Jump_Length ~ Materials, data = d1)$coefficients
+        l3 <- lm(Jump_Length ~ Fitness, data = d1)$coefficients
 
         ta <- rbind(l1, l2, l3)
         colnames(ta) <- c('inctercept', 'gradient')
-        rownames(ta) <- c('technique', 'materials', 'fitness')
+        rownames(ta) <- c('Technique', 'Materials', 'Fitness')
 
         print(ta %>% round(2))
         cat("\n")
@@ -252,20 +256,20 @@ activity6_execute <- function(rand = FALSE, seed = NULL){
 
     while(fail){
         fail <- FALSE
-        spend2 <- readline(prompt = "Enter 3 values separated by a comma: ") %>% strsplit(',') %>% unlist %>% as.numeric
+        spend2 <- readline(prompt = "Enter 3 Values separated by a comma: ") %>% strsplit(',') %>% unlist %>% as.numeric
         cat("\n")
         spend2 <- round(spend2, 2)
         if(length(spend2)!=3){
             fail <- TRUE
-            cat('3 values needed\n')
+            cat('3 Values needed\n')
         }
         else if(any(is.na(spend2))){
             fail <- TRUE
-            cat('all values must be numeric\n')
+            cat('all Values must be numeric\n')
         }
         else if(any(spend2 < 0)){
             fail <- TRUE
-            cat('all values must be positive\n')
+            cat('all Values must be positive\n')
         }
         else if(any((spend1 + spend2) > 10)){
             fail <- TRUE

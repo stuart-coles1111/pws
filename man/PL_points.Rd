@@ -5,7 +5,7 @@
 \alias{PL_points}
 \title{Premier League Points per Team per Game}
 \format{
-A data frame with 580 rows and 4 columns
+A data frame with 11400 rows and 4 columns
 Each row corresponds to one team in one season of Premier League
 The columns give season, team, first-half-season points, second-half-season points
 }

@@ -1,6 +1,6 @@
 #' Quiz Answer Analysis
 #'
-#' Analyses response for a single question in Activity 5 of Playing With Statistics
+#' Analyses response for a single question in Activity 4 of Playing With Statistics
 #'
 #' @param G best guess
 #' @param S measure of accuracy
@@ -13,12 +13,12 @@
 #'
 #' @returns graphical analysis of score for quiz question
 #' @examples
-#' activity5_response_analysis(150, 20, activity5_quiz_answers$Answer[1], lines = T) # analysis of answer to question 1 of quiz
+#' activity4_response_analysis(150, 20, activity4_quiz_answers$Answer[1], lines = T) # analysis of answer to question 1 of quiz
 #'
 #' @export
 #'
 #'
-activity5_response_analysis <- function(G,
+activity4_response_analysis <- function(G,
                              S,
                              Theta,
                              alpha = 0.95,
@@ -26,7 +26,7 @@ activity5_response_analysis <- function(G,
                              final_score_only = FALSE,
                              dp = 2) {
     #get score information
-    score <- pws::activity5_response_score(G, S, Theta, alpha, dp = dp)
+    score <- pws::activity4_response_score(G, S, Theta, alpha, dp = dp)
     sigma <- score$sigma
     score <- score$scores
 

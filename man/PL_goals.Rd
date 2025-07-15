@@ -5,7 +5,7 @@
 \alias{PL_goals}
 \title{Premier League Total Goals per Game}
 \format{
-A data frame with 12406 rows and 3 columns
+A data frame with 12786 rows and 3 columns
 Each row corresponds to a Premier League fixture
 The columns give date, season and total goals
 }

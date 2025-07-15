@@ -1,6 +1,6 @@
-#' Quiz Answers for Activity 5
+#' Quiz Answers for Activity 4
 #'
-#' Answers to Quiz Questions in Activity 5 of Playing With Statistics
+#' Answers to Quiz Questions in Activity 4 of Playing With Statistics
 #'
 #' @format
 #' A data frame with 260 rows and 4 columns:
@@ -11,7 +11,7 @@
 #'
 #' @source {in-house}
 #' @examples
-#' subset(activity5_responses_sm, team == 1) # data from team 1
+#' subset(activity4_responses_sm, team == 1) # data from team 1
 #'
 #'
-"activity5_responses_sm"
+"activity4_responses_sm"

@@ -1,6 +1,6 @@
-#' Activity 2 game simulation
+#' Activity 5 game simulation
 #'
-#' Generates data from which your aim is to guess the parameter Theta, as described in Activity 2 of Playing With Statistics
+#' Generates data from which your aim is to guess the parameter Theta, as described in Activity 5 of Playing With Statistics
 #'
 #'
 #' @param n_rounds Number of rounds of simulated dice throws
@@ -14,11 +14,11 @@
 #'
 #' @returns  list containing simulated scores and their mean value
 #' @examples
-#' activity2_game_sim()
+#' activity5_game_sim()
 #'
 #' @export
 #'
-activity2_game_sim <-
+activity5_game_sim <-
     function(n_rounds = 30,
              plot = TRUE,
              n_bins = 10,

@@ -3,7 +3,7 @@
 #' Total Goals scored in Premier League fixtures from season 1993/94 to 2023/24
 #'
 #' @format
-#' A data frame with 12406 rows and 3 columns
+#' A data frame with 12786 rows and 3 columns
 #' Each row corresponds to a Premier League fixture
 #' The columns give date, season and total goals
 #'

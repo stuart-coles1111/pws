@@ -1,6 +1,6 @@
-#' Analyse Activity 2 with Different Number of Throws
+#' Analyse Activity 5 with Different Number of Throws
 #'
-#' Shows effect of sample size on standard error of estimate in Activity 2 of Playing With Statistics
+#' Shows effect of sample size on standard error of estimate in Activity 5 of Playing With Statistics
 #'
 #'
 #' @param n_rounds Vector of rounds of simulated dice throws
@@ -11,11 +11,11 @@
 #'
 #' @returns Standard errors calculated by resampling of estimates of Theta in Activity 2 with different numbers of throws of dice
 #' @examples
-#' activity2_se_by_size()
+#' activity5_se_by_size()
 #'
 #' @export
 #'
-activity2_se_by_size <- function(n_rounds = c(10, 25, 50, 100, 250, 500, 1000, 2500, 5000),
+activity5_se_by_size <- function(n_rounds = c(10, 25, 50, 100, 250, 500, 1000, 2500, 5000),
                                  nrep = 10000,
                                  Theta = 7.5,
                                  transform_n = F,
@@ -25,11 +25,11 @@ activity2_se_by_size <- function(n_rounds = c(10, 25, 50, 100, 250, 500, 1000, 2
     s <- c()
     for (i in 1:length(n_rounds)) {
         scores <-
-            activity2_game_sim(n_rounds = n_rounds[i],
+            activity5_game_sim(n_rounds = n_rounds[i],
                                Theta = Theta,
                                plot = FALSE)$score
         s[i] <-
-            activity2_se(scores, nrep = nrep, plot = FALSE, print_results = FALSE)[["sd"]]
+            activity5_se(scores, nrep = nrep, plot = FALSE, print_results = FALSE)[["sd"]]
     }
     df <-
         data.frame(

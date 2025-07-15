@@ -1,6 +1,6 @@
 #' Analysis of all team quiz answers
 #'
-#' Analyses of all team replies to all questions in Activity 5 of Playing With Statistics
+#' Analyses of all team replies to all questions in Activity 4 of Playing With Statistics
 #'
 #' @param response_matrix matrix of quiz repsonses
 #' @param answers true answers
@@ -14,11 +14,11 @@
 #' @export
 #'
 #'
-activity5_teams_analysis <-
+activity4_teams_analysis <-
     function(response_matrix, answers, alpha = 0.95, dp = 2) {
         nteams <- length(unique(response_matrix$team))
         score <-
             sapply(unique(response_matrix$team), function(x)
-                activity5_matrix_analysis(subset(response_matrix, team == x), answers, alpha = alpha, dp = dp)[[2]])
+                activity4_matrix_analysis(subset(response_matrix, team == x), answers, alpha = alpha, dp = dp)[[2]])
         data.frame(team = unique(response_matrix$team), score = score)
     }

@@ -1,6 +1,6 @@
 #' Quiz Score Calculation
 #'
-#' Calculates Score for one or more answers in Activity 5 of Playing With Statistics
+#' Calculates Score for one or more answers in Activity 4 of Playing With Statistics
 #'
 #' @param G vector of best guesses (one per question)
 #' @param S vector of measure of accuracy (one per question)
@@ -13,12 +13,12 @@
 #' - total_score: total score across all questions
 #' - sigma: transformed measure of accuracy (standard deviation) for each question
 #' @examples
-#' activity5_response_score(c(150, 100), c(20, 60), activity5_quiz_answers$Answer[1:2]) # get scores for first 2 questions
+#' activity4_response_score(c(150, 100), c(20, 60), activity5_quiz_answers$Answer[1:2]) # get scores for first 2 questions
 #'
 #' @export
 #'
 #'
-activity5_response_score <- function(G, S, Theta, alpha = 0.95, dp = 2) {
+activity4_response_score <- function(G, S, Theta, alpha = 0.95, dp = 2) {
     #calculate standard deviation based on probability of interval
     sigma <- S / qnorm((1 + alpha) / 2)
 

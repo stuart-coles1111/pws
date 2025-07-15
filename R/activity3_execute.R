@@ -1,18 +1,18 @@
-#' Execute Activity 4
+#' Execute Activity 3
 #'
-#' Individual execution of Activity 4 of Playing With Statistics
+#' Individual execution of Activity 3 of Playing With Statistics
 #'
 #' @param bank Initial bank size
 #' @param bankmax Maximum value of bank. If reached execution terminates.
 #'
-#' @returns  summary information from execution of activity 4
+#' @returns  summary information from execution of Activity 3
 #' @examples
-#' activity4_execute()
+#' activity3_execute()
 #'
 #' @export
 #'
 #'
-activity4_execute <- function(bank = 25, bankmax = 250) {
+activity3_execute <- function(bank = 25, bankmax = 250) {
     oldw <- getOption("warn")
     options(warn = -1)
     cat(fill = T)

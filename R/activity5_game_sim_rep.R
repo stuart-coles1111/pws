@@ -1,6 +1,6 @@
-#' Activity 2 repeat game simulation
+#' Activity 5 repeat game simulation
 #'
-#' Repeats the game described in Activity 2 of Playing With Statistics multiple times
+#' Repeats the game described in Activity 5 of Playing With Statistics multiple times
 #'
 #'
 #' @param n_rep Number of repeats of game
@@ -13,11 +13,11 @@
 #'
 #' @returns  list containing simulated scores and their mean value
 #' @examples
-#' activity2_game_sim_rep()
+#' activity5_game_sim_rep()
 #'
 #' @export
 #'
-activity2_game_sim_rep <-
+activity5_game_sim_rep <-
     function(n_rep = 1000,
              n_rounds = 30,
              Theta = NULL,
@@ -28,7 +28,7 @@ activity2_game_sim_rep <-
         if(!is.null(seed)) set.seed(seed)
         if(is.null(Theta)) Theta <- 7.5 # default hidden value of Theta
         if(rand_Theta) Theta <- sample(seq(1, 50, by = 0.25), 1) # randomised value of Theta if required
-        ests <- lapply(1:n_rep, function(x, n_rounds, Theta, seed) activity2_game_sim(n_rounds = n_rounds, Theta = Theta, seed = seed, plot = FALSE)$mean_score,
+        ests <- lapply(1:n_rep, function(x, n_rounds, Theta, seed) activity5_game_sim(n_rounds = n_rounds, Theta = Theta, seed = seed, plot = FALSE)$mean_score,
                        n_rounds = n_rounds, Theta = Theta, seed = seed) %>% unlist
         if(show_estimates)
             list(true_Theta = Theta, estimates = ests, mean_estimates = mean(ests)) %>% return

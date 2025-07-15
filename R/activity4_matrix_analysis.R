@@ -1,6 +1,6 @@
 #' Quiz Matrix Analysis
 #'
-#' Analyses response for a set of questions in Activity 5 of Playing With Statistics
+#' Analyses response for a set of questions in Activity 4 of Playing With Statistics
 #'
 #' @param score_matrix matrix of scores and best guesses
 #' @param answers true quiz answers
@@ -12,11 +12,11 @@
 #' - scores summary of score per question
 #' - total_score sum of scores across questions
 #' @examples
-#' team1_score  <- subset(activity5_responses_sm,team == 1)
-#' quiz_score_matrix(team1_score, activity5_quiz_answers) #scores per question and total score for team 1
+#' team1_score  <- subset(activity4_responses_sm,team == 1)
+#' quiz_score_matrix(team1_score, activity4_quiz_answers) #scores per question and total score for team 1
 #' @export
 #'
-activity5_matrix_analysis <-
+activity4_matrix_analysis <-
     function(score_matrix, answers, alpha = 0.95, dp = 2) {
         #calculate standard deviation based on probability of interval
         sigma <- score_matrix$S / qnorm((1 + alpha) / 2)

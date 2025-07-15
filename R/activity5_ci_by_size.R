@@ -1,6 +1,6 @@
-#' Analyse Activity 2 with Different Number of Throws
+#' Analyse Activity 5 with Different Number of Throws
 #'
-#' Shows effect of sample size on distribution of estimate in Activity 2 of Playing With Statistics
+#' Shows effect of sample size on distribution of estimate in Activity 5 of Playing With Statistics
 #'
 #'
 #' @param n_rounds Vector of rounds of simulated dice throws
@@ -13,12 +13,12 @@
 #'
 #' @returns  Confidence intervals for Theta in simulated repeats of Activity 2 with different numbers of throws of dice
 #' @examples
-#' activity2_ci_by_size()
+#' activity5_ci_by_size()
 #'
 #' @export
 #'
 #'
-activity2_ci_by_size <-
+activity5_ci_by_size <-
     function(n_rounds = c(10, 25, 50, 100, 250, 500, 1000, 2500, 5000),
              nrep = 10000,
              Theta = 7.5,
@@ -31,9 +31,9 @@ activity2_ci_by_size <-
         p <- qnorm((1+alpha)/2)
 
         for (i in 1:length(n_rounds)) {
-            scores <- activity2_game_sim(n_rounds = n_rounds[i], plot = FALSE)$score
+            scores <- activity5_game_sim(n_rounds = n_rounds[i], plot = FALSE)$score
             resample_out <-
-                activity2_se(scores, nrep = nrep, plot = FALSE, print_results = FALSE)
+                activity5_se(scores, nrep = nrep, plot = FALSE, print_results = FALSE)
             resample_mat <-
                 rbind(resample_mat, cbind(n_rounds[i], resample_out[["resample"]]))
         }

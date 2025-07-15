@@ -1,6 +1,6 @@
-#' Activity 2 resampling to obtain standard error of estimates
+#' Activity 5 resampling to obtain standard error of estimates
 #'
-#' Generates error plot of Theta estimates based on resampling, as described in Activity 2 of Playing With Statistics
+#' Generates error plot of Theta estimates based on resampling, as described in Activity 5 of Playing With Statistics
 #'
 #' @param dice_scores Values of original sample of scores
 #' @param nrep  Number of resamples
@@ -13,12 +13,12 @@
 #' @returns  invisible list containing mean, standard deviation, enumeration and quantiles of estimates based on resamples
 #' @examples
 #'
-#' estimates <- activity2_game_sim(plot = FALSE)
-#' activity2_se(estimates$score)
+#' estimates <- activity5_game_sim(plot = FALSE)
+#' activity5_se(estimates$score)
 #' @export
 #'
 #'
-activity2_se <-
+activity5_se <-
     function(dice_scores,
              nrep = 10000,
              alpha = .95,
