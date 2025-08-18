@@ -9,7 +9,7 @@
 #'
 #' @returns graphical analysis of score for quiz question
 #' @examples
-#' activity5_teams_analysis(activity5_responses_sm, activity5_quiz_answers) # analysis of answer to question 1 of quiz
+#' activity4_teams_analysis(activity5_responses_sm, activity4_quiz_answers) # analysis of answer to question 1 of quiz
 #'
 #' @export
 #'

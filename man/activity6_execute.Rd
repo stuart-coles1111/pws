@@ -9,7 +9,7 @@ activity6_execute(rand = FALSE, seed = NULL)
 \arguments{
 \item{rand}{randomise settings? (TRUE/FALSE)}
 
-\item{seed}{value of seed for rnadom number generator}
+\item{seed}{Value of seed for rnadom number generator}
 }
 \description{
 Individual execution of Activity 6 of Playing With Statistics

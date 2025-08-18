@@ -29,6 +29,6 @@ list containing:
 Calculates Score for one or more answers in Activity 4 of Playing With Statistics
 }
 \examples{
-activity4_response_score(c(150, 100), c(20, 60), activity5_quiz_answers$Answer[1:2]) # get scores for first 2 questions
+activity4_response_score(c(150, 100), c(20, 60), activity4_quiz_answers$Answer[1:2]) # get scores for first 2 questions
 
 }

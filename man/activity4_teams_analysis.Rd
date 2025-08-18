@@ -22,6 +22,6 @@ graphical analysis of score for quiz question
 Analyses of all team replies to all questions in Activity 4 of Playing With Statistics
 }
 \examples{
-activity5_teams_analysis(activity5_responses_sm, activity5_quiz_answers) # analysis of answer to question 1 of quiz
+activity4_teams_analysis(activity5_responses_sm, activity4_quiz_answers) # analysis of answer to question 1 of quiz
 
 }
