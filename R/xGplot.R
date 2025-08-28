@@ -14,7 +14,7 @@
 #'
 xGplot <- function(xG_data, plotlim = 60) {
 
-        xG_data$data$goal <- factor(xG_data$data$goal)
+    xG_data$data$goal <- factor(xG_data$data$goal)
 
     pl1 <- ggplot2::ggplot(subset(xG_data$data, body == "Foot")) +
         ggplot2::geom_point(ggplot2::aes(x, y, color = goal), size = 0.1) +
@@ -23,7 +23,8 @@ xGplot <- function(xG_data, plotlim = 60) {
         ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) +
         ggplot2::xlab("x") +
         ggplot2::ylab("y") +
-        ggplot2::theme(axis.title = ggplot2::element_text(face="italic"))
+        ggplot2::theme(axis.title = ggplot2::element_text(face="italic")) +
+        ggplot2::guides(color = ggplot2::guide_legend(override.aes = list(size = 1)))
 
     pl2 <- ggplot2::ggplot(subset(xG_data$data, body == "Head")) +
         ggplot2::geom_point(ggplot2::aes(x, y, color = goal), size = 0.1) +
@@ -31,7 +32,8 @@ xGplot <- function(xG_data, plotlim = 60) {
         ggplot2::ggtitle("Head") +
         ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) +
         ggplot2::xlab("x") + ggplot2::ylab("y") +
-        ggplot2::theme(axis.title = ggplot2::element_text(face="italic"))
+        ggplot2::theme(axis.title = ggplot2::element_text(face="italic")) +
+        ggplot2::guides(color = ggplot2::guide_legend(override.aes = list(size = 1)))
 
     mod <- xGfit(xG_data)$model
     x <- seq(-plotlim, plotlim, length = 100)

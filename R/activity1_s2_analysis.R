@@ -45,24 +45,24 @@ activity1_s2_analysis <- function(data_mat,
                   freqs = probs * n_throws
               ))
     method <-
-        rep(c("observed", "theoretical"), c(length(x_range), length(x_range)))
+        rep(c("Observed", "Theoretical"), c(length(x_range), length(x_range)))
     plot_df$method <- method
     if (include_data) {
         p <-
             ggplot2::ggplot(plot_df, ggplot2::aes(x, freqs, fill = method)) +
             ggplot2::geom_bar(stat = "identity", position = 'dodge2', width = 2 * width) +
-            ggplot2::xlab("Longest run") + ggplot2::ylab("Frequency") +
+            ggplot2::xlab("Longest Run") + ggplot2::ylab("Frequency") +
             ggplot2::scale_fill_manual(values = c("#F8766D", "#00BFC4")) +
             ggplot2::labs(fill = "Frequencies")
     }
     else{
         p <-
             ggplot2::ggplot(
-                subset(plot_df, method == "theoretical"),
+                subset(plot_df, method == "Theoretical"),
                 ggplot2::aes(x, probs, fill = method)
             ) +
             ggplot2::geom_bar(stat = "identity", position = 'dodge2', width = width) +
-            ggplot2::xlab("Longest run") + ggplot2::ylab("Probability") +
+            ggplot2::xlab("Longest Run") + ggplot2::ylab("Probability") +
             ggplot2::theme(legend.position = "none") +
             ggplot2::scale_fill_manual(values = c("#00BFC4")) +
             ggplot2::labs(fill = "Probabilities")

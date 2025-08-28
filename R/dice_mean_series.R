@@ -31,5 +31,7 @@ dice_mean_series <- function(n_rolls = 1000,
         ggplot2::geom_abline(intercept = 3.5, slope = 0,colour = "indianred4") +
         ggplot2::ylim(1, 6)  +
         ggplot2::facet_wrap(. ~ run, labeller = ggplot2::labeller(number = labels),  ncol = ncol) +
-        ggplot2::theme(strip.text.x = ggplot2::element_blank())
+        ggplot2::theme(strip.text.x = ggplot2::element_blank()) +
+        ggplot2::xlab("Roll Number") +
+        ggplot2::ylab("Rolling Mean Score")
 }

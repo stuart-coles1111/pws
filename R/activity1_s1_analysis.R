@@ -40,7 +40,7 @@ activity1_s1_analysis <- function(data_mat,
                   freqs = probs * n_throws
               ))
     method <-
-        rep(c("observed", "theoretical"), c(length(x_range), length(x_range)))
+        rep(c("Observed", "Theoretical"), c(length(x_range), length(x_range)))
     plot_df$method <- method
     if (include_data) {
         p <-
@@ -53,7 +53,7 @@ activity1_s1_analysis <- function(data_mat,
     else{
         p <-
             ggplot2::ggplot(
-                subset(plot_df, method == "theoretical"),
+                subset(plot_df, method == "Theoretical"),
                 ggplot2::aes(x, probs, fill = method)
             ) + ggplot2::geom_bar(stat = "identity", position = 'dodge2', width = width) +
             ggplot2::xlab("Number of Heads") + ggplot2::ylab("Probability") +
