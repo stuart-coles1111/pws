@@ -16,7 +16,7 @@ in-house
 PL_predicted_goals
 }
 \description{
-Predicted and observed goals per fixture in sereis of Premier League fixtures
+Predicted and observed goals per fixture in series of Premier League fixtures
 }
 \examples{
 

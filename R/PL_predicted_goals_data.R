@@ -1,6 +1,6 @@
 #' Predicted GOals in Premier League Fixtures
 #'
-#' Predicted and observed goals per fixture in sereis of Premier League fixtures
+#' Predicted and observed goals per fixture in series of Premier League fixtures
 #'
 #' @format
 #' A data frame with 6302 rows and 3 columns

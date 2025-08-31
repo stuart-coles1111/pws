@@ -16,7 +16,7 @@ The columns give date, season and total goals
 PL_goals
 }
 \description{
-Total Goals scored in Premier League fixtures from season 1993/94 to 2023/24
+Total Goals scored in Premier League fixtures from season 1993/94 to 2024/25
 }
 \examples{
 

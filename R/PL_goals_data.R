@@ -1,6 +1,6 @@
 #' Premier League Total Goals per Game
 #'
-#' Total Goals scored in Premier League fixtures from season 1993/94 to 2023/24
+#' Total Goals scored in Premier League fixtures from season 1993/94 to 2024/25
 #'
 #' @format
 #' A data frame with 12786 rows and 3 columns
