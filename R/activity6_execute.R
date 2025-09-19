@@ -3,7 +3,7 @@
 #' Individual execution of Activity 6 of Playing With Statistics
 #'
 #' @param rand randomise settings? (TRUE/FALSE)
-#' @param seed Value of seed for rnadom number generator
+#' @param seed Value of seed for random number generator
 #'
 #' @returns  NULL
 #' @examples
