@@ -12,12 +12,12 @@
 #' @export
 #'
 #'
-activity6_execute <- function(rand = FALSE, seed = NULL){
+activity6_execute <- function(rand = FALSE, seed = NULL, wr = 254.5){
 
     if(!is.null(seed)) set.seed(seed)
 
     #base mean....
-    mu <- 193
+    mu <- wr - 60.5
 
     if(rand == TRUE){
         weight <- gtools::rdirichlet(1, rep(10, 3)) * 9
@@ -36,37 +36,37 @@ activity6_execute <- function(rand = FALSE, seed = NULL){
     bank_0 <- 10
     data_cost <- 10
     cat(fill=T)
-    cat(paste0('      *****************************       '), fill=T)
-    cat(paste0('Your objective is to beat the world record ski jump of 253.5 m'), fill=T)
-    cat(paste0('There is a training phase and a competition phase'), fill=T)
-    cat(paste0('In each phase you can spend resources in each of 3 categories: Technique, Materials and Fitness'), fill=T)
-    cat(paste0('You can also buy historical data to help you decide how to spend in these categories'), fill=T)
-    cat(paste0('In each phase you have a total of $10,000 to spend'), fill=T)
-    cat(paste0('Spending is measured in resource units: one unit corresponds to $1000'), fill=T)
-    cat(paste0('In each phase you can use some of your resources to buy data'), fill=T)
-    cat(paste0('Such data may be helpful in deciding how to allocate your remaining resources'), fill=T)
-    cat(paste0('One unit of resource buys 10 rows of data'), fill=T)
-    cat(paste0('The maximum spend in each of the 3 catgories over the 2 phases is 10 units'), fill=T)
-    cat(fill=T)
-    cat(paste0('      *****************************       '), fill=T)
+    cat(paste0(crayon::yellow('      *****************************       ')), fill=T)
+    cat(paste0(crayon::yellow('Your objective is to beat the world record ski jump of ',wr, ' m.')), fill=T)
+    cat(paste0(crayon::yellow('There is a training phase and a competition phase.')), fill=T)
+    cat(paste0(crayon::yellow('In each phase you can spend resources in each of 3 categories: Technique, Materials and Fitness.')), fill=T)
+    cat(paste0(crayon::yellow('In each phase you have a total of $10,000 to spend.')), fill=T)
+    cat(paste0(crayon::yellow('Spending is measured in resource units: one unit corresponds to $1000.')), fill=T)
+    cat(paste0(crayon::yellow('In each phase, making your resource allocation, you can use some of your resources to buy historical data.')), fill=T)
+    cat(paste0(crayon::yellow('These data may be helpful in deciding how best to allocate your remaining resources.')), fill=T)
+    cat(paste0(crayon::yellow('One unit of resource buys data from 10 historical jumps.')), fill=T)
+    cat(paste0(crayon::yellow('The maximum total spend on each of the 3 training catgories over the 2 phases is 10 units.')), fill=T)
+    cat(paste0(crayon::yellow('      *****************************       ')), fill=T)
     cat(fill=T)
     cat('Training Phase...')
     cat(fill=T)
 
     cat(paste0('Initial bank: ', bank_0, ' units\n'), fill=T)
     cat('You can buy data for analysis\n')
-    cat(paste0('1 unit buys ', data_cost, ' rows of data\n'), fill=T)
-    spend_1 <- readline(prompt = "How many units will you spend on data? \n ")  %>% as.numeric %>% round(1)
+    cat(paste0('1 unit buys data from ', data_cost, ' historical jumps\n'), fill=T)
+    spend_1 <- readline(prompt = "How many units will you spend on data? \n ")  %>% as.numeric %>% round(0)
 
     ndata_1 <- spend_1 * data_cost
-    bank <- (bank_0 - spend_1) %>% round(1)
+    bank <- (bank_0 - spend_1) %>% round(0)
 
-    while(bank < 0){
-        cat("Not enough money", fill=T)
-        ndata_1 <- readline(prompt = "How many rows of data would you like to buy? ")  %>% as.numeric
-        data_spend_1  <- ndata_1 / data_cost
-        bank <- (bank_0 - data_spend_1) %>% round(1)
-    }
+
+     while(bank < 0){
+         cat("Not enough money", fill=T)
+         spend_1 <- readline(prompt = "How many units will you spend on data? \n ")  %>% as.numeric %>% round(0)
+         ndata_1 <- spend_1 * data_cost
+         bank <- (bank_0 - spend_1) %>% round(0)
+     }
+
 
 
     if(ndata_1 > 0) {
@@ -126,25 +126,29 @@ activity6_execute <- function(rand = FALSE, seed = NULL){
         spend1 <- readline(prompt = "Enter 3 Values separated by a comma: ") %>% strsplit(',') %>% unlist %>% as.numeric
         spend1 <- round(spend1, 2)
         if(length(spend1)!=3){
+            cat("\n")
             fail <- TRUE
             cat('3 Values needed\n')
         }
         else if(any(is.na(spend1))){
+            cat("\n")
             fail <- TRUE
-            cat('all Values must be numeric\n')
+            cat('All Values must be numeric\n')
         }
         else if(any(spend1 < 0)){
+            cat("\n")
             fail <- TRUE
-            cat('all Values must be positive\n')
+            cat('All Values must be positive\n')
         }
         else if(any(spend1 > 10)){
+            cat("\n")
             fail <- TRUE
-            cat('maximum spend for each category is 10\n')
+            cat('Maximum spend for each category is 10\n')
         }
         else if(sum(spend1) > bank){
             fail <- TRUE
-            cat(paste0('maximum available total spend is ',bank),fill=T)
             cat("\n")
+            cat(paste0('Maximum available total spend is ',bank),fill=T)
         }
     }
 
@@ -156,7 +160,7 @@ activity6_execute <- function(rand = FALSE, seed = NULL){
     go <- readline(prompt = "Press any key for training jump\n")
 
     j1 <- pws:::ski_jump(c(tech_spend1, mat_spend1, fit_spend1), njump = 1, weight = weight, mu = mu, sd = sd)
-    cat('your training jump distance is...\n \n', j1, ' metres',fill = T)
+    cat('Your training jump distance is...\n \n', j1, ' metres',fill = T)
 
     cat("\n")
     go <- readline(prompt = "Press any key to continue\n")
@@ -169,21 +173,21 @@ activity6_execute <- function(rand = FALSE, seed = NULL){
     cat(paste0('Additional funds available: ', bank_0, ' units\n'), fill=T)
     cat('You can now buy additional data for analysis\n')
     cat("\n")
-    cat(paste0('1 unit buys ', data_cost, ' rows of data'), fill=T)
+    cat(paste0('1 unit buys data from ', data_cost, ' historical jumps\n'), fill=T)
     cat("\n")
-    spend_2 <- readline(prompt = "How many units will you spend on data? \n ")  %>% as.numeric %>% round(1)
+    spend_2 <- readline(prompt = "How many units will you spend on data? \n ")  %>% as.numeric %>% round(0)
     cat("\n")
 
 
     ndata_2 <- spend_2 * data_cost
-    bank <- (bank_0 - spend_2) %>% round(1)
+    bank <- (bank_0 - spend_2) %>% round(0)
 
 
     while(bank < 0){
         cat("Not enough money", fill=T)
-        ndata_2 <- readline(prompt = "How many rows of data would you like to buy? ")  %>% as.numeric
-        spend_2  <- ndata_2 / data_cost
-        bank <- (bank_0 - spend_2) %>% round(1)
+        spend_2 <- readline(prompt = "How many units will you spend on data? \n ")  %>% as.numeric %>% round(0)
+        ndata_2 <- spend_2 * data_cost
+        bank <- (bank_0 - spend_2) %>% round(0)
     }
 
 
@@ -243,7 +247,7 @@ activity6_execute <- function(rand = FALSE, seed = NULL){
     cat(paste0('Choose additional spending on the 3 categories: Technique, Materials and Fitness: \n'), fill=T)
     cat("\n")
 
-    cat(paste0('Maximum allowable remaining for each category is: \n'))
+    cat(paste0('Maximum allowable remaining spend for each category is: \n'))
     cat(paste0('Technique: ', 10 - tech_spend1,  '\n'))
     cat(paste0('Materials: ', 10 - mat_spend1,  '\n'))
     cat(paste0('Fitness: ', 10 - fit_spend1,  '\n'))
@@ -260,24 +264,29 @@ activity6_execute <- function(rand = FALSE, seed = NULL){
         cat("\n")
         spend2 <- round(spend2, 2)
         if(length(spend2)!=3){
+            cat("\n")
             fail <- TRUE
             cat('3 Values needed\n')
         }
         else if(any(is.na(spend2))){
+            cat("\n")
             fail <- TRUE
-            cat('all Values must be numeric\n')
+            cat('All Values must be numeric\n')
         }
         else if(any(spend2 < 0)){
+            cat("\n")
             fail <- TRUE
-            cat('all Values must be positive\n')
+            cat('All Values must be positive\n')
         }
         else if(any((spend1 + spend2) > 10)){
+            cat("\n")
             fail <- TRUE
-            cat('maximum spend for each category is 10\n')
+            cat('Maximum spend for each category is 10\n')
         }
         else if(sum(spend2) > bank){
             fail <- TRUE
-            cat(paste0('maximum available total spend is ',bank),fill=T)
+            cat("\n")
+            cat(paste0('Maximum available total spend is ',bank),fill=T)
             cat("\n")
         }
     }
@@ -290,26 +299,26 @@ activity6_execute <- function(rand = FALSE, seed = NULL){
     go <- readline(prompt = "Press any key for competition jump\n")
 
     j2 <- pws:::ski_jump(c(tech_spend1 + tech_spend2, mat_spend1 + mat_spend2, fit_spend1 + fit_spend2), njump = 1,  weight = weight, mu = mu, sd = sd)
-    cat('your competition jump distance is...', j2, ' metres', fill = T)
+    cat('Your competition jump distance is...', j2, ' metres', fill = T)
 
     cat("\n")
-    if(j2 > 253.5){
+    if(j2 >= wr){
         cat('*** CONGRATULATIONS ***')
         cat("\n")
         cat("\n")
-        cat(crayon::green('you beat the world record'))
+        cat(crayon::green('You beat the world record'))
     }
-    else cat(crayon::red('you failed to beat the world record'))
+    else cat(crayon::red('You failed to beat the world record'))
     cat("\n")
     cat("\n")
 
     if(rand == TRUE){
         cat("\n")
         cat("weights were:\n")
-        cat("Technique: ", weight[1] %>% round(1), fill=T)
-        cat("Materials: ", weight[2] %>% round(1), fill=T)
-        cat("Fitness: ", weight[3] %>% round(1), fill=T)
-        cat("Standard deviation: ", sd %>% round(1), fill=T)
+        cat("Technique: ", weight[1] %>% round(0), fill=T)
+        cat("Materials: ", weight[2] %>% round(0), fill=T)
+        cat("Fitness: ", weight[3] %>% round(0), fill=T)
+        cat("Standard deviation: ", sd %>% round(0), fill=T)
     }
     options(warn = 0)
 }

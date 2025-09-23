@@ -61,7 +61,8 @@ activity1_s2_analysis <- function(data_mat,
                 subset(plot_df, method == "Theoretical"),
                 ggplot2::aes(x, probs, fill = method)
             ) +
-            ggplot2::geom_bar(stat = "identity", position = 'dodge2', width = width) +
+            ggplot2::geom_point(colour = "steelblue", size = 2) +
+            ggplot2::geom_bar(stat = "identity", position = 'dodge2', width = width / 10) +
             ggplot2::xlab("Longest Run") + ggplot2::ylab("Probability") +
             ggplot2::theme(legend.position = "none") +
             ggplot2::scale_fill_manual(values = c("#00BFC4")) +
