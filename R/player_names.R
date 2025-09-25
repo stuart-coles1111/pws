@@ -7,5 +7,5 @@
 #'
 #' @source {in-house}
 #' @examples
-#' head(activity7_player_names) #list first few names
-"activity7_player_names"
+#' head(player_names) #list first few names
+"player_names"

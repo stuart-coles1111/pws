@@ -22,6 +22,6 @@ dataframe with columns:
 Facilitates randomisation of players in Activity 7 in Chapter 7 of Playing With Statistics
 }
 \examples{
-activity7_randomise_players(activity6_player_names) # randomise names in activity6_player_names
+activity7_randomise_players(player_names) # randomise names in player_names
 
 }

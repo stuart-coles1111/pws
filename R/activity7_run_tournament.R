@@ -163,7 +163,7 @@ activity7_run_tournament <- function(nrounds = 5,
 
     cat("\n\n Parameter Estimates:\n")
     full_pars <- c(0, pars)
-    pars_df <- data.frame(parameter = c("blue", "red", "green", "yellow", "home_adv"), value = full_pars %>% round(3))
+    pars_df <- data.frame(parameter = c("blue", "red", "green", "yellow", "home advantage"), value = full_pars %>% round(3))
 
     print(pars_df)
 

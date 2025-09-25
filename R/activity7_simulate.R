@@ -150,7 +150,7 @@ activity6_simulate<- function(nrounds = 5,
 
     cat("Parameter Estimates:\n")
     full_pars <- c(0, pars)
-    pars_df <- data.frame(parameter = c("blue", "red", "green", "yellow", "home_adv"), value = full_pars %>% round(3))
+    pars_df <- data.frame(parameter = c("blue", "red", "green", "yellow", "home advanatage"), value = full_pars %>% round(3))
 
     print(pars_df)
 

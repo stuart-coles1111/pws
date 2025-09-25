@@ -4,7 +4,7 @@
 \alias{activity6_execute}
 \title{Execute Activity 6}
 \usage{
-activity6_execute(rand = FALSE, seed = NULL)
+activity6_execute(rand = FALSE, seed = NULL, wr = 254.5)
 }
 \arguments{
 \item{rand}{randomise settings? (TRUE/FALSE)}
