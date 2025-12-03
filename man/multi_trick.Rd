@@ -4,12 +4,14 @@
 \alias{multi_trick}
 \title{Multi Trick}
 \usage{
-multi_trick(nrep = 10000, picture_value = 10)
+multi_trick(nrep = 10000, picture_value = 10, seed = NULL)
 }
 \arguments{
 \item{nrep}{number of repetitions}
 
 \item{picture_value}{score to give picture cards}
+
+\item{seed}{value of seed for random number generator}
 }
 \value{
 summary statistics from multiple trick runs
