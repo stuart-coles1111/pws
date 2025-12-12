@@ -8,13 +8,13 @@
 #' @param seed seed fo random number generator
 #'
 #' @returns  player's card and prediction
-#' @examples do_trick()
+#' @examples activity5_play_trick()
 #'
 #' @export
 #'
 #'
 
-do_trick <- function(picture_value = 10, time_pause = 1,
+activity5_play_trick <- function(picture_value = 10, time_pause = 1,
                      card_path = NULL, seed = NULL) {
 
     if(!is.null(seed)) set.seed(seed)

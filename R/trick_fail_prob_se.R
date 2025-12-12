@@ -16,6 +16,12 @@
 #'
 #'
 
+#trick_fail_prob_se <- function(trick_res, n_resample = 1000, seed = NULL){
+#    if(!is.null(seed)) set.seed(seed)
+#    resample <- rbinom(n_resample, trick_res$nrep, trick_res$fail_prob) / trick_res$nrep
+#    sd(resample)
+#}
+
 trick_fail_prob_se <- function(trick_res, n_resample = 1000, seed = NULL){
     if(!is.null(seed)) set.seed(seed)
     resample <- rbinom(n_resample, trick_res$nrep, trick_res$fail_prob) / trick_res$nrep

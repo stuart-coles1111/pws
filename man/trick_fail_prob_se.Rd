@@ -4,7 +4,7 @@
 \alias{trick_fail_prob_se}
 \title{Trick failure probability SE}
 \usage{
-trick_fail_prob_se(trick_res, n_resample = 10000, seed = NULL)
+trick_fail_prob_se(trick_res, n_resample = 1000, seed = NULL)
 }
 \arguments{
 \item{trick_res}{output from multi_trick}

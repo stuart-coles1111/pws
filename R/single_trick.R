@@ -1,4 +1,4 @@
-#' Single Trick
+#' Simulation of Trick
 #'
 #' Output of single trick simulation for Activity 5
 #'
@@ -8,13 +8,13 @@
 
 #'
 #' @returns  player and magician final card
-#' @examples single_trick()
+#' @examples activity5_simulate_trick()
 #'
 #' @export
 #'
 #'
 #'
-single_trick <- function(picture_value = 10, show_result = TRUE, seed = NULL){
+activity5_simulate_trick <- function(picture_value = 10, show_result = TRUE, seed = NULL){
     if(!is.null(seed)) set.seed(seed)
 
     c_value <- c("ace","two","three","four","five",
