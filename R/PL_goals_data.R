@@ -1,19 +1,32 @@
-#' Premier League Total Goals per Game
+#' Premier League match results (1992–2025)
 #'
-#' Total Goals scored in Premier League fixtures from season 1993/94 to 2024/25
+#' A dataset containing match results from the English Premier League,
+#' including dates, teams, and goals scored.
 #'
-#' @format
-#' A data frame with 12786 rows and 3 columns
-#' Each row corresponds to a Premier League fixture
-#' The columns give date, season and total goals
+#' @format A data frame with the following columns:
+#' \describe{
+#'   \item{season}{Season in "YYYY-YYYY" format}
+#'   \item{date}{Match date}
+#'   \item{home_team}{Home team name}
+#'   \item{away_team}{Away team name}
+#'   \item{home_goals}{Goals scored by home team}
+#'   \item{away_goals}{Goals scored by away team}
+#' }
 #'
-#' @source {https://www.football-data.co.uk/data.php}
+#' @details
+#' Data derived from the \code{EngSoccerData} package.
+#' Original data compiled by Tony Ladson and contributors.
+#'
+#' @source
+#' \code{EngSoccerData} R package.
+#'
 #' @examples
 #'
-#' mean(PL_goals$goals) # Find mean number of goals over all fixtures
+#' mean(PL_goals$home_goals) # Find mean number of home goals over all fixtures
 #'
-#' mean(subset(PL_goals$goals, PL_goals$season == "2023-24")) # Find mean number of goals over fixtures  2023/24 season
+#'subset(PL_goals$total_goals, PL_goals$season == "2023-2024") %>% mean # Find mean number of total goals over fixtures in 2023/24 season
 #'
-#' hist(PL_goals$goals, col="lightblue", xlab= "Number of Goals", main = "Histogram of goals per game in Premier League Matches") # histogram of all goals data
+#' hist(PL_goals$goal_diff, col="lightblue", xlab= "Number of Goals", main = "Histogram of goal difference per game in Premier League Matches") # histogram of all goals data
 #'
+#' @usage PL_goals
 "PL_goals"

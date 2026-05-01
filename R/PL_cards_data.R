@@ -8,5 +8,5 @@
 #' The columns give season, number of red cards, number of games, and rate of red cards per game
 #'
 #' @examples
-#' mean(PL_cards$rate1) # Mean number of red cards per game per season
+#' mean(PL_cards$rate) # Mean number of red cards per game per season
 "PL_cards"

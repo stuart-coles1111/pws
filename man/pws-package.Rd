@@ -6,7 +6,7 @@
 \alias{pws-package}
 \title{pws: Playing With Statistics}
 \description{
-This package contains functions and datasets referred to in "Playing With Statistics"
+Description: Tools and data for Playing With Statistics. Includes match data derived from the engsoccerdata package.
 }
 \author{
 \strong{Maintainer}: Stuart Coles \email{stuart.coles1111@gmail.com}

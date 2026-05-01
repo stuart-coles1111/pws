@@ -16,6 +16,6 @@ PL_cards
 Red cards per season in Premier League season 1992/93 to 2024/25
 }
 \examples{
-mean(PL_cards$rate1) # Mean number of red cards per game per season
+mean(PL_cards$rate) # Mean number of red cards per game per season
 }
 \keyword{datasets}

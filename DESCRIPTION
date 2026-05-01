@@ -3,9 +3,9 @@ Title: Playing With Statistics
 Version: 0.0.0.9000
 Authors@R: 
     person("Stuart", "Coles", , "stuart.coles1111@gmail.com", role = c("aut", "cre"))
-Description: This package contains functions and datasets referred to in "Playing With Statistics"
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+Description: Description: Tools and data for Playing With Statistics.
+    Includes match data derived from the engsoccerdata package.
+License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
