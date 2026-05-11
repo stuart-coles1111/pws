@@ -1,23 +1,33 @@
-#' Trick failure probability SE
+#' Standard error of trick failure probability
 #'
-#' Standard error calculation of trick failure probability for Activity 5
+#' Calculates the standard error of the estimated trick failure
+#' probability from `activity5_trick_analysis()` using repeated
+#' binomial resampling.
 #'
-#' @param trick_res output from multi_trick
-#' @param n_resample number of resamples
-#' @param seed value of seed for random number generator
+#' This simulation-based approach is used for pedagogical purposes
+#' to illustrate sampling variability and the concept of a standard
+#' error.
 #'
-#' @returns  value of standard error
-#' @examples trick_res <- activity5_trick_analysis()
-#'           activity5_prob_se(trick_res)
+#' @param trick_res Output from `activity5_trick_analysis()`.
+#' @param n_resample Number of resamples used in the simulation.
+#' @param seed Optional random seed for reproducibility.
+#'
+#' @return A numeric value giving the estimated standard error.
+#'
+#' @examples
+#' trick_res <- activity5_trick_analysis()
+#' activity5_prob_se(trick_res)
 #'
 #' @export
-#'
-#'
-#'
-#'
-
 activity5_prob_se <- function(trick_res, n_resample = 1000, seed = NULL){
+
     if(!is.null(seed)) set.seed(seed)
-    resample <- rbinom(n_resample, trick_res$nrep, trick_res$fail_prob) / trick_res$nrep
+
+    resample <- rbinom(
+        n_resample,
+        trick_res$nrep,
+        trick_res$fail_prob
+    ) / trick_res$nrep
+
     sd(resample)
 }
