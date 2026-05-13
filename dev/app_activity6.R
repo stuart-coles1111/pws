@@ -768,48 +768,42 @@ server <- function(input, output, session){
         colnames(d)[3] <- "Variable"
         colnames(d)[4] <- "Value"
 
-        capture.output(
+        ggplot(d, aes(Value, Jump_Length)) +
 
-            invisible(
+            facet_wrap(~Variable, scales = "free_x") +
 
-                ggplot(d, aes(Value, Jump_Length)) +
+            geom_point(
+                aes(colour = Phase),
+                alpha = 0.75,
+                size = 2.4
+            ) +
 
-                    facet_wrap(~Variable, scales = "free_x") +
+            scale_colour_manual(
+                values = c(
+                    "Training" = "#5DADE2",
+                    "Competition" = "#1B4F72"
+                )
+            ) +
 
-                    geom_point(
-                        aes(colour = Phase),
-                        alpha = 0.75,
-                        size = 2.4
-                    ) +
+            geom_smooth(
+                method = "lm",
+                colour = "#E63946",
+                se = FALSE,
+                linewidth = 1.2
+            ) +
 
-                    scale_colour_manual(
-                        values = c(
-                            "Training" = "#5DADE2",
-                            "Competition" = "#1B4F72"
-                        )
-                    ) +
+            theme_minimal(base_size = 16) +
 
-                    geom_smooth(
-                        method = "lm",
-                        colour = "#E63946",
-                        se = FALSE,
-                        linewidth = 1.2
-                    ) +
+            theme(
+                strip.text = element_text(size = 16, face = "bold"),
+                legend.position = "top"
+            ) +
 
-                    theme_minimal(base_size = 16) +
-
-                    theme(
-                        strip.text = element_text(size = 16, face = "bold"),
-                        legend.position = "top"
-                    ) +
-
-                    labs(
-                        x = "Investment",
-                        y = "Jump Length (m)",
-                        colour = "Data Source"
-                    )
+            labs(
+                x = "Investment",
+                y = "Jump Length (m)",
+                colour = "Data Source"
             )
-        )
     })
 
     # =====================================================
