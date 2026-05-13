@@ -41,6 +41,117 @@ ski_jump <- function(spend, weight, mu, sd){
 }
 
 # =========================================================
+# Shared Main Panel
+# =========================================================
+
+main_panel_ui <- function(show_comp_results = FALSE){
+
+    div(
+
+        fluidRow(
+
+            column(
+                4,
+
+                div(
+                    class = "metric-box",
+
+                    div(
+                        class = "metric-value",
+                        textOutput("training_bank")
+                    ),
+
+                    div(
+                        class = "metric-label",
+                        "Training Bank"
+                    )
+                )
+            ),
+
+            column(
+                4,
+
+                div(
+                    class = "metric-box",
+
+                    div(
+                        class = "metric-value",
+                        textOutput("competition_bank")
+                    ),
+
+                    div(
+                        class = "metric-label",
+                        "Competition Bank"
+                    )
+                )
+            ),
+
+            column(
+                4,
+
+                div(
+                    class = "metric-box",
+
+                    div(
+                        class = "metric-value",
+                        textOutput("total_data")
+                    ),
+
+                    div(
+                        class = "metric-label",
+                        "Historical Jumps"
+                    )
+                )
+            )
+        ),
+
+        div(
+            class = "card-style",
+
+            div(
+                class = "message-panel",
+                uiOutput(if(show_comp_results) "status_message_comp" else "status_message")
+            )
+        ),
+
+        div(
+            class = "card-style",
+
+            h3("Historical Jump Data"),
+
+            DTOutput(if(show_comp_results) "data_table_comp" else "data_table")
+        ),
+
+        div(
+            class = "card-style",
+
+            h3("Regression Analysis"),
+
+            plotOutput(
+                if(show_comp_results) "regression_plot_comp" else "regression_plot",
+                height = "550px"
+            )
+        ),
+
+        div(
+            class = "card-style",
+
+            h3("Regression Coefficients"),
+
+            tableOutput(if(show_comp_results) "coef_table_comp" else "coef_table")
+        ),
+
+        div(
+            class = "card-style",
+
+            h3("Jump Outcomes"),
+
+            uiOutput(if(show_comp_results) "jump_results_comp" else "jump_results")
+        )
+    )
+}
+
+# =========================================================
 # UI
 # =========================================================
 
@@ -100,13 +211,11 @@ body{
 .main-title h1{
   font-weight:700;
   color:#1D3557;
-  margin-bottom:10px;
 }
 
 .main-title p{
   font-size:18px;
   color:#3D405B;
-  margin:0;
 }
 
 .card-style{
@@ -133,7 +242,6 @@ body{
   border-left:6px solid #89C2D9;
   padding:20px 24px;
   border-radius:16px;
-  margin-top:15px;
 }
 
 .message-text{
@@ -168,7 +276,6 @@ body{
   font-size:24px;
   font-weight:700;
   text-align:center;
-  margin-top:15px;
 }
 
 .fail-panel{
@@ -179,7 +286,6 @@ body{
   font-size:24px;
   font-weight:700;
   text-align:center;
-  margin-top:15px;
 }
 
 "))
@@ -190,27 +296,23 @@ body{
         version = 5,
         bootswatch = "lux",
         primary = "#7B9ACC",
-        bg = "#F6F8FC",
-        fg = "#2E3440",
         base_font = font_google("Inter")
     ),
 
     # =====================================================
-    # MAIN TAB
+    # TRAINING PAGE
     # =====================================================
 
     nav_panel(
 
-        "🎿 Interactive Competition",
+        "🎯 Training Phase",
 
         div(
             class = "main-title",
 
-            h1("🎿 Ski Jump World Record Challenge"),
+            h1("🎿 Ski Jump Training Camp"),
 
-            p(
-                "Use historical data to optimise your strategy and beat the world record."
-            )
+            p("Explore historical data and optimise your first jump.")
         ),
 
         layout_sidebar(
@@ -219,13 +321,9 @@ body{
 
                 class = "card-style",
 
-                h4("Competition Controls"),
+                h4("Game Setup"),
 
-                numericInput(
-                    "seed",
-                    "Random seed",
-                    123
-                ),
+                numericInput("seed", "Random seed", 123),
 
                 checkboxInput(
                     "random_weights",
@@ -241,7 +339,7 @@ body{
 
                 tags$hr(),
 
-                h4("Training Phase"),
+                h4("Training Data"),
 
                 numericInput(
                     "train_data_spend",
@@ -258,6 +356,8 @@ body{
                 ),
 
                 tags$hr(),
+
+                h4("Training Jump"),
 
                 numericInput(
                     "train_tech",
@@ -287,11 +387,36 @@ body{
                     "run_training",
                     "2: Run Training Jump",
                     class = "btn-primary"
-                ),
+                )
+            ),
 
-                tags$hr(),
+            main_panel_ui(FALSE)
+        )
+    ),
 
-                h4("Competition Phase"),
+    # =====================================================
+    # COMPETITION PAGE
+    # =====================================================
+
+    nav_panel(
+
+        "🏁 Competition Phase",
+
+        div(
+            class = "main-title",
+
+            h1("🏁 Final Competition"),
+
+            p("Use your remaining budget wisely and chase the world record.")
+        ),
+
+        layout_sidebar(
+
+            sidebar = div(
+
+                class = "card-style",
+
+                h4("Competition Data"),
 
                 numericInput(
                     "comp_data_spend",
@@ -308,6 +433,8 @@ body{
                 ),
 
                 tags$hr(),
+
+                h4("Competition Jump"),
 
                 numericInput(
                     "comp_tech",
@@ -340,109 +467,7 @@ body{
                 )
             ),
 
-            div(
-
-                fluidRow(
-
-                    column(
-                        4,
-
-                        div(
-                            class = "metric-box",
-
-                            div(
-                                class = "metric-value",
-                                textOutput("training_bank")
-                            ),
-
-                            div(
-                                class = "metric-label",
-                                "Training Bank"
-                            )
-                        )
-                    ),
-
-                    column(
-                        4,
-
-                        div(
-                            class = "metric-box",
-
-                            div(
-                                class = "metric-value",
-                                textOutput("competition_bank")
-                            ),
-
-                            div(
-                                class = "metric-label",
-                                "Competition Bank"
-                            )
-                        )
-                    ),
-
-                    column(
-                        4,
-
-                        div(
-                            class = "metric-box",
-
-                            div(
-                                class = "metric-value",
-                                textOutput("total_data")
-                            ),
-
-                            div(
-                                class = "metric-label",
-                                "Historical Jumps"
-                            )
-                        )
-                    )
-                ),
-
-                div(
-                    class = "card-style",
-
-                    div(
-                        class = "message-panel",
-                        uiOutput("status_message")
-                    )
-                ),
-
-                div(
-                    class = "card-style",
-
-                    h3("Historical Jump Data"),
-
-                    DTOutput("data_table")
-                ),
-
-                div(
-                    class = "card-style",
-
-                    h3("Regression Analysis"),
-
-                    plotOutput(
-                        "regression_plot",
-                        height = "550px"
-                    )
-                ),
-
-                div(
-                    class = "card-style",
-
-                    h3("Regression Coefficients"),
-
-                    tableOutput("coef_table")
-                ),
-
-                div(
-                    class = "card-style",
-
-                    h3("Jump Outcomes"),
-
-                    uiOutput("jump_results")
-                )
-            )
+            main_panel_ui(TRUE)
         )
     )
 )
@@ -480,9 +505,7 @@ server <- function(input, output, session){
 
         set.seed(input$seed)
 
-        true_mu <- 254.5
-
-        rv$mu <- true_mu - 60.5
+        rv$mu <- 254.5 - 60.5
 
         if(input$random_weights){
 
@@ -494,21 +517,11 @@ server <- function(input, output, session){
 
         } else {
 
-            rv$weight <- c(4, 2, 3)
+            rv$weight <- c(4,2,3)
             rv$sd <- 10
         }
 
         spend <- round(input$train_data_spend)
-
-        if(spend > 10){
-
-            showNotification(
-                "Cannot spend more than 10 units.",
-                type = "error"
-            )
-
-            return()
-        }
 
         rv$training_bank <- 10 - spend
 
@@ -528,16 +541,15 @@ server <- function(input, output, session){
             rv$all_data <- rv$d1
         }
 
-        output$status_message <- renderUI({
+        msg <- HTML(paste0(
+            "<div class='message-text'>
+            📊 Training data purchased:
+            <b>", ndata, "</b> historical jumps.
+            </div>"
+        ))
 
-            HTML(paste0(
-                "<div class='message-text'>
-                📊 Training data purchased:
-                <b>", ndata,
-                "</b> historical jumps.
-                </div>"
-            ))
-        })
+        output$status_message <- renderUI(msg)
+        output$status_message_comp <- renderUI(msg)
     })
 
     # =====================================================
@@ -563,29 +575,26 @@ server <- function(input, output, session){
         }
 
         rv$training_jump <- round(
-
             ski_jump(
                 spend,
                 rv$weight,
                 rv$mu,
                 rv$sd
             ),
-
             2
         )
 
         rv$train_complete <- TRUE
 
-        output$status_message <- renderUI({
+        msg <- HTML(paste0(
+            "<div class='message-text'>
+            🎿 Training jump completed:
+            <b>", rv$training_jump, " metres</b>
+            </div>"
+        ))
 
-            HTML(paste0(
-                "<div class='message-text'>
-                🎿 Training jump completed:
-                <b>", rv$training_jump,
-                " metres</b>
-                </div>"
-            ))
-        })
+        output$status_message <- renderUI(msg)
+        output$status_message_comp <- renderUI(msg)
     })
 
     # =====================================================
@@ -597,16 +606,6 @@ server <- function(input, output, session){
         req(rv$train_complete)
 
         spend <- round(input$comp_data_spend)
-
-        if(spend > 10){
-
-            showNotification(
-                "Cannot spend more than 10 units.",
-                type = "error"
-            )
-
-            return()
-        }
 
         rv$competition_bank <- 10 - spend
 
@@ -629,14 +628,13 @@ server <- function(input, output, session){
             )
         }
 
-        output$status_message <- renderUI({
+        output$status_message_comp <- renderUI({
 
             HTML(paste0(
                 "<div class='message-text'>
-                📈 Competition data added.
-                Total observations:
+                📈 Competition data added:
                 <b>", nrow(rv$all_data),
-                "</b>
+                "</b> total jumps.
                 </div>"
             ))
         })
@@ -673,31 +671,15 @@ server <- function(input, output, session){
             return()
         }
 
-        if(any(total_spend > 10)){
-
-            showNotification(
-                "Maximum total category spend is 10.",
-                type = "error"
-            )
-
-            return()
-        }
-
         rv$competition_jump <- round(
-
             ski_jump(
                 total_spend,
                 rv$weight,
                 rv$mu,
                 rv$sd
             ),
-
             2
         )
-
-        # ============================================
-        # CONFETTI
-        # ============================================
 
         if(rv$competition_jump >= input$wr){
 
@@ -707,7 +689,7 @@ server <- function(input, output, session){
             )
         }
 
-        output$status_message <- renderUI({
+        output$status_message_comp <- renderUI({
 
             HTML(paste0(
                 "<div class='message-text'>
@@ -720,7 +702,7 @@ server <- function(input, output, session){
     })
 
     # =====================================================
-    # BANK OUTPUTS
+    # Shared Outputs
     # =====================================================
 
     output$training_bank <- renderText({
@@ -738,118 +720,124 @@ server <- function(input, output, session){
         nrow(rv$all_data)
     })
 
-    # =====================================================
-    # DATA TABLE
-    # =====================================================
+    render_shared_outputs <- function(prefix = ""){
 
-    output$data_table <- renderDT({
+        output[[paste0("data_table", prefix)]] <- renderDT({
 
-        req(rv$all_data)
+            req(rv$all_data)
 
-        datatable(
-            rv$all_data,
-            options = list(pageLength = 8)
-        )
-    })
-
-    # =====================================================
-    # REGRESSION PLOT
-    # =====================================================
-
-    output$regression_plot <- renderPlot({
-
-        req(rv$all_data)
-
-        d <- reshape2::melt(
-            rv$all_data,
-            id.vars = c("Jump_Length", "Phase")
-        )
-
-        colnames(d)[3] <- "Variable"
-        colnames(d)[4] <- "Value"
-
-        ggplot(d, aes(Value, Jump_Length)) +
-
-            facet_wrap(~Variable, scales = "free_x") +
-
-            geom_point(
-                aes(colour = Phase),
-                alpha = 0.75,
-                size = 2.4
-            ) +
-
-            scale_colour_manual(
-                values = c(
-                    "Training" = "#5DADE2",
-                    "Competition" = "#1B4F72"
-                )
-            ) +
-
-            geom_smooth(
-                method = "lm",
-                colour = "#E63946",
-                se = FALSE,
-                linewidth = 1.2
-            ) +
-
-            theme_minimal(base_size = 16) +
-
-            theme(
-                strip.text = element_text(size = 16, face = "bold"),
-                legend.position = "top"
-            ) +
-
-            labs(
-                x = "Investment",
-                y = "Jump Length (m)",
-                colour = "Data Source"
+            datatable(
+                rv$all_data,
+                options = list(pageLength = 8)
             )
-    })
+        })
+
+        output[[paste0("regression_plot", prefix)]] <- renderPlot({
+
+            req(rv$all_data)
+
+            d <- melt(
+                rv$all_data,
+                id.vars = c("Jump_Length", "Phase")
+            )
+
+            colnames(d)[3:4] <- c("Variable", "Value")
+
+            ggplot(d, aes(Value, Jump_Length)) +
+
+                facet_wrap(~Variable, scales = "free_x") +
+
+                geom_point(
+                    aes(colour = Phase),
+                    alpha = 0.75,
+                    size = 2.4
+                ) +
+
+                scale_colour_manual(
+                    values = c(
+                        "Training" = "#5DADE2",
+                        "Competition" = "#1B4F72"
+                    )
+                ) +
+
+                geom_smooth(
+                    method = "lm",
+                    formula = y ~ x,
+                    colour = "#E63946",
+                    se = FALSE,
+                    linewidth = 1.2
+                ) +
+
+                theme_minimal(base_size = 16) +
+
+                theme(
+                    strip.text = element_text(face = "bold"),
+                    legend.position = "top"
+                ) +
+
+                labs(
+                    x = "Investment",
+                    y = "Jump Length (m)",
+                    colour = "Data Source"
+                )
+        })
+
+        output[[paste0("coef_table", prefix)]] <- renderTable({
+
+            req(rv$all_data)
+
+            l1 <- lm(Jump_Length ~ Technique,
+                     data = rv$all_data)$coefficients
+
+            l2 <- lm(Jump_Length ~ Materials,
+                     data = rv$all_data)$coefficients
+
+            l3 <- lm(Jump_Length ~ Fitness,
+                     data = rv$all_data)$coefficients
+
+            tab <- rbind(l1,l2,l3)
+
+            colnames(tab) <- c(
+                "Intercept",
+                "Gradient"
+            )
+
+            rownames(tab) <- c(
+                "Technique",
+                "Materials",
+                "Fitness"
+            )
+
+            round(tab,2)
+        })
+    }
+
+    render_shared_outputs("")
+    render_shared_outputs("_comp")
 
     # =====================================================
-    # REGRESSION TABLE
-    # =====================================================
-
-    output$coef_table <- renderTable({
-
-        req(rv$all_data)
-
-        l1 <- lm(
-            Jump_Length ~ Technique,
-            data = rv$all_data
-        )$coefficients
-
-        l2 <- lm(
-            Jump_Length ~ Materials,
-            data = rv$all_data
-        )$coefficients
-
-        l3 <- lm(
-            Jump_Length ~ Fitness,
-            data = rv$all_data
-        )$coefficients
-
-        tab <- rbind(l1, l2, l3)
-
-        colnames(tab) <- c(
-            "Intercept",
-            "Gradient"
-        )
-
-        rownames(tab) <- c(
-            "Technique",
-            "Materials",
-            "Fitness"
-        )
-
-        round(tab, 2)
-    })
-
-    # =====================================================
-    # RESULTS PANEL
+    # RESULTS PANELS
     # =====================================================
 
     output$jump_results <- renderUI({
+
+        req(rv$training_jump)
+
+        div(
+            class = "message-panel",
+
+            HTML(paste0(
+                "<div class='message-text'>
+                🎿 Training Jump:
+                <b>",
+                rv$training_jump,
+                " m</b>
+                </div>"
+            ))
+        )
+    })
+
+    output$jump_results_comp <- renderUI({
 
         req(rv$training_jump)
 
@@ -870,46 +858,46 @@ server <- function(input, output, session){
 
             if(!is.null(rv$competition_jump)){
 
-                div(
-                    class = "message-panel",
+                tagList(
 
-                    HTML(paste0(
-                        "<div class='message-text'>
-                        🏁 Competition Jump:
-                        <b>",
-                        rv$competition_jump,
-                        " m</b>
-                        </div>"
-                    ))
+                    div(
+                        class = "message-panel",
+
+                        HTML(paste0(
+                            "<div class='message-text'>
+                            🏁 Competition Jump:
+                            <b>",
+                            rv$competition_jump,
+                            " m</b>
+                            </div>"
+                        ))
+                    ),
+
+                    if(rv$competition_jump >= input$wr){
+
+                        div(
+                            class = "success-panel",
+
+                            paste0(
+                                "🏆 WORLD RECORD BROKEN! ",
+                                round(rv$competition_jump,2),
+                                " m"
+                            )
+                        )
+
+                    } else {
+
+                        div(
+                            class = "fail-panel",
+
+                            paste0(
+                                "❌ Record not beaten. Final jump: ",
+                                round(rv$competition_jump,2),
+                                " m"
+                            )
+                        )
+                    }
                 )
-            },
-
-            if(!is.null(rv$competition_jump)){
-
-                if(rv$competition_jump >= input$wr){
-
-                    div(
-                        class = "success-panel",
-
-                        paste0(
-                            "🏆 WORLD RECORD BROKEN! ",
-                            round(rv$competition_jump,2),
-                            " m"
-                        )
-                    )
-
-                } else {
-
-                    div(
-                        class = "fail-panel",
-
-                        paste0(
-                            "❌ Record not beaten. Final jump: ",
-                            round(rv$competition_jump,2),
-                            " m"
-                        )
-                    )
-                }
             }
         )
     })
