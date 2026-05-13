@@ -523,20 +523,43 @@ server <- function(input, output, session){
 
         spend <- round(input$train_data_spend)
 
-        rv$training_bank <- 10 - spend
+        # ---------------------------------------------
+        # FIXED: prevent overspending
+        # ---------------------------------------------
+
+        if(spend > rv$training_bank){
+
+            showNotification(
+                "Training data spend exceeds remaining bank.",
+                type = "error"
+            )
+
+            return()
+        }
+
+        rv$training_bank <- rv$training_bank - spend
 
         ndata <- spend * 10
 
         if(ndata > 0){
 
-            rv$d1 <- mski_sim(
+            new_data <- mski_sim(
                 ndata,
                 rv$weight,
                 rv$mu,
                 rv$sd
             )
 
-            rv$d1$Phase <- "Training"
+            new_data$Phase <- "Training"
+
+            if(is.null(rv$d1)){
+
+                rv$d1 <- new_data
+
+            } else {
+
+                rv$d1 <- rbind(rv$d1, new_data)
+            }
 
             rv$all_data <- rv$d1
         }
@@ -557,6 +580,8 @@ server <- function(input, output, session){
     # =====================================================
 
     observeEvent(input$run_training, {
+
+        req(rv$weight)
 
         spend <- c(
             input$train_tech,
@@ -607,25 +632,55 @@ server <- function(input, output, session){
 
         spend <- round(input$comp_data_spend)
 
-        rv$competition_bank <- 10 - spend
+        # ---------------------------------------------
+        # FIXED: prevent overspending
+        # ---------------------------------------------
+
+        if(spend > rv$competition_bank){
+
+            showNotification(
+                "Competition data spend exceeds remaining bank.",
+                type = "error"
+            )
+
+            return()
+        }
+
+        rv$competition_bank <- rv$competition_bank - spend
 
         ndata <- spend * 10
 
         if(ndata > 0){
 
-            rv$d2 <- mski_sim(
+            new_data <- mski_sim(
                 ndata,
                 rv$weight,
                 rv$mu,
                 rv$sd
             )
 
-            rv$d2$Phase <- "Competition"
+            new_data$Phase <- "Competition"
 
-            rv$all_data <- rbind(
-                rv$all_data,
-                rv$d2
-            )
+            if(is.null(rv$d2)){
+
+                rv$d2 <- new_data
+
+            } else {
+
+                rv$d2 <- rbind(rv$d2, new_data)
+            }
+
+            if(is.null(rv$all_data)){
+
+                rv$all_data <- new_data
+
+            } else {
+
+                rv$all_data <- rbind(
+                    rv$all_data,
+                    new_data
+                )
+            }
         }
 
         output$status_message_comp <- renderUI({
