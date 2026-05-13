@@ -760,7 +760,7 @@ server <- function(input, output, session){
 
         req(rv$all_data)
 
-        d <- melt(
+        d <- reshape2::melt(
             rv$all_data,
             id.vars = c("Jump_Length", "Phase")
         )
@@ -768,52 +768,48 @@ server <- function(input, output, session){
         colnames(d)[3] <- "Variable"
         colnames(d)[4] <- "Value"
 
-        ggplot(
-            d,
-            aes(Value, Jump_Length)
-        ) +
+        capture.output(
 
-            facet_wrap(
-                ~Variable,
-                scales = "free_x"
-            ) +
+            invisible(
 
-            geom_point(
-                aes(colour = Phase),
-                alpha = 0.75,
-                size = 2.4
-            ) +
+                ggplot(d, aes(Value, Jump_Length)) +
 
-            scale_colour_manual(
-                values = c(
-                    "Training" = "#5DADE2",
-                    "Competition" = "#1B4F72"
-                )
-            ) +
+                    facet_wrap(~Variable, scales = "free_x") +
 
-            geom_smooth(
-                method = "lm",
-                colour = "#E63946",
-                se = FALSE,
-                linewidth = 1.2
-            ) +
+                    geom_point(
+                        aes(colour = Phase),
+                        alpha = 0.75,
+                        size = 2.4
+                    ) +
 
-            theme_minimal(base_size = 16) +
+                    scale_colour_manual(
+                        values = c(
+                            "Training" = "#5DADE2",
+                            "Competition" = "#1B4F72"
+                        )
+                    ) +
 
-            theme(
-                strip.text = element_text(
-                    size = 16,
-                    face = "bold"
-                ),
+                    geom_smooth(
+                        method = "lm",
+                        colour = "#E63946",
+                        se = FALSE,
+                        linewidth = 1.2
+                    ) +
 
-                legend.position = "top"
-            ) +
+                    theme_minimal(base_size = 16) +
 
-            labs(
-                x = "Investment",
-                y = "Jump Length (m)",
-                colour = "Data Source"
+                    theme(
+                        strip.text = element_text(size = 16, face = "bold"),
+                        legend.position = "top"
+                    ) +
+
+                    labs(
+                        x = "Investment",
+                        y = "Jump Length (m)",
+                        colour = "Data Source"
+                    )
             )
+        )
     })
 
     # =====================================================
