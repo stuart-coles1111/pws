@@ -55,7 +55,7 @@ ui <- page_fluid(
     ),
 
     div(class = "main-title",
-        h1("🧠 Activity 2: Is it really 50–50?")
+        h1("🧠 Activity 2: Who wants to be a Danish millionaire?")
     ),
 
     uiOutput("page_ui")
@@ -103,7 +103,7 @@ server <- function(input, output, session){
                 column(12,
                        div(class = "card-style",
 
-                           h3("Final question (Who wants to be a millionaire?)"),
+                           h3("Final question"),
 
                            p("Which of these Danish comedy movies premiered first?"),
 
@@ -115,13 +115,13 @@ server <- function(input, output, session){
                            hr(),
 
                            h4("Balder’s information"),
-                           p("He knows Movie C is older than Movies A and B."),
-                           p("He does not know whether C or D is older."),
+                           p("* He knows Movie C is older than Movies A and B."),
+                           p("* He does not know whether C or D is older."),
 
                            hr(),
 
                            h4("Question"),
-                           p("Was Balder correct to quit and keep 500,000 kroner?"),
+                           p("Was Balder correct to quit and keep 500,000 kroner? Or should he have tried to win a million by answering correctly"),
 
                            actionButton("next1", "Explore reasoning →")
                        )
@@ -139,11 +139,16 @@ server <- function(input, output, session){
                 column(12,
                        div(class = "card-style",
 
-                           h3("Argument 1: Counting possible worlds"),
+                           h3("Argument 1: Counting the possible options"),
+
+                           p("List movies in chronological order."),
 
                            p("Assume all 24 possible orderings of A, B, C, D are equally likely."),
 
-                           p("We condition on the fact that C is older than A and B."),
+                           p("Then condition on the fact that C is older than A and B."),
+
+                           p("This leaves the following possibilities:"),
+
 
                            tags$div(
                                style="font-family:monospace; background:#F8F9FB; padding:10px; border-radius:10px;",
@@ -162,6 +167,9 @@ server <- function(input, output, session){
                            hr(),
 
                            p("In 6 of these 8 cases, C is older than D."),
+
+                           p("Each is equally likely, so..."),
+
 
                            div(class="big",
                                "P(C older than D) = 3/4"
