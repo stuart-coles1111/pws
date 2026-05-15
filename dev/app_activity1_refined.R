@@ -131,7 +131,7 @@ ui <- page_fluid(
         border-radius:12px;
         background:linear-gradient(90deg,#A8DADC,#CDB4DB);
         margin-bottom:15px;",
-        h1("🪙 Activity 1: The picture of randomness")
+        h1("🪙 Activity 1: Picturing randomness")
     ),
 
     layout_sidebar(
@@ -142,7 +142,7 @@ ui <- page_fluid(
 
             textAreaInput(
                 "user_seq",
-                "Enter 50 coin tosses (H/T)",
+                "Enter 50 imaginary coin tosses (H/T)",
                 placeholder =
                     "e.g. HTHTHTHT...",
                 height = "120px"
@@ -161,7 +161,7 @@ ui <- page_fluid(
 
             hr(),
 
-            h4("Upload class data"),
+            h4("Upload group data"),
 
             fileInput(
                 "upload_data",
@@ -226,7 +226,7 @@ ui <- page_fluid(
 
             card(
 
-                h4("Your values"),
+                h4("Sequence statistics"),
 
                 fluidRow(
 
@@ -261,7 +261,7 @@ ui <- page_fluid(
             ),
 
             card(
-                h4("Randomness summary"),
+                h4("Group results analysis"),
 
                 gt_output("stats_table")
             ),
