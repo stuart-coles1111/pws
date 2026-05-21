@@ -17,7 +17,6 @@ ui <- page_navbar(
         base_font = font_google("Inter")
     ),
 
-    # ✅ EVERYTHING non-nav goes inside header
     header = tagList(
 
         tags$style(HTML("
@@ -115,14 +114,14 @@ ui <- page_navbar(
 
                 checkboxInput(
                     "m_random_p",
-                    "Random probability",
+                    "Simulate probability of tails",
                     FALSE
                 ),
 
                 checkboxInput(
                     "m_show_p",
                     "Show probability",
-                    TRUE
+                    FALSE
                 ),
 
                 actionButton(
@@ -197,14 +196,14 @@ ui <- page_navbar(
 
                 checkboxInput(
                     "s_random_p",
-                    "Random probability",
+                    "Simulate probability of tails",
                     FALSE
                 ),
 
                 checkboxInput(
                     "s_show_p",
                     "Show probability",
-                    TRUE
+                    FALSE
                 ),
 
                 sliderInput(
@@ -287,7 +286,6 @@ ui <- page_navbar(
 
 server <- function(input, output, session){
 
-    bankmax <- 250
     duration <- 30 * 60
 
     make_state <- function(){
@@ -327,6 +325,31 @@ server <- function(input, output, session){
             0.4
         }
     }
+
+    reset_state(m, FALSE)
+    reset_state(s, FALSE)
+
+    # =====================================================
+    # UPDATE P(T)
+    # =====================================================
+
+    observeEvent(input$m_random_p, {
+
+        m$p_t <- if(input$m_random_p){
+            runif(1, 0.2, 0.8)
+        } else {
+            0.4
+        }
+    })
+
+    observeEvent(input$s_random_p, {
+
+        s$p_t <- if(input$s_random_p){
+            runif(1, 0.2, 0.8)
+        } else {
+            0.4
+        }
+    })
 
     # =====================================================
     # STAKE SYNC
@@ -467,7 +490,7 @@ server <- function(input, output, session){
 
             m$log <- c(
                 m$log,
-                "💀 BANKRUPT"
+                paste0("#", m$step + 1, " 💀 BANKRUPT")
             )
 
             return()
@@ -477,6 +500,8 @@ server <- function(input, output, session){
 
         result <- coin(m$p_t)
 
+        m$step <- m$step + 1
+
         if(result == input$m_bet){
 
             m$bank <- m$bank + stake
@@ -484,8 +509,11 @@ server <- function(input, output, session){
             m$log <- c(
                 m$log,
                 paste0(
-                    "🟢 WIN +$",
+                    "#", m$step,
+                    " 🟢 WIN +$",
                     stake,
+                    " | Result: ",
+                    result,
                     " | Bank: $",
                     round(m$bank,2)
                 )
@@ -498,8 +526,11 @@ server <- function(input, output, session){
             m$log <- c(
                 m$log,
                 paste0(
-                    "🔴 LOSS -$",
+                    "#", m$step,
+                    " 🔴 LOSS -$",
                     stake,
+                    " | Result: ",
+                    result,
                     " | Bank: $",
                     round(m$bank,2)
                 )
@@ -512,11 +543,9 @@ server <- function(input, output, session){
 
             m$log <- c(
                 m$log,
-                "💀 BANKRUPT"
+                paste0("#", m$step, " 💀 BANKRUPT")
             )
         }
-
-        m$step <- m$step + 1
 
         m$history <- rbind(
             m$history,
@@ -540,8 +569,12 @@ server <- function(input, output, session){
     observeEvent(input$s_start, {
 
         s$active <- TRUE
-        s$running <- TRUE
-        s$start_time <- Sys.time()
+
+        if(!s$running){
+
+            s$running <- TRUE
+            s$start_time <- Sys.time()
+        }
     })
 
     observeEvent(input$s_stop, {
@@ -564,7 +597,7 @@ server <- function(input, output, session){
 
                 s$log <- c(
                     s$log,
-                    "💀 BANKRUPT"
+                    paste0("#", s$step + 1, " 💀 BANKRUPT")
                 )
 
                 s$active <- FALSE
@@ -578,6 +611,8 @@ server <- function(input, output, session){
 
             result <- coin(s$p_t)
 
+            s$step <- s$step + 1
+
             if(result == input$s_bet){
 
                 s$bank <- s$bank + stake
@@ -585,8 +620,11 @@ server <- function(input, output, session){
                 s$log <- c(
                     s$log,
                     paste0(
-                        "🟢 WIN +$",
+                        "#", s$step,
+                        " 🟢 WIN +$",
                         stake,
+                        " | Result: ",
+                        result,
                         " | Bank: $",
                         round(s$bank,2)
                     )
@@ -599,8 +637,11 @@ server <- function(input, output, session){
                 s$log <- c(
                     s$log,
                     paste0(
-                        "🔴 LOSS -$",
+                        "#", s$step,
+                        " 🔴 LOSS -$",
                         stake,
+                        " | Result: ",
+                        result,
                         " | Bank: $",
                         round(s$bank,2)
                     )
@@ -613,13 +654,11 @@ server <- function(input, output, session){
 
                 s$log <- c(
                     s$log,
-                    "💀 BANKRUPT"
+                    paste0("#", s$step, " 💀 BANKRUPT")
                 )
 
                 s$active <- FALSE
             }
-
-            s$step <- s$step + 1
 
             s$history <- rbind(
                 s$history,
@@ -701,7 +740,6 @@ server <- function(input, output, session){
         )
     })
 
-    # ✅ FIXED geom_line warning
     output$m_plot <- renderPlot({
 
         req(nrow(m$history) > 1)
@@ -721,7 +759,6 @@ server <- function(input, output, session){
             theme_minimal()
     })
 
-    # ✅ FIXED geom_line warning
     output$s_plot <- renderPlot({
 
         req(nrow(s$history) > 1)
