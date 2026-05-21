@@ -462,7 +462,7 @@ server <- function(input, output, session){
                 legend.position = "none"
             ) +
             labs(x = "Outcome",
-                y="Expected happiness")
+                 y="Expected happiness")
     })
 
     output$decision_text <- renderUI({
