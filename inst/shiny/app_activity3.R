@@ -68,6 +68,13 @@ ui <- page_navbar(
                 border-radius:10px;
             }
 
+            .info-box{
+                background:#F8F9FB;
+                padding:18px;
+                border-radius:14px;
+                line-height:1.7;
+            }
+
         ")),
 
         div(
@@ -274,6 +281,211 @@ ui <- page_navbar(
                 div(
                     class = "log-box",
                     uiOutput("s_log_ui")
+                )
+            )
+        )
+    ),
+
+    # =====================================================
+    # SUMMARY TAB
+    # =====================================================
+
+    nav_panel(
+
+        "📘 Summary",
+
+        div(
+            class = "main-title",
+
+            h1("📘 Understanding the Betting Game"),
+
+            p(
+                "Key statistical ideas behind betting strategies, probability, and risk."
+            )
+        ),
+
+        fluidRow(
+
+            column(
+                6,
+
+                div(
+                    class = "card-style",
+
+                    h3("🪙 How the Game Works"),
+
+                    div(
+                        class = "info-box",
+
+                        tags$p(
+                            "The game repeatedly simulates bets on a biased coin."
+                        ),
+
+                        tags$p(
+                            "Players choose whether to bet on Heads or Tails and decide how much of their bank to risk."
+                        ),
+
+                        tags$p(
+                            "Each outcome changes the player's remaining bank, producing a dynamic process over time."
+                        ),
+
+                        tags$p(
+                            "Different staking strategies can dramatically affect long-term success."
+                        )
+                    )
+                )
+            ),
+
+            column(
+                6,
+
+                div(
+                    class = "card-style",
+
+                    h3("📈 Role of Simulation"),
+
+                    div(
+                        class = "info-box",
+
+                        tags$p(
+                            "Simulation allows repeated betting scenarios to be explored quickly."
+                        ),
+
+                        tags$p(
+                            "The app demonstrates how randomness can produce large variability in outcomes, even when probabilities remain fixed."
+                        ),
+
+                        tags$p(
+                            "By changing stake sizes and probabilities, users can investigate the balance between growth and risk."
+                        )
+                    )
+                )
+            )
+        ),
+
+        fluidRow(
+
+            column(
+                6,
+
+                div(
+                    class = "card-style",
+
+                    h3("📐 Mathematical Ideas"),
+
+                    div(
+                        class = "info-box",
+
+                        tags$ul(
+
+                            tags$li(
+                                "Expected value"
+                            ),
+
+                            tags$li(
+                                "Probability distributions"
+                            ),
+
+                            tags$li(
+                                "Random processes"
+                            ),
+
+                            tags$li(
+                                "Risk versus reward"
+                            ),
+
+                            tags$li(
+                                "Bankroll management"
+                            ),
+
+                            tags$li(
+                                "Simulation variability"
+                            ),
+
+                            tags$li(
+                                "Long-run behaviour"
+                            )
+                        )
+                    )
+                )
+            ),
+
+            column(
+                6,
+
+                div(
+                    class = "card-style",
+
+                    h3("🔍 Questions to Explore"),
+
+                    div(
+                        class = "info-box",
+
+                        tags$ul(
+
+                            tags$li(
+                                "How does stake size affect bankruptcy risk?"
+                            ),
+
+                            tags$li(
+                                "Can a favourable probability still lead to losses?"
+                            ),
+
+                            tags$li(
+                                "What happens when betting aggressively?"
+                            ),
+
+                            tags$li(
+                                "How important is randomness in short runs?"
+                            ),
+
+                            tags$li(
+                                "Which strategies produce more stable growth?"
+                            )
+                        )
+                    )
+                )
+            )
+        ),
+
+        fluidRow(
+
+            column(
+                12,
+
+                div(
+                    class = "card-style",
+
+                    h3("🧠 Interpretation"),
+
+                    div(
+                        class = "info-box",
+
+                        tags$p(
+                            "The betting simulation highlights an important statistical principle:"
+                        ),
+
+                        tags$blockquote(
+                            style = "
+                                font-size:22px;
+                                font-weight:700;
+                                color:#7B9ACC;
+                                border-left:5px solid #CDB4DB;
+                                padding-left:18px;
+                                margin-top:20px;
+                            ",
+
+                            "Even favourable odds do not guarantee success in the short term."
+                        ),
+
+                        tags$p(
+                            "Random variation, stake sizing, and repeated exposure to risk all influence long-run outcomes."
+                        ),
+
+                        tags$p(
+                            "These ideas are central to finance, gambling theory, insurance, and statistical modelling."
+                        )
+                    )
                 )
             )
         )
@@ -498,7 +710,6 @@ server <- function(input, output, session){
 
         stake <- round(input$m_stake_fixed)
 
-        # Reject impossible bets
         if(stake > m$bank){
 
             showNotification(
@@ -794,5 +1005,9 @@ server <- function(input, output, session){
             theme_minimal()
     })
 }
+
+# =========================================================
+# APP
+# =====================================================
 
 shinyApp(ui, server)
