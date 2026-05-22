@@ -318,31 +318,6 @@ CARD BADGES
 }
 
 /* =========================================
-SUMMARY STATS
-========================================= */
-
-.stat-box{
-    background:white;
-    border-radius:16px;
-    padding:18px;
-    text-align:center;
-    box-shadow:0 3px 10px rgba(0,0,0,0.06);
-    margin-bottom:15px;
-}
-
-.stat-value{
-    font-size:32px;
-    font-weight:800;
-    color:#7B9ACC;
-}
-
-.stat-label{
-    font-size:14px;
-    color:#6B7280;
-    margin-top:6px;
-}
-
-/* =========================================
 INFO BOX
 ========================================= */
 
@@ -368,10 +343,10 @@ INFO BOX
         div(
             class = "main-title",
 
-            h1("🪄 Activity 5: A Statistical Card Trick"),
+            h1("🪄 The Magician's Card Prediction"),
 
             p(
-                "A statistical investigation of a statistical trick"
+                "A mathematical card mystery powered by deterministic paths."
             )
         ),
 
@@ -548,65 +523,67 @@ INFO BOX
         div(
             class = "main-title",
 
-            h1("📘 Card Trick Summary"),
+            h1("📘 Understanding the Card Trick"),
 
             p(
-                "Interpret the simulation outcomes and explore the mathematics."
+                "Key mathematical ideas behind the magician's prediction."
             )
         ),
 
         fluidRow(
 
             column(
-                4,
+                6,
 
                 div(
-                    class = "stat-box",
+                    class = "card-style",
+
+                    h3("🃏 How the Trick Works"),
 
                     div(
-                        class = "stat-value",
-                        textOutput("summary_runs")
-                    ),
+                        class = "info-box",
 
-                    div(
-                        class = "stat-label",
-                        "Simulation Runs"
+                        tags$p(
+                            "The trick is based on deterministic counting paths."
+                        ),
+
+                        tags$p(
+                            "Both the player and the magician repeatedly move through the deck according to the numerical value of the current card."
+                        ),
+
+                        tags$p(
+                            "Although the starting cards may differ, the counting paths often merge, causing both players to finish on the same final card."
+                        ),
+
+                        tags$p(
+                            "This creates the illusion of a successful prediction."
+                        )
                     )
                 )
             ),
 
             column(
-                4,
+                6,
 
                 div(
-                    class = "stat-box",
+                    class = "card-style",
+
+                    h3("🎲 Role of Simulation"),
 
                     div(
-                        class = "stat-value",
-                        textOutput("summary_latest_fail")
-                    ),
+                        class = "info-box",
 
-                    div(
-                        class = "stat-label",
-                        "Latest Failure Probability"
-                    )
-                )
-            ),
+                        tags$p(
+                            "Monte Carlo simulation is used to estimate how frequently the trick fails."
+                        ),
 
-            column(
-                4,
+                        tags$p(
+                            "By repeatedly shuffling the deck and replaying the process thousands of times, we can approximate the probability of success."
+                        ),
 
-                div(
-                    class = "stat-box",
-
-                    div(
-                        class = "stat-value",
-                        textOutput("summary_best")
-                    ),
-
-                    div(
-                        class = "stat-label",
-                        "Best Picture Value"
+                        tags$p(
+                            "The simulation helps investigate how changing the picture-card value affects the reliability of the trick."
+                        )
                     )
                 )
             )
@@ -620,7 +597,7 @@ INFO BOX
                 div(
                     class = "card-style",
 
-                    h3("Key Findings"),
+                    h3("📐 Mathematical Ideas"),
 
                     div(
                         class = "info-box",
@@ -628,19 +605,27 @@ INFO BOX
                         tags$ul(
 
                             tags$li(
-                                "The trick follows deterministic counting paths."
+                                "Deterministic processes"
                             ),
 
                             tags$li(
-                                "Changing picture-card values alters the probability structure."
+                                "Random shuffling"
                             ),
 
                             tags$li(
-                                "Monte Carlo simulation estimates failure probability."
+                                "Monte Carlo methods"
                             ),
 
                             tags$li(
-                                "Confidence intervals measure simulation uncertainty."
+                                "Probability estimation"
+                            ),
+
+                            tags$li(
+                                "Simulation variability"
+                            ),
+
+                            tags$li(
+                                "Confidence intervals"
                             )
                         )
                     )
@@ -653,7 +638,7 @@ INFO BOX
                 div(
                     class = "card-style",
 
-                    h3("Ideas for Investigation"),
+                    h3("🔍 Questions to Explore"),
 
                     div(
                         class = "info-box",
@@ -661,19 +646,23 @@ INFO BOX
                         tags$ul(
 
                             tags$li(
-                                "Which picture-card value minimises failure probability?"
+                                "Why do the counting paths tend to merge?"
                             ),
 
                             tags$li(
-                                "How many simulations are needed for stability?"
+                                "Which picture-card value gives the most reliable trick?"
                             ),
 
                             tags$li(
-                                "How sensitive are the confidence intervals?"
+                                "How many simulations are needed for stable estimates?"
                             ),
 
                             tags$li(
-                                "Can the trick be explained graphically?"
+                                "How does randomness interact with deterministic rules?"
+                            ),
+
+                            tags$li(
+                                "Can the trick be represented as a graph or network?"
                             )
                         )
                     )
@@ -689,11 +678,31 @@ INFO BOX
                 div(
                     class = "card-style",
 
-                    h3("Simulation History"),
+                    h3("🧠 Interpretation"),
 
-                    plotOutput(
-                        "summary_history_plot",
-                        height = "400px"
+                    div(
+                        class = "info-box",
+
+                        tags$p(
+                            "The card trick demonstrates an important statistical idea:"
+                        ),
+
+                        tags$blockquote(
+                            style = "
+                                font-size:22px;
+                                font-weight:700;
+                                color:#7B9ACC;
+                                border-left:5px solid #CDB4DB;
+                                padding-left:18px;
+                                margin-top:20px;
+                            ",
+
+                            "Randomness in the setup can still produce highly predictable outcomes."
+                        ),
+
+                        tags$p(
+                            "This balance between randomness and structure appears throughout probability, statistics, computer science, and machine learning."
+                        )
                     )
                 )
             )
@@ -712,13 +721,13 @@ server <- function(input, output, session){
         updateNumericInput(
             session,
             "seed",
-            value = sample(1:999, 1)
+            value = sample(1:999,1)
         )
 
         updateNumericInput(
             session,
             "sim_seed",
-            value = sample(1:999, 1)
+            value = sample(1:999,1)
         )
     })
 
@@ -1221,81 +1230,6 @@ server <- function(input, output, session){
             theme_minimal(base_size = 14) +
 
             labs(
-                x = "Picture Card Value",
-                y = "Failure Probability"
-            )
-    })
-
-    # =====================================================
-    # SUMMARY TAB
-    # =====================================================
-
-    output$summary_runs <- renderText({
-
-        nrow(rv$sim_history)
-    })
-
-    output$summary_latest_fail <- renderText({
-
-        req(nrow(rv$sim_history) > 0)
-
-        round(
-            tail(rv$sim_history$fail_prob,1),
-            4
-        )
-    })
-
-    output$summary_best <- renderText({
-
-        req(nrow(rv$sim_history) > 0)
-
-        best <- rv$sim_history[
-            which.min(rv$sim_history$fail_prob),
-        ]
-
-        paste0(
-            "Value ",
-            best$picture_value
-        )
-    })
-
-    output$summary_history_plot <- renderPlot({
-
-        req(nrow(rv$sim_history) > 0)
-
-        df <- rv$sim_history
-
-        ggplot(
-            df,
-            aes(
-                picture_value,
-                fail_prob
-            )
-        ) +
-
-            geom_line(
-                color = "#7B9ACC",
-                linewidth = 1.4
-            ) +
-
-            geom_point(
-                color = "#CDB4DB",
-                size = 4
-            ) +
-
-            geom_errorbar(
-                aes(
-                    ymin = fail_prob - 1.96 * se,
-                    ymax = fail_prob + 1.96 * se
-                ),
-                width = 0.2,
-                linewidth = 1
-            ) +
-
-            theme_minimal(base_size = 15) +
-
-            labs(
-                title = "Failure Probability by Picture Value",
                 x = "Picture Card Value",
                 y = "Failure Probability"
             )
