@@ -498,6 +498,22 @@ server <- function(input, output, session){
 
         stake <- round(input$m_stake_fixed)
 
+        # Reject impossible bets
+        if(stake > m$bank){
+
+            showNotification(
+                paste0(
+                    "Invalid bet: you only have $",
+                    round(m$bank, 2),
+                    " remaining."
+                ),
+                type = "error",
+                duration = 4
+            )
+
+            return()
+        }
+
         result <- coin(m$p_t)
 
         m$step <- m$step + 1

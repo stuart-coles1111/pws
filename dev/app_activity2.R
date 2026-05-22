@@ -50,7 +50,7 @@ valid_order <- function(ord){
 perm_df$valid <- map_lgl(perm_df$ordering, valid_order)
 
 # =========================================================
-# UTILITY FUNCTION (REFERENCE POINT)
+# UTILITY FUNCTION
 # =========================================================
 
 reference_wealth <- 0.5
@@ -61,6 +61,13 @@ utility_function <- function(x, lambda = 1){
 
     ifelse(delta >= 0, delta, lambda * delta)
 }
+
+# =========================================================
+# DISTRIBUTION SETTINGS
+# =========================================================
+
+shape_param <- 2.2
+scale_param <- 18
 
 # =========================================================
 # UI
@@ -123,6 +130,14 @@ ui <- page_fluid(
                 line-height:1.7;
             }
 
+            .formula-box{
+                background:#F4F8FC;
+                border-radius:12px;
+                padding:18px;
+                margin-top:18px;
+                text-align:center;
+            }
+
         "))
     ),
 
@@ -147,18 +162,26 @@ server <- function(input, output, session){
 
     observeEvent(input$next1, { rv$page <- 2; rv$reveal <- FALSE })
     observeEvent(input$next2, rv$page <- 3)
-    observeEvent(input$next3, rv$page <- 4)
+    observeEvent(input$next3, rv$page <- 5)
 
     observeEvent(input$back1, rv$page <- 1)
     observeEvent(input$back2, rv$page <- 2)
-    observeEvent(input$back3, rv$page <- 3)
+    observeEvent(input$back3, rv$page <- 4)
 
     observeEvent(input$reveal_btn, rv$reveal <- TRUE)
 
+    observeEvent(input$why_formula, rv$page <- 4)
+
+    observeEvent(input$next4, rv$page <- 5)
+
+    observeEvent(input$back4, rv$page <- 3)
+
     observeEvent(input$reset, {
+
         rv$page <- 1
         rv$reveal <- FALSE
-        updateSliderInput(session, "fz", value = 0.6)
+
+        updateSliderInput(session, "z", value = 18)
         updateSliderInput(session, "lambda", value = 1)
         updateSliderInput(session, "p", value = 0.5)
     })
@@ -174,7 +197,9 @@ server <- function(input, output, session){
             fluidRow(
                 column(12,
                        div(class="card-style",
+
                            h3("Final question"),
+
                            p("Which Danish comedy movie premiered first?"),
 
                            div("A) Sover Dolly på Ryggen"),
@@ -191,8 +216,10 @@ server <- function(input, output, session){
 
                            hr(),
 
-                           p("The orderings below are written from youngest to oldest.",
-                             style="font-size:18px;"),
+                           p(
+                               "The orderings below are written from youngest to oldest.",
+                               style="font-size:18px;"
+                           ),
 
                            actionButton("next1", "Explore reasoning →")
                        )
@@ -213,24 +240,24 @@ server <- function(input, output, session){
                                if(!rv$reveal){
 
                                    HTML("
-                                Without additional information, all 24 orderings are equally likely.
-                                In 6 of these, C is oldest.<br><br>
+                                    Without additional information, all 24 orderings are equally likely.
+                                    In 6 of these, C is oldest.<br><br>
 
-                                <center style='font-size:28px;font-weight:700;'>
-                                P(C is oldest) = 6/24 = 1/4
-                                </center>
-                                ")
+                                    <center style='font-size:28px;font-weight:700;'>
+                                    P(C is oldest) = 6/24 = 1/4
+                                    </center>
+                                   ")
 
                                } else {
 
                                    HTML("
-                                After applying Balder’s information, 8 orderings remain.
-                                In 6 of these, C is oldest.<br><br>
+                                    After applying Balder’s information, 8 orderings remain.
+                                    In 6 of these, C is oldest.<br><br>
 
-                                <center style='font-size:28px;font-weight:700;'>
-                                P(C is oldest | info) = 6/8 = 3/4
-                                </center>
-                                ")
+                                    <center style='font-size:28px;font-weight:700;'>
+                                    P(C is oldest | info) = 6/8 = 3/4
+                                    </center>
+                                   ")
                                }
                            ),
 
@@ -240,6 +267,7 @@ server <- function(input, output, session){
                                actionButton("reveal_btn", "Apply information"),
 
                            div(class="perm-grid",
+
                                lapply(1:nrow(perm_df), function(i){
 
                                    row <- perm_df[i,]
@@ -249,7 +277,10 @@ server <- function(input, output, session){
                                        cls <- if(row$valid) "valid" else "invalid"
                                    }
 
-                                   div(class=paste("perm-box", cls), row$ordering)
+                                   div(
+                                       class=paste("perm-box", cls),
+                                       row$ordering
+                                   )
                                })
                            ),
 
@@ -257,21 +288,27 @@ server <- function(input, output, session){
 
                                div(
                                    style="
-                                margin-top:25px;
-                                padding:18px;
-                                background:#FFF3CD;
-                                border-left:6px solid #E0A800;
-                                border-radius:10px;
-                                font-size:18px;
-                                line-height:1.7;
-                                ",
-                                   HTML("<b>Reflection.</b><br>
-                                We assumed all remaining orderings are equally likely.<br><br>
-                                But is that reasonable? Could some still be more likely than others?")
+                                    margin-top:25px;
+                                    padding:18px;
+                                    background:#FFF3CD;
+                                    border-left:6px solid #E0A800;
+                                    border-radius:10px;
+                                    font-size:18px;
+                                    line-height:1.7;
+                                   ",
+
+                                   HTML("
+                                    <b>Reflection.</b><br>
+                                    We assumed all remaining orderings are equally likely.<br><br>
+
+                                    But is that reasonable?
+                                    Could some still be more likely than others?
+                                   ")
                                )
                            },
 
                            br(),
+
                            actionButton("back1", "← Back"),
                            actionButton("next2", "Next →")
                        )
@@ -284,18 +321,32 @@ server <- function(input, output, session){
             fluidRow(
 
                 column(4,
+
                        div(class="card-style",
+
                            h3("Probability model"),
 
-                           sliderInput("fz","F(z)",0,0.99,0.6,0.01),
+                           sliderInput(
+                               "z",
+                               "Threshold z",
+                               min = 0,
+                               max = 50,
+                               value = 18,
+                               step = 0.5
+                           ),
 
-                           p("As C becomes older, probability it is oldest increases.", class="explain"),
+                           div(
+                               class="formula-box",
 
-                           hr(),
+                               uiOutput("tail_probability")
+                           ),
 
-                           HTML("<div style='text-align:center;font-size:24px;'>
-                        P(C > D) = (1 + F(z))/2
-                        </div>"),
+                           br(),
+
+                           p(
+                               "As z increases, fewer movies are older than z, so P(C > z) becomes smaller.",
+                               class="explain"
+                           ),
 
                            actionButton("back2","← Back"),
                            actionButton("next3","Next →")
@@ -303,60 +354,241 @@ server <- function(input, output, session){
                 ),
 
                 column(8,
+
                        div(class="card-style",
 
                            h4("Conditional reasoning"),
 
                            plotOutput("dist_plot", height="450px"),
 
+                           div(
+                               style="
+                                    margin-top:20px;
+                                    padding:18px;
+                                    background:#F4F8FC;
+                                    border-left:6px solid #7B9ACC;
+                                    border-radius:10px;
+                                    font-size:20px;
+                                    line-height:1.8;
+                                    text-align:center;
+                               ",
+
+                               uiOutput("p_cd_panel")
+                           ),
+
                            br(),
 
-                           div(class="big", textOutput("p_display")),
+                           actionButton(
+                               "why_formula",
+                               "Why does this formula work?"
+                           ),
 
                            div(
                                style="
-                                margin-top:20px;
-                                padding:18px;
-                                background:#E8F4FD;
-                                border-left:6px solid #7B9ACC;
-                                border-radius:10px;
-                                font-size:18px;
-                                line-height:1.7;
-                            ",
-                               HTML("<b>Final thought.</b><br>
-                            Balder’s decision doesn’t depend only on the probability of winning.<br><br>
-                            It also depends on what he stands to gain or lose, and how much he values those outcomes.")
+                                    margin-top:20px;
+                                    padding:18px;
+                                    background:#E8F4FD;
+                                    border-left:6px solid #7B9ACC;
+                                    border-radius:10px;
+                                    font-size:18px;
+                                    line-height:1.7;
+                               ",
+
+                               HTML("
+                                <b>Final thought.</b><br>
+                                Balder’s decision doesn’t depend only on the probability of winning.<br><br>
+
+                                It also depends on what he stands to gain or lose,
+                                and how much he values those outcomes.
+                               ")
                            )
                        )
                 )
             )
         }
 
-        else {
+        else if(rv$page == 4){
 
             fluidRow(
-                column(4,
+
+                column(12,
+
                        div(class="card-style",
+
+                           h3("Why does the formula work?"),
+
+                           p(
+                               "We know that Movie C is older than z.",
+                               class="explain"
+                           ),
+
+                           p(
+                               "Now consider two possible cases for Movie D:",
+                               class="explain"
+                           ),
+
+                           fluidRow(
+
+                               column(
+                                   6,
+
+                                   div(
+                                       style="
+                                           background:#D8F3DC;
+                                           padding:20px;
+                                           border-radius:12px;
+                                           min-height:260px;
+                                       ",
+
+                                       h4("Case 1: D is younger than z"),
+
+                                       p(
+                                           "This happens with probability F(z).",
+                                           class="explain"
+                                       ),
+
+                                       p(
+                                           "If D is younger than z, then C must automatically be older than D.",
+                                           class="explain"
+                                       ),
+
+                                       div(
+                                           style='font-size:28px;font-weight:700;text-align:center;',
+                                           "Probability of success = 1"
+                                       )
+                                   )
+                               ),
+
+                               column(
+                                   6,
+
+                                   div(
+                                       style="
+                                           background:#F4F8FC;
+                                           padding:20px;
+                                           border-radius:12px;
+                                           min-height:260px;
+                                       ",
+
+                                       h4("Case 2: D is older than z"),
+
+                                       p(
+                                           "This happens with probability 1 − F(z).",
+                                           class="explain"
+                                       ),
+
+                                       p(
+                                           "Now both C and D are older than z.",
+                                           class="explain"
+                                       ),
+
+                                       p(
+                                           "Neither movie has an advantage, so each is equally likely to be older.",
+                                           class="explain"
+                                       ),
+
+                                       div(
+                                           style='font-size:28px;font-weight:700;text-align:center;',
+                                           "Probability of success = 1/2"
+                                       )
+                                   )
+                               )
+                           ),
+
+                           br(),
+
+                           div(
+                               style="
+                                   background:#FFF3CD;
+                                   padding:22px;
+                                   border-radius:12px;
+                                   text-align:center;
+                                   font-size:22px;
+                                   line-height:1.8;
+                               ",
+
+                               HTML("
+                               Overall probability
+                               <br><br>
+
+                               P(C > D)
+                               =
+                               F(z) × 1
+                               +
+                               (1 - F(z)) × 1/2
+                               <br><br>
+
+                               =
+                               (1 + F(z))/2
+                               ")
+                           ),
+
+                           br(),
+
+                           actionButton("back4","← Back"),
+                           actionButton("next4","Next →")
+                       )
+                )
+            )
+        }
+
+        else if(rv$page == 5){
+
+            fluidRow(
+
+                column(4,
+
+                       div(class="card-style",
+
                            h3("Loss aversion"),
 
                            sliderInput("lambda","λ",0,3,1,0.01),
                            sliderInput("p","Win Probability",0,1,0.5,0.01),
 
                            hr(),
+
                            actionButton("back3","← Back"),
                            actionButton("reset","Restart")
                        )
                 ),
 
                 column(8,
+
                        div(class="card-style",
 
+                           div(
+                               style="
+            margin-bottom:22px;
+            padding:18px;
+            background:#F4F8FC;
+            border-left:6px solid #7B9ACC;
+            border-radius:10px;
+            font-size:18px;
+            line-height:1.8;
+        ",
+
+                               HTML("
+        Whatever Balder’s calculation for the probabilities of the various movies being oldest,
+        he must also consider what he stands to gain or lose from answering the question,
+        and how much those outcomes matter to him.<br><br>
+
+        This can be analysed formally using <b>decision analysis</b>,
+        which combines probabilities with the happiness (or utility)
+        associated with different outcomes.<br><br>
+
+        The goal is to compare Balder’s <b>expected happiness</b>
+        under the different actions available to him.
+        ")
+                           ),
+
                            h4("Happiness function"),
+
                            plotOutput("utility_plot", height="300px"),
 
                            hr(),
 
                            h4("Expected happiness"),
+
                            plotOutput("eu_plot", height="300px"),
 
                            hr(),
@@ -369,58 +601,121 @@ server <- function(input, output, session){
     })
 
     # =====================================================
-    # PAGE 3
+    # PAGE 3 REACTIVES
     # =====================================================
 
-    output$p_display <- renderText({
-        fz <- input$fz
-        paste0("P(C > D) = ", round((1+fz)/2, 3))
+    current_values <- reactive({
+
+        z <- input$z
+
+        Fz <- pweibull(z, shape_param, scale_param)
+        tail_prob <- 1 - Fz
+
+        p_cd <- (1 + Fz)/2
+
+        list(
+            z = z,
+            Fz = Fz,
+            tail_prob = tail_prob,
+            p_cd = p_cd
+        )
+    })
+
+    output$tail_probability <- renderUI({
+
+        vals <- current_values()
+
+        HTML(paste0(
+            "<div style='font-size:28px;font-weight:700;'>
+            P(C > z) = ",
+            round(vals$tail_prob, 3),
+            "</div>"
+        ))
+    })
+
+    output$p_cd_panel <- renderUI({
+
+        vals <- current_values()
+
+        HTML(paste0(
+            "
+            <div style='font-size:20px; line-height:1.7;'>
+
+            It is straightforward to show that
+
+            <br><br>
+
+            <span style='font-size:28px;font-weight:600;'>
+            P(C &gt; D) = (1 + F(z))/2
+            </span>
+
+            <br><br>
+
+            Therefore,
+
+            <br><br>
+
+            <span style='font-size:38px;font-weight:700; color:#4A6FA5;'>
+            ", round(vals$p_cd, 3), "
+            </span>
+
+            </div>
+            "
+        ))
     })
 
     output$dist_plot <- renderPlot({
 
-        fz <- input$fz
-        shape <- 2.2
-        scale <- 18
+        vals <- current_values()
 
-        z <- qweibull(fz, shape, scale)
+        x <- seq(0, 50, length.out = 1000)
+        y <- dweibull(x, shape_param, scale_param)
 
-        x <- seq(0,50,length.out=1000)
-        y <- dweibull(x, shape, scale)
+        df <- data.frame(x, y)
 
-        df <- data.frame(x,y)
         ymax <- max(y)
 
-        ggplot(df, aes(x,y)) +
-            geom_area(fill="#DDE5F2") +
-            geom_area(data=subset(df, x>=z), fill="#7B9ACC") +
+        ggplot(df, aes(x, y)) +
 
-            annotate("segment",
-                     x=z,xend=z,y=0,yend=ymax,
-                     linetype="dashed", linewidth=1
+            geom_area(fill = "#DDE5F2") +
+
+            geom_area(
+                data = subset(df, x >= vals$z),
+                fill = "#7B9ACC"
             ) +
 
-            annotate("text",
-                     x=z,y=-0.003,label="z",
-                     size=7,fontface="bold"
+            annotate(
+                "segment",
+                x = vals$z,
+                xend = vals$z,
+                y = 0,
+                yend = ymax,
+                linetype = "dashed",
+                linewidth = 1
             ) +
 
-            coord_cartesian(clip="off") +
+            annotate(
+                "text",
+                x = vals$z,
+                y = -0.003,
+                label = "z",
+                size = 7,
+                fontface = "bold"
+            ) +
 
-            theme_minimal(base_size=18) +
-            labs(x="Age", y="Probability Density")
+            coord_cartesian(clip = "off") +
+
+            theme_minimal(base_size = 18) +
+
+            labs(
+                x = "Movie age",
+                y = "Probability density"
+            )
     })
 
     # =====================================================
-    # PAGE 4
+    # PAGE 5
     # =====================================================
-
-    reference_wealth <- 0.5
-
-    utility_function <- function(x, lambda=1){
-        d <- x - reference_wealth
-        ifelse(d>=0,d,lambda*d)
-    }
 
     output$utility_plot <- renderPlot({
 
@@ -430,14 +725,25 @@ server <- function(input, output, session){
         y <- utility_function(x, lambda)
 
         ggplot(data.frame(x,y), aes(x,y)) +
+
             geom_line(color="#7B9ACC", linewidth=1.3) +
-            geom_vline(xintercept=0.5, linetype="dashed") +
+
+            geom_vline(
+                xintercept=0.5,
+                linetype="dashed"
+            ) +
+
             theme_minimal(base_size = 20) +
+
             theme(
                 axis.title = element_text(size = 18),
                 axis.text  = element_text(size = 16)
             ) +
-            labs(x="Wealth (millions of kroner)", y="Happiness")
+
+            labs(
+                x="Wealth (millions of kroner)",
+                y="Happiness"
+            )
     })
 
     output$eu_plot <- renderPlot({
@@ -449,20 +755,32 @@ server <- function(input, output, session){
 
         df <- data.frame(
             outcome=c("Win","Lose"),
-            contrib=c(p*u(1), (1-p)*u(0.064))
+            contrib=c(
+                p*u(1),
+                (1-p)*u(0.064)
+            )
         )
 
         ggplot(df, aes(outcome, contrib, fill=outcome)) +
+
             geom_col(width=0.6) +
-            scale_fill_manual(values=c("#7B9ACC","#F8D7DA")) +
+
+            scale_fill_manual(
+                values=c("#7B9ACC","#F8D7DA")
+            ) +
+
             theme_minimal(base_size = 20) +
+
             theme(
                 axis.title = element_text(size = 18),
                 axis.text  = element_text(size = 16),
                 legend.position = "none"
             ) +
-            labs(x = "Outcome",
-                 y="Expected happiness")
+
+            labs(
+                x = "Outcome",
+                y = "Expected happiness"
+            )
     })
 
     output$decision_text <- renderUI({
@@ -475,12 +793,18 @@ server <- function(input, output, session){
         EU_play <- p*u(1) + (1-p)*u(0.064)
         EU_quit <- u(0.5)
 
-        decision <- if(EU_play > EU_quit) "Optimal strategy is Play" else "Optimal strategy is Quit"
+        decision <- if(EU_play > EU_quit){
+            "Optimal strategy is Play"
+        } else {
+            "Optimal strategy is Quit"
+        }
 
         HTML(paste0(
             "<b>If Play:</b> ", round(EU_play,3), "<br>",
             "<b>If Quit:</b> ", round(EU_quit,3), "<br><br>",
-            "<center style='font-size:22px;font-weight:bold;'>", decision, "</center>"
+            "<center style='font-size:22px;font-weight:bold;'>",
+            decision,
+            "</center>"
         ))
     })
 }

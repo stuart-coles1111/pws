@@ -1,0 +1,11 @@
+question_id,category,label,icon,text,answer,units
+1,Sports,Tennis,🎾,"Fastest serve at the 2022 US Open?",141,mph
+2,Sports,Basketball,🏀,"Lowest points scored by an NBA team in the 2022–23 season?",80,points
+3,Sports,Baseball,⚾,"Average MLB attendance in 2022?",26.808,thousands
+4,Sports,Marathon,🏃,"Number of finishers in the 2022 New York Marathon?",47.839,thousands
+5,Sports,Cycling,🚴,"Highest speed recorded in the 2022 Giro d’Italia?",74.7,kph
+6,Sports,American Football,🏈,"Highest NFL salary in 2022?",50.3,million USD
+7,Sports,Ice Hockey,🏒,"Highest NHL team goals scored in the 2022–23 season?",325,goals
+8,Sports,Football,⚽,"Highest goalkeeper saves in the 2022–23 English Premier League?",154,saves
+9,Sports,Athletics,🏃,"Longest long jump in 2022?",8.52,metres
+10,Sports,Cricket,🏏,"Highest batting average in the 2022 T20 World Cup?",98.66,average

@@ -1,0 +1,11 @@
+question_id,category,label,icon,text,answer,units
+1,Countries,France,🇫🇷,"How tall is the Eiffel Tower?",330,metres
+2,Countries,Australia,🇦🇺,"Highest point on the Australian mainland?",2228,metres
+3,Countries,Japan,🇯🇵,"Population of Japan in 2026?",122.5,millions
+4,Countries,Iceland,🇮🇸,"Length of Iceland's Ring Road?",1322,km
+5,Countries,Brazil,🇧🇷,"Number of teams to win the Brazilian football league?",17,count
+6,Countries,Cameroon,🇨🇲,"GDP of Cameroon in 2026?",65.14,billion USD
+7,Countries,India,🇮🇳,"Length of the Ganges river?",2525,km
+8,Countries,Jordan,🇯🇴,"Depth below sea level of the Dead Sea in 2025?",440,metres
+9,Countries,Canada,🇨🇦,"Length of Canada's border with the USA?",8891,km
+10,Countries,China,🇨🇳,"Share of global EV production in China in 2024?",71.7,percent
