@@ -381,26 +381,6 @@ server <- function(input, output, session){
                            actionButton(
                                "why_formula",
                                "Why does this formula work?"
-                           ),
-
-                           div(
-                               style="
-                                    margin-top:20px;
-                                    padding:18px;
-                                    background:#E8F4FD;
-                                    border-left:6px solid #7B9ACC;
-                                    border-radius:10px;
-                                    font-size:18px;
-                                    line-height:1.7;
-                               ",
-
-                               HTML("
-                                <b>Final thought.</b><br>
-                                Balder’s decision doesn’t depend only on the probability of winning.<br><br>
-
-                                It also depends on what he stands to gain or lose,
-                                and how much he values those outcomes.
-                               ")
                            )
                        )
                 )

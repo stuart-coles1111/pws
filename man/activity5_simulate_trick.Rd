@@ -2,22 +2,29 @@
 % Please edit documentation in R/single_trick.R
 \name{activity5_simulate_trick}
 \alias{activity5_simulate_trick}
-\title{Simulation of Trick}
+\title{Simulate the card trick for Activity 5}
 \usage{
 activity5_simulate_trick(picture_value = 10, show_result = TRUE, seed = NULL)
 }
 \arguments{
-\item{picture_value}{score to give picture cards}
+\item{picture_value}{Numeric value assigned to picture cards.}
 
-\item{show_result}{should result be displayed? (TRUE/FALSE)}
+\item{show_result}{Logical; should the final cards be displayed?
+Defaults to \code{TRUE}.}
 
-\item{seed}{value of seed for random number generator}
+\item{seed}{Optional random seed for reproducibility.}
 }
 \value{
-player and magician final card
+If \code{show_result = TRUE}, the function displays the final cards.
+
+If \code{show_result = FALSE}, the function returns a logical value:
+\code{TRUE} if the player and dealer end on the same card, and
+\code{FALSE} otherwise.
 }
 \description{
-Output of single trick simulation for Activity 5
+Simulates a single run of the card trick used in Activity 5.
+The function either displays the final cards for the player
+and dealer, or returns whether the trick succeeds.
 }
 \examples{
 activity5_simulate_trick()

@@ -27,7 +27,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' activity6_simulate()
+#' activity7_simulate()
 #' }
 #'
 #' @export

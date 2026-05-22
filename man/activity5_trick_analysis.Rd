@@ -2,24 +2,32 @@
 % Please edit documentation in R/activity5_trick_analysis.R
 \name{activity5_trick_analysis}
 \alias{activity5_trick_analysis}
-\title{Analysis of card trick performance for Activity 5}
+\title{Analyse card trick performance for Activity 5}
 \usage{
 activity5_trick_analysis(nrep = 10000, picture_value = 10, seed = NULL)
 }
 \arguments{
-\item{nrep}{number of repetitions}
+\item{nrep}{Number of repetitions of the simulation.}
 
-\item{picture_value}{score to give picture cards}
+\item{picture_value}{Numeric value assigned to picture cards.}
 
-\item{seed}{value of seed for random number generator}
+\item{seed}{Optional random seed for reproducibility.}
 }
 \value{
-summary statistics from multiple trick runs
+A list containing:
+\describe{
+\item{nrep}{The number of simulation runs.}
+\item{results}{A table of correct and incorrect outcomes.}
+\item{fail_prob}{Estimated probability that the trick fails.}
+}
 }
 \description{
-Multiple runs of trick for Activity 5
+Repeats the card trick simulation from
+\code{activity5_simulate_trick()} multiple times and summarises
+the results.
 }
 \examples{
-activity5_trick_analysis()
+trick_res <- activity5_trick_analysis()
+trick_res$fail_prob
 
 }

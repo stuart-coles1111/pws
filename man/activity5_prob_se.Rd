@@ -2,25 +2,32 @@
 % Please edit documentation in R/trick_fail_prob_se.R
 \name{activity5_prob_se}
 \alias{activity5_prob_se}
-\title{Trick failure probability SE}
+\title{Standard error of trick failure probability}
 \usage{
 activity5_prob_se(trick_res, n_resample = 1000, seed = NULL)
 }
 \arguments{
-\item{trick_res}{output from multi_trick}
+\item{trick_res}{Output from \code{activity5_trick_analysis()}.}
 
-\item{n_resample}{number of resamples}
+\item{n_resample}{Number of resamples used in the simulation.}
 
-\item{seed}{value of seed for random number generator}
+\item{seed}{Optional random seed for reproducibility.}
 }
 \value{
-value of standard error
+A numeric value giving the estimated standard error.
 }
 \description{
-Standard error calculation of trick failure probability for Activity 5
+Calculates the standard error of the estimated trick failure
+probability from \code{activity5_trick_analysis()} using repeated
+binomial resampling.
+}
+\details{
+This simulation-based approach is used for pedagogical purposes
+to illustrate sampling variability and the concept of a standard
+error.
 }
 \examples{
 trick_res <- activity5_trick_analysis()
-          activity5_prob_se(trick_res)
+activity5_prob_se(trick_res)
 
 }

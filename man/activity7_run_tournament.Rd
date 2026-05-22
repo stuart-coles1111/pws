@@ -27,7 +27,7 @@ activity7_run_tournament(
 value of tournament winner and their win probability at point of estimation
 }
 \description{
-Manage dice tournament in Activity 6 of Playing With Statistics
+Manage dice tournament in Activity 7 of Playing With Statistics
 }
 \examples{
 activity7_run_tournament()
