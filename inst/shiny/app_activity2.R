@@ -73,7 +73,7 @@ scale_param <- 18
 # UI
 # =========================================================
 
-ui <- page_fluid(
+ui <- page_navbar(
 
     theme = bs_theme(
         version = 5,
@@ -81,72 +81,367 @@ ui <- page_fluid(
         base_font = font_google("Inter")
     ),
 
-    tags$head(
-        tags$style(HTML("
+    header = tagList(
 
-            .main-title{
-                background:linear-gradient(90deg,#A8DADC,#CDB4DB);
-                padding:22px;
-                border-radius:16px;
-                margin-bottom:22px;
-                text-align:center;
-            }
+        tags$head(
+            tags$style(HTML("
 
-            .card-style{
-                background:white;
-                border-radius:16px;
-                padding:22px;
-                margin-bottom:20px;
-                box-shadow:0 3px 12px rgba(0,0,0,0.08);
-            }
+                .main-title{
+                    background:linear-gradient(90deg,#A8DADC,#CDB4DB);
+                    padding:22px;
+                    border-radius:16px;
+                    margin-bottom:22px;
+                    text-align:center;
+                }
 
-            .big{
-                font-size:30px;
-                font-weight:700;
-                text-align:center;
-            }
+                .card-style{
+                    background:white;
+                    border-radius:16px;
+                    padding:22px;
+                    margin-bottom:20px;
+                    box-shadow:0 3px 12px rgba(0,0,0,0.08);
+                }
 
-            .perm-grid{
-                display:grid;
-                grid-template-columns:repeat(4,1fr);
-                gap:8px;
-                margin-top:18px;
-            }
+                .big{
+                    font-size:30px;
+                    font-weight:700;
+                    text-align:center;
+                }
 
-            .perm-box{
-                font-family:monospace;
-                padding:10px;
-                border-radius:8px;
-                text-align:center;
-                font-size:16px;
-            }
+                .perm-grid{
+                    display:grid;
+                    grid-template-columns:repeat(4,1fr);
+                    gap:8px;
+                    margin-top:18px;
+                }
 
-            .neutral{ background:#ECEFF4; }
-            .valid{ background:#D8F3DC; }
-            .invalid{ background:#F8D7DA; opacity:0.2; text-decoration:line-through; }
+                .perm-box{
+                    font-family:monospace;
+                    padding:10px;
+                    border-radius:8px;
+                    text-align:center;
+                    font-size:16px;
+                }
 
-            .explain{
-                font-size:18px;
-                line-height:1.7;
-            }
+                .neutral{ background:#ECEFF4; }
+                .valid{ background:#D8F3DC; }
+                .invalid{
+                    background:#F8D7DA;
+                    opacity:0.2;
+                    text-decoration:line-through;
+                }
 
-            .formula-box{
-                background:#F4F8FC;
-                border-radius:12px;
-                padding:18px;
-                margin-top:18px;
-                text-align:center;
-            }
+                .explain{
+                    font-size:18px;
+                    line-height:1.7;
+                }
 
-        "))
+                .formula-box{
+                    background:#F4F8FC;
+                    border-radius:12px;
+                    padding:18px;
+                    margin-top:18px;
+                    text-align:center;
+                }
+
+                .info-box{
+                    background:#F8F9FB;
+                    padding:18px;
+                    border-radius:14px;
+                    line-height:1.7;
+                }
+
+            "))
+        ),
+
+        div(
+            class="main-title",
+            h1("🧠 Activity 2: Who Wants to be a Danish Millionaire?")
+        )
     ),
 
-    div(
-        class="main-title",
-        h1("🧠 Activity 2: Who Wants to be a Danish Millionaire?")
+    # =====================================================
+    # INTERACTIVE ACTIVITY
+    # =====================================================
+
+    nav_panel(
+
+        "Interactive Activity",
+
+        uiOutput("page_ui")
     ),
 
-    uiOutput("page_ui")
+    # =====================================================
+    # SUMMARY TAB
+    # =====================================================
+
+    nav_panel(
+
+        "📘 Summary",
+
+        div(
+            class = "main-title",
+
+            h1("📘 Understanding Probability and Decision Making"),
+
+            p(
+                "Key ideas behind conditional probability, uncertainty, and decision analysis."
+            )
+        ),
+
+        fluidRow(
+
+            column(
+                6,
+
+                div(
+                    class = "card-style",
+
+                    h3("🎬 The Core Problem"),
+
+                    div(
+                        class = "info-box",
+
+                        tags$p(
+                            "The activity begins with a ranking problem involving movie release dates."
+                        ),
+
+                        tags$p(
+                            "Initially, all possible movie orderings are treated as equally likely."
+                        ),
+
+                        tags$p(
+                            "New information eliminates some possibilities and changes the probabilities of the remaining outcomes."
+                        ),
+
+                        tags$p(
+                            "This demonstrates how evidence updates beliefs in probability models."
+                        )
+                    )
+                )
+            ),
+
+            column(
+                6,
+
+                div(
+                    class = "card-style",
+
+                    h3("📊 Conditional Probability"),
+
+                    div(
+                        class = "info-box",
+
+                        tags$p(
+                            "Conditional probability measures how probabilities change after observing information."
+                        ),
+
+                        tags$p(
+                            "In the app, learning that Movie C is older than A and B removes many possible orderings."
+                        ),
+
+                        tags$p(
+                            "As a result, the probability that C is the oldest movie rises from 1/4 to 3/4."
+                        ),
+
+                        tags$p(
+                            "This illustrates the principle that information changes uncertainty."
+                        )
+                    )
+                )
+            )
+        ),
+
+        fluidRow(
+
+            column(
+                6,
+
+                div(
+                    class = "card-style",
+
+                    h3("📈 Probability Distributions"),
+
+                    div(
+                        class = "info-box",
+
+                        tags$p(
+                            "The app later models movie ages using a continuous probability distribution."
+                        ),
+
+                        tags$p(
+                            "The shaded region in the graph represents probabilities in the upper tail of the distribution."
+                        ),
+
+                        tags$p(
+                            "Changing the threshold z changes the probability that a movie is older than z."
+                        ),
+
+                        tags$p(
+                            "This helps connect graphical intuition with formal probability calculations."
+                        )
+                    )
+                )
+            ),
+
+            column(
+                6,
+
+                div(
+                    class = "card-style",
+
+                    h3("🧮 Mathematical Ideas"),
+
+                    div(
+                        class = "info-box",
+
+                        tags$ul(
+
+                            tags$li(
+                                "Conditional probability"
+                            ),
+
+                            tags$li(
+                                "Sample spaces and permutations"
+                            ),
+
+                            tags$li(
+                                "Probability distributions"
+                            ),
+
+                            tags$li(
+                                "Tail probabilities"
+                            ),
+
+                            tags$li(
+                                "Expected utility"
+                            ),
+
+                            tags$li(
+                                "Decision analysis"
+                            ),
+
+                            tags$li(
+                                "Risk and uncertainty"
+                            )
+                        )
+                    )
+                )
+            )
+        ),
+
+        fluidRow(
+
+            column(
+                6,
+
+                div(
+                    class = "card-style",
+
+                    h3("💡 Decision Analysis"),
+
+                    div(
+                        class = "info-box",
+
+                        tags$p(
+                            "Probability alone is not enough to make decisions."
+                        ),
+
+                        tags$p(
+                            "People also care about the value or happiness associated with outcomes."
+                        ),
+
+                        tags$p(
+                            "The app introduces utility functions to model attitudes toward gains and losses."
+                        ),
+
+                        tags$p(
+                            "Loss aversion means losses may feel more important than equally sized gains."
+                        )
+                    )
+                )
+            ),
+
+            column(
+                6,
+
+                div(
+                    class = "card-style",
+
+                    h3("🔍 Questions to Explore"),
+
+                    div(
+                        class = "info-box",
+
+                        tags$ul(
+
+                            tags$li(
+                                "How does information change probabilities?"
+                            ),
+
+                            tags$li(
+                                "Why do some outcomes become more likely after conditioning?"
+                            ),
+
+                            tags$li(
+                                "How do probability distributions model uncertainty?"
+                            ),
+
+                            tags$li(
+                                "Why might people reject risky choices even when the odds seem favourable?"
+                            ),
+
+                            tags$li(
+                                "How does loss aversion affect decision making?"
+                            )
+                        )
+                    )
+                )
+            )
+        ),
+
+        fluidRow(
+
+            column(
+                12,
+
+                div(
+                    class = "card-style",
+
+                    h3("🧠 Interpretation"),
+
+                    div(
+                        class = "info-box",
+
+                        tags$p(
+                            "The activity combines probability theory with behavioural decision making."
+                        ),
+
+                        tags$blockquote(
+                            style = "
+                                font-size:22px;
+                                font-weight:700;
+                                color:#7B9ACC;
+                                border-left:5px solid #CDB4DB;
+                                padding-left:18px;
+                                margin-top:20px;
+                            ",
+
+                            "Good decisions depend not only on probabilities, but also on how people value outcomes."
+                        ),
+
+                        tags$p(
+                            "Conditional probability explains how evidence changes beliefs, while utility theory explains how people respond to risk."
+                        ),
+
+                        tags$p(
+                            "These ideas are widely used in economics, finance, statistics, psychology, and artificial intelligence."
+                        )
+                    )
+                )
+            )
+        )
+    )
 )
 
 # =========================================================
@@ -160,7 +455,11 @@ server <- function(input, output, session){
         reveal = FALSE
     )
 
-    observeEvent(input$next1, { rv$page <- 2; rv$reveal <- FALSE })
+    observeEvent(input$next1, {
+        rv$page <- 2
+        rv$reveal <- FALSE
+    })
+
     observeEvent(input$next2, rv$page <- 3)
     observeEvent(input$next3, rv$page <- 5)
 
@@ -183,7 +482,8 @@ server <- function(input, output, session){
 
         updateSliderInput(session, "z", value = 18)
         updateSliderInput(session, "lambda", value = 1)
-        updateSliderInput(session, "p", value = 0.5)
+        updateSliderInput(session, "p", value = 0.5
+        )
     })
 
     # =====================================================
@@ -195,34 +495,37 @@ server <- function(input, output, session){
         if(rv$page == 1){
 
             fluidRow(
-                column(12,
-                       div(class="card-style",
+                column(
+                    12,
 
-                           h3("Final question"),
+                    div(
+                        class="card-style",
 
-                           p("Which Danish comedy movie premiered first?"),
+                        h3("Final question"),
 
-                           div("A) Sover Dolly på Ryggen"),
-                           div("B) Klassefesten"),
-                           div("C) Blå Mænd"),
-                           div("D) Superclasico"),
+                        p("Which Danish comedy movie premiered first?"),
 
-                           hr(),
+                        div("A) Sover Dolly på Ryggen"),
+                        div("B) Klassefesten"),
+                        div("C) Blå Mænd"),
+                        div("D) Superclasico"),
 
-                           h4("Balder’s information"),
+                        hr(),
 
-                           p("• He knows Movie C is older than A and B."),
-                           p("• He does not know whether C or D is older."),
+                        h4("Balder’s information"),
 
-                           hr(),
+                        p("• He knows Movie C is older than A and B."),
+                        p("• He does not know whether C or D is older."),
 
-                           p(
-                               "The orderings below are written from youngest to oldest.",
-                               style="font-size:18px;"
-                           ),
+                        hr(),
 
-                           actionButton("next1", "Explore reasoning →")
-                       )
+                        p(
+                            "The orderings below are written from youngest to oldest.",
+                            style="font-size:18px;"
+                        ),
+
+                        actionButton("next1", "Explore reasoning →")
+                    )
                 )
             )
         }
@@ -230,64 +533,70 @@ server <- function(input, output, session){
         else if(rv$page == 2){
 
             fluidRow(
-                column(12,
-                       div(class="card-style",
 
-                           h3("Information changes probabilities"),
+                column(
+                    12,
 
-                           div(class="explain",
+                    div(
+                        class="card-style",
 
-                               if(!rv$reveal){
+                        h3("Information changes probabilities"),
 
-                                   HTML("
+                        div(
+                            class="explain",
+
+                            if(!rv$reveal){
+
+                                HTML("
                                     Without additional information, all 24 orderings are equally likely.
                                     In 6 of these, C is oldest.<br><br>
 
                                     <center style='font-size:28px;font-weight:700;'>
                                     P(C is oldest) = 6/24 = 1/4
                                     </center>
-                                   ")
+                                ")
 
-                               } else {
+                            } else {
 
-                                   HTML("
+                                HTML("
                                     After applying Balder’s information, 8 orderings remain.
                                     In 6 of these, C is oldest.<br><br>
 
                                     <center style='font-size:28px;font-weight:700;'>
                                     P(C is oldest | info) = 6/8 = 3/4
                                     </center>
-                                   ")
-                               }
-                           ),
+                                ")
+                            }
+                        ),
 
-                           br(),
+                        br(),
 
-                           if(!rv$reveal)
-                               actionButton("reveal_btn", "Apply information"),
+                        if(!rv$reveal)
+                            actionButton("reveal_btn", "Apply information"),
 
-                           div(class="perm-grid",
+                        div(
+                            class="perm-grid",
 
-                               lapply(1:nrow(perm_df), function(i){
+                            lapply(1:nrow(perm_df), function(i){
 
-                                   row <- perm_df[i,]
-                                   cls <- "neutral"
+                                row <- perm_df[i,]
+                                cls <- "neutral"
 
-                                   if(rv$reveal){
-                                       cls <- if(row$valid) "valid" else "invalid"
-                                   }
+                                if(rv$reveal){
+                                    cls <- if(row$valid) "valid" else "invalid"
+                                }
 
-                                   div(
-                                       class=paste("perm-box", cls),
-                                       row$ordering
-                                   )
-                               })
-                           ),
+                                div(
+                                    class=paste("perm-box", cls),
+                                    row$ordering
+                                )
+                            })
+                        ),
 
-                           if(rv$reveal){
+                        if(rv$reveal){
 
-                               div(
-                                   style="
+                            div(
+                                style="
                                     margin-top:25px;
                                     padding:18px;
                                     background:#FFF3CD;
@@ -295,23 +604,23 @@ server <- function(input, output, session){
                                     border-radius:10px;
                                     font-size:18px;
                                     line-height:1.7;
-                                   ",
+                                ",
 
-                                   HTML("
+                                HTML("
                                     <b>Reflection.</b><br>
                                     We assumed all remaining orderings are equally likely.<br><br>
 
                                     But is that reasonable?
                                     Could some still be more likely than others?
-                                   ")
-                               )
-                           },
+                                ")
+                            )
+                        },
 
-                           br(),
+                        br(),
 
-                           actionButton("back1", "← Back"),
-                           actionButton("next2", "Next →")
-                       )
+                        actionButton("back1", "← Back"),
+                        actionButton("next2", "Next →")
+                    )
                 )
             )
         }
@@ -320,69 +629,73 @@ server <- function(input, output, session){
 
             fluidRow(
 
-                column(4,
+                column(
+                    4,
 
-                       div(class="card-style",
+                    div(
+                        class="card-style",
 
-                           h3("Probability model"),
+                        h3("Probability model"),
 
-                           sliderInput(
-                               "z",
-                               "Threshold z",
-                               min = 0,
-                               max = 50,
-                               value = 18,
-                               step = 0.5
-                           ),
+                        sliderInput(
+                            "z",
+                            "Threshold z",
+                            min = 0,
+                            max = 50,
+                            value = 18,
+                            step = 0.5
+                        ),
 
-                           div(
-                               class="formula-box",
+                        div(
+                            class="formula-box",
 
-                               uiOutput("tail_probability")
-                           ),
+                            uiOutput("tail_probability")
+                        ),
 
-                           br(),
+                        br(),
 
-                           p(
-                               "As z increases, fewer movies are older than z, so P(C > z) becomes smaller.",
-                               class="explain"
-                           ),
+                        p(
+                            "As z increases, fewer movies are older than z, so P(C > z) becomes smaller.",
+                            class="explain"
+                        ),
 
-                           actionButton("back2","← Back"),
-                           actionButton("next3","Next →")
-                       )
+                        actionButton("back2","← Back"),
+                        actionButton("next3","Next →")
+                    )
                 ),
 
-                column(8,
+                column(
+                    8,
 
-                       div(class="card-style",
+                    div(
+                        class="card-style",
 
-                           h4("Conditional reasoning"),
+                        h4("Conditional reasoning"),
 
-                           plotOutput("dist_plot", height="450px"),
+                        plotOutput("dist_plot", height="450px"),
 
-                           div(
-                               style="
-                                    margin-top:20px;
-                                    padding:18px;
-                                    background:#F4F8FC;
-                                    border-left:6px solid #7B9ACC;
-                                    border-radius:10px;
-                                    font-size:20px;
-                                    line-height:1.8;
-                                    text-align:center;
-                               ",
+                        div(
+                            style="
+                                margin-top:20px;
+                                padding:18px;
+                                background:#F4F8FC;
+                                border-left:6px solid #7B9ACC;
+                                border-radius:10px;
+                                font-size:20px;
+                                line-height:1.8;
+                                text-align:center;
+                            ",
 
-                               uiOutput("p_cd_panel")
-                           ),
+                            uiOutput("p_cd_panel")
+                        ),
 
-                           br(),
+                        br(),
 
-                           actionButton(
-                               "why_formula",
-                               "Why does this formula work?"
-                           )
-                       )
+                        actionButton(
+                            "why_formula",
+                            "Why does this formula work?"
+                        )
+                    )
                 )
             )
         }
@@ -391,123 +704,125 @@ server <- function(input, output, session){
 
             fluidRow(
 
-                column(12,
+                column(
+                    12,
 
-                       div(class="card-style",
+                    div(
+                        class="card-style",
 
-                           h3("Why does the formula work?"),
+                        h3("Why does the formula work?"),
 
-                           p(
-                               "We know that Movie C is older than z.",
-                               class="explain"
-                           ),
+                        p(
+                            "We know that Movie C is older than z.",
+                            class="explain"
+                        ),
 
-                           p(
-                               "Now consider two possible cases for Movie D:",
-                               class="explain"
-                           ),
+                        p(
+                            "Now consider two possible cases for Movie D:",
+                            class="explain"
+                        ),
 
-                           fluidRow(
+                        fluidRow(
 
-                               column(
-                                   6,
+                            column(
+                                6,
 
-                                   div(
-                                       style="
-                                           background:#D8F3DC;
-                                           padding:20px;
-                                           border-radius:12px;
-                                           min-height:260px;
-                                       ",
+                                div(
+                                    style="
+                                        background:#D8F3DC;
+                                        padding:20px;
+                                        border-radius:12px;
+                                        min-height:260px;
+                                    ",
 
-                                       h4("Case 1: D is younger than z"),
+                                    h4("Case 1: D is younger than z"),
 
-                                       p(
-                                           "This happens with probability F(z).",
-                                           class="explain"
-                                       ),
+                                    p(
+                                        "This happens with probability F(z).",
+                                        class="explain"
+                                    ),
 
-                                       p(
-                                           "If D is younger than z, then C must automatically be older than D.",
-                                           class="explain"
-                                       ),
+                                    p(
+                                        "If D is younger than z, then C must automatically be older than D.",
+                                        class="explain"
+                                    ),
 
-                                       div(
-                                           style='font-size:28px;font-weight:700;text-align:center;',
-                                           "Probability of success = 1"
-                                       )
-                                   )
-                               ),
+                                    div(
+                                        style='font-size:28px;font-weight:700;text-align:center;',
+                                        "Probability of success = 1"
+                                    )
+                                )
+                            ),
 
-                               column(
-                                   6,
+                            column(
+                                6,
 
-                                   div(
-                                       style="
-                                           background:#F4F8FC;
-                                           padding:20px;
-                                           border-radius:12px;
-                                           min-height:260px;
-                                       ",
+                                div(
+                                    style="
+                                        background:#F4F8FC;
+                                        padding:20px;
+                                        border-radius:12px;
+                                        min-height:260px;
+                                    ",
 
-                                       h4("Case 2: D is older than z"),
+                                    h4("Case 2: D is older than z"),
 
-                                       p(
-                                           "This happens with probability 1 − F(z).",
-                                           class="explain"
-                                       ),
+                                    p(
+                                        "This happens with probability 1 − F(z).",
+                                        class="explain"
+                                    ),
 
-                                       p(
-                                           "Now both C and D are older than z.",
-                                           class="explain"
-                                       ),
+                                    p(
+                                        "Now both C and D are older than z.",
+                                        class="explain"
+                                    ),
 
-                                       p(
-                                           "Neither movie has an advantage, so each is equally likely to be older.",
-                                           class="explain"
-                                       ),
+                                    p(
+                                        "Neither movie has an advantage, so each is equally likely to be older.",
+                                        class="explain"
+                                    ),
 
-                                       div(
-                                           style='font-size:28px;font-weight:700;text-align:center;',
-                                           "Probability of success = 1/2"
-                                       )
-                                   )
-                               )
-                           ),
+                                    div(
+                                        style='font-size:28px;font-weight:700;text-align:center;',
+                                        "Probability of success = 1/2"
+                                    )
+                                )
+                            )
+                        ),
 
-                           br(),
+                        br(),
 
-                           div(
-                               style="
-                                   background:#FFF3CD;
-                                   padding:22px;
-                                   border-radius:12px;
-                                   text-align:center;
-                                   font-size:22px;
-                                   line-height:1.8;
-                               ",
+                        div(
+                            style="
+                                background:#FFF3CD;
+                                padding:22px;
+                                border-radius:12px;
+                                text-align:center;
+                                font-size:22px;
+                                line-height:1.8;
+                            ",
 
-                               HTML("
-                               Overall probability
-                               <br><br>
+                            HTML("
+                                Overall probability
+                                <br><br>
 
-                               P(C > D)
-                               =
-                               F(z) × 1
-                               +
-                               (1 - F(z)) × 1/2
-                               <br><br>
+                                P(C > D)
+                                =
+                                F(z) × 1
+                                +
+                                (1 - F(z)) × 1/2
+                                <br><br>
 
-                               =
-                               (1 + F(z))/2
-                               ")
-                           ),
+                                =
+                                (1 + F(z))/2
+                            ")
+                        ),
 
-                           br(),
+                        br(),
 
-                           actionButton("back4","← Back"),
-                           actionButton("next4","Next →")
-                       )
+                        actionButton("back4","← Back"),
+                        actionButton("next4","Next →")
+                    )
                 )
             )
         }
@@ -516,65 +831,69 @@ server <- function(input, output, session){
 
             fluidRow(
 
-                column(4,
+                column(
+                    4,
 
-                       div(class="card-style",
+                    div(
+                        class="card-style",
 
-                           h3("Loss aversion"),
+                        h3("Loss aversion"),
 
-                           sliderInput("lambda","λ",0,3,1,0.01),
-                           sliderInput("p","Win Probability",0,1,0.5,0.01),
+                        sliderInput("lambda","λ",0,3,1,0.01),
+                        sliderInput("p","Win Probability",0,1,0.5,0.01),
 
-                           hr(),
+                        hr(),
 
-                           actionButton("back3","← Back"),
-                           actionButton("reset","Restart")
-                       )
+                        actionButton("back3","← Back"),
+                        actionButton("reset","Restart")
+                    )
                 ),
 
-                column(8,
+                column(
+                    8,
 
-                       div(class="card-style",
+                    div(
+                        class="card-style",
 
-                           div(
-                               style="
-            margin-bottom:22px;
-            padding:18px;
-            background:#F4F8FC;
-            border-left:6px solid #7B9ACC;
-            border-radius:10px;
-            font-size:18px;
-            line-height:1.8;
-        ",
+                        div(
+                            style="
+                                margin-bottom:22px;
+                                padding:18px;
+                                background:#F4F8FC;
+                                border-left:6px solid #7B9ACC;
+                                border-radius:10px;
+                                font-size:18px;
+                                line-height:1.8;
+                            ",
 
-                               HTML("
-        Whatever Balder’s calculation for the probabilities of the various movies being oldest,
-        he must also consider what he stands to gain or lose from answering the question,
-        and how much those outcomes matter to him.<br><br>
+                            HTML("
+                                Whatever Balder’s calculation for the probabilities of the various movies being oldest,
+                                he must also consider what he stands to gain or lose from answering the question,
+                                and how much those outcomes matter to him.<br><br>
 
-        This can be analysed formally using <b>decision analysis</b>,
-        which combines probabilities with the happiness (or utility)
-        associated with different outcomes.<br><br>
+                                This can be analysed formally using <b>decision analysis</b>,
+                                which combines probabilities with the happiness (or utility)
+                                associated with different outcomes.<br><br>
 
-        The goal is to compare Balder’s <b>expected happiness</b>
-        under the different actions available to him.
-        ")
-                           ),
+                                The goal is to compare Balder’s <b>expected happiness</b>
+                                under the different actions available to him.
+                            ")
+                        ),
 
-                           h4("Happiness function"),
+                        h4("Happiness function"),
 
-                           plotOutput("utility_plot", height="300px"),
+                        plotOutput("utility_plot", height="300px"),
 
-                           hr(),
+                        hr(),
 
-                           h4("Expected happiness"),
+                        h4("Expected happiness"),
 
-                           plotOutput("eu_plot", height="300px"),
+                        plotOutput("eu_plot", height="300px"),
 
-                           hr(),
+                        hr(),
 
-                           uiOutput("decision_text")
-                       )
+                        uiOutput("decision_text")
+                    )
                 )
             )
         }
