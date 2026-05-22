@@ -2,7 +2,7 @@
 % Please edit documentation in R/se_by_sample_size.R
 \name{se_by_sample_size}
 \alias{se_by_sample_size}
-\title{Standard errors and sample size}
+\title{Standard error and sample size}
 \usage{
 se_by_sample_size(
   lambda = 2.5,
@@ -13,21 +13,29 @@ se_by_sample_size(
 )
 }
 \arguments{
-\item{lambda}{Poisson population mean}
+\item{lambda}{Mean of the Poisson distribution.}
 
-\item{ns}{vector of sample sizes}
+\item{ns}{Numeric vector of sample sizes.}
 
-\item{n_resample}{number of resamples}
+\item{n_resample}{Number of bootstrap resamples.}
 
-\item{transform_n}{(TRUE/FALSE) transform x axis of plot?}
+\item{transform_n}{Logical; should the x-axis be transformed
+to \code{1/sqrt(n)}? Defaults to \code{FALSE}.}
 
-\item{seed}{seed for random number generator}
+\item{seed}{Optional random seed for reproducibility.}
 }
 \value{
-plot of standard error of estimate versus sample size
+A \code{ggplot2} object showing estimated standard error
+as a function of sample size.
 }
 \description{
-Illustration of effect of sample size on standard error
+Illustrates how the standard error of an estimator changes
+with sample size using repeated resampling from Poisson data.
+}
+\details{
+For each sample size, a sample is generated from a Poisson
+distribution and bootstrap resampling is used to estimate
+the standard error of the sample mean.
 }
 \examples{
 se_by_sample_size()
