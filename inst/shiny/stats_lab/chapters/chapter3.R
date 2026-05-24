@@ -1,174 +1,201 @@
-# Chapter 3: Expected Goals (xG) simulation and modelling
+chapter3_ui <- function(id){
 
-chapter3_ui <- function(id) {
-    ns <- shiny::NS(id)
+    ns <- NS(id)
 
-    shiny::fluidPage(
+    sidebar_controls <- sidebar(
 
-        shiny::titlePanel("Chapter 3: Expected Goals (xG) Simulation"),
+        h4("xG simulation explorer"),
 
-        shiny::sidebarLayout(
+        p("Simulate football shots, fit an xG model, and make predictions."),
 
-            shiny::sidebarPanel(
+        numericInput(
+            ns("n_data"),
+            "Number of shots",
+            value = 5000,
+            min = 100
+        ),
 
-                shiny::h4("Simulate shot data"),
+        actionButton(ns("run"), "Generate data"),
 
-                shiny::numericInput(ns("n_data"),
-                                    "Number of shots",
-                                    value = 5000,
-                                    min = 100),
+        hr(),
 
-                shiny::sliderInput(ns("bodypar"),
-                                   "Probability of Head",
-                                   min = 0, max = 1, value = 0.2, step = 0.01),
+        h4("Prediction tool"),
 
-                shiny::sliderInput(ns("distpar"),
-                                   "Distance rate (exponential)",
-                                   min = 0.05, max = 1, value = 0.2, step = 0.01),
+        numericInput(ns("x"), "x coordinate", 5),
+        numericInput(ns("y"), "y coordinate", 10),
 
-                shiny::sliderInput(ns("anglepar"),
-                                   "Angle concentration",
-                                   min = 0.5, max = 10, value = 3, step = 0.5),
+        selectInput(ns("body"),
+                    "Body part",
+                    choices = c("Head", "Foot"))
+    )
 
-                shiny::hr(),
+    # -----------------------------------------------------
+    # OVERVIEW
+    # -----------------------------------------------------
 
-                shiny::h4("True model parameters"),
+    overview_panel <- card(
 
-                shiny::sliderInput(ns("intercept"),
-                                   "Intercept",
-                                   min = -2, max = 2, value = 0.25, step = 0.05),
+        card_header("What this chapter explores"),
 
-                shiny::sliderInput(ns("dist_coeff"),
-                                   "Distance effect",
-                                   min = -1, max = 0, value = -0.1, step = 0.05),
+        tags$p("This chapter introduces a statistical model for expected goals (xG)."),
 
-                shiny::sliderInput(ns("dist_body_inter"),
-                                   "Distance × Head interaction",
-                                   min = -1, max = 1, value = -0.25, step = 0.05),
-
-                shiny::sliderInput(ns("body_coeff"),
-                                   "Body (Head) effect",
-                                   min = -1, max = 1, value = -0.05, step = 0.05),
-
-                shiny::sliderInput(ns("angle_coeff"),
-                                   "Angle effect",
-                                   min = -2, max = 0, value = -0.8, step = 0.05),
-
-                shiny::actionButton(ns("run_sim"), "Simulate data"),
-
-                shiny::hr(),
-
-                shiny::h4("Prediction tool"),
-
-                shiny::numericInput(ns("x"), "x coordinate", value = 5),
-                shiny::numericInput(ns("y"), "y coordinate", value = 10),
-
-                shiny::selectInput(ns("body"),
-                                   "Body part",
-                                   choices = c("Head", "Foot"),
-                                   selected = "Foot")
-
-            ),
-
-            shiny::mainPanel(
-
-                shiny::tabsetPanel(
-
-                    shiny::tabPanel(
-                        "Data",
-
-                        shiny::verbatimTextOutput(ns("head_data"))
-                    ),
-
-                    shiny::tabPanel(
-                        "Model",
-
-                        shiny::tableOutput(ns("model_summary"))
-                    ),
-
-                    shiny::tabPanel(
-                        "Plot",
-
-                        shiny::plotOutput(ns("xg_plot"), height = 500)
-                    ),
-
-                    shiny::tabPanel(
-                        "Prediction",
-
-                        shiny::verbatimTextOutput(ns("pred_out")),
-
-                        shiny::verbatimTextOutput(ns("total_xg"))
-                    )
-                )
-            )
+        tags$ul(
+            tags$li("Shots are simulated using a known data-generating process."),
+            tags$li("A logistic regression model is fitted to recover structure."),
+            tags$li("We compare true vs estimated relationships."),
+            tags$li("We use the model to predict shot success probability.")
         )
+    )
+
+    # -----------------------------------------------------
+    # CODE
+    # -----------------------------------------------------
+
+    code_panel <- card(
+
+        card_header("R code"),
+
+        tags$pre(textOutput(ns("code")))
+    )
+
+    # -----------------------------------------------------
+    # RESULTS
+    # -----------------------------------------------------
+
+    results_panel <- tagList(
+
+        card(
+            card_header("Model summary"),
+            tableOutput(ns("model"))
+        ),
+
+        br(),
+
+        card(
+            card_header("xG plot"),
+            plotOutput(ns("plot"), height = 400)
+        ),
+
+        br(),
+
+        card(
+            card_header("Prediction"),
+            h2(textOutput(ns("pred")))
+        )
+    )
+
+    # -----------------------------------------------------
+    # LEARN
+    # -----------------------------------------------------
+
+    learn_panel <- card(
+
+        card_header("Key ideas"),
+
+        tags$ul(
+            tags$li("xG is a probability model for scoring a shot."),
+            tags$li("Logistic regression links features to scoring probability."),
+            tags$li("Distance, angle, and body part all matter."),
+            tags$li("We can simulate data where the truth is known.")
+        )
+    )
+
+    chapter_page_ui(
+        id = id,
+        title = "⚽ Chapter 3: Expected Goals (xG)",
+        sidebar = sidebar_controls,
+        overview = overview_panel,
+        code = code_panel,
+        results = results_panel,
+        learn = learn_panel
     )
 }
 
+chapter3_server <- function(id){
 
-chapter3_server <- function(id) {
-    shiny::moduleServer(id, function(input, output, session) {
+    moduleServer(id, function(input, output, session){
 
-        # ---- simulate data ----
-        xG_data <- shiny::eventReactive(input$run_sim, {
+        # -----------------------------------------------------
+        # simulate data (event-driven like Chapter 2)
+        # -----------------------------------------------------
+
+        xG_data <- eventReactive(input$run, {
+
             pws::xGsim(
                 n_data = input$n_data,
-                bodypar = input$bodypar,
-                distpar = input$distpar,
-                anglepar = input$anglepar,
-                intercept = input$intercept,
-                dist_coeff = input$dist_coeff,
-                dist_body_inter = input$dist_body_inter,
-                body_coeff = input$body_coeff,
-                angle_coeff = input$angle_coeff
+                seed = 123
             )
         })
 
-        # ---- fit model ----
-        xG_model <- shiny::reactive({
+        # -----------------------------------------------------
+        # fit model
+        # -----------------------------------------------------
+
+        model <- reactive({
+
             req(xG_data())
+
             pws::xGfit(xG_data())
         })
 
-        # ---- data preview ----
-        output$head_data <- shiny::renderPrint({
-            req(xG_data())
-            head(xG_data()$data, 10)
-        })
+        # -----------------------------------------------------
+        # prediction
+        # -----------------------------------------------------
 
-        # ---- model summary ----
-        output$model_summary <- shiny::renderTable({
-            req(xG_model())
-            round(xG_model()$summary, 3)
-        })
+        pred <- reactive({
 
-        # ---- plot ----
-        output$xg_plot <- shiny::renderPlot({
-            req(xG_data())
-            pws::xGplot(xG_data())
-        })
+            req(model())
 
-        # ---- prediction ----
-        pred <- shiny::reactive({
-            req(xG_model())
             pws::xGpred(
-                xG_model(),
+                model(),
                 x = input$x,
                 y = input$y,
                 body = input$body
             )
         })
 
-        output$pred_out <- shiny::renderPrint({
+        # -----------------------------------------------------
+        # CODE (mirrors computation)
+        # -----------------------------------------------------
+
+        output$code <- renderText({
+
+            "xG_data <- xGsim(n_data = ...)\n
+model <- xGfit(xG_data)\n
+xGpred(model, x, y, body)"
+        })
+
+        # -----------------------------------------------------
+        # MODEL TABLE
+        # -----------------------------------------------------
+
+        output$model <- renderTable({
+
+            req(model())
+
+            round(model()$summary, 3)
+        })
+
+        # -----------------------------------------------------
+        # PLOT
+        # -----------------------------------------------------
+
+        output$plot <- renderPlot({
+
+            req(xG_data())
+
+            pws::xGplot(xG_data())
+        })
+
+        # -----------------------------------------------------
+        # PREDICTION
+        # -----------------------------------------------------
+
+        output$pred <- renderText({
+
             req(pred())
+
             round(pred(), 3)
         })
-
-        # ---- total xG from simulated dataset ----
-        output$total_xg <- shiny::renderPrint({
-            req(xG_data())
-            round(sum(xG_data()$data$prob_true), 3)
-        })
-
     })
 }

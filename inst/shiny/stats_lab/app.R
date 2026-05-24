@@ -19,6 +19,7 @@ source("modules/mod_chapter_template.R")
 source("chapters/chapter1.R")
 source("chapters/chapter2.R")
 source("chapters/chapter3.R")
+source("chapters/chapter4.R")
 
 # =========================================================
 # UI
@@ -62,6 +63,15 @@ ui <- page_navbar(
     nav_panel(
         "📊 Chapter 3",
         chapter3_ui("chapter3")
+    ),
+
+    # =======================================================
+    # Chapter 4
+    # =======================================================
+
+    nav_panel(
+        "📊 Chapter 4",
+        chapter4_ui("chapter4")
     )
 )
 
@@ -79,6 +89,9 @@ server <- function(input, output, session){
 
     # Chapter 3
     chapter3_server("chapter3")
+
+    # Chapter 4
+    chapter4_server("chapter4")
 }
 
 # =========================================================
