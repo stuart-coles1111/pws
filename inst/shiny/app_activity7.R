@@ -87,20 +87,33 @@ ui <- page_fluid(
 
     tags$head(
         tags$style(HTML("
-            .main-title{
+            .app-header{
                 background:linear-gradient(90deg,#A8DADC,#CDB4DB);
-                padding:20px;border-radius:14px;margin-bottom:20px;text-align:center;
+                padding:18px;
+                border-radius:14px;
+                margin-bottom:20px;
+                text-align:center;
             }
             .card-style{
-                background:white;border-radius:14px;padding:20px;margin-bottom:20px;
+                background:white;
+                border-radius:14px;
+                padding:20px;
+                margin-bottom:20px;
                 box-shadow:0 3px 10px rgba(0,0,0,0.08);
             }
             .btn-primary{
-                background:#89C2D9!important;border-color:#89C2D9!important;
+                background:#89C2D9!important;
+                border-color:#89C2D9!important;
             }
             .player-badge{
-                display:inline-block;padding:10px 16px;border-radius:20px;
-                color:white;font-weight:700;margin:4px;min-width:140px;text-align:center;
+                display:inline-block;
+                padding:10px 16px;
+                border-radius:20px;
+                color:white;
+                font-weight:700;
+                margin:4px;
+                min-width:140px;
+                text-align:center;
             }
             .badge-blue{background:#6FA8DC;}
             .badge-red{background:#E5989B;}
@@ -108,11 +121,10 @@ ui <- page_fluid(
             .badge-yellow{background:#F9E79F;color:#5C4B00;}
         ")),
 
-        tags$script(src = "https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"),
+        tags$script(src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"),
 
         tags$script(HTML("
         Shiny.addCustomMessageHandler('confetti', function(message) {
-
             const duration = 2500;
             const end = Date.now() + duration;
 
@@ -120,50 +132,130 @@ ui <- page_fluid(
                 confetti({ particleCount: 6, spread: 60, origin: { x: 0 } });
                 confetti({ particleCount: 6, spread: 60, origin: { x: 1 } });
 
-                if (Date.now() < end) {
-                    requestAnimationFrame(frame);
-                }
+                if (Date.now() < end) requestAnimationFrame(frame);
             })();
-
         });
         "))
     ),
 
-    div(class="main-title", h1("🎲 Activity 7: Hybrid Tournament Simulator")),
+    # =========================
+    # HEADER (safe now)
+    # =========================
 
-    layout_sidebar(
+    div(
+        class="app-header",
+        h1("🎲 Activity 7: Hybrid Tournament Simulator"),
+        p("Randomness, estimation, and knockout dynamics")
+    ),
 
-        sidebar = div(
-            class="card-style",
+    # =========================
+    # SIMPLE NAV (manual, no validation)
+    # =========================
 
-            radioButtons("mode","Mode",
-                         c("Human (enter results)"="human",
-                           "Simulation (auto-play)"="sim",
-                           "Demo (guided example)"="demo")),
+    tabsetPanel(
 
-            numericInput("nrounds","Number of rounds",5,1,8),
-            numericInput("games","Games per match",5,1,step=2),
-            numericInput("estimate_round","Estimation round",2,1),
-            numericInput("nsim","Simulations",1000,100),
-            numericInput("seed","Seed",999),
+        tabPanel(
+            "🎲 Activity",
 
-            actionButton("start","Start Tournament",class="btn-primary")
+            layout_sidebar(
+
+                sidebar = div(
+                    class="card-style",
+                    radioButtons("mode","Mode",
+                                 c("Human (enter results)"="human",
+                                   "Simulation (auto-play)"="sim",
+                                   "Demo (guided example)"="demo")),
+
+                    numericInput("nrounds","Number of rounds",5,1,8),
+                    numericInput("games","Games per match",5,1,step=2),
+                    numericInput("estimate_round","Estimation round",2,1),
+                    numericInput("nsim","Simulations",1000,100),
+                    numericInput("seed","Seed",999),
+
+                    actionButton("start","Start Tournament",class="btn-primary")
+                ),
+
+                div(class="card-style",
+                    uiOutput("round_section"),
+                    hr(),
+                    uiOutput("prob_section")
+                ),
+
+                div(class="card-style",
+                    uiOutput("action_ui")
+                )
+            )
         ),
 
-        div(class="card-style",
-            uiOutput("round_section"),
-            hr(),
-            uiOutput("prob_section")
-        ),
+        tabPanel(
+            "📘 Summary",
 
-        div(class="card-style",
-            uiOutput("action_ui")
+            div(
+                class="app-header",
+                h1("📘 Understanding the Tournament Model")
+            ),
+
+            fluidRow(
+                column(6,
+                       div(class="card-style",
+                           h3("🎲 What is simulated?"),
+                           tags$p("Knockout matches built from probabilistic games."),
+                           tags$p("Winners advance through elimination rounds.")
+                       )
+                ),
+                column(6,
+                       div(class="card-style",
+                           h3("⚙️ What drives outcomes?"),
+                           tags$p("Hidden colour-based probability structure."),
+                           tags$p("Logistic transformation converts differences into win probabilities.")
+                       )
+                )
+            ),
+
+            fluidRow(
+                column(6,
+                       div(class="card-style",
+                           h3("📊 Why estimation matters"),
+                           tags$p("We infer hidden parameters from observed results."),
+                           tags$p("This mirrors real-world sports analytics.")
+                       )
+                ),
+                column(6,
+                       div(class="card-style",
+                           h3("🧠 Key ideas"),
+                           tags$ul(
+                               tags$li("Binomial outcomes"),
+                               tags$li("Latent parameter inference"),
+                               tags$li("Logistic model"),
+                               tags$li("Monte Carlo simulation"),
+                               tags$li("Knockout dynamics")
+                           )
+                       )
+                )
+            ),
+
+            fluidRow(
+                column(12,
+                       div(class="card-style",
+                           h3("🏆 Big idea"),
+                           tags$blockquote(
+                               style="
+                                font-size:22px;
+                                font-weight:700;
+                                color:#7B9ACC;
+                                border-left:5px solid #CDB4DB;
+                                padding-left:18px;",
+                               "Simple probabilistic rules generate complex tournament behaviour."
+                           )
+                       )
+                )
+            )
         )
     )
 )
 
 # =========================================================
-# SERVER
+# SERVER (UNCHANGED)
 # =========================================================
 
 server <- function(input, output, session){
@@ -193,12 +285,7 @@ server <- function(input, output, session){
     player_badge <- function(id,col)
         div(class=paste("player-badge",paste0("badge-",col)),paste("Player",id))
 
-    # =========================================================
-    # START
-    # =========================================================
-
     observeEvent(input$start,{
-
         set.seed(input$seed)
 
         nplayers <- 2^input$nrounds
@@ -212,12 +299,7 @@ server <- function(input, output, session){
         rv$confetti <- FALSE
     })
 
-    # =========================================================
-    # FIXTURES (SAFE)
-    # =========================================================
-
     fixtures_df <- reactive({
-
         req(rv$current_players)
 
         if(length(rv$current_players) < 2) return(NULL)
@@ -229,10 +311,6 @@ server <- function(input, output, session){
             AwayColour = rv$player_colours[seq(2, length(rv$current_players), 2)]
         )
     })
-
-    # =========================================================
-    # SIMULATION
-    # =========================================================
 
     simulate_round_only <- function(players){
 
@@ -254,10 +332,6 @@ server <- function(input, output, session){
         req(rv$current_players)
         rv$sim_preview <- simulate_round_only(rv$current_players)
     })
-
-    # =========================================================
-    # ADVANCE ROUND
-    # =========================================================
 
     observeEvent(
         {
@@ -282,13 +356,11 @@ server <- function(input, output, session){
                     res <- as.numeric(res)
 
                     if(any(is.na(res) | res < 0 | res > input$games)) {
-
                         showNotification(
                             paste0("All values must be between 0 and ", input$games),
                             type = "warning",
                             duration = 5
                         )
-
                         return(NULL)
                     }
 
@@ -330,10 +402,6 @@ server <- function(input, output, session){
                 session$sendCustomMessage("confetti", list())
             }
 
-            # =====================================================
-            # ESTIMATION (RESTORED)
-            # =====================================================
-
             if(!rv$estimated && rv$round > input$estimate_round && nrow(rv$estimation_df)>0){
 
                 fit <- optim(
@@ -347,10 +415,6 @@ server <- function(input, output, session){
                     parameter = c("blue","red","green","yellow","home advantage"),
                     value = sprintf("%.3f", c(0, fit$par))
                 )
-
-                # =====================================================
-                # CORRECT WIN PROB ESTIMATION
-                # =====================================================
 
                 winner_vec <- replicate(input$nsim, {
 
@@ -377,7 +441,6 @@ server <- function(input, output, session){
                 })
 
                 all_players <- as.character(rv$current_players)
-
                 tab <- table(factor(winner_vec, levels = all_players)) / input$nsim
 
                 rv$winner_probs <- tab
@@ -386,16 +449,11 @@ server <- function(input, output, session){
         }
     )
 
-    # =========================================================
-    # ROUND DISPLAY (FIXED SIM SCORES)
-    # =========================================================
-
     output$round_section <- renderUI({
 
         req(rv$current_players)
 
         if(length(rv$current_players) < 2){
-
             return(div(
                 h2("🏆 Champion"),
                 player_badge(rv$current_players, rv$player_colours[rv$current_players])
@@ -413,8 +471,10 @@ server <- function(input, output, session){
                         player_badge(df$Home[i],df$HomeColour[i]),
                         " vs ",
                         player_badge(df$Away[i],df$AwayColour[i]),
-                        tags$span(style="margin-left:10px;padding:4px 8px;background:#EEF2FF;border-radius:8px;",
-                                  paste0("Home wins: ",rv$sim_preview$results[i]))
+                        tags$span(
+                            style="margin-left:10px;padding:4px 8px;background:#EEF2FF;border-radius:8px;",
+                            paste0("Home wins: ",rv$sim_preview$results[i])
+                        )
                     )
                 })
             } else {
@@ -428,10 +488,6 @@ server <- function(input, output, session){
             }
         )
     })
-
-    # =========================================================
-    # HOME SCORES GRID
-    # =========================================================
 
     output$result_inputs <- renderUI({
 
@@ -462,10 +518,6 @@ server <- function(input, output, session){
         )
     })
 
-    # =========================================================
-    # ACTION UI
-    # =========================================================
-
     output$action_ui <- renderUI({
 
         req(rv$current_players)
@@ -487,10 +539,6 @@ server <- function(input, output, session){
             )
         }
     })
-
-    # =========================================================
-    # PROBABILITY OUTPUT
-    # =========================================================
 
     output$prob_section <- renderUI({
 
@@ -517,10 +565,6 @@ server <- function(input, output, session){
             Probability = sprintf("%.3f", as.numeric(rv$winner_probs))
         )
     })
-
-    # =========================================================
-    # CONFETTI RESET
-    # =========================================================
 
     observe({
         if(rv$confetti){
