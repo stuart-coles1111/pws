@@ -5,318 +5,224 @@ library(dplyr)
 library(gt)
 
 # =========================================================
-# Helpers
+# HELPER FUNCTIONS
 # =========================================================
 
-generate_seq <- function(n = 50){
-    sample(c("H","T"), n, replace = TRUE)
-}
+activity7_round_sim <- function(
+        home_player,
+        away_player,
+        n_games_per_match = 5
+) {
 
-parse_seq <- function(x, n = 50){
-
-    if(is.null(x) || x == "") return(NULL)
-
-    x <- toupper(x)
-    x <- unlist(strsplit(x, ""))
-    x <- x[x %in% c("H", "T")]
-
-    if(length(x) != n) return(NULL)
-
-    x
-}
-
-activity1_stats <- function(x){
-    list(
-        heads = sum(x == "H"),
-        longest_run = max(rle(x)$lengths)
+    prob_list <- list(
+        blue   = c(4, 5, 7, 9, 11, 0) / 36,
+        red    = c(0, 11, 9, 7, 5, 4) / 36,
+        green  = c(3, 7, 11, 9, 5, 1) / 36,
+        yellow = c(10, 8, 6, 4, 2, 6) / 36
     )
+
+    total_home_wins <- numeric(length(home_player))
+
+    for(i in seq_along(home_player)) {
+
+        home_probs <- prob_list[[home_player[i]]]
+        away_probs <- prob_list[[away_player[i]]]
+
+        home_score <- sample(1:6, n_games_per_match, TRUE, home_probs)
+        away_score <- sample(1:6, n_games_per_match, TRUE, away_probs)
+
+        total_home_wins[i] <- sum(home_score - away_score >= 0)
+    }
+
+    total_home_wins
 }
 
-seq_df <- function(x){
-    data.frame(
-        pos = seq_along(x),
-        toss = x
-    )
+activity7_round_sim_using_fits <- function(
+        pars,
+        home_player,
+        away_player,
+        n_games_per_match = 5
+) {
+
+    colours <- c("blue","red","yellow","green")
+
+    home_ind <- match(home_player, colours)
+    away_ind <- match(away_player, colours)
+
+    pars <- c(0, pars)
+
+    bin_p <- pars[5] + pars[home_ind] - pars[away_ind]
+    bin_p <- exp(bin_p) / (1 + exp(bin_p))
+
+    rbinom(length(home_player), n_games_per_match, bin_p)
 }
 
-# =========================================================
-# Theoretical distributions
-# =========================================================
+activity7_neg_log_lik <- function(
+        p,
+        dice_history,
+        n_games_per_match = 5
+) {
 
-theoretical_heads_df <- function(n = 50){
-    data.frame(
-        x = 0:n,
-        prob = dbinom(0:n, n, 0.5)
-    )
-}
+    colours <- c("blue","red","yellow","green")
 
-theoretical_runs_df <- function(n = 50,
-                                x_low = 1,
-                                x_up = 20){
+    home_ind <- match(dice_history$home_colours, colours)
+    away_ind <- match(dice_history$away_colours, colours)
 
-    probs <-
-        diff(
-            sapply(
-                (x_low - 1):x_up,
-                pws:::ht_max_run_cdf,
-                n = n
-            )
-        )
+    pars <- c(0,p)
 
-    data.frame(
-        x = x_low:x_up,
-        prob = probs
-    )
-}
+    bin_p <- pars[5] + pars[home_ind] - pars[away_ind]
+    bin_p <- exp(bin_p)/(1+exp(bin_p))
 
-# =========================================================
-# Smartodds benchmark data
-# =========================================================
-
-human_heads <- apply(
-    pws::activity1_data_sm,
-    1,
-    function(x) sum(x == "H")
-)
-
-human_runs <- apply(
-    pws::activity1_data_sm,
-    1,
-    function(x) max(rle(x)$lengths)
-)
-
-# =========================================================
-# Uploaded data validator
-# =========================================================
-
-validate_uploaded_data <- function(df){
-
-    if(ncol(df) != 50) return(FALSE)
-
-    mat <- as.matrix(df)
-    mat <- trimws(toupper(mat))
-
-    all(mat %in% c("H", "T"))
+    -sum(dbinom(dice_history$results, n_games_per_match, bin_p, log=TRUE))
 }
 
 # =========================================================
-# UI (UPDATED ONLY HERE)
+# UI
 # =========================================================
 
-ui <- page_navbar(
-
-    title = "🪙 Activity 1: Picturing randomness",
+ui <- page_fluid(
 
     theme = bs_theme(
-        version = 5,
-        bootswatch = "minty",
-        primary = "#7B9ACC",
-        bg = "#F7F7FB",
-        fg = "#2E3440"
+        version=5,
+        bootswatch="minty",
+        primary="#7B9ACC",
+        bg="#F7F7FB",
+        fg="#2E3440",
+        base_font=font_google("Inter")
     ),
 
-    # =====================================================
-    # TAB 1 — MAIN ACTIVITY
-    # =====================================================
+    tags$head(
+        tags$style(HTML("
+            .main-title{
+                background:linear-gradient(90deg,#A8DADC,#CDB4DB);
+                padding:20px;border-radius:14px;margin-bottom:20px;text-align:center;
+            }
+            .card-style{
+                background:white;border-radius:14px;padding:20px;margin-bottom:20px;
+                box-shadow:0 3px 10px rgba(0,0,0,0.08);
+            }
+            .btn-primary{
+                background:#89C2D9!important;border-color:#89C2D9!important;
+            }
+            .player-badge{
+                display:inline-block;padding:10px 16px;border-radius:20px;
+                color:white;font-weight:700;margin:4px;min-width:140px;text-align:center;
+            }
+            .badge-blue{background:#6FA8DC;}
+            .badge-red{background:#E5989B;}
+            .badge-green{background:#95D5B2;color:#1B4332;}
+            .badge-yellow{background:#F9E79F;color:#5C4B00;}
+        ")),
 
-    nav_panel(
+        tags$script(src = "https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"),
 
-        "🪙 Activity",
+        tags$script(HTML("
+        Shiny.addCustomMessageHandler('confetti', function(message) {
 
-        div(
-            style = "
-            text-align:center;
-            padding:16px;
-            border-radius:12px;
-            background:linear-gradient(90deg,#A8DADC,#CDB4DB);
-            margin-bottom:15px;",
-            h1("🪙 Activity 1: Picturing randomness")
-        ),
+            const duration = 2500;
+            const end = Date.now() + duration;
+
+            (function frame() {
+                confetti({ particleCount: 6, spread: 60, origin: { x: 0 } });
+                confetti({ particleCount: 6, spread: 60, origin: { x: 1 } });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            })();
+
+        });
+        "))
+    ),
+
+    # =========================================================
+    # PAGE SWITCH (SAFE ADDITION)
+    # =========================================================
+
+    div(
+        class = "card-style",
+        radioButtons(
+            "page",
+            NULL,
+            choices = c(
+                "🎲 Tournament Simulator" = "sim",
+                "📘 Summary" = "summary"
+            ),
+            inline = TRUE
+        )
+    ),
+
+    # =========================================================
+    # MAIN APP PAGE
+    # =========================================================
+
+    conditionalPanel(
+        condition = "input.page == 'sim'",
+
+        div(class="main-title", h1("🎲 Activity 7: Hybrid Tournament Simulator")),
 
         layout_sidebar(
 
-            sidebar = card(
+            sidebar = div(
+                class="card-style",
 
-                h4("Your sequence"),
+                radioButtons("mode","Mode",
+                             c("Human (enter results)"="human",
+                               "Simulation (auto-play)"="sim",
+                               "Demo (guided example)"="demo")),
 
-                textAreaInput(
-                    "user_seq",
-                    "Enter 50 imaginary coin tosses (H/T)",
-                    placeholder = "e.g. HTHTHTHT...",
-                    height = "120px"
-                ),
+                numericInput("nrounds","Number of rounds",5,1,8),
+                numericInput("games","Games per match",5,1,step=2),
+                numericInput("estimate_round","Estimation round",2,1),
+                numericInput("nsim","Simulations",1000,100),
+                numericInput("seed","Seed",999),
 
-                actionButton(
-                    "submit_seq",
-                    "Analyse my sequence",
-                    class = "btn-primary"
-                ),
-
-                actionButton(
-                    "random_seq",
-                    "Generate random sequence"
-                ),
-
-                hr(),
-
-                h4("Upload group data"),
-
-                fileInput(
-                    "upload_data",
-                    "Upload CSV file",
-                    accept = c(".csv")
-                ),
-
-                helpText(
-                    "CSV should contain exactly 50 columns.",
-                    "Each row should be one participant sequence.",
-                    "Entries must be H or T."
-                ),
-
-                hr(),
-
-                h4("Comparisons"),
-
-                checkboxInput(
-                    "compare_humans",
-                    "Compare to Smartodds participants",
-                    TRUE
-                ),
-
-                checkboxInput(
-                    "compare_uploaded",
-                    "Compare to uploaded data",
-                    FALSE
-                ),
-
-                checkboxInput(
-                    "compare_theoretical",
-                    "Compare to theoretical population",
-                    TRUE
-                )
+                actionButton("start","Start Tournament",class="btn-primary")
             ),
 
-            mainPanel(
+            div(class="card-style",
+                uiOutput("round_section"),
+                hr(),
+                uiOutput("prob_section")
+            ),
 
-                card(
-                    h4("Sequence"),
-
-                    div(
-                        style = "font-family:monospace; font-size:18px;",
-                        textOutput("seq_text")
-                    )
-                ),
-
-                card(
-                    h4("Visual structure"),
-                    plotOutput("seq_plot", height = 120)
-                ),
-
-                card(
-                    h4("Sequence statistics"),
-
-                    fluidRow(
-
-                        column(
-                            6,
-                            div(
-                                style = "
-                                background:#EEF2FF;
-                                padding:18px;
-                                border-radius:10px;
-                                text-align:center;",
-                                h5("Heads"),
-                                h2(textOutput("user_heads"))
-                            )
-                        ),
-
-                        column(
-                            6,
-                            div(
-                                style = "
-                                background:#F3E8FF;
-                                padding:18px;
-                                border-radius:10px;
-                                text-align:center;",
-                                h5("Longest run"),
-                                h2(textOutput("user_run"))
-                            )
-                        )
-                    )
-                ),
-
-                card(
-                    h4("Group results analysis"),
-                    gt_output("stats_table")
-                ),
-
-                card(
-                    h4("Number of Heads"),
-                    plotOutput("heads_plot", height = 320)
-                ),
-
-                card(
-                    h4("Longest Run"),
-                    plotOutput("runs_plot", height = 320)
-                )
+            div(class="card-style",
+                uiOutput("action_ui")
             )
         )
     ),
 
-    # =====================================================
-    # TAB 2 — SUMMARY (NEW)
-    # =====================================================
+    # =========================================================
+    # SUMMARY PAGE (NEW, SAFE)
+    # =========================================================
 
-    nav_panel(
+    conditionalPanel(
+        condition = "input.page == 'summary'",
 
-        "📘 Summary",
-
-        div(
-            style = "
-            text-align:center;
-            padding:18px;
-            border-radius:14px;
-            background:linear-gradient(90deg,#A8DADC,#CDB4DB);
-            margin-bottom:20px;",
-            h1("📘 Understanding Randomness in Coin Tosses"),
-            p("What structure appears inside random sequences?")
+        div(class="main-title",
+            h1("📘 Understanding the Tournament Model"),
+            p("How colour-based randomness drives tournament outcomes")
         ),
 
         fluidRow(
 
             column(
                 6,
-
-                div(
-                    class = "card-style",
-
-                    h3("🪙 What is happening?"),
-
-                    div(
-                        class = "info-box",
-
-                        tags$p("Each sequence is generated by repeated random coin flips."),
-                        tags$p("Even though outcomes are random, patterns still emerge."),
-                        tags$p("We study how these patterns behave across people and theory.")
-                    )
+                div(class="card-style",
+                    h3("🎲 Model structure"),
+                    p("Players are assigned colours that define probabilistic dice behaviour."),
+                    p("Each match is a stochastic comparison of two biased processes."),
+                    p("Tournaments reduce a large system into repeated elimination rounds.")
                 )
             ),
 
             column(
                 6,
-
-                div(
-                    class = "card-style",
-
-                    h3("📊 Why compare groups?"),
-
-                    div(
-                        class = "info-box",
-
-                        tags$p("Human-generated sequences are often not truly random."),
-                        tags$p("People tend to underestimate long runs of the same outcome."),
-                        tags$p("Comparing datasets reveals these systematic biases.")
-                    )
+                div(class="card-style",
+                    h3("📊 Simulation role"),
+                    p("Closed-form solutions are intractable for full tournaments."),
+                    p("Monte Carlo simulation estimates win probabilities."),
+                    p("We repeatedly simulate entire tournaments to measure outcomes.")
                 )
             )
         ),
@@ -325,71 +231,44 @@ ui <- page_navbar(
 
             column(
                 6,
-
-                div(
-                    class = "card-style",
-
+                div(class="card-style",
                     h3("📐 Key ideas"),
-
-                    div(
-                        class = "info-box",
-
-                        tags$ul(
-                            tags$li("Bernoulli trials"),
-                            tags$li("Binomial distribution"),
-                            tags$li("Runs and clustering"),
-                            tags$li("Sampling variability"),
-                            tags$li("Human perception of randomness")
-                        )
+                    tags$ul(
+                        tags$li("Biased random processes"),
+                        tags$li("Pairwise elimination structure"),
+                        tags$li("Logistic parameterisation"),
+                        tags$li("Monte Carlo estimation")
                     )
                 )
             ),
 
             column(
                 6,
-
-                div(
-                    class = "card-style",
-
-                    h3("🔍 Questions"),
-
-                    div(
-                        class = "info-box",
-
-                        tags$ul(
-                            tags$li("Why do humans avoid long runs?"),
-                            tags$li("How random is human data compared to theory?"),
-                            tags$li("What changes with longer sequences?"),
-                            tags$li("How reliable are these statistics?")
-                        )
+                div(class="card-style",
+                    h3("🔍 What to explore"),
+                    tags$ul(
+                        tags$li("Do early rounds dominate outcomes?"),
+                        tags$li("How sensitive are colour parameters?"),
+                        tags$li("How stable are win probabilities?"),
+                        tags$li("What drives tournament variance?")
                     )
                 )
             )
         ),
 
         fluidRow(
-
             column(
                 12,
-
-                div(
-                    class = "card-style",
-
-                    h3("🧠 Big idea"),
-
+                div(class="card-style",
+                    h3("🧠 Core insight"),
                     div(
-                        class = "info-box",
-
-                        tags$p("Randomness still produces structure."),
-                        tags$blockquote(
-                            style = "
-                                font-size:22px;
-                                font-weight:700;
-                                color:#7B9ACC;
-                                border-left:5px solid #CDB4DB;
-                                padding-left:18px;",
-                            "Apparent patterns are inevitable in random processes."
-                        )
+                        style="
+                            font-size:22px;
+                            font-weight:700;
+                            color:#7B9ACC;
+                            border-left:5px solid #CDB4DB;
+                            padding-left:18px;",
+                        "Simple probabilistic match rules can produce highly structured global tournament behaviour."
                     )
                 )
             )
@@ -403,230 +282,308 @@ ui <- page_navbar(
 
 server <- function(input, output, session){
 
-    rv <- reactiveValues(
-        seq = generate_seq(50),
-        user_seq = NULL,
-        uploaded_data = NULL
+    colours <- c("blue","red","green","yellow")
+
+    demo_scores <- list(
+        c(3,4,2,2,3,5,1,2,0,3,4,1,2,4,4,5),
+        c(4,4,2,3,1,0,5,3),
+        c(5,2,4,3),
+        c(1,3),
+        c(4)
     )
 
-    observeEvent(input$upload_data, {
+    rv <- reactiveValues(
+        round=1,
+        player_colours=NULL,
+        current_players=NULL,
+        estimation_df=NULL,
+        winner_probs=NULL,
+        pars_df=NULL,
+        estimated=FALSE,
+        sim_preview=NULL,
+        confetti=FALSE
+    )
 
-        req(input$upload_data)
+    player_badge <- function(id,col)
+        div(class=paste("player-badge",paste0("badge-",col)),paste("Player",id))
 
-        df <- tryCatch({
-            read.csv(
-                input$upload_data$datapath,
-                header = FALSE,
-                stringsAsFactors = FALSE
-            )
-        }, error = function(e) NULL)
+    observeEvent(input$start,{
+        set.seed(input$seed)
 
-        if(is.null(df)){
-            showNotification("Could not read CSV file.", type = "error")
-            return()
-        }
+        nplayers <- 2^input$nrounds
 
-        if(!validate_uploaded_data(df)){
-            showNotification(
-                "Uploaded data must contain exactly 50 columns of H/T values.",
-                type = "error"
-            )
-            return()
-        }
+        rv$player_colours <- sample(rep(colours,length.out=nplayers))
+        rv$current_players <- 1:nplayers
+        rv$round <- 1
+        rv$estimation_df <- data.frame()
+        rv$sim_preview <- NULL
+        rv$estimated <- FALSE
+        rv$confetti <- FALSE
+    })
 
-        rv$uploaded_data <- trimws(toupper(as.matrix(df)))
+    fixtures_df <- reactive({
+        req(rv$current_players)
 
-        showNotification(
-            paste("Uploaded", nrow(rv$uploaded_data), "participant sequences."),
-            type = "message"
+        if(length(rv$current_players) < 2) return(NULL)
+
+        data.frame(
+            Home = rv$current_players[seq(1, length(rv$current_players), 2)],
+            Away = rv$current_players[seq(2, length(rv$current_players), 2)],
+            HomeColour = rv$player_colours[seq(1, length(rv$current_players), 2)],
+            AwayColour = rv$player_colours[seq(2, length(rv$current_players), 2)]
         )
     })
 
-    observeEvent(input$submit_seq, {
+    simulate_round_only <- function(players){
 
-        seq <- parse_seq(input$user_seq)
+        home <- players[seq(1,length(players),2)]
+        away <- players[seq(2,length(players),2)]
 
-        if(is.null(seq)){
-            showNotification(
-                "Please enter exactly 50 H/T values.",
-                type = "error"
-            )
-            return()
-        }
-
-        rv$user_seq <- seq
-    })
-
-    observeEvent(input$random_seq, {
-        rv$user_seq <- generate_seq(50)
-    })
-
-    current_seq <- reactive({
-        if(!is.null(rv$user_seq)) rv$user_seq else rv$seq
-    })
-
-    uploaded_heads <- reactive({
-        req(rv$uploaded_data)
-        apply(rv$uploaded_data, 1, function(x) sum(x == "H"))
-    })
-
-    uploaded_runs <- reactive({
-        req(rv$uploaded_data)
-        apply(rv$uploaded_data, 1, function(x) max(rle(x)$lengths))
-    })
-
-    output$user_heads <- renderText({
-        activity1_stats(current_seq())$heads
-    })
-
-    output$user_run <- renderText({
-        activity1_stats(current_seq())$longest_run
-    })
-
-    output$seq_text <- renderText({
-        paste(current_seq(), collapse = " ")
-    })
-
-    output$seq_plot <- renderPlot({
-
-        df <- seq_df(current_seq())
-
-        ggplot(df, aes(pos, 1, fill = toss)) +
-            geom_tile(height = 1) +
-            scale_fill_manual(values = c(H = "#7B9ACC", T = "#CDB4DB")) +
-            theme_void() +
-            theme(legend.position = "none")
-    })
-
-    output$stats_table <- render_gt({
-
-        uploaded_available <- !is.null(rv$uploaded_data)
-
-        summary_df <- data.frame(
-            Statistic = c("Heads", "Longest run"),
-            Smartodds_Mean = c(
-                round(mean(human_heads), 2),
-                round(mean(human_runs), 2)
-            ),
-            Smartodds_SD = c(
-                round(sd(human_heads), 2),
-                round(sd(human_runs), 2)
-            ),
-            Theoretical_Mean = c(25, round(pws:::mean_max_run_length(50), 2)),
-            Theoretical_SD = c(
-                round(sqrt(50 * 0.5 * 0.5), 2),
-                round(sqrt(pws:::var_max_run_length(50)), 2)
-            )
+        results <- activity7_round_sim(
+            rv$player_colours[home],
+            rv$player_colours[away],
+            input$games
         )
 
-        if(uploaded_available){
-            summary_df$Uploaded_Mean <- c(
-                round(mean(uploaded_heads()), 2),
-                round(mean(uploaded_runs()), 2)
-            )
-            summary_df$Uploaded_SD <- c(
-                round(sd(uploaded_heads()), 2),
-                round(sd(uploaded_runs()), 2)
-            )
-        }
+        winners <- ifelse(results >= (input$games+1)/2, home, away)
 
-        gt_tbl <- gt(summary_df) %>%
-            fmt_number(columns = where(is.numeric), decimals = 2)
+        list(home=home,away=away,results=results,winners=winners)
+    }
 
-        gt_tbl
+    observeEvent(input$simulate_results,{
+        req(rv$current_players)
+        rv$sim_preview <- simulate_round_only(rv$current_players)
     })
 
-    output$heads_plot <- renderPlot({
+    observeEvent(
+        {
+            if(input$mode=="sim") input$next_round
+            else if(input$mode=="demo") input$demo_next
+            else input$submit_results
+        },
+        {
 
-        user_heads <- sum(current_seq() == "H")
+            req(rv$current_players)
 
-        p <- ggplot()
+            df <- fixtures_df()
+            req(!is.null(df))
 
-        if(input$compare_humans){
-            p <- p + geom_histogram(
-                data = data.frame(value = human_heads),
-                aes(value, y = after_stat(density)),
-                binwidth = 1,
-                fill = "#7B9ACC",
-                alpha = 0.4,
-                boundary = -0.5
+            sim <- switch(
+                input$mode,
+
+                "sim" = if(!is.null(rv$sim_preview)) rv$sim_preview else simulate_round_only(rv$current_players),
+
+                "human" = {
+                    res <- sapply(1:nrow(df), function(i) input[[paste0("match_",i)]])
+                    res <- as.numeric(res)
+
+                    if(any(is.na(res) | res < 0 | res > input$games)) {
+
+                        showNotification(
+                            paste0("All values must be between 0 and ", input$games),
+                            type = "warning",
+                            duration = 5
+                        )
+
+                        return(NULL)
+                    }
+
+                    list(
+                        home = df$Home,
+                        away = df$Away,
+                        results = res,
+                        winners = ifelse(res >= (input$games + 1)/2, df$Home, df$Away)
+                    )
+                },
+
+                "demo" = {
+                    res <- demo_scores[[rv$round]]
+                    list(
+                        home=df$Home,
+                        away=df$Away,
+                        results=res,
+                        winners=ifelse(res>=(input$games+1)/2,df$Home,df$Away)
+                    )
+                }
             )
+
+            rv$estimation_df <- dplyr::bind_rows(
+                rv$estimation_df,
+                data.frame(
+                    round=rv$round,
+                    home_colours=rv$player_colours[sim$home],
+                    away_colours=rv$player_colours[sim$away],
+                    results=sim$results
+                )
+            )
+
+            rv$current_players <- sim$winners
+            rv$round <- rv$round + 1
+            rv$sim_preview <- NULL
+
+            if(length(sim$winners) == 1){
+                rv$confetti <- TRUE
+                session$sendCustomMessage("confetti", list())
+            }
+
+            if(!rv$estimated && rv$round > input$estimate_round && nrow(rv$estimation_df)>0){
+
+                fit <- optim(
+                    c(0,0,0,0),
+                    activity7_neg_log_lik,
+                    dice_history=rv$estimation_df,
+                    n_games_per_match=input$games
+                )
+
+                rv$pars_df <- data.frame(
+                    parameter = c("blue","red","green","yellow","home advantage"),
+                    value = sprintf("%.3f", c(0, fit$par))
+                )
+
+                winner_vec <- replicate(input$nsim, {
+
+                    players <- rv$current_players
+
+                    repeat {
+                        n <- length(players)
+                        if (n == 1) break
+
+                        h <- players[seq(1, n, 2)]
+                        a <- players[seq(2, n, 2)]
+
+                        res <- activity7_round_sim_using_fits(
+                            fit$par,
+                            rv$player_colours[h],
+                            rv$player_colours[a],
+                            input$games
+                        )
+
+                        players <- ifelse(res >= (input$games + 1) / 2, h, a)
+                    }
+
+                    players
+                })
+
+                all_players <- as.character(rv$current_players)
+
+                tab <- table(factor(winner_vec, levels = all_players)) / input$nsim
+
+                rv$winner_probs <- tab
+                rv$estimated <- TRUE
+            }
+        }
+    )
+
+    output$round_section <- renderUI({
+
+        req(rv$current_players)
+
+        if(length(rv$current_players) < 2){
+
+            return(div(
+                h2("🏆 Champion"),
+                player_badge(rv$current_players, rv$player_colours[rv$current_players])
+            ))
         }
 
-        if(input$compare_uploaded && !is.null(rv$uploaded_data)){
-            p <- p + geom_histogram(
-                data = data.frame(value = uploaded_heads()),
-                aes(value, y = after_stat(density)),
-                binwidth = 1,
-                fill = "#F4A261",
-                alpha = 0.5,
-                boundary = -0.5
-            )
-        }
+        df <- fixtures_df()
 
-        if(input$compare_theoretical){
-            p <- p + geom_col(
-                data = theoretical_heads_df(),
-                aes(x, prob),
-                fill = "#CDB4DB",
-                alpha = 0.7,
-                width = 0.9
-            )
-        }
+        tagList(
+            h3(paste("Round",rv$round)),
 
-        p +
-            geom_vline(xintercept = user_heads, colour = "red", linewidth = 1.4) +
-            labs(x = "Number of Heads", y = "Probability / Density") +
-            theme_minimal(base_size = 14)
+            lapply(1:nrow(df), function(i){
+                div(
+                    player_badge(df$Home[i],df$HomeColour[i]),
+                    " vs ",
+                    player_badge(df$Away[i],df$AwayColour[i])
+                )
+            })
+        )
     })
 
-    output$runs_plot <- renderPlot({
+    output$result_inputs <- renderUI({
 
-        user_run <- max(rle(current_seq())$lengths)
+        req(input$mode %in% c("human","demo"))
+        df <- fixtures_df()
+        req(!is.null(df))
 
-        p <- ggplot()
+        tagList(
+            h3("Home Scores"),
 
-        if(input$compare_humans){
-            p <- p + geom_histogram(
-                data = data.frame(value = human_runs),
-                aes(value, y = after_stat(density)),
-                binwidth = 1,
-                fill = "#7B9ACC",
-                alpha = 0.4,
-                boundary = -0.5
+            div(
+                style="display:grid;grid-template-columns:repeat(8,1fr);gap:10px;",
+
+                lapply(1:nrow(df), function(i){
+
+                    default_value <- if(input$mode=="demo") demo_scores[[rv$round]][i] else 0
+
+                    numericInput(
+                        paste0("match_",i),
+                        paste("Match",i),
+                        value=default_value,
+                        min=0,
+                        max=input$games,
+                        width="100%"
+                    )
+                })
+            )
+        )
+    })
+
+    output$action_ui <- renderUI({
+
+        req(rv$current_players)
+
+        if(length(rv$current_players)==1) return(NULL)
+
+        if(input$mode=="human"){
+            tagList(uiOutput("result_inputs"),
+                    actionButton("submit_results","Submit",class="btn-primary"))
+
+        } else if(input$mode=="demo"){
+            tagList(uiOutput("result_inputs"),
+                    actionButton("demo_next","Next",class="btn-primary"))
+
+        } else {
+            tagList(
+                actionButton("simulate_results","Simulate",class="btn-primary"),
+                actionButton("next_round","Next",class="btn-primary")
             )
         }
+    })
 
-        if(input$compare_uploaded && !is.null(rv$uploaded_data)){
-            p <- p + geom_histogram(
-                data = data.frame(value = uploaded_runs()),
-                aes(value, y = after_stat(density)),
-                binwidth = 1,
-                fill = "#F4A261",
-                alpha = 0.5,
-                boundary = -0.5
-            )
+    output$prob_section <- renderUI({
+
+        req(rv$pars_df)
+
+        tagList(
+            h3("Parameter Estimates"),
+            tableOutput("pars_table"),
+            h3("Win Probabilities"),
+            tableOutput("win_probs")
+        )
+    })
+
+    output$pars_table <- renderTable({
+        req(rv$pars_df)
+        rv$pars_df
+    })
+
+    output$win_probs <- renderTable({
+        req(rv$winner_probs)
+
+        data.frame(
+            Player = names(rv$winner_probs),
+            Probability = sprintf("%.3f", as.numeric(rv$winner_probs))
+        )
+    })
+
+    observe({
+        if(rv$confetti){
+            invalidateLater(2000)
+            rv$confetti <- FALSE
         }
-
-        if(input$compare_theoretical){
-            p <- p + geom_col(
-                data = theoretical_runs_df(),
-                aes(x, prob),
-                fill = "#CDB4DB",
-                alpha = 0.7,
-                width = 0.9
-            )
-        }
-
-        p +
-            geom_vline(xintercept = user_run, colour = "red", linewidth = 1.4) +
-            labs(x = "Longest Run", y = "Probability / Density") +
-            theme_minimal(base_size = 14)
     })
 }
-
-# =========================================================
-# RUN APP
-# =========================================================
 
 shinyApp(ui, server)
