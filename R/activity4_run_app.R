@@ -8,10 +8,11 @@
 #'
 activity4_run_app <- function() {
 
-    appDir <- system.file("shiny", "appb.R", package = "pws")
+    appDir <- system.file("shiny", "app_activity4.R", package = "pws")
     if (appDir == "") {
         stop("Could not find directory pws. Try re-installing.", call. = FALSE)
     }
 
     shiny::runApp(appDir, display.mode = "normal")
 }
+
