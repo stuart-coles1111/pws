@@ -308,7 +308,7 @@ chapter1_ui <- function(id){
 
         id = id,
 
-        title = "⚽ Chapter 1: Simulating Goals",
+        title = "🎲 Chapter 1: Randomness",
 
         sidebar = sidebar_controls,
 

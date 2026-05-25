@@ -20,6 +20,8 @@ source("chapters/chapter1.R")
 source("chapters/chapter2.R")
 source("chapters/chapter3.R")
 source("chapters/chapter4.R")
+source("chapters/chapter5.R")
+
 
 # =========================================================
 # UI
@@ -43,7 +45,7 @@ ui <- page_navbar(
     # =======================================================
 
     nav_panel(
-        "⚽ Chapter 1",
+        "🎲 Chapter 1",
         chapter1_ui("chapter1")
     ),
 
@@ -52,7 +54,7 @@ ui <- page_navbar(
     # =======================================================
 
     nav_panel(
-        "📊 Chapter 2",
+        "🌗 Chapter 2",
         chapter2_ui("chapter2")
     ),
 
@@ -61,7 +63,7 @@ ui <- page_navbar(
     # =======================================================
 
     nav_panel(
-        "📊 Chapter 3",
+        "⚖️  Chapter 3",
         chapter3_ui("chapter3")
     ),
 
@@ -70,10 +72,22 @@ ui <- page_navbar(
     # =======================================================
 
     nav_panel(
-        "📊 Chapter 4",
+        "📉 Chapter 4",
         chapter4_ui("chapter4")
+    ),
+
+    # =======================================================
+    # Chapter 5
+    # =======================================================
+
+    nav_panel(
+        "📊 Chapter 5",
+        chapter5_ui("chapter5")
     )
 )
+
+
+
 
 # =========================================================
 # SERVER
@@ -92,6 +106,9 @@ server <- function(input, output, session){
 
     # Chapter 4
     chapter4_server("chapter4")
+
+    # Chapter 5
+    chapter5_server("chapter5")
 }
 
 # =========================================================

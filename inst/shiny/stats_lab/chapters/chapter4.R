@@ -8,56 +8,31 @@ chapter4_ui <- function(id){
 
         p("Explore how a guess (G) and uncertainty (S) determine a score when the true value is Θ."),
 
-        numericInput(
-            ns("G"),
-            "Guess (G)",
-            value = 0
-        ),
+        numericInput(ns("G"), "Guess (G)", value = 0),
 
-        numericInput(
-            ns("S"),
-            "Uncertainty (S)",
-            value = 1,
-            min = 0.01
-        ),
+        numericInput(ns("S"), "Uncertainty (S)", value = 1, min = 0.01),
 
-        numericInput(
-            ns("Theta"),
-            "True value (Θ)",
-            value = 1
-        ),
+        numericInput(ns("Theta"), "True value (Θ)", value = 1),
 
-        numericInput(
-            ns("dp"),
-            "Decimal places",
-            value = 2,
-            min = 0,
-            max = 10
-        ),
+        numericInput(ns("dp"), "Decimal places", value = 2, min = 0, max = 10),
 
-        checkboxInput(
-            ns("lines"),
-            "Show detailed curves",
-            value = TRUE
-        ),
+        checkboxInput(ns("lines"), "Show detailed curves", value = TRUE),
 
-        checkboxInput(
-            ns("final_only"),
-            "Show only final score plot",
-            value = FALSE
-        )
+        checkboxInput(ns("final_only"), "Show only final score plot", value = FALSE)
     )
 
     overview_panel <- card(
 
         card_header("What this chapter explores"),
 
-        tags$p("This chapter introduces how probabilistic scores arise from a normal model centred on a guess."),
+        tags$p(
+            "This chapter introduces how probabilistic scores arise from a normal model centred on a guess."
+        ),
 
         tags$ul(
-            tags$li("A guess (G) defines a centre of belief"),
-            tags$li("Uncertainty (S) defines spread"),
-            tags$li("True value (Θ) determines score quality"),
+            tags$li("A guess (G) defines the centre of belief"),
+            tags$li("Uncertainty (S) defines interval width (not SD)"),
+            tags$li("True value (Θ) evaluates the prediction"),
             tags$li("Scores are log densities under a normal model")
         )
     )
@@ -75,7 +50,6 @@ chapter4_ui <- function(id){
 
         card(
             card_header("Score"),
-
             h2(textOutput(ns("score")))
         ),
 
@@ -83,7 +57,6 @@ chapter4_ui <- function(id){
 
         card(
             card_header("Response analysis plot"),
-
             plotOutput(ns("plot"), height = 450)
         )
     )
@@ -93,16 +66,16 @@ chapter4_ui <- function(id){
         card_header("Key ideas"),
 
         tags$ul(
-            tags$li("A sharper (smaller S) prediction is penalised more when wrong."),
-            tags$li("Log density converts probability into additive scores."),
-            tags$li("Distance from Θ relative to S determines performance."),
-            tags$li("The same error can be good or bad depending on uncertainty.")
+            tags$li("Uncertainty S is converted to standard deviation internally."),
+            tags$li("Sharper predictions are more strongly penalised."),
+            tags$li("Scores are log densities of a Gaussian model."),
+            tags$li("Performance depends on distance relative to uncertainty.")
         )
     )
 
     chapter_page_ui(
         id = id,
-        title = "📈 Chapter 4: Response Scoring",
+        title = "📉 Chapter 4: Uncertainty",
         sidebar = sidebar_controls,
         overview = overview_panel,
         code = code_panel,
@@ -115,23 +88,24 @@ chapter4_server <- function(id){
 
     moduleServer(id, function(input, output, session){
 
-        output$score <- renderText({
+        score_obj <- reactive({
 
-            res <- pws::activity4_response_analysis(
+            activity4_response_score(
                 G = input$G,
                 S = input$S,
                 Theta = input$Theta,
-                dp = input$dp,
-                lines = FALSE,
-                final_score_only = TRUE
+                alpha = 0.95,
+                dp = input$dp
             )
+        })
 
-            # function prints; we just re-run score directly if needed
-            "See plot"
+        output$score <- renderText({
+            score_obj()$scores
         })
 
         output$plot <- renderPlot({
 
+            # IMPORTANT: plot function MUST use same sigma transformation internally
             pws::activity4_response_analysis(
                 G = input$G,
                 S = input$S,
@@ -146,10 +120,12 @@ chapter4_server <- function(id){
         output$code <- renderText({
 
             paste0(
-                "activity4_response_analysis(G = ", input$G,
+                "activity4_response_score(",
+                "G = ", input$G,
                 ", S = ", input$S,
                 ", Theta = ", input$Theta,
-                ", dp = ", input$dp,
+                ", alpha = 0.95, ",
+                "dp = ", input$dp,
                 ")"
             )
         })

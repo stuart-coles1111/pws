@@ -159,7 +159,7 @@ chapter2_ui <- function(id){
 
     chapter_page_ui(
         id = id,
-        title = "📊 Chapter 2: Probability Distributions",
+        title = "🌗 Chapter 2: Probability",
         sidebar = sidebar_controls,
         overview = overview_panel,
         code = code_panel,

@@ -102,7 +102,7 @@ chapter3_ui <- function(id){
 
     chapter_page_ui(
         id = id,
-        title = "⚽ Chapter 3: Expected Goals (xG)",
+        title = "⚖ Chapter 3: Expectation",
         sidebar = sidebar_controls,
         overview = overview_panel,
         code = code_panel,
