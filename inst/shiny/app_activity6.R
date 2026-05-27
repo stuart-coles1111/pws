@@ -77,6 +77,56 @@ main_panel_ui <- function(show_comp_results = FALSE){
 
     div(
 
+        # ===================================================
+        # SKI JUMP SIMULATION NOW AT TOP
+        # ===================================================
+
+        div(
+            class = "card-style",
+
+            h3("Ski Jump Simulation"),
+
+            div(
+                class = "ski-world",
+
+                div(class = "wr-marker-label", "WR"),
+                div(class = "wr-marker"),
+
+                div(
+                    id = if(show_comp_results)
+                        "skier-comp"
+                    else
+                        "skier",
+
+                    class = "skier",
+
+                    "⛷️"
+                ),
+
+                div(
+                    id = if(show_comp_results)
+                        "jump-marker-comp"
+                    else
+                        "jump-marker",
+
+                    class = "jump-marker"
+                ),
+
+                div(
+                    id = if(show_comp_results)
+                        "jump-label-comp"
+                    else
+                        "jump-label",
+
+                    class = "jump-label"
+                )
+            )
+        ),
+
+        # ===================================================
+        # SPENDING PANEL
+        # ===================================================
+
         div(
             class = "card-style",
 
@@ -272,6 +322,51 @@ Shiny.addCustomMessageHandler('trigger_confetti', function(message) {
 });
 ")),
 
+            tags$script(HTML("
+
+Shiny.addCustomMessageHandler('start_jump', function(message){
+
+  const skier = document.getElementById(message.id);
+
+  if(!skier) return;
+
+  const worldRecord = message.world_record;
+  const jump = message.jump_distance;
+
+  const container = skier.parentElement.offsetWidth;
+
+  const runup = 50;
+  const maxX = container - 50;
+
+  let landingRight =
+    runup + (maxX - runup) * (jump / worldRecord);
+
+  landingRight = Math.min(maxX, landingRight);
+
+  skier.style.transition = 'right 2s linear';
+  skier.style.right = landingRight + 'px';
+
+  setTimeout(() => {
+
+    const marker = document.getElementById(message.marker);
+    const label  = document.getElementById(message.label);
+
+    if(marker){
+      marker.style.right = landingRight + 'px';
+      marker.style.display = 'block';
+    }
+
+    if(label){
+      label.style.right = (landingRight - 25) + 'px';
+      label.innerHTML = jump.toFixed(1) + ' m';
+    }
+
+  }, 2100);
+
+});
+
+")),
+
             tags$style(HTML("
 
 body{
@@ -359,6 +454,71 @@ body{
   line-height:1.7;
 }
 
+.info-box{
+  background:#F8F9FB;
+  padding:18px;
+  border-radius:14px;
+  line-height:1.7;
+}
+
+/* ================= SKI JUMP ANIMATION ================= */
+
+.ski-world{
+  position:relative;
+  width:100%;
+  height:140px;
+  background:linear-gradient(
+    to bottom,
+    #BFE7FF 0%,
+    #EAF7FF 45%,
+    #FFFFFF 100%
+  );
+  overflow:hidden;
+  border-radius:12px;
+}
+
+.skier{
+  position:absolute;
+  top:45px;
+  right:0px;
+  font-size:42px;
+  z-index:5;
+  transition:right 2s linear;
+}
+
+.jump-marker{
+  position:absolute;
+  top:70px;
+  width:4px;
+  height:40px;
+  background:#1D3557;
+  display:none;
+}
+
+.wr-marker{
+  position:absolute;
+  top:70px;
+  left:10%;
+  width:4px;
+  height:40px;
+  background:#E63946;
+}
+
+.wr-marker-label{
+  position:absolute;
+  top:40px;
+  left:10%;
+  font-weight:700;
+  color:#E63946;
+}
+
+.jump-label{
+  position:absolute;
+  top:10px;
+  font-weight:700;
+  color:#1D3557;
+}
+
 "))
         )
     ),
@@ -443,6 +603,270 @@ body{
             ),
 
             main_panel_ui(TRUE)
+        )
+    ),
+
+    # =======================================================
+    # SUMMARY TAB
+    # =======================================================
+
+    nav_panel(
+
+        "📘 Summary",
+
+        div(
+            class = "main-title",
+
+            h1("📘 Understanding Ski Jump Optimisation"),
+
+            p(
+                "Key ideas behind regression analysis, uncertainty, simulation, and strategic decision making."
+            )
+        ),
+
+        fluidRow(
+
+            column(
+                6,
+
+                div(
+                    class = "card-style",
+
+                    h3("🎿 The Core Challenge"),
+
+                    div(
+                        class = "info-box",
+
+                        tags$p(
+                            "The ski jump activity models a decision problem under uncertainty."
+                        ),
+
+                        tags$p(
+                            "Players must allocate limited resources across training categories to maximise jump distance."
+                        ),
+
+                        tags$p(
+                            "The true importance of Technique, Materials, and Fitness is hidden."
+                        ),
+
+                        tags$p(
+                            "Historical and competition data help reveal which factors matter most."
+                        )
+                    )
+                )
+            ),
+
+            column(
+                6,
+
+                div(
+                    class = "card-style",
+
+                    h3("📊 Regression Analysis"),
+
+                    div(
+                        class = "info-box",
+
+                        tags$p(
+                            "Regression analysis estimates relationships between investments and jump performance."
+                        ),
+
+                        tags$p(
+                            "Scatterplots reveal how jump distance changes as spending increases."
+                        ),
+
+                        tags$p(
+                            "The regression coefficients estimate the marginal impact of each training category."
+                        ),
+
+                        tags$p(
+                            "Larger gradients suggest stronger effects on performance."
+                        )
+                    )
+                )
+            )
+        ),
+
+        fluidRow(
+
+            column(
+                6,
+
+                div(
+                    class = "card-style",
+
+                    h3("🎲 Randomness and Simulation"),
+
+                    div(
+                        class = "info-box",
+
+                        tags$p(
+                            "Jump outcomes are not perfectly predictable."
+                        ),
+
+                        tags$p(
+                            "Even with optimal spending, random variation affects final performance."
+                        ),
+
+                        tags$p(
+                            "The simulation includes random noise to model weather, conditions, and chance."
+                        ),
+
+                        tags$p(
+                            "This reflects real-world uncertainty in competitive environments."
+                        )
+                    )
+                )
+            ),
+
+            column(
+                6,
+
+                div(
+                    class = "card-style",
+
+                    h3("🧠 Strategic Resource Allocation"),
+
+                    div(
+                        class = "info-box",
+
+                        tags$p(
+                            "Players face a constrained optimisation problem."
+                        ),
+
+                        tags$p(
+                            "Each phase has a fixed budget of 10 spending units."
+                        ),
+
+                        tags$p(
+                            "Spending heavily in one category limits future flexibility."
+                        ),
+
+                        tags$p(
+                            "Good strategies balance information gathering with performance investment."
+                        )
+                    )
+                )
+            )
+        ),
+
+        fluidRow(
+
+            column(
+                6,
+
+                div(
+                    class = "card-style",
+
+                    h3("📈 Data-Driven Learning"),
+
+                    div(
+                        class = "info-box",
+
+                        tags$ul(
+
+                            tags$li(
+                                "Interpreting regression coefficients"
+                            ),
+
+                            tags$li(
+                                "Understanding correlation and prediction"
+                            ),
+
+                            tags$li(
+                                "Using simulated data for inference"
+                            ),
+
+                            tags$li(
+                                "Learning from noisy observations"
+                            ),
+
+                            tags$li(
+                                "Balancing exploration and exploitation"
+                            )
+                        )
+                    )
+                )
+            ),
+
+            column(
+                6,
+
+                div(
+                    class = "card-style",
+
+                    h3("🔍 Questions to Explore"),
+
+                    div(
+                        class = "info-box",
+
+                        tags$ul(
+
+                            tags$li(
+                                "Which spending category matters most?"
+                            ),
+
+                            tags$li(
+                                "How much data is enough to identify the best strategy?"
+                            ),
+
+                            tags$li(
+                                "Why can random outcomes still occur after good decisions?"
+                            ),
+
+                            tags$li(
+                                "Should more budget be spent on data or performance?"
+                            ),
+
+                            tags$li(
+                                "How does uncertainty affect strategic planning?"
+                            )
+                        )
+                    )
+                )
+            )
+        ),
+
+        fluidRow(
+
+            column(
+                12,
+
+                div(
+                    class = "card-style",
+
+                    h3("🏆 Interpretation"),
+
+                    div(
+                        class = "info-box",
+
+                        tags$p(
+                            "The activity combines statistical modelling with strategic decision making."
+                        ),
+
+                        tags$blockquote(
+                            style = "
+                                font-size:22px;
+                                font-weight:700;
+                                color:#7B9ACC;
+                                border-left:5px solid #CDB4DB;
+                                padding-left:18px;
+                                margin-top:20px;
+                            ",
+
+                            "Better decisions come from combining data, modelling, and strategic resource allocation."
+                        ),
+
+                        tags$p(
+                            "Regression models help estimate hidden relationships, while simulation captures uncertainty and variability."
+                        ),
+
+                        tags$p(
+                            "These ideas are widely used in sports analytics, economics, finance, engineering, machine learning, and operations research."
+                        )
+                    )
+                )
+            )
         )
     )
 )
@@ -762,6 +1186,17 @@ server <- function(input, output, session){
 
         output$status_message <- renderUI(msg)
         output$status_message_comp <- renderUI(msg)
+
+        session$sendCustomMessage(
+            "start_jump",
+            list(
+                id = "skier",
+                marker = "jump-marker",
+                label = "jump-label",
+                jump_distance = rv$training_jump,
+                world_record = input$wr
+            )
+        )
     })
 
     # =======================================================
@@ -937,6 +1372,17 @@ server <- function(input, output, session){
                 </div>"
             ))
         })
+
+        session$sendCustomMessage(
+            "start_jump",
+            list(
+                id = "skier-comp",
+                marker = "jump-marker-comp",
+                label = "jump-label-comp",
+                jump_distance = rv$competition_jump,
+                world_record = input$wr
+            )
+        )
     })
 
     # =======================================================
