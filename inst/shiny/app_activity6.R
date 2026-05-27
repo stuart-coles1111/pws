@@ -77,204 +77,197 @@ main_panel_ui <- function(show_comp_results = FALSE){
 
     div(
 
-        # ===================================================
-        # SKI JUMP SIMULATION NOW AT TOP
-        # ===================================================
+        fluidRow(
 
-        div(
-            class = "card-style",
+            # ===================================================
+            # LEFT COLUMN
+            # ===================================================
 
-            h3("Ski Jump Simulation"),
+            column(
+                width = 6,
 
-            div(
-                class = "ski-world",
-
-                div(class = "wr-marker-label", "WR"),
-                div(class = "wr-marker"),
-
+                # =========================
+                # ANIMATION (TOP LEFT)
+                # =========================
                 div(
-                    id = if(show_comp_results)
-                        "skier-comp"
-                    else
-                        "skier",
+                    class = "card-style",
 
-                    class = "skier",
+                    h3("Ski Jump Simulation"),
 
-                    "⛷️"
+                    div(
+                        class = "ski-world",
+
+                        div(class = "wr-marker-label", "WR"),
+                        div(class = "wr-marker"),
+
+                        div(
+                            id = if(show_comp_results)
+                                "skier-comp"
+                            else
+                                "skier",
+                            class = "skier",
+                            "⛷️"
+                        ),
+
+                        div(
+                            id = if(show_comp_results)
+                                "jump-marker-comp"
+                            else
+                                "jump-marker",
+                            class = "jump-marker"
+                        ),
+
+                        div(
+                            id = if(show_comp_results)
+                                "jump-label-comp"
+                            else
+                                "jump-label",
+                            class = "jump-label"
+                        )
+                    )
                 ),
 
+                # =========================
+                # SPENDING TABLE + BUTTONS
+                # =========================
                 div(
-                    id = if(show_comp_results)
-                        "jump-marker-comp"
-                    else
-                        "jump-marker",
+                    class = "card-style",
 
-                    class = "jump-marker"
+                    h3(
+                        if(show_comp_results)
+                            "Competition Spending"
+                        else
+                            "Training Spending"
+                    ),
+
+                    if(show_comp_results){
+
+                        div(
+                            class = "step-panel",
+                            HTML("
+                            <b>Step 1:</b> Choose competition data.<br>
+                            <b>Step 2:</b> Buy Competition Data.<br>
+                            <b>Step 3:</b> Choose resources.<br>
+                            <b>Step 4:</b> Buy Competition Resources.<br>
+                            <b>Step 5:</b> Competition Jump.
+                            ")
+                        )
+
+                    } else {
+
+                        div(
+                            class = "step-panel",
+                            HTML("
+                            <b>Step 1:</b> Choose historical data.<br>
+                            <b>Step 2:</b> Buy Historical Data.<br>
+                            <b>Step 3:</b> Choose training resources.<br>
+                            <b>Step 4:</b> Buy Training Resources.<br>
+                            <b>Step 5:</b> Run Training Jump.
+                            ")
+                        )
+                    },
+
+                    br(),
+
+                    rHandsontableOutput(
+                        if(show_comp_results)
+                            "spend_table_comp"
+                        else
+                            "spend_table_train"
+                    ),
+
+                    br(),
+
+                    if(show_comp_results){
+
+                        tagList(
+                            actionButton("buy_comp_data","1: Buy Competition Data", class="btn-primary"),
+                            actionButton("buy_comp_resources","2: Buy Competition Resources", class="btn-primary"),
+                            actionButton("run_competition","3: Competition Jump", class="btn-primary")
+                        )
+
+                    } else {
+
+                        tagList(
+                            actionButton("buy_train_data","1: Buy Historical Data", class="btn-primary"),
+                            actionButton("buy_train_resources","2: Buy Training Resources", class="btn-primary"),
+                            actionButton("run_training","3: Run Training Jump", class="btn-primary")
+                        )
+                    }
                 ),
 
+                # =========================
+                # STATUS MESSAGE
+                # =========================
                 div(
-                    id = if(show_comp_results)
-                        "jump-label-comp"
-                    else
-                        "jump-label",
-
-                    class = "jump-label"
-                )
-            )
-        ),
-
-        # ===================================================
-        # SPENDING PANEL
-        # ===================================================
-
-        div(
-            class = "card-style",
-
-            h3(
-                if(show_comp_results)
-                    "Competition Spending"
-                else
-                    "Training Spending"
-            ),
-
-            if(show_comp_results){
-
-                div(
-                    class = "step-panel",
-                    HTML("
-                    <b>Step 1:</b> Choose how much to spend on competition data.<br>
-                    <b>Step 2:</b> Press 'Buy Competition Data'.<br>
-                    <b>Step 3:</b> Choose how much to spend on competition resources.<br>
-                    <b>Step 4:</b> Press 'Buy Competition Resources'.<br>
-                    <b>Step 5:</b> Press 'Competition Jump'.
-                    ")
-                )
-
-            } else {
-
-                div(
-                    class = "step-panel",
-                    HTML("
-                    <b>Step 1:</b> Choose how much to spend on historical data.<br>
-                    <b>Step 2:</b> Press 'Buy Historical Data'.<br>
-                    <b>Step 3:</b> Choose how much to spend on training resources.<br>
-                    <b>Step 4:</b> Press 'Buy Training Resources'.<br>
-                    <b>Step 5:</b> Press 'Run Training Jump'.
-                    ")
-                )
-            },
-
-            br(),
-
-            rHandsontableOutput(
-                if(show_comp_results)
-                    "spend_table_comp"
-                else
-                    "spend_table_train"
-            ),
-
-            br(),
-
-            if(show_comp_results){
-
-                tagList(
-
-                    actionButton(
-                        "buy_comp_data",
-                        "1: Buy Competition Data",
-                        class = "btn-primary"
-                    ),
-
-                    actionButton(
-                        "buy_comp_resources",
-                        "2: Buy Competition Resources",
-                        class = "btn-primary"
-                    ),
-
-                    actionButton(
-                        "run_competition",
-                        "3: Competition Jump",
-                        class = "btn-primary"
+                    class = "card-style",
+                    div(
+                        class = "message-panel",
+                        uiOutput(
+                            if(show_comp_results)
+                                "status_message_comp"
+                            else
+                                "status_message"
+                        )
                     )
                 )
+            ),
 
-            } else {
+            # ===================================================
+            # RIGHT COLUMN
+            # ===================================================
 
-                tagList(
+            column(
+                width = 6,
 
-                    actionButton(
-                        "buy_train_data",
-                        "1: Buy Historical Data",
-                        class = "btn-primary"
-                    ),
+                # =========================
+                # REGRESSION PLOT (TOP RIGHT)
+                # =========================
+                div(
+                    class = "card-style",
 
-                    actionButton(
-                        "buy_train_resources",
-                        "2: Buy Training Resources",
-                        class = "btn-primary"
-                    ),
+                    h3("Regression Analysis"),
 
-                    actionButton(
-                        "run_training",
-                        "3: Run Training Jump",
-                        class = "btn-primary"
+                    plotOutput(
+                        if(show_comp_results)
+                            "regression_plot_comp"
+                        else
+                            "regression_plot",
+                        height = "420px"
+                    )
+                ),
+
+                # =========================
+                # COEFFICIENTS (UNDER PLOT)
+                # =========================
+                div(
+                    class = "card-style",
+
+                    h3("Regression Coefficients"),
+
+                    tableOutput(
+                        if(show_comp_results)
+                            "coef_table_comp"
+                        else
+                            "coef_table"
+                    )
+                ),
+
+                # =========================
+                # JUMP RESULTS (BOTTOM RIGHT)
+                # =========================
+                div(
+                    class = "card-style",
+
+                    h3("Jump Outcomes"),
+
+                    uiOutput(
+                        if(show_comp_results)
+                            "jump_results_comp"
+                        else
+                            "jump_results"
                     )
                 )
-            }
-        ),
-
-        div(
-            class = "card-style",
-
-            div(
-                class = "message-panel",
-
-                uiOutput(
-                    if(show_comp_results)
-                        "status_message_comp"
-                    else
-                        "status_message"
-                )
-            )
-        ),
-
-        div(
-            class = "card-style",
-
-            h3("Regression Analysis"),
-
-            plotOutput(
-                if(show_comp_results)
-                    "regression_plot_comp"
-                else
-                    "regression_plot",
-                height = "550px"
-            )
-        ),
-
-        div(
-            class = "card-style",
-
-            h3("Regression Coefficients"),
-
-            tableOutput(
-                if(show_comp_results)
-                    "coef_table_comp"
-                else
-                    "coef_table"
-            )
-        ),
-
-        div(
-            class = "card-style",
-
-            h3("Jump Outcomes"),
-
-            uiOutput(
-                if(show_comp_results)
-                    "jump_results_comp"
-                else
-                    "jump_results"
             )
         )
     )
@@ -286,7 +279,7 @@ main_panel_ui <- function(show_comp_results = FALSE){
 
 ui <- page_navbar(
 
-    title = "🎿 Ski Jump Challenge",
+    title = "🎿 Activity 6:  break the ski jump world record",
 
     header = tagList(
 
