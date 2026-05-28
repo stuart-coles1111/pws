@@ -4,7 +4,7 @@ horse_pics <- paste0("horse", 1:6,".jpg")
 # set commission maximum
 commission_max <- 0.2
 
-allowed_time <- 180
+allowed_time <- 5
 
 pool_init <- 100
 
