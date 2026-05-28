@@ -8,7 +8,7 @@
 #'
 activity8_run_app <- function() {
 
-    appDir <- system.file("shiny", "app_horse_race_game.R", package = "pws")
+    appDir <- system.file("shiny", "app_activity8.R", package = "pws")
     if (appDir == "") {
         stop("Could not find directory pws. Try re-installing.", call. = FALSE)
     }
