@@ -1,16 +1,25 @@
 #' Run Horse Race App
-#' Executes horse race app for Activity 8 in Playing With Statistics
-#'
-#' @examples
-#' activity8_run_app()
+#' @param mode "multiplayer" or "singleplayer"
 #'
 #' @export
-#'
-activity8_run_app <- function() {
+activity8_run_app <- function(mode = c("multiplayer", "singleplayer")) {
 
-    appDir <- system.file("shiny", "app_activity8.R", package = "pws")
+    mode <- match.arg(mode)
+
+    app_file <- switch(
+        mode,
+        multiplayer = "app_activity8.R",
+        singleplayer = "app_activity8_sim.R"
+    )
+
+    appDir <- system.file("shiny", app_file, package = "pws")
+
     if (appDir == "") {
-        stop("Could not find directory pws. Try re-installing.", call. = FALSE)
+        stop(
+            paste0("Could not find app file: ", app_file,
+                   ". Try reinstalling the package."),
+            call. = FALSE
+        )
     }
 
     shiny::runApp(appDir, display.mode = "normal")
