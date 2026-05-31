@@ -670,13 +670,12 @@ server <- function(input, output, session) {
                     remaining_time()
             )
 
-            team <- as.numeric(
-                bets[idx, "bet_team"]
-            )
+            for(i in idx) {
 
-            horse <- as.numeric(
-                bets[idx, "bet_horse"]
-            )
+                team <- as.numeric(bets[i, "bet_team"])
+                horse <- as.numeric(bets[i, "bet_horse"])
+
+            }
 
             real_stake <- round(
                 as.numeric(
