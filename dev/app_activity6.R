@@ -4,8 +4,8 @@ library(shinyjs)
 library(ggplot2)
 library(dplyr)
 library(reshape2)
-library(DT)
 library(gtools)
+library(rhandsontable)
 
 # =========================================================
 # Helper Functions
@@ -40,69 +40,137 @@ ski_jump <- function(spend, weight, mu, sd){
         rnorm(1, 0, sd)
 }
 
+validate_spend <- function(vals, max_vals, phase_name){
+
+    if(any(vals < 0, na.rm = TRUE)){
+
+        return(paste0(
+            phase_name,
+            ": spending cannot be negative."
+        ))
+    }
+
+    if(any(vals > max_vals, na.rm = TRUE)){
+
+        return(paste0(
+            phase_name,
+            ": one or more categories exceed the allowable maximum."
+        ))
+    }
+
+    if(sum(vals, na.rm = TRUE) > 10){
+
+        return(paste0(
+            phase_name,
+            ": total spending cannot exceed 10."
+        ))
+    }
+
+    return(NULL)
+}
+
 # =========================================================
-# Shared Main Panel
+# UI Helper
 # =========================================================
 
 main_panel_ui <- function(show_comp_results = FALSE){
 
     div(
 
-        fluidRow(
+        div(
+            class = "card-style",
 
-            column(
-                4,
-
-                div(
-                    class = "metric-box",
-
-                    div(
-                        class = "metric-value",
-                        textOutput("training_bank")
-                    ),
-
-                    div(
-                        class = "metric-label",
-                        "Training Bank"
-                    )
-                )
+            h3(
+                if(show_comp_results)
+                    "Competition Spending"
+                else
+                    "Training Spending"
             ),
 
-            column(
-                4,
+            if(show_comp_results){
 
                 div(
-                    class = "metric-box",
-
-                    div(
-                        class = "metric-value",
-                        textOutput("competition_bank")
-                    ),
-
-                    div(
-                        class = "metric-label",
-                        "Competition Bank"
-                    )
+                    class = "step-panel",
+                    HTML("
+                    <b>Step 1:</b> Choose how much to spend on competition data.<br>
+                    <b>Step 2:</b> Press 'Buy Competition Data'.<br>
+                    <b>Step 3:</b> Choose how much to spend on competition resources.<br>
+                    <b>Step 4:</b> Press 'Buy Competition Resources'.<br>
+                    <b>Step 5:</b> Press 'Competition Jump'.
+                    ")
                 )
+
+            } else {
+
+                div(
+                    class = "step-panel",
+                    HTML("
+                    <b>Step 1:</b> Choose how much to spend on historical data.<br>
+                    <b>Step 2:</b> Press 'Buy Historical Data'.<br>
+                    <b>Step 3:</b> Choose how much to spend on training resources.<br>
+                    <b>Step 4:</b> Press 'Buy Training Resources'.<br>
+                    <b>Step 5:</b> Press 'Run Training Jump'.
+                    ")
+                )
+            },
+
+            br(),
+
+            rHandsontableOutput(
+                if(show_comp_results)
+                    "spend_table_comp"
+                else
+                    "spend_table_train"
             ),
 
-            column(
-                4,
+            br(),
 
-                div(
-                    class = "metric-box",
+            if(show_comp_results){
 
-                    div(
-                        class = "metric-value",
-                        textOutput("total_data")
+                tagList(
+
+                    actionButton(
+                        "buy_comp_data",
+                        "1: Buy Competition Data",
+                        class = "btn-primary"
                     ),
 
-                    div(
-                        class = "metric-label",
-                        "Historical Jumps"
+                    actionButton(
+                        "buy_comp_resources",
+                        "2: Buy Competition Resources",
+                        class = "btn-primary"
+                    ),
+
+                    actionButton(
+                        "run_competition",
+                        "3: Competition Jump",
+                        class = "btn-primary"
                     )
                 )
-            )
+
+            } else {
+
+                tagList(
+
+                    actionButton(
+                        "buy_train_data",
+                        "1: Buy Historical Data",
+                        class = "btn-primary"
+                    ),
+
+                    actionButton(
+                        "buy_train_resources",
+                        "2: Buy Training Resources",
+                        class = "btn-primary"
+                    ),
+
+                    actionButton(
+                        "run_training",
+                        "3: Run Training Jump",
+                        class = "btn-primary"
+                    )
+                )
+            }
         ),
 
         div(
@@ -110,16 +178,14 @@ main_panel_ui <- function(show_comp_results = FALSE){
 
             div(
                 class = "message-panel",
-                uiOutput(if(show_comp_results) "status_message_comp" else "status_message")
+
+                uiOutput(
+                    if(show_comp_results)
+                        "status_message_comp"
+                    else
+                        "status_message"
+                )
             )
-        ),
-
-        div(
-            class = "card-style",
-
-            h3("Historical Jump Data"),
-
-            DTOutput(if(show_comp_results) "data_table_comp" else "data_table")
         ),
 
         div(
@@ -128,7 +194,10 @@ main_panel_ui <- function(show_comp_results = FALSE){
             h3("Regression Analysis"),
 
             plotOutput(
-                if(show_comp_results) "regression_plot_comp" else "regression_plot",
+                if(show_comp_results)
+                    "regression_plot_comp"
+                else
+                    "regression_plot",
                 height = "550px"
             )
         ),
@@ -138,7 +207,12 @@ main_panel_ui <- function(show_comp_results = FALSE){
 
             h3("Regression Coefficients"),
 
-            tableOutput(if(show_comp_results) "coef_table_comp" else "coef_table")
+            tableOutput(
+                if(show_comp_results)
+                    "coef_table_comp"
+                else
+                    "coef_table"
+            )
         ),
 
         div(
@@ -146,7 +220,12 @@ main_panel_ui <- function(show_comp_results = FALSE){
 
             h3("Jump Outcomes"),
 
-            uiOutput(if(show_comp_results) "jump_results_comp" else "jump_results")
+            uiOutput(
+                if(show_comp_results)
+                    "jump_results_comp"
+                else
+                    "jump_results"
+            )
         )
     )
 }
@@ -250,24 +329,6 @@ body{
   color:#2E4057;
 }
 
-.metric-box{
-  background:#F8FAFC;
-  border-radius:14px;
-  padding:16px;
-  text-align:center;
-  margin-bottom:12px;
-}
-
-.metric-value{
-  font-size:28px;
-  font-weight:700;
-  color:#1D3557;
-}
-
-.metric-label{
-  color:#6B7280;
-}
-
 .success-panel{
   background:#D8F3DC;
   color:#1B4332;
@@ -288,6 +349,16 @@ body{
   text-align:center;
 }
 
+.step-panel{
+  background:#EEF6FB;
+  border-left:5px solid #89C2D9;
+  padding:14px 18px;
+  border-radius:12px;
+  font-size:15px;
+  color:#1D3557;
+  line-height:1.7;
+}
+
 "))
         )
     ),
@@ -299,9 +370,9 @@ body{
         base_font = font_google("Inter")
     ),
 
-    # =====================================================
-    # TRAINING PAGE
-    # =====================================================
+    # =======================================================
+    # TRAINING TAB
+    # =======================================================
 
     nav_panel(
 
@@ -335,58 +406,6 @@ body{
                     "wr",
                     "World record distance (m)",
                     254.5
-                ),
-
-                tags$hr(),
-
-                h4("Training Data"),
-
-                numericInput(
-                    "train_data_spend",
-                    "Units spent on training data",
-                    0,
-                    0,
-                    10
-                ),
-
-                actionButton(
-                    "buy_train_data",
-                    "1: Buy Training Data",
-                    class = "btn-primary"
-                ),
-
-                tags$hr(),
-
-                h4("Training Jump"),
-
-                numericInput(
-                    "train_tech",
-                    "Technique spend",
-                    0,
-                    0,
-                    10
-                ),
-
-                numericInput(
-                    "train_mat",
-                    "Materials spend",
-                    0,
-                    0,
-                    10
-                ),
-
-                numericInput(
-                    "train_fit",
-                    "Fitness spend",
-                    0,
-                    0,
-                    10
-                ),
-
-                actionButton(
-                    "run_training",
-                    "2: Run Training Jump",
-                    class = "btn-primary"
                 )
             ),
 
@@ -394,9 +413,9 @@ body{
         )
     ),
 
-    # =====================================================
-    # COMPETITION PAGE
-    # =====================================================
+    # =======================================================
+    # COMPETITION TAB
+    # =======================================================
 
     nav_panel(
 
@@ -416,55 +435,11 @@ body{
 
                 class = "card-style",
 
-                h4("Competition Data"),
+                h4("Competition Rules"),
 
-                numericInput(
-                    "comp_data_spend",
-                    "Units spent on additional data",
-                    0,
-                    0,
-                    10
-                ),
+                p("Maximum spend in any category across both phases is 10 units."),
 
-                actionButton(
-                    "buy_comp_data",
-                    "3: Buy Competition Data",
-                    class = "btn-primary"
-                ),
-
-                tags$hr(),
-
-                h4("Competition Jump"),
-
-                numericInput(
-                    "comp_tech",
-                    "Additional Technique spend",
-                    0,
-                    0,
-                    10
-                ),
-
-                numericInput(
-                    "comp_mat",
-                    "Additional Materials spend",
-                    0,
-                    0,
-                    10
-                ),
-
-                numericInput(
-                    "comp_fit",
-                    "Additional Fitness spend",
-                    0,
-                    0,
-                    10
-                ),
-
-                actionButton(
-                    "run_competition",
-                    "4: Competition Jump",
-                    class = "btn-primary"
-                )
+                p("Each phase has a total budget of 10 units.")
             ),
 
             main_panel_ui(TRUE)
@@ -488,18 +463,143 @@ server <- function(input, output, session){
         d2 = NULL,
         all_data = NULL,
 
-        training_bank = 10,
-        competition_bank = 10,
-
         training_jump = NULL,
         competition_jump = NULL,
 
-        train_complete = FALSE
+        train_complete = FALSE,
+        resources_purchased = FALSE,
+        comp_resources_purchased = FALSE
     )
 
-    # =====================================================
+    # =======================================================
+    # TRAINING TABLE
+    # =======================================================
+
+    output$spend_table_train <- renderRHandsontable({
+
+        vals <- c(0,0,0,0)
+
+        if(!is.null(input$spend_table_train)){
+
+            tmp <- hot_to_r(input$spend_table_train)
+
+            vals <- as.numeric(tmp[2,1:4])
+
+            vals[is.na(vals)] <- 0
+        }
+
+        df <- data.frame(
+
+            Data      = c(10, vals[1]),
+            Technique = c(10, vals[2]),
+            Materials = c(10, vals[3]),
+            Fitness   = c(10, vals[4]),
+            Total     = c(10, sum(vals)),
+
+            row.names = c(
+                "Maximum spend available",
+                "Actual spend"
+            )
+        )
+
+        rhandsontable(
+            df,
+            rowHeaders = c(
+                "Maximum available spend",
+                "Actual spend"
+            ),
+            rowHeaderWidth = 220,
+            stretchH = "all",
+            width = 650,
+            height = 140
+        ) %>%
+
+            hot_col(
+                col = c("Data","Technique","Materials","Fitness"),
+                type = "numeric",
+                format = "0"
+            ) %>%
+
+            hot_row(1, readOnly = TRUE) %>%
+
+            hot_col("Total", readOnly = TRUE)
+    })
+
+    # =======================================================
+    # COMP TABLE
+    # =======================================================
+
+    output$spend_table_comp <- renderRHandsontable({
+
+        train_vals <- c(0,0,0,0)
+
+        if(!is.null(input$spend_table_train)){
+
+            train_df <- hot_to_r(input$spend_table_train)
+
+            train_vals <- as.numeric(train_df[2,1:4])
+
+            train_vals[is.na(train_vals)] <- 0
+        }
+
+        max_vals <- c(
+            10,
+            10 - train_vals[2],
+            10 - train_vals[3],
+            10 - train_vals[4]
+        )
+
+        comp_vals <- c(0,0,0,0)
+
+        if(!is.null(input$spend_table_comp)){
+
+            comp_df <- hot_to_r(input$spend_table_comp)
+
+            comp_vals <- as.numeric(comp_df[2,1:4])
+
+            comp_vals[is.na(comp_vals)] <- 0
+        }
+
+        df <- data.frame(
+
+            Data      = c(max_vals[1], comp_vals[1]),
+            Technique = c(max_vals[2], comp_vals[2]),
+            Materials = c(max_vals[3], comp_vals[3]),
+            Fitness   = c(max_vals[4], comp_vals[4]),
+            Total     = c(10, sum(comp_vals)),
+
+            row.names = c(
+                "Maximum spend available",
+                "Actual spend"
+            )
+        )
+
+        rhandsontable(
+            df,
+            rowHeaders = c(
+                "Maximum available spend",
+                "Actual spend"
+            ),
+            rowHeaderWidth = 220,
+            stretchH = "all",
+            width = 650,
+            height = 140
+        ) %>%
+
+            hot_col(
+                col = c("Data","Technique","Materials","Fitness"),
+                type = "numeric",
+                format = "0"
+            ) %>%
+
+            hot_row(1, readOnly = TRUE) %>%
+
+            hot_col("Total", readOnly = TRUE)
+    })
+
+    # =======================================================
     # BUY TRAINING DATA
-    # =====================================================
+    # =======================================================
 
     observeEvent(input$buy_train_data, {
 
@@ -521,53 +621,48 @@ server <- function(input, output, session){
             rv$sd <- 10
         }
 
-        spend <- round(input$train_data_spend)
+        req(input$spend_table_train)
 
-        # ---------------------------------------------
-        # FIXED: prevent overspending
-        # ---------------------------------------------
+        train_df <- hot_to_r(input$spend_table_train)
 
-        if(spend > rv$training_bank){
+        vals <- as.numeric(train_df[2,1:4])
+        vals[is.na(vals)] <- 0
 
-            showNotification(
-                "Training data spend exceeds remaining bank.",
-                type = "error"
-            )
+        msg <- validate_spend(
+            vals,
+            rep(10,4),
+            "Training phase"
+        )
 
+        if(!is.null(msg)){
+
+            showNotification(msg, type = "error")
             return()
         }
 
-        rv$training_bank <- rv$training_bank - spend
+        spend <- vals[1]
 
         ndata <- spend * 10
 
         if(ndata > 0){
 
-            new_data <- mski_sim(
+            rv$d1 <- mski_sim(
                 ndata,
                 rv$weight,
                 rv$mu,
                 rv$sd
             )
 
-            new_data$Phase <- "Training"
-
-            if(is.null(rv$d1)){
-
-                rv$d1 <- new_data
-
-            } else {
-
-                rv$d1 <- rbind(rv$d1, new_data)
-            }
+            rv$d1$Phase <- "Training"
 
             rv$all_data <- rv$d1
         }
 
         msg <- HTML(paste0(
             "<div class='message-text'>
-            📊 Training data purchased:
-            <b>", ndata, "</b> historical jumps.
+            📊 Historical training data purchased:
+            <b>", ndata,
+            "</b> jumps.
             </div>"
         ))
 
@@ -575,29 +670,75 @@ server <- function(input, output, session){
         output$status_message_comp <- renderUI(msg)
     })
 
-    # =====================================================
-    # TRAINING JUMP
-    # =====================================================
+    # =======================================================
+    # BUY TRAINING RESOURCES
+    # =======================================================
+
+    observeEvent(input$buy_train_resources, {
+
+        req(rv$weight)
+
+        train_df <- hot_to_r(input$spend_table_train)
+
+        vals <- as.numeric(train_df[2,1:4])
+        vals[is.na(vals)] <- 0
+
+        msg <- validate_spend(
+            vals,
+            rep(10,4),
+            "Training phase"
+        )
+
+        if(!is.null(msg)){
+
+            showNotification(msg, type = "error")
+            return()
+        }
+
+        resource_spend <- vals[2:4]
+
+        rv$resources_purchased <- TRUE
+
+        output$status_message <- renderUI({
+
+            HTML(paste0(
+                "<div class='message-text'>
+                🛠️ Training resources purchased:
+                <b>",
+                sum(resource_spend),
+                "</b> total units allocated.
+                </div>"
+            ))
+        })
+    })
+
+    # =======================================================
+    # RUN TRAINING
+    # =======================================================
 
     observeEvent(input$run_training, {
 
         req(rv$weight)
+        req(rv$resources_purchased)
 
-        spend <- c(
-            input$train_tech,
-            input$train_mat,
-            input$train_fit
+        train_df <- hot_to_r(input$spend_table_train)
+
+        vals <- as.numeric(train_df[2,1:4])
+        vals[is.na(vals)] <- 0
+
+        msg <- validate_spend(
+            vals,
+            rep(10,4),
+            "Training phase"
         )
 
-        if(sum(spend) > rv$training_bank){
+        if(!is.null(msg)){
 
-            showNotification(
-                "Training spend exceeds remaining bank.",
-                type = "error"
-            )
-
+            showNotification(msg, type = "error")
             return()
         }
+
+        spend <- vals[2:4]
 
         rv$training_jump <- round(
             ski_jump(
@@ -614,7 +755,8 @@ server <- function(input, output, session){
         msg <- HTML(paste0(
             "<div class='message-text'>
             🎿 Training jump completed:
-            <b>", rv$training_jump, " metres</b>
+            <b>", rv$training_jump,
+            " metres</b>
             </div>"
         ))
 
@@ -622,65 +764,57 @@ server <- function(input, output, session){
         output$status_message_comp <- renderUI(msg)
     })
 
-    # =====================================================
-    # BUY COMPETITION DATA
-    # =====================================================
+    # =======================================================
+    # BUY COMP DATA
+    # =======================================================
 
     observeEvent(input$buy_comp_data, {
 
         req(rv$train_complete)
 
-        spend <- round(input$comp_data_spend)
+        comp_df <- hot_to_r(input$spend_table_comp)
 
-        # ---------------------------------------------
-        # FIXED: prevent overspending
-        # ---------------------------------------------
+        vals <- as.numeric(comp_df[2,1:4])
+        vals[is.na(vals)] <- 0
 
-        if(spend > rv$competition_bank){
+        max_vals <- c(
+            10,
+            as.numeric(comp_df[1,2]),
+            as.numeric(comp_df[1,3]),
+            as.numeric(comp_df[1,4])
+        )
 
-            showNotification(
-                "Competition data spend exceeds remaining bank.",
-                type = "error"
-            )
+        msg <- validate_spend(
+            vals,
+            max_vals,
+            "Competition phase"
+        )
 
+        if(!is.null(msg)){
+
+            showNotification(msg, type = "error")
             return()
         }
 
-        rv$competition_bank <- rv$competition_bank - spend
+        spend <- vals[1]
 
         ndata <- spend * 10
 
         if(ndata > 0){
 
-            new_data <- mski_sim(
+            rv$d2 <- mski_sim(
                 ndata,
                 rv$weight,
                 rv$mu,
                 rv$sd
             )
 
-            new_data$Phase <- "Competition"
+            rv$d2$Phase <- "Competition"
 
-            if(is.null(rv$d2)){
-
-                rv$d2 <- new_data
-
-            } else {
-
-                rv$d2 <- rbind(rv$d2, new_data)
-            }
-
-            if(is.null(rv$all_data)){
-
-                rv$all_data <- new_data
-
-            } else {
-
-                rv$all_data <- rbind(
-                    rv$all_data,
-                    new_data
-                )
-            }
+            rv$all_data <- rbind(
+                rv$all_data,
+                rv$d2
+            )
         }
 
         output$status_message_comp <- renderUI({
@@ -695,36 +829,85 @@ server <- function(input, output, session){
         })
     })
 
-    # =====================================================
-    # COMPETITION JUMP
-    # =====================================================
+    # =======================================================
+    # BUY COMP RESOURCES
+    # =======================================================
+
+    observeEvent(input$buy_comp_resources, {
+
+        req(rv$train_complete)
+
+        comp_df <- hot_to_r(input$spend_table_comp)
+
+        vals <- as.numeric(comp_df[2,1:4])
+
+        vals[is.na(vals)] <- 0
+
+        max_vals <- as.numeric(comp_df[1,1:4])
+
+        msg <- validate_spend(
+            vals,
+            max_vals,
+            "Competition phase"
+        )
+
+        if(!is.null(msg)){
+
+            showNotification(msg, type = "error")
+            return()
+        }
+
+        rv$comp_resources_purchased <- TRUE
+
+        output$status_message_comp <- renderUI({
+
+            HTML(paste0(
+                "<div class='message-text'>
+                🛠️ Competition resources purchased:
+                <b>",
+                sum(vals[2:4]),
+                "</b> total units allocated.
+                </div>"
+            ))
+        })
+    })
+
+    # =======================================================
+    # RUN COMPETITION
+    # =======================================================
 
     observeEvent(input$run_competition, {
 
         req(rv$train_complete)
+        req(rv$comp_resources_purchased)
 
-        total_spend <- c(
+        train_df <- hot_to_r(input$spend_table_train)
+        comp_df  <- hot_to_r(input$spend_table_comp)
 
-            input$train_tech + input$comp_tech,
-            input$train_mat + input$comp_mat,
-            input$train_fit + input$comp_fit
+        vals <- as.numeric(comp_df[2,1:4])
+        vals[is.na(vals)] <- 0
+
+        max_vals <- as.numeric(comp_df[1,1:4])
+
+        msg <- validate_spend(
+            vals,
+            max_vals,
+            "Competition phase"
         )
 
-        additional <- c(
-            input$comp_tech,
-            input$comp_mat,
-            input$comp_fit
-        )
+        if(!is.null(msg)){
 
-        if(sum(additional) > rv$competition_bank){
-
-            showNotification(
-                "Competition spend exceeds remaining bank.",
-                type = "error"
-            )
-
+            showNotification(msg, type = "error")
             return()
         }
+
+        train_vals <- as.numeric(train_df[2,2:4])
+        comp_vals  <- as.numeric(comp_df[2,2:4])
+
+        train_vals[is.na(train_vals)] <- 0
+        comp_vals[is.na(comp_vals)] <- 0
+
+        total_spend <- train_vals + comp_vals
 
         rv$competition_jump <- round(
             ski_jump(
@@ -756,36 +939,11 @@ server <- function(input, output, session){
         })
     })
 
-    # =====================================================
-    # Shared Outputs
-    # =====================================================
-
-    output$training_bank <- renderText({
-        paste0(rv$training_bank, " units")
-    })
-
-    output$competition_bank <- renderText({
-        paste0(rv$competition_bank, " units")
-    })
-
-    output$total_data <- renderText({
-
-        if(is.null(rv$all_data)) return(0)
-
-        nrow(rv$all_data)
-    })
+    # =======================================================
+    # SHARED OUTPUTS
+    # =======================================================
 
     render_shared_outputs <- function(prefix = ""){
-
-        output[[paste0("data_table", prefix)]] <- renderDT({
-
-            req(rv$all_data)
-
-            datatable(
-                rv$all_data,
-                options = list(pageLength = 8)
-            )
-        })
 
         output[[paste0("regression_plot", prefix)]] <- renderPlot({
 
@@ -841,14 +999,20 @@ server <- function(input, output, session){
 
             req(rv$all_data)
 
-            l1 <- lm(Jump_Length ~ Technique,
-                     data = rv$all_data)$coefficients
+            l1 <- lm(
+                Jump_Length ~ Technique,
+                data = rv$all_data
+            )$coefficients
 
-            l2 <- lm(Jump_Length ~ Materials,
-                     data = rv$all_data)$coefficients
+            l2 <- lm(
+                Jump_Length ~ Materials,
+                data = rv$all_data
+            )$coefficients
 
-            l3 <- lm(Jump_Length ~ Fitness,
-                     data = rv$all_data)$coefficients
+            l3 <- lm(
+                Jump_Length ~ Fitness,
+                data = rv$all_data
+            )$coefficients
 
             tab <- rbind(l1,l2,l3)
 
@@ -870,9 +1034,9 @@ server <- function(input, output, session){
     render_shared_outputs("")
     render_shared_outputs("_comp")
 
-    # =====================================================
-    # RESULTS PANELS
-    # =====================================================
+    # =======================================================
+    # RESULTS
+    # =======================================================
 
     output$jump_results <- renderUI({
 

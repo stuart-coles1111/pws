@@ -14,11 +14,17 @@ horse_pics <- paste0("horse", 1:6, ".jpg")
 
 commission_max <- 0.2
 allowed_time <- 5
+
+bet_rate <- 5
+
+bet_proportion <- 0.1
+
 pool_init <- 100
 nominal_stake <- 100
 
 winnings_init <- rep(0, 10)
 seed = 1
+
 # =========================================================
 # RACE SIMULATION
 # =========================================================
@@ -196,7 +202,39 @@ ui <- shinydashboard::dashboardPage(
           overflow:hidden;
         }
 
+        .race-banner {
+          background: linear-gradient(90deg,#E76F51,#F4A261);
+          color: white;
+          font-size: 28px;
+          font-weight: 700;
+          text-align: center;
+          padding: 18px;
+          border-radius: 14px;
+          margin-bottom: 20px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+          animation: pulseBanner 1.2s infinite;
+        }
+
+        @keyframes pulseBanner {
+          0%   { opacity: 1; }
+          50%  { opacity: 0.75; }
+          100% { opacity: 1; }
+        }
+
       "))
+        ),
+
+        shiny::br(),
+
+        radioButtons(
+            "game_mode",
+            "Mode",
+            choices = c(
+                "Single Player" = "single",
+                "Multiplayer" = "multi"
+            ),
+            selected = "multi",
+            width = "80%"
         ),
 
         shiny::br(),
@@ -310,6 +348,8 @@ ui <- shinydashboard::dashboardPage(
           color:#7B9ACC;
           margin-bottom:20px;"
                 ),
+
+                shiny::div(id = "race_banner_placeholder"),
 
                 shinydashboard::box(
                     width = 12,
@@ -504,6 +544,7 @@ server <- function(input, output, session) {
                 if (remaining_time() < 1) {
 
                     timer_active(FALSE)
+                    shinyjs::enable("run_race")
 
                     shiny::insertUI(
                         selector = "#run_race",
@@ -536,6 +577,193 @@ server <- function(input, output, session) {
         timer_active(TRUE)
 
         remaining_time(allowed_time)
+
+        shinyjs::disable("run_race")
+    })
+
+    observeEvent(input$start_timer, {
+
+        req(input$game_mode == "single")
+
+        nbets <- rpois(1, bet_rate) + nteams - 1
+
+        bet_times <- sample(
+            1:(allowed_time - 1),
+            nbets,
+            replace = TRUE
+        )
+
+        bet_team_ind <- sample(
+            1:nbets,
+            nteams - 1,
+            replace = FALSE
+        )
+
+        bet_team <- rep(NA, nbets)
+
+        bet_team[bet_team_ind] <- 2:nteams
+
+        rem_ind <- setdiff(
+            1:nbets,
+            bet_team_ind
+        )
+
+        rem_team <- sample(
+            2:nteams,
+            length(rem_ind),
+            replace = TRUE
+        )
+
+        bet_team[rem_ind] <- rem_team
+
+        bet_horse <- sample(
+            1:6,
+            nbets,
+            replace = TRUE
+        )
+
+        bets_df <- data.frame(
+            bet_times = bet_times,
+            bet_team = bet_team,
+            bet_horse = bet_horse
+        )
+
+        bets_df <- dplyr::arrange(
+            bets_df,
+            bet_times
+        )
+
+        bets_df$proportions <-
+            runif(
+                nbets,
+                0,
+                bet_proportion
+            )
+
+        values$bets_df <- bets_df
+
+    })
+
+    observe({
+
+        req(input$game_mode == "single")
+
+        bets <- values$bets_df
+
+        if (nrow(bets) == 0)
+            return()
+
+        bet_times <- unique(
+            bets$bet_times
+        )
+
+        bet_times_remaining <-
+            allowed_time - bet_times
+
+        if (any(
+            bet_times_remaining ==
+            remaining_time()
+        )) {
+
+            idx <- which(
+                bet_times_remaining ==
+                    remaining_time()
+            )
+
+            team <- as.numeric(
+                bets[idx, "bet_team"]
+            )
+
+            horse <- as.numeric(
+                bets[idx, "bet_horse"]
+            )
+
+            real_stake <- round(
+                as.numeric(
+                    values$bank_updated[team] *
+                        bets[idx, "proportions"]
+                ),
+                0
+            )
+
+            values$total_stake[
+                horse,
+                team
+            ] <-
+
+                values$total_stake[
+                    horse,
+                    team
+                ] +
+
+                real_stake
+
+            values$current_pool[horse] <-
+
+                values$current_pool[horse] +
+
+                real_stake
+
+            values$bank_updated[team] <-
+
+                values$bank_updated[team] -
+
+                real_stake
+
+            values$price <-
+
+                (
+                    sum(values$current_pool) +
+                        nominal_stake
+                ) /
+
+                (
+                    values$current_pool +
+                        nominal_stake -
+                        pool_init
+                )
+
+            commission <-
+
+                (
+                    allowed_time -
+                        remaining_time()
+                ) /
+
+                allowed_time *
+
+                commission_max
+
+            values$current_pool_adj[horse] <-
+
+                values$current_pool_adj[horse] +
+
+                round(
+                    real_stake *
+                        (1 - commission),
+                    -2
+                )
+
+            values$total_stake_net[
+                horse,
+                team
+            ] <-
+
+                values$total_stake_net[
+                    horse,
+                    team
+                ] +
+
+                round(
+                    real_stake *
+                        (1 - commission),
+                    -2
+                )
+
+            values$bets_df <-
+                values$bets_df[-idx, ]
+        }
+
     })
 
     # =======================================================
@@ -570,9 +798,54 @@ server <- function(input, output, session) {
 
         commission_entry = 0L,
 
-        undo_status = 1L
+        undo_status = 1L,
+
+        bets_df = data.frame()
     )
 
+    # =======================================================
+    # SINGLE / MULTI PLAYER MODE
+    # =======================================================
+
+    observe({
+
+        if (input$game_mode == "single") {
+
+            updateSelectInput(
+                session,
+                "team",
+                choices = list(
+                    "Team 1" = 1
+                ),
+                selected = 1
+            )
+
+        } else {
+
+            updateSelectInput(
+                session,
+                "team",
+                choices = list(
+                    "Team 1" = 1,
+                    "Team 2" = 2,
+                    "Team 3" = 3,
+                    "Team 4" = 4,
+                    "Team 5" = 5,
+                    "Team 6" = 6,
+                    "Team 7" = 7,
+                    "Team 8" = 8,
+                    "Team 9" = 9,
+                    "Team 10" = 10
+                )
+            )
+
+        }
+
+    })
+
+    # =======================================================
+    # REACTIVE TABLE DATA
+    # =======================================================
     # =======================================================
     # REACTIVE TABLE DATA
     # =======================================================
@@ -804,16 +1077,25 @@ server <- function(input, output, session) {
 
     shiny::observeEvent(input$run_race, {
 
-        shiny::updateTabsetPanel(
-            session,
-            "inTabset",
-            selected = "panel2"
-        )
-
         race_run(1)
 
         values$racing_now <- 1
 
+        # SHOW BANNER
+        shiny::insertUI(
+            selector = "#race_banner_placeholder",
+            where = "afterBegin",
+
+            ui = shiny::div(
+                id = "race_banner_active",
+                class = "race-banner",
+                "🏇 Race in Progress..."
+            ),
+
+            immediate = TRUE
+        )
+
+        # PLAY AUDIO
         shiny::insertUI(
             selector = "#run_race",
             where = "afterEnd",
@@ -829,7 +1111,24 @@ server <- function(input, output, session) {
             immediate = TRUE
         )
 
+        # force browser repaint
+        Sys.sleep(0.25)
+
+        # RUN RACE
         winner <- simulate_race()[1]
+
+        # REMOVE BANNER
+        shiny::removeUI(
+            selector = "#race_banner_active",
+            immediate = TRUE
+        )
+
+        # SWITCH TAB
+        shiny::updateTabsetPanel(
+            session,
+            "inTabset",
+            selected = "panel2"
+        )
 
         output$text_win <- shiny::renderText({
 
@@ -883,8 +1182,8 @@ server <- function(input, output, session) {
         values$undo_status <- 1L
 
         shinyjs::runjs("
-  $('a[data-value=\"panel2\"]').tab('show');
-")
+          $('a[data-value=\"panel2\"]').tab('show');
+        ")
     })
 
     # =======================================================
@@ -918,6 +1217,8 @@ server <- function(input, output, session) {
         output$image <- NULL
 
         values$winnings <- winnings_init
+
+        values$bets_df <- data.frame()
     })
 
     # =======================================================
