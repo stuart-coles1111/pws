@@ -16,7 +16,7 @@ chapter4_ui <- function(id){
 
         numericInput(ns("dp"), "Decimal places", value = 2, min = 0, max = 10),
 
-        checkboxInput(ns("lines"), "Show detailed curves", value = TRUE),
+        checkboxInput(ns("lines"), "Show true value and score", value = TRUE),
 
         checkboxInput(ns("final_only"), "Show only final score plot", value = FALSE)
     )
