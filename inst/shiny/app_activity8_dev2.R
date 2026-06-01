@@ -121,10 +121,8 @@ winnings <- data.frame()
 
 ui <- shinydashboard::dashboardPage(
 
-    skin = "green",
-
     header = shinydashboard::dashboardHeader(
-        title = "🏇 A day at the races"
+        title = "🏇 Activity 8: A day at the races"
     ),
 
     sidebar = shinydashboard::dashboardSidebar(
@@ -160,6 +158,18 @@ ui <- shinydashboard::dashboardPage(
           font-weight:700;
         }
 
+.main-header .navbar {
+    margin-left: 300px !important;
+}
+
+.main-sidebar {
+    padding-top: 60px;
+}
+
+.content-wrapper,
+.right-side {
+    margin-left: 300px !important;
+}
         .main-header .navbar {
           background-color:#7B9ACC !important;
         }
@@ -201,6 +211,35 @@ ui <- shinydashboard::dashboardPage(
           overflow:hidden;
         }
 
+        .main-header .logo {
+    width: 300px !important;
+    font-size: 18px !important;
+    white-space: normal !important;
+    line-height: 1.2;
+    height: 60px;
+    padding-top: 8px;
+        }
+
+.main-header .logo {
+  background-color:#7B9ACC !important;
+  color:white !important;
+  font-weight:700;
+
+  height:50px !important;
+  line-height:50px !important;
+}
+
+.main-header .navbar {
+  background-color:#7B9ACC !important;
+
+  height:50px !important;
+  min-height:50px !important;
+}
+
+.main-header .logo {
+  width:300px !important;
+}
+
         .race-banner {
           background: linear-gradient(90deg,#E76F51,#F4A261);
           color: white;
@@ -213,6 +252,21 @@ ui <- shinydashboard::dashboardPage(
           box-shadow: 0 4px 12px rgba(0,0,0,0.12);
           animation: pulseBanner 1.2s infinite;
         }
+
+        .card-style {
+  background:white;
+  border-radius:16px;
+  padding:20px;
+  margin-bottom:20px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.08);
+}
+
+.info-box {
+  background:#F8F9FC;
+  border-left:5px solid #7B9ACC;
+  padding:15px;
+  border-radius:10px;
+}
 
         @keyframes pulseBanner {
           0%   { opacity: 1; }
@@ -238,11 +292,11 @@ ui <- shinydashboard::dashboardPage(
 
         shiny::sliderInput(
             "allowed_time",
-            "Betting time (seconds)",
+            "Betting window (seconds)",
             min = 30,
-            max = 600,
+            max = 300,
             value = 180,
-            step = 10,
+            step = 5,
             width = "80%"
         ),
 
@@ -505,6 +559,179 @@ ui <- shinydashboard::dashboardPage(
                         )
                     )
                 )
+            ),
+
+            # =====================================================
+            # TAB 3 — SUMMARY
+            # =====================================================
+
+            shiny::tabPanel(
+
+                "📘 Summary",
+
+                shiny::div(
+                    style = "
+        text-align:center;
+        padding:18px;
+        border-radius:14px;
+        background:linear-gradient(90deg,#A8DADC,#CDB4DB);
+        margin-bottom:20px;",
+
+                    shiny::h1("📘 Understanding Betting Markets"),
+                    shiny::p(
+                        "How do probabilities, prices and risk interact in a betting pool?"
+                    )
+                ),
+
+                shiny::fluidRow(
+
+                    shiny::column(
+                        6,
+
+                        shiny::div(
+                            class = "card-style",
+
+                            shiny::h3("🏇 What is happening?"),
+
+                            shiny::div(
+                                class = "info-box",
+
+                                tags$p(
+                                    "Each horse has an underlying chance of winning."
+                                ),
+
+                                tags$p(
+                                    "Players place bets into a shared betting pool."
+                                ),
+
+                                tags$p(
+                                    "As money flows into the pool, market prices change."
+                                )
+                            )
+                        )
+                    ),
+
+                    shiny::column(
+                        6,
+
+                        shiny::div(
+                            class = "card-style",
+
+                            shiny::h3("💰 Why do prices change?"),
+
+                            shiny::div(
+                                class = "info-box",
+
+                                tags$p(
+                                    "Odds reflect how money is distributed across horses."
+                                ),
+
+                                tags$p(
+                                    "Popular horses attract more money and therefore shorter prices."
+                                ),
+
+                                tags$p(
+                                    "Less popular horses offer larger potential rewards."
+                                )
+                            )
+                        )
+                    )
+                ),
+
+                shiny::fluidRow(
+
+                    shiny::column(
+                        6,
+
+                        shiny::div(
+                            class = "card-style",
+
+                            shiny::h3("📐 Key ideas"),
+
+                            shiny::div(
+                                class = "info-box",
+
+                                tags$ul(
+
+                                    tags$li("Probability and uncertainty"),
+
+                                    tags$li("Expected value"),
+
+                                    tags$li("Risk versus reward"),
+
+                                    tags$li("Market prices"),
+
+                                    tags$li("Parimutuel betting systems")
+                                )
+                            )
+                        )
+                    ),
+
+                    shiny::column(
+                        6,
+
+                        shiny::div(
+                            class = "card-style",
+
+                            shiny::h3("🔍 Questions"),
+
+                            shiny::div(
+                                class = "info-box",
+
+                                tags$ul(
+
+                                    tags$li(
+                                        "Does the favourite always represent the best bet?"
+                                    ),
+
+                                    tags$li(
+                                        "How do market prices reflect collective beliefs?"
+                                    ),
+
+                                    tags$li(
+                                        "Can a horse be unlikely to win but still be a good investment?"
+                                    ),
+
+                                    tags$li(
+                                        "How should risk influence betting decisions?"
+                                    )
+                                )
+                            )
+                        )
+                    )
+                ),
+
+                shiny::fluidRow(
+
+                    shiny::column(
+                        12,
+
+                        shiny::div(
+                            class = "card-style",
+
+                            shiny::h3("🧠 Big idea"),
+
+                            shiny::div(
+                                class = "info-box",
+
+                                tags$p(
+                                    "Successful betting is not simply about predicting winners."
+                                ),
+
+                                tags$blockquote(
+                                    style = "
+                        font-size:22px;
+                        font-weight:700;
+                        color:#7B9ACC;
+                        border-left:5px solid #CDB4DB;
+                        padding-left:18px;",
+
+                                    "Good decisions balance probability, price and risk."
+                                )
+                            )
+                        )
+                    )
+                )
             )
         )
     )
@@ -532,21 +759,35 @@ server <- function(input, output, session) {
     # TIMER
     # =======================================================
 
-    remaining_time <- shiny::reactiveVal(allowed_time)
+    remaining_time <- shiny::reactiveVal(0)
 
     timer_active <- shiny::reactiveVal(FALSE)
 
-    allowed_time_rv <- shiny::reactiveVal(180)
-
+    race_time <- shiny::reactiveVal(NULL)
 
     output$timer <- shiny::renderText({
         paste0(remaining_time(), " s")
     })
 
-    shiny::observeEvent(input$allowed_time, {
-        allowed_time_rv(input$allowed_time)
+    observeEvent(input$allowed_time, {
+
+        if (!timer_active()) {
+            remaining_time(input$allowed_time)
+        }
+
     })
 
+    observeEvent(input$start_timer, {
+
+        race_time(input$allowed_time)
+
+        remaining_time(race_time())
+
+        timer_active(TRUE)
+
+        shinyjs::disable("run_race")
+
+    })
 
     shiny::observe({
 
@@ -589,14 +830,7 @@ server <- function(input, output, session) {
         })
     })
 
-    shiny::observeEvent(input$start_timer, {
 
-        timer_active(TRUE)
-
-        remaining_time(allowed_time_rv())
-
-        shinyjs::disable("run_race")
-    })
 
     observeEvent(input$start_timer, {
 
@@ -604,10 +838,8 @@ server <- function(input, output, session) {
 
         nbets <- rpois(1, bet_rate) + nteams - 1
 
-        bet_window <- max(1, allowed_time_rv() - 1)
-
         bet_times <- sample(
-            seq_len(bet_window),
+            1:(race_time() - 1),
             nbets,
             replace = TRUE
         )
@@ -677,7 +909,7 @@ server <- function(input, output, session) {
         )
 
         bet_times_remaining <-
-            allowed_time_rv() - bet_times
+            race_time() - bet_times
 
         if (any(
             bet_times_remaining ==
@@ -689,44 +921,85 @@ server <- function(input, output, session) {
                     remaining_time()
             )
 
-            for(i in idx) {
+            commission <-
 
-                team <- as.numeric(bets[i, "bet_team"])
-                horse <- as.numeric(bets[i, "bet_horse"])
+                (
+                    race_time() -
+                        remaining_time()
+                ) /
 
-            }
+                race_time() *
 
-            real_stake <- round(
-                as.numeric(
-                    values$bank_updated[team] *
-                        bets[idx, "proportions"]
-                ),
-                0
-            )
+                commission_max
 
-            values$total_stake[
-                horse,
-                team
-            ] <-
+            for (i in idx) {
+
+                team <- as.numeric(
+                    bets[i, "bet_team"]
+                )
+
+                horse <- as.numeric(
+                    bets[i, "bet_horse"]
+                )
+
+                real_stake <- round(
+                    as.numeric(
+                        values$bank_updated[team] *
+                            bets[i, "proportions"]
+                    ),
+                    0
+                )
 
                 values$total_stake[
                     horse,
                     team
-                ] +
+                ] <-
 
-                real_stake
+                    values$total_stake[
+                        horse,
+                        team
+                    ] +
 
-            values$current_pool[horse] <-
+                    real_stake
 
-                values$current_pool[horse] +
+                values$current_pool[horse] <-
 
-                real_stake
+                    values$current_pool[horse] +
 
-            values$bank_updated[team] <-
+                    real_stake
 
-                values$bank_updated[team] -
+                values$bank_updated[team] <-
 
-                real_stake
+                    values$bank_updated[team] -
+
+                    real_stake
+
+                values$current_pool_adj[horse] <-
+
+                    values$current_pool_adj[horse] +
+
+                    round(
+                        real_stake *
+                            (1 - commission),
+                        -2
+                    )
+
+                values$total_stake_net[
+                    horse,
+                    team
+                ] <-
+
+                    values$total_stake_net[
+                        horse,
+                        team
+                    ] +
+
+                    round(
+                        real_stake *
+                            (1 - commission),
+                        -2
+                    )
+            }
 
             values$price <-
 
@@ -739,43 +1012,6 @@ server <- function(input, output, session) {
                     values$current_pool +
                         nominal_stake -
                         pool_init
-                )
-
-            commission <-
-
-                (
-                    allowed_time_rv() -
-                        remaining_time()
-                ) /
-
-                allowed_time_rv() *
-
-                commission_max
-
-            values$current_pool_adj[horse] <-
-
-                values$current_pool_adj[horse] +
-
-                round(
-                    real_stake *
-                        (1 - commission),
-                    -2
-                )
-
-            values$total_stake_net[
-                horse,
-                team
-            ] <-
-
-                values$total_stake_net[
-                    horse,
-                    team
-                ] +
-
-                round(
-                    real_stake *
-                        (1 - commission),
-                    -2
                 )
 
             values$bets_df <-
@@ -949,8 +1185,8 @@ server <- function(input, output, session) {
 
             commission <-
                 (
-                    allowed_time_rv() - remaining_time()
-                ) / allowed_time_rv() * commission_max
+                    race_time() - remaining_time()
+                ) / race_time() * commission_max
 
             values$commission_entry <- commission
 
@@ -1237,6 +1473,13 @@ server <- function(input, output, session) {
         values$winnings <- winnings_init
 
         values$bets_df <- data.frame()
+
+        timer_active(FALSE)
+
+        race_time(input$allowed_time)
+
+        remaining_time(input$allowed_time)
+
     })
 
     # =======================================================
@@ -1287,6 +1530,10 @@ server <- function(input, output, session) {
                 y = "Price"
             ) +
 
+            ggplot2::scale_y_continuous(
+                expand = expansion(mult = c(0, 0.15))
+            )+
+
             ggplot2::theme_minimal(base_size = 15) +
 
             ggplot2::theme(
@@ -1298,6 +1545,8 @@ server <- function(input, output, session) {
                 panel.grid.minor =
                     ggplot2::element_blank()
             )
+
+
 
     }, height = 320)
 
@@ -1313,6 +1562,9 @@ server <- function(input, output, session) {
                 fill = bank
             )
         ) +
+            ggplot2::scale_y_continuous(
+                expand = expansion(mult = c(0, 0.15))
+            )+
 
             ggplot2::geom_col(
                 width = 0.7,
