@@ -289,15 +289,6 @@ ui <- shinydashboard::dashboardPage(
             width = "80%"
         ),
 
-        numericInput(
-            "seed",
-            "Random seed",
-            value = 123,
-            min = 1,
-            step = 1,
-            width = "80%"
-        ),
-
         shiny::sliderInput(
             "allowed_time",
             "Betting window (seconds)",
@@ -750,12 +741,6 @@ ui <- shinydashboard::dashboardPage(
 # =========================================================
 
 server <- function(input, output, session) {
-
-    observe({
-        req(input$seed)
-        set.seed(input$seed)
-    })
-
 
     counter_race <- shiny::reactiveVal(value = 1)
 
