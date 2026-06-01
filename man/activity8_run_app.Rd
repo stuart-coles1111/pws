@@ -2,13 +2,16 @@
 % Please edit documentation in R/activity8_run_app.R
 \name{activity8_run_app}
 \alias{activity8_run_app}
-\title{Run Horse Race App}
+\title{Run Activity 8 app}
 \usage{
-activity8_run_app(mode = c("multiplayer", "singleplayer"))
-}
-\arguments{
-\item{mode}{"multiplayer" or "singleplayer"}
+activity8_run_app(
+  commission_max = 0.2,
+  bet_rate = 5,
+  bet_proportion = 0.1,
+  pool_init = 100,
+  nominal_stake = 100
+)
 }
 \description{
-Run Horse Race App
+Run Activity 8 app
 }
