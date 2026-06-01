@@ -266,7 +266,7 @@ ui <- page_fluid(
 
     div(
         class = "main-title",
-        h1("🎯 Activity 4: Forecasting and Calibration"),
+        h1("🎯 Activity 4: Quiz Time"),
         p("Estimate the true value and quantify your uncertainty.")
     ),
 

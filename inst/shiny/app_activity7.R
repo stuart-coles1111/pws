@@ -144,8 +144,7 @@ ui <- page_fluid(
 
     div(
         class="app-header",
-        h1("🎲 Activity 7: Hybrid Tournament Simulator"),
-        p("Randomness, estimation, and knockout dynamics")
+        h1("🎲 Activity 7: A Dice Tournament")
     ),
 
     # =========================

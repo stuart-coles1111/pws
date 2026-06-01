@@ -120,8 +120,13 @@ winnings <- data.frame()
 
 ui <- shinydashboard::dashboardPage(
 
-    header = shinydashboard::dashboardHeader(
-        title = "🏇 Activity 8: A day at the races"
+    header = dashboardHeader(
+        title = NULL,
+        tags$li(
+            class = "dropdown",
+            style = "padding:12px 15px; color:white; font-weight:700; font-size:16px;",
+            "🏇 Activity 8: A Day at the Races"
+        )
     ),
 
     sidebar = shinydashboard::dashboardSidebar(
@@ -151,15 +156,26 @@ ui <- shinydashboard::dashboardPage(
           background-color:#F7F7FB;
         }
 
-        .main-header .logo {
-          background-color:#7B9ACC !important;
-          color:white !important;
-          font-weight:700;
-        }
-
-.main-header .navbar {
-    margin-left: 300px !important;
+.main-header .navbar,
+.main-header .logo {
+  background-color: #7B9ACC !important;
+  height: 50px !important;
+  min-height: 50px !important;
+  border-bottom: none !important;
 }
+
+/* remove any visual split line */
+.main-header {
+  border-bottom: none !important;
+}
+
+/* ensure same vertical alignment */
+.main-header .navbar {
+  margin-left: 0 !important;
+  padding-left: 15px;
+}
+
+
 
 .main-sidebar {
     padding-top: 60px;
@@ -169,9 +185,7 @@ ui <- shinydashboard::dashboardPage(
 .right-side {
     margin-left: 300px !important;
 }
-        .main-header .navbar {
-          background-color:#7B9ACC !important;
-        }
+
 
         .main-sidebar {
           background: linear-gradient(180deg,#A8DADC,#CDB4DB);
@@ -210,33 +224,9 @@ ui <- shinydashboard::dashboardPage(
           overflow:hidden;
         }
 
-        .main-header .logo {
-    width: 300px !important;
-    font-size: 18px !important;
-    white-space: normal !important;
-    line-height: 1.2;
-    height: 60px;
-    padding-top: 8px;
-        }
-
 .main-header .logo {
-  background-color:#7B9ACC !important;
-  color:white !important;
-  font-weight:700;
-
-  height:50px !important;
-  line-height:50px !important;
-}
-
-.main-header .navbar {
-  background-color:#7B9ACC !important;
-
-  height:50px !important;
-  min-height:50px !important;
-}
-
-.main-header .logo {
-  width:300px !important;
+  width: 0px !important;
+  overflow: hidden !important;
 }
 
         .race-banner {
@@ -259,6 +249,7 @@ ui <- shinydashboard::dashboardPage(
   margin-bottom:20px;
   box-shadow:0 4px 12px rgba(0,0,0,0.08);
 }
+
 
 .info-box {
   background:#F8F9FC;

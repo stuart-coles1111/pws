@@ -185,7 +185,7 @@ activity5_trick_analysis <- function(
 
 ui <- page_navbar(
 
-    title = "🪄 Card Trick Explorer",
+    title = "🪄 Activity 5: Statistical Magic",
 
     theme = bs_theme(
         version = 5,
@@ -260,19 +260,74 @@ CARDS
 BUTTONS
 ========================================= */
 
-.btn-primary{
-    background:#7B9ACC!important;
-    border-color:#7B9ACC!important;
-    font-weight:700!important;
-    border-radius:12px!important;
-    padding:10px 18px!important;
-    width:100%;
-    margin-top:10px;
+.btn{
+    border-radius:10px !important;
+    font-weight:600 !important;
+    border:none !important;
+    box-shadow:0 2px 6px rgba(0,0,0,0.08);
+    transition:all 0.2s ease;
 }
 
-.btn-primary:hover{
-    background:#6888BC!important;
-    border-color:#6888BC!important;
+.btn:hover{
+    transform:translateY(-1px);
+    box-shadow:0 4px 10px rgba(0,0,0,0.12);
+}
+
+.btn-primary{
+    background:#7B9ACC !important;
+    border:none !important;
+    color:white !important;
+}
+
+.activity-btn{
+    padding:12px !important;
+    font-size:140% !important;
+    margin-top:10px;
+    width:100%;
+}
+
+.btn-race-info{
+    background:#5BC0DE !important;
+    color:white !important;
+}
+
+.btn-race-warning{
+    background:#F0AD4E !important;
+    color:white !important;
+}
+
+.btn-race-success{
+    background:#5CB85C !important;
+    color:white !important;
+}
+
+.btn-race-danger{
+    background:#D9534F !important;
+    color:white !important;
+}
+
+.btn-race-info,
+.btn-race-warning,
+.btn-race-success,
+.btn-race-danger{
+
+    width:100%;
+    padding:12px;
+    font-size:140%;
+    font-weight:600;
+
+    border:none !important;
+    border-radius:10px !important;
+
+    box-shadow:0 3px 8px rgba(0,0,0,0.10);
+
+    margin-bottom:12px;
+}
+
+.btn{
+    border-radius:10px !important;
+    font-weight:600 !important;
+    border:none !important;
 }
 
 /* =========================================
@@ -338,16 +393,12 @@ INFO BOX
 
     nav_panel(
 
-        "🪄 Interactive Trick",
+        "🂱 Interactive Trick",
 
         div(
             class = "main-title",
 
-            h1("🪄 The Magician's Card Prediction"),
-
-            p(
-                "A mathematical card mystery powered by deterministic paths."
-            )
+            h1("🂱 Interactive Trick")
         ),
 
         layout_sidebar(
@@ -383,20 +434,20 @@ INFO BOX
 
                 actionButton(
                     "start_trick",
-                    "1: Show Key Card",
-                    class = "btn-primary"
+                    "1: Shuffle and Show Key Card",
+                    class = "btn-race-info"
                 ),
 
                 actionButton(
                     "shuffle_deal",
                     "2: Shuffle and Deal Cards",
-                    class = "btn-primary"
+                    class = "btn-race-warning"
                 ),
 
                 actionButton(
                     "reveal",
-                    "3: Reveal Cards",
-                    class = "btn-primary"
+                    "3: Magician's Prediction",
+                    class = "btn-race-success"
                 )
             ),
 
@@ -428,11 +479,7 @@ INFO BOX
         div(
             class = "main-title",
 
-            h1("📊 Monte Carlo Investigation"),
-
-            p(
-                "Investigate how often the card trick succeeds."
-            )
+            h1("📊 Simulation Study")
         ),
 
         layout_sidebar(
@@ -469,7 +516,7 @@ INFO BOX
                 actionButton(
                     "run_simulation",
                     "Run Simulation",
-                    class = "btn-primary"
+                    class = "btn-race-danger"
                 )
             ),
 
@@ -821,7 +868,7 @@ server <- function(input, output, session){
 
             HTML("
 <div class='message-text'>
-🃏 This is your key card
+🃏 This is your key card, unseen by the magician.
 </div>
 ")
         })

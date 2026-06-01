@@ -534,7 +534,7 @@ body{
         div(
             class = "main-title",
 
-            h1("🎿 Ski Jump Training Camp"),
+            h1("🎯 Training Phase"),
 
             p("Explore historical data and optimise your first jump.")
         ),
@@ -577,7 +577,7 @@ body{
         div(
             class = "main-title",
 
-            h1("🏁 Final Competition"),
+            h1("🏁 Competition Phase"),
 
             p("Use your remaining budget wisely and chase the world record.")
         ),
