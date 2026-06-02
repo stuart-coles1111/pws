@@ -36,16 +36,10 @@ dd_ests <- function(game_score_data){
         factor(game_score_data, levels = 1:9)
     )
 
-    data_cut <- cut(
-        game_score_data,
-        c(0,3,6,9)
-    )
+    data_cut <- cut(game_score_data, c(0,3,6,9))
 
     data_cut_tab <- table(
-        factor(
-            data_cut,
-            levels = c("(0,3]", "(3,6]", "(6,9]")
-        )
+        factor(data_cut, levels = c("(0,3]", "(3,6]", "(6,9]"))
     )
 
     c(
@@ -59,7 +53,6 @@ dd_ests <- function(game_score_data){
 }
 
 m0_lik <- function(data, ests){
-
     length(data) * log(9)
 }
 
@@ -81,10 +74,7 @@ m2_lik <- function(data, ests){
     data_cut <- cut(data, c(0,3,6,9))
 
     data_cut_tab <- table(
-        factor(
-            data_cut,
-            levels = c("(0,3]", "(3,6]", "(6,9]")
-        )
+        factor(data_cut, levels = c("(0,3]", "(3,6]", "(6,9]"))
     )
 
     -sum(data_cut_tab * log(probs))
@@ -98,10 +88,7 @@ m3_lik <- function(data, ests){
     data_cut <- cut(data, c(0,3,6,9))
 
     data_cut_tab <- table(
-        factor(
-            data_cut,
-            levels = c("(0,3]", "(3,6]", "(6,9]")
-        )
+        factor(data_cut, levels = c("(0,3]", "(3,6]", "(6,9]"))
     )
 
     -(
@@ -142,10 +129,7 @@ cv_lik <- function(data, K = 5){
 
             ests <- dd_ests(df)
 
-            l <- rbind(
-                l,
-                dd_all_lik(dt, ests)
-            )
+            l <- rbind(l, dd_all_lik(dt, ests))
         }
 
         ll <- apply(l, 2, sum)
@@ -154,10 +138,7 @@ cv_lik <- function(data, K = 5){
     ll
 }
 
-double_dice_game_model_check <- function(
-        data,
-        seed = NULL
-){
+double_dice_game_model_check <- function(data, seed = NULL){
 
     if(!is.null(seed))
         set.seed(seed)
@@ -168,11 +149,7 @@ double_dice_game_model_check <- function(
     l2 <- cv_lik(data)
     l3 <- cv_lik(data, K = 100)
 
-    df <- rbind(
-        l1,
-        l2,
-        l3
-    ) |>
+    df <- rbind(l1, l2, l3) |>
         as.data.frame() |>
         round(2)
 
@@ -192,6 +169,30 @@ double_dice_game_model_check <- function(
     df
 }
 
+mod_ests <- function(x){
+
+    r1 <- (x[1] + x[2] + x[3]) / (3 * sum(x))
+    r2 <- (x[4] + x[5] + x[6]) / (3 * sum(x))
+    r3 <- (x[7] + x[8] + x[9]) / (3 * sum(x))
+
+    q <- (x[1] + x[2] + x[3]) /
+        (sum(x) - x[4] - x[5] - x[6])
+
+    p_N <- rep(1/9, 9)
+    p_S <- x / sum(x)
+
+    p_D <- rep(c(r1, r2, r3), each = 3)
+
+    p_P <- rep(c(q/6, 1/6, (1 - q)/6), each = 3)
+
+    list(
+        p_N = p_N,
+        p_S = p_S,
+        p_D = p_D,
+        p_P = p_P
+    )
+}
+
 # =========================================================
 # UI
 # =========================================================
@@ -204,95 +205,45 @@ chapter7_ui <- function(id){
 
         h4("Model controls"),
 
-        numericInput(
-            ns("n_sim"),
-            "Number of plays",
-            value = 100,
-            min = 20,
-            step = 10
-        ),
-
+        numericInput(ns("n_sim"), "Number of plays", 100),
         sliderInput(
             ns("p"),
             "Probability of Dice 1",
             min = 0,
             max = 1,
-            value = 0.4,
-            step = 0.01
+            value = 0.4
         ),
+        numericInput(ns("seed"), "Random seed", 33),
 
-        numericInput(
-            ns("seed"),
-            "Random seed",
-            value = 33
-        ),
-
-        actionButton(
-            ns("run"),
-            "Run simulation",
-            class = "btn-primary"
-        )
+        actionButton(ns("run"), "Run simulation", class = "btn-primary")
     )
 
     overview_panel <- div(
-
         card(
-
             card_header("What this chapter explores"),
-
-            p(
-                "Models are simplified explanations for how data are generated."
-            ),
-
+            p("We compare competing statistical models for the same data."),
             tags$ul(
                 tags$li("Simulation"),
-                tags$li("Competing models"),
+                tags$li("Competing explanations"),
                 tags$li("Likelihood"),
-                tags$li("Cross-validation"),
-                tags$li("Model comparison")
+                tags$li("Model checking")
             )
         )
     )
 
     code_panel <- div(
-
         card(
-
             card_header("Generated R code"),
-
-            tags$pre(
-                textOutput(ns("generated_code"))
-            )
+            tags$pre(textOutput(ns("generated_code")))
         )
     )
 
     results_panel <- div(
 
         fluidRow(
-
-            column(
-                4,
-                card(
-                    h4("Mean"),
-                    h2(textOutput(ns("mean")))
-                )
-            ),
-
-            column(
-                4,
-                card(
-                    h4("SD"),
-                    h2(textOutput(ns("sd")))
-                )
-            ),
-
-            column(
-                4,
-                card(
-                    h4("Plays"),
-                    h2(textOutput(ns("n_display")))
-                )
-            )
+            column(4, card(h4("Mean"), h2(textOutput(ns("mean"))))),
+            column(4, card(h4("SD"), h2(textOutput(ns("sd"))))),
+            column(4, card(h4("N"), h2(textOutput(ns("n_display")))))
         ),
 
         br(),
@@ -304,7 +255,18 @@ chapter7_ui <- function(id){
 
         br(),
 
+        card(
+            card_header("Estimated probability of each score"),
+            DTOutput(ns("prob_table"))
+        ),
 
+        card(
+            card_header("How to read this table"),
+            p("Each column shows a model's implied probabilities."),
+            p("We compare these to see which model best explains the data.")
+        ),
+
+        br(),
 
         card(
             card_header("Model comparison"),
@@ -313,38 +275,22 @@ chapter7_ui <- function(id){
     )
 
     learn_panel <- div(
-
         card(
-
             card_header("Big idea"),
-
             tags$blockquote(
-                style = "
-          font-size:22px;
-          font-weight:700;
-          color:#7B9ACC;
-          border-left:5px solid #CDB4DB;
-          padding-left:18px;
-        ",
-                "A good model explains data without being unnecessarily complicated."
+                style = "font-size:20px;font-weight:700;color:#7B9ACC;",
+                "Good models explain patterns without overcomplicating them."
             )
         )
     )
 
     chapter_page_ui(
-
         id = id,
-
         title = "🧩 Chapter 7: Models",
-
         sidebar = sidebar_controls,
-
         overview = overview_panel,
-
         code = code_panel,
-
         results = results_panel,
-
         learn = learn_panel
     )
 }
@@ -357,22 +303,15 @@ chapter7_server <- function(id){
 
     moduleServer(id, function(input, output, session){
 
-        sim_data <- eventReactive(
+        sim_data <- eventReactive(input$run, {
 
-            input$run,
+            set.seed(input$seed)
 
-            {
-
-                set.seed(input$seed)
-
-                double_dice_game_sim(
-                    n = input$n_sim,
-                    p = input$p
-                )
-            },
-
-            ignoreNULL = FALSE
-        )
+            double_dice_game_sim(
+                input$n_sim,
+                input$p
+            )
+        }, ignoreNULL = FALSE)
 
         output$generated_code <- renderText({
 
@@ -382,99 +321,55 @@ chapter7_server <- function(id){
   p = ", input$p, "
 )
 
-table(game_scores)
-
 double_dice_game_model_check(game_scores)"
             )
         })
 
     output$mean <- renderText({
-
-        req(sim_data())
-
         round(mean(sim_data()), 3)
     })
 
     output$sd <- renderText({
-
-        req(sim_data())
-
         round(sd(sim_data()), 3)
     })
 
     output$n_display <- renderText({
-
         input$n_sim
     })
 
     output$hist <- renderPlot({
 
-        req(sim_data())
+        df <- as.data.frame(table(sim_data()))
+        names(df) <- c("Score", "Frequency")
 
-        df <- as.data.frame(
-            table(sim_data())
-        )
-
-        names(df) <- c(
-            "Score",
-            "Frequency"
-        )
-
-        ggplot(
-            df,
-            aes(Score, Frequency)
-        ) +
-            geom_col(
-                fill = "#7B9ACC"
-            ) +
-            theme_minimal(base_size = 14)
+        ggplot(df, aes(Score, Frequency)) +
+            geom_col(fill = "#7B9ACC") +
+            theme_minimal()
     })
 
+    output$prob_table <- renderDT({
 
+        x <- as.numeric(table(factor(sim_data(), levels = 1:9)))
+
+        ests <- mod_ests(x)
+
+        df <- data.frame(
+            Score = 1:9,
+            `Model 0` = round(ests$p_N, 3),
+            `Model 1` = round(ests$p_S, 3),
+            `Model 2` = round(ests$p_D, 3),
+            `Model 3` = round(ests$p_P, 3)
+        )
+
+        datatable(df, rownames = FALSE, options = list(dom = "t"))
+    })
 
     output$model_table <- renderDT({
 
-        req(sim_data())
-
-        df <- double_dice_game_model_check(
-            sim_data(),
-            seed = 3
+        datatable(
+            double_dice_game_model_check(sim_data(), seed = 3),
+            options = list(dom = "t", paging = FALSE, ordering = FALSE)
         )
-
-        dt <- datatable(
-
-            df,
-
-            rownames = TRUE,
-
-            options = list(
-                dom = "t",
-                ordering = FALSE,
-                paging = FALSE,
-                searching = FALSE,
-                info = FALSE
-            )
-        )
-
-        # Highlight minimum value in each row
-
-        for(i in seq_len(nrow(df))){
-
-            min_col <- which.min(as.numeric(df[i, ]))
-
-            dt <- formatStyle(
-                dt,
-                columns = min_col,
-                target = "cell",
-                backgroundColor = styleEqual(
-                    df[i, min_col],
-                    "#D4EDDA"
-                )
-            )
-        }
-
-        dt
     })
     })
 }
-
