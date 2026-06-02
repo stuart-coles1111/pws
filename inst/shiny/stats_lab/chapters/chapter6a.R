@@ -1,5 +1,6 @@
 library(shiny)
 library(ggplot2)
+library(DT)
 
 bp <- function(n) {
     p <- 1
@@ -7,7 +8,8 @@ bp <- function(n) {
         for (i in 1:n)
             p <- p * (365 - i + 1) / 365
     }
-    1 - p
+    p <- 1 - p
+    p
 }
 
 # =========================================================
@@ -39,13 +41,12 @@ chapter6_ui <- function(id){
                 ns("demo")
             ),
 
-            numericInput(
-                ns("p_level"),
-                "Probability threshold (p)",
-                value = 0.5,
-                min = 0.1,
-                max = 0.99,
-                step = 0.01
+            sliderInput(
+                ns("nmax"),
+                "Maximum group size",
+                min = 10,
+                max = 100,
+                value = 60
             )
         ),
 
@@ -140,13 +141,18 @@ chapter6_ui <- function(id){
 
             card_header("What this chapter explores"),
 
-            p("This chapter introduces probability,
-              confidence intervals and the dangers
-              of searching for patterns in random data."),
+            p("
+        This chapter introduces probability,
+        confidence intervals and the dangers
+        of searching for patterns in random data.
+      "),
 
             tags$ul(
+
                 tags$li("The Birthday Problem"),
+
                 tags$li("Comparing two proportions"),
+
                 tags$li("Data dredging and false discoveries")
             )
         )
@@ -164,29 +170,68 @@ chapter6_ui <- function(id){
 
             tags$pre(
                 style="
-                    background:#F8F9FA;
-                    padding:15px;
-                    border-radius:10px;
-                ",
+          background:#F8F9FA;
+          padding:15px;
+          border-radius:10px;
+        ",
                 textOutput(ns("generated_code"))
             )
         )
     )
 
     # =======================================================
-    # Results (clean)
+    # Results
     # =======================================================
 
     results_panel <- div(
 
-        card(
-            card_header("Visualisation"),
-            plotOutput(ns("plot"), height = 450)
+        fluidRow(
+
+            column(
+                4,
+                card(
+                    h4("Statistic 1"),
+                    h2(textOutput(ns("stat1")))
+                )
+            ),
+
+            column(
+                4,
+                card(
+                    h4("Statistic 2"),
+                    h2(textOutput(ns("stat2")))
+                )
+            ),
+
+            column(
+                4,
+                card(
+                    h4("Experiment"),
+                    h2(textOutput(ns("experiment")))
+                )
+            )
         ),
 
         br(),
 
-        uiOutput(ns("results_panel"))
+        card(
+
+            card_header("Visualisation"),
+
+            plotOutput(
+                ns("plot"),
+                height = 450
+            )
+        ),
+
+        br(),
+
+        card(
+
+            card_header("Output"),
+
+            DTOutput(ns("table"))
+        )
     )
 
     # =======================================================
@@ -200,9 +245,13 @@ chapter6_ui <- function(id){
             card_header("Key ideas"),
 
             tags$ul(
+
                 tags$li("Probability can be surprising."),
+
                 tags$li("Confidence intervals quantify uncertainty."),
+
                 tags$li("Large numbers of tests create false positives."),
+
                 tags$li("Significant results are not always meaningful.")
             )
         ),
@@ -215,12 +264,12 @@ chapter6_ui <- function(id){
 
             tags$blockquote(
                 style="
-                    font-size:22px;
-                    font-weight:700;
-                    color:#7B9ACC;
-                    border-left:5px solid #CDB4DB;
-                    padding-left:18px;
-                ",
+          font-size:22px;
+          font-weight:700;
+          color:#7B9ACC;
+          border-left:5px solid #CDB4DB;
+          padding-left:18px;
+        ",
                 "The more we search random data, the easier it becomes to find apparently important patterns."
             )
         )
@@ -229,11 +278,17 @@ chapter6_ui <- function(id){
     chapter_page_ui(
 
         id = id,
+
         title = "🔍 Chapter 6: Inference and False Discoveries",
+
         sidebar = sidebar_controls,
+
         overview = overview_panel,
+
         code = code_panel,
+
         results = results_panel,
+
         learn = learn_panel
     )
 }
@@ -252,11 +307,9 @@ chapter6_server <- function(id){
 
             if(input$demo == "Birthday Problem"){
 
-                nmax <- 60
-
                 df <- data.frame(
-                    N = 1:nmax,
-                    P = sapply(1:nmax, bp)
+                    N = 1:input$nmax,
+                    P = sapply(1:input$nmax, bp)
                 )
 
                 list(
@@ -270,8 +323,17 @@ chapter6_server <- function(id){
                 p1 <- input$count1 / input$trial1
                 p2 <- input$count2 / input$trial2
 
-                s1 <- rbinom(input$nsim, input$trial1, p1) / input$trial1
-                s2 <- rbinom(input$nsim, input$trial2, p2) / input$trial2
+                s1 <- rbinom(
+                    input$nsim,
+                    input$trial1,
+                    p1
+                ) / input$trial1
+
+                s2 <- rbinom(
+                    input$nsim,
+                    input$trial2,
+                    p2
+                ) / input$trial2
 
                 d <- s1 - s2
 
@@ -281,7 +343,10 @@ chapter6_server <- function(id){
 
                 qv <- qnorm((1 + input$alpha)/2)
 
-                ci <- c(m - qv * se, m + qv * se)
+                ci <- c(
+                    m - qv*se,
+                    m + qv*se
+                )
 
                 list(
                     type = "prop",
@@ -293,20 +358,33 @@ chapter6_server <- function(id){
 
             else {
 
-                y <- rnorm(input$n_data, 0, input$sig_y)
+                y <- rnorm(
+                    input$n_data,
+                    0,
+                    input$sig_y
+                )
 
                 x <- matrix(
-                    rnorm(input$n_var * input$n_data, 0, input$sig_x),
+                    rnorm(
+                        input$n_var * input$n_data,
+                        0,
+                        input$sig_x
+                    ),
                     nrow = input$n_var
                 )
 
-                pvals <- sapply(1:input$n_var, function(i){
-                    summary(lm(y ~ x[i, ]))$coeff[2, 4]
-                })
+                pvals <- sapply(
+                    1:input$n_var,
+                    function(i){
+                        summary(
+                            lm(y ~ x[i,])
+                        )$coeff[2,4]
+                    }
+                )
 
                 best <- which.min(pvals)
 
-                xx <- x[best, ]
+                xx <- x[best,]
 
                 fit <- lm(y ~ xx)
 
@@ -314,31 +392,38 @@ chapter6_server <- function(id){
                     type = "dredge",
                     x = xx,
                     y = y,
-                    coef = summary(fit)$coefficients,
+                    coef = round(summary(fit)$coeff,4),
                     minp = min(pvals)
                 )
             }
 
         }, ignoreNULL = FALSE)
 
-        # ===================================================
-        # Code display
-        # ===================================================
+        output$experiment <- renderText({
+            input$demo
+        })
 
         output$generated_code <- renderText({
 
             switch(
+
                 input$demo,
 
                 "Birthday Problem" =
-                    "plot_bp(p = p_level, nmax = 60)",
+                    paste0(
+                        "plot_bp(nmax = ",
+                        input$nmax,
+                        ")"
+                    ),
 
                 "Difference in Proportions" =
                     paste0(
                         "prop.diff(counts = c(",
-                        input$count1, ",", input$count2,
+                        input$count1,",",
+                        input$count2,
                         "), trials = c(",
-                        input$trial1, ",", input$trial2,
+                        input$trial1,",",
+                        input$trial2,
                         "))"
                     ),
 
@@ -353,92 +438,124 @@ chapter6_server <- function(id){
             )
         })
 
-        # ===================================================
-        # Plot
-        # ===================================================
-
         output$plot <- renderPlot({
 
             a <- analysis()
 
             if(a$type == "birthday"){
 
-                ggplot(a$data, aes(N, P)) +
-                    geom_line(colour = "#7B9ACC", linewidth = 1) +
-                    geom_point(colour = "#7B9ACC") +
+                ggplot(
+                    a$data,
+                    aes(N,P)
+                ) +
+                    geom_point(
+                        colour="#7B9ACC"
+                    ) +
                     geom_hline(
-                        yintercept = input$p_level,
-                        colour = "red",
-                        linetype = "dashed"
+                        yintercept=.5,
+                        colour="red"
                     ) +
-                    geom_vline(
-                        xintercept = a$data$N[which.min(abs(a$data$P - input$p_level))],
-                        colour = "darkred",
-                        linetype = "dotted"
-                    ) +
-                    theme_minimal(base_size = 14)
+                    theme_minimal(base_size=14)
             }
 
             else if(a$type == "prop"){
 
-                df <- data.frame(d = a$d)
-
-                ggplot(df, aes(d)) +
+                ggplot(
+                    data.frame(d=a$d),
+                    aes(d)
+                ) +
                     geom_histogram(
-                        bins = 20,
-                        fill = "#7B9ACC",
-                        colour = "white"
+                        bins=20,
+                        fill="#7B9ACC",
+                        colour="white"
                     ) +
-                    geom_vline(
-                        xintercept = a$ci,
-                        colour = "red",
-                        linetype = "dashed"
-                    ) +
-                    theme_minimal(base_size = 14)
+                    theme_minimal(base_size=14)
             }
 
             else {
 
                 ggplot(
-                    data.frame(x = a$x, y = a$y),
-                    aes(x, y)
+                    data.frame(
+                        x=a$x,
+                        y=a$y
+                    ),
+                    aes(x,y)
                 ) +
-                    geom_point(colour = "#7B9ACC") +
-                    geom_smooth(method = "lm", colour = "red") +
-                    theme_minimal(base_size = 14)
+                    geom_point(
+                        colour="#7B9ACC"
+                    ) +
+                    geom_smooth(
+                        method="lm",
+                        colour="red"
+                    ) +
+                    theme_minimal(base_size=14)
             }
         })
 
-        # ===================================================
-        # Results panel (simple UI)
-        # ===================================================
-
-        output$results_panel <- renderUI({
+        output$stat1 <- renderText({
 
             a <- analysis()
 
-            if(a$type == "birthday"){
+            if(a$type=="birthday"){
 
-                card(
-                    card_header("Key result"),
-                    h3(sprintf("P = %.3f", max(a$data$P)))
-                )
+                round(max(a$data$P),3)
 
-            } else if(a$type == "prop"){
+            } else if(a$type=="prop"){
 
-                card(
-                    card_header("Difference in proportions"),
-                    p(sprintf("SE: %.4f", a$se)),
-                    p(sprintf("CI: %.3f to %.3f", a$ci[1], a$ci[2]))
+                round(a$se,4)
+
+            } else {
+
+                signif(a$minp,4)
+            }
+        })
+
+        output$stat2 <- renderText({
+
+            a <- analysis()
+
+            if(a$type=="birthday"){
+
+                a$data$N[
+                    which.min(abs(a$data$P-.5))
+                ]
+
+            } else if(a$type=="prop"){
+
+                paste0(
+                    round(a$ci[1],3),
+                    " to ",
+                    round(a$ci[2],3)
                 )
 
             } else {
 
-                card(
-                    card_header("Regression result"),
-                    p(sprintf("Best p-value: %.5f", a$minp)),
-                    p(sprintf("Coefficient: %.3f", a$coef[2,1])),
-                    p(sprintf("Std error: %.3f", a$coef[2,2]))
+                input$n_var
+            }
+        })
+
+        output$table <- renderDT({
+
+            a <- analysis()
+
+            if(a$type=="birthday"){
+
+                datatable(a$data)
+
+            } else if(a$type=="prop"){
+
+                datatable(
+                    data.frame(
+                        Lower=a$ci[1],
+                        Upper=a$ci[2],
+                        SE=a$se
+                    )
+                )
+
+            } else {
+
+                datatable(
+                    as.data.frame(a$coef)
                 )
             }
         })
