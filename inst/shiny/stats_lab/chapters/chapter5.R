@@ -423,7 +423,7 @@ increase in X.
 
         id = id,
 
-        title = "📊 Chapter 5: Inference & Regression",
+        title = "📊 Chapter 5: Statistics",
 
         sidebar = sidebar_controls,
 

@@ -51,6 +51,10 @@ prop.diff <- function(counts = c(21, 9), trials = c(31, 23), alpha=.95, nsim =10
 
     if(!is.null(ci_lim)) f2 <- f2 + ylim(ci_lim)
 
-    gridExtra::grid.arrange(f1, f2, ncol=2)
-    list(se = se, ci = ci)
-}
+    arranged_plot <- gridExtra::grid.arrange(f1, f2, ncol=2)
+    list(
+        plot = arranged_plot,
+        se = se,
+        ci = ci,
+        mean_diff = m
+    )}

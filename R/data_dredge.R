@@ -38,5 +38,10 @@ data_dredge <- function(n_data = 100, n_var = 50, sig_x = 10, sig_y = 5, seed = 
         ggplot2::theme(axis.title = ggplot2::element_text(face = "italic"))
     plot(p)
 
-    summary(lm(y ~ x))$coeff %>% round(4)
+    list(
+        plot = p,
+        coefficients = coef_table,
+        min_p = min(pval),
+        selected_variable = var_sig
+    )
 }
