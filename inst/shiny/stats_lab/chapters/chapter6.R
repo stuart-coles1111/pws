@@ -96,22 +96,6 @@ chapter6_ui <- function(id){
                 ns("n_var"),
                 "Candidate predictors",
                 50
-            ),
-
-            sliderInput(
-                ns("sig_x"),
-                "X variability",
-                min = 1,
-                max = 20,
-                value = 10
-            ),
-
-            sliderInput(
-                ns("sig_y"),
-                "Y variability",
-                min = 1,
-                max = 20,
-                value = 5
             )
         ),
 
@@ -137,7 +121,6 @@ chapter6_ui <- function(id){
     overview_panel <- div(
 
         card(
-
             card_header("What this chapter explores"),
 
             p("This chapter introduces probability,
@@ -159,7 +142,6 @@ chapter6_ui <- function(id){
     code_panel <- div(
 
         card(
-
             card_header("Generated R code"),
 
             tags$pre(
@@ -174,7 +156,7 @@ chapter6_ui <- function(id){
     )
 
     # =======================================================
-    # Results (clean)
+    # Results
     # =======================================================
 
     results_panel <- div(
@@ -196,7 +178,6 @@ chapter6_ui <- function(id){
     learn_panel <- div(
 
         card(
-
             card_header("Key ideas"),
 
             tags$ul(
@@ -210,7 +191,6 @@ chapter6_ui <- function(id){
         br(),
 
         card(
-
             card_header("Big idea"),
 
             tags$blockquote(
@@ -227,9 +207,8 @@ chapter6_ui <- function(id){
     )
 
     chapter_page_ui(
-
         id = id,
-        title = "🔍 Chapter 6: Inference and False Discoveries",
+        title = "📐 Chapter 6: Design",
         sidebar = sidebar_controls,
         overview = overview_panel,
         code = code_panel,
@@ -250,6 +229,10 @@ chapter6_server <- function(id){
 
             set.seed(input$seed)
 
+            # =================================================
+            # Birthday Problem
+            # =================================================
+
             if(input$demo == "Birthday Problem"){
 
                 nmax <- 60
@@ -259,11 +242,18 @@ chapter6_server <- function(id){
                     P = sapply(1:nmax, bp)
                 )
 
+                required_n <- df$N[which(df$P >= input$p_level)[1]]
+
                 list(
                     type = "birthday",
-                    data = df
+                    data = df,
+                    required_n = required_n
                 )
             }
+
+            # =================================================
+            # Difference in Proportions
+            # =================================================
 
             else if(input$demo == "Difference in Proportions"){
 
@@ -276,7 +266,6 @@ chapter6_server <- function(id){
                 d <- s1 - s2
 
                 se <- sd(d)
-
                 m <- mean(d)
 
                 qv <- qnorm((1 + input$alpha)/2)
@@ -291,12 +280,15 @@ chapter6_server <- function(id){
                 )
             }
 
+            # =================================================
+            # Data dredging (fixed scale)
+            # =================================================
+
             else {
 
-                y <- rnorm(input$n_data, 0, input$sig_y)
-
+                y <- rnorm(input$n_data, 0, 5)
                 x <- matrix(
-                    rnorm(input$n_var * input$n_data, 0, input$sig_x),
+                    rnorm(input$n_var * input$n_data, 0, 10),
                     nrow = input$n_var
                 )
 
@@ -305,7 +297,6 @@ chapter6_server <- function(id){
                 })
 
                 best <- which.min(pvals)
-
                 xx <- x[best, ]
 
                 fit <- lm(y ~ xx)
@@ -321,9 +312,9 @@ chapter6_server <- function(id){
 
         }, ignoreNULL = FALSE)
 
-        # ===================================================
+        # =====================================================
         # Code display
-        # ===================================================
+        # =====================================================
 
         output$generated_code <- renderText({
 
@@ -353,9 +344,9 @@ chapter6_server <- function(id){
             )
         })
 
-        # ===================================================
+        # =====================================================
         # Plot
-        # ===================================================
+        # =====================================================
 
         output$plot <- renderPlot({
 
@@ -372,7 +363,7 @@ chapter6_server <- function(id){
                         linetype = "dashed"
                     ) +
                     geom_vline(
-                        xintercept = a$data$N[which.min(abs(a$data$P - input$p_level))],
+                        xintercept = a$required_n,
                         colour = "darkred",
                         linetype = "dotted"
                     ) +
@@ -409,9 +400,9 @@ chapter6_server <- function(id){
             }
         })
 
-        # ===================================================
-        # Results panel (simple UI)
-        # ===================================================
+        # =====================================================
+        # Results panel
+        # =====================================================
 
         output$results_panel <- renderUI({
 
@@ -421,7 +412,7 @@ chapter6_server <- function(id){
 
                 card(
                     card_header("Key result"),
-                    h3(sprintf("P = %.3f", max(a$data$P)))
+                    h3(sprintf("Required n = %d", a$required_n))
                 )
 
             } else if(a$type == "prop"){
