@@ -436,12 +436,14 @@ double_dice_game_model_check(game_scores)"
 
         req(sim_data())
 
-        datatable(
+        df <- double_dice_game_model_check(
+            sim_data(),
+            seed = 3
+        )
 
-            double_dice_game_model_check(
-                sim_data(),
-                seed = 3
-            ),
+        dt <- datatable(
+
+            df,
 
             rownames = TRUE,
 
@@ -453,6 +455,25 @@ double_dice_game_model_check(game_scores)"
                 info = FALSE
             )
         )
+
+        # Highlight minimum value in each row
+
+        for(i in seq_len(nrow(df))){
+
+            min_col <- which.min(as.numeric(df[i, ]))
+
+            dt <- formatStyle(
+                dt,
+                columns = min_col,
+                target = "cell",
+                backgroundColor = styleEqual(
+                    df[i, min_col],
+                    "#D4EDDA"
+                )
+            )
+        }
+
+        dt
     })
     })
 }
