@@ -313,7 +313,7 @@ chapter8_server <- function(id) {
 
             for(i in 1:length(round)){
                 mu_h <- c(mu_h, exp(tau + teams_dynamic[match(team_h[i], df$teams), round[i]+7] - teams_dynamic[match(team_a[i], df$teams), round[i]+45]))
-                mu_a <- c(mu_a, exp(teams_dynamic[match(team_a, df$teams), round[i]+7] - teams_dynamic[match(team_h[i], df$teams), round[i]+45]))
+                mu_a <- c(mu_a, exp(teams_dynamic[match(team_a[i], df$teams), round[i]+7] - teams_dynamic[match(team_h[i], df$teams), round[i]+45]))
             }
 
             g_h <- rpois(length(team_h), mu_h)
