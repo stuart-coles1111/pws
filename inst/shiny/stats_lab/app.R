@@ -23,6 +23,7 @@ source("chapters/chapter4.R")
 source("chapters/chapter5.R")
 source("chapters/chapter6.R")
 source("chapters/chapter7.R")
+source("chapters/chapter8.R")
 
 
 # =========================================================
@@ -103,6 +104,11 @@ ui <- page_navbar(
     nav_panel(
         "🧩 Chapter 7",
         chapter7_ui("chapter7")
+    ),
+
+    nav_panel(
+        "🕸 Chapter 8",
+        chapter8_ui("chapter8")
     )
 )
 
@@ -135,6 +141,9 @@ server <- function(input, output, session){
 
     # Chapter 7
     chapter7_server("chapter7")
+
+    # Chapter 8
+    chapter8_server("chapter8")
 }
 
 # =========================================================
