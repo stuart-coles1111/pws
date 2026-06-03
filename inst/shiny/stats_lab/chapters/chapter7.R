@@ -166,7 +166,7 @@ double_dice_game_model_check <- function(data, seed = NULL){
         "Model 3"
     )
 
-    df
+    t(df)
 }
 
 mod_ests <- function(x){
@@ -366,10 +366,35 @@ double_dice_game_model_check(game_scores)"
 
     output$model_table <- renderDT({
 
-        datatable(
-            double_dice_game_model_check(sim_data(), seed = 3),
-            options = list(dom = "t", paging = FALSE, ordering = FALSE)
+        df <- as.data.frame(
+            double_dice_game_model_check(sim_data(), seed = 3)
         )
+
+        dt <- datatable(
+            df,
+            options = list(
+                dom = "t",
+                paging = FALSE,
+                ordering = FALSE
+            )
+        )
+
+        for (col in names(df)) {
+
+            min_val <- min(df[[col]], na.rm = TRUE)
+
+            dt <- dt |>
+                formatStyle(
+                    columns = col,
+                    valueColumns = col,
+                    backgroundColor = styleEqual(
+                        min_val,
+                        "#c6efce"
+                    )
+                )
+        }
+
+        dt
     })
     })
 }
