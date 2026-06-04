@@ -40,7 +40,7 @@ chapter1_ui <- function(id){
         ),
 
         sliderInput(
-            ns("beta_alpha_1"),
+            ns("beta_1"),
             "Beta alpha 1",
             min = 0.001,
             max = 1,
@@ -49,7 +49,7 @@ chapter1_ui <- function(id){
         ),
 
         sliderInput(
-            ns("beta_alpha_2"),
+            ns("beta_2"),
             "Beta alpha 2",
             min = 0.01,
             max = 2,
@@ -338,9 +338,9 @@ chapter1_server <- function(id){
 
                 pois_mean = input$pois_mean,
 
-                beta_alpha_1 = input$beta_alpha_1,
+                beta_1 = input$beta_1,
 
-                beta_alpha_2 = input$beta_alpha_2,
+                beta_2 = input$beta_2,
 
                 seed = input$seed
             )
@@ -357,8 +357,8 @@ chapter1_server <- function(id){
                 "goals_per_match <- goals_sim(
   n_sim = ", input$n_sim, ",
   pois_mean = ", input$pois_mean, ",
-  beta_alpha_1 = ", input$beta_alpha_1, ",
-  beta_alpha_2 = ", input$beta_alpha_2, ",
+  beta_1 = ", input$beta_1, ",
+  beta_2 = ", input$beta_2, ",
   seed = ", input$seed, "
 )
 

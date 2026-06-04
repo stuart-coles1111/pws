@@ -7,8 +7,8 @@
 goals_sim(
   n_sim = 10000,
   pois_mean = 25,
-  beta_alpha_1 = 0.02,
-  beta_alpha_2 = 0.2,
+  beta_1 = 0.02,
+  beta_2 = 0.2,
   plot_max = 10,
   seed = NULL
 )
@@ -18,9 +18,9 @@ goals_sim(
 
 \item{pois_mean}{Average number of events per game}
 
-\item{beta_alpha_1}{First parameter that affects probability events become goals}
+\item{beta_1}{First parameter that affects probability events become goals}
 
-\item{beta_alpha_2}{Second parameter that affects probability events become goals}
+\item{beta_2}{Second parameter that affects probability events become goals}
 
 \item{plot_max}{Maximum value for subsequent plotting (optional)}
 

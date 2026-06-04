@@ -3,7 +3,7 @@
 \docType{data}
 \name{PL25_schedule}
 \alias{PL25_schedule}
-\title{Premier League Scedule 25-26}
+\title{Premier League Schedule 25-26}
 \format{
 dataframe of match schedules by round
 }
@@ -14,7 +14,7 @@ dataframe of match schedules by round
 PL25_schedule
 }
 \description{
-Premier League Scedule 25-26
+Premier League Schedule 25-26
 }
 \examples{
 head(PL25_schedule) # home advantage parameter

@@ -1,6 +1,6 @@
-#' Premier League Scedule 25-26
+#' Premier League Schedule 25-26
 #'
-#' Premier League Scedule 25-26
+#' Premier League Schedule 25-26
 #'
 #' @format dataframe of match schedules by round
 #'
