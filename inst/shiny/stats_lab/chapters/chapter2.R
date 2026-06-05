@@ -1,6 +1,5 @@
 library(shiny)
 library(ggplot2)
-library(DT)
 
 # =========================================================
 # Chapter 2 UI
@@ -15,18 +14,6 @@ chapter2_ui <- function(id){
         h4("Distribution explorer"),
 
         p("Explore binomial, poisson, and normal probabilities."),
-
-        # -----------------------------------------------------
-        # GLOBAL ACCURACY CONTROL
-        # -----------------------------------------------------
-
-        numericInput(
-            ns("digits"),
-            "Accuracy (decimal places)",
-            value = 3,
-            min = 0,
-            max = 10
-        ),
 
         hr(),
 
@@ -73,7 +60,7 @@ chapter2_ui <- function(id){
             condition = sprintf("input['%s'] == 'Normal'", ns("dist")),
 
             numericInput(ns("mean"), "Mean", 1),
-            numericInput(ns("sd"), "SD", 3),
+            numericInput(ns("sd"), "SD", 3, min = 0.001),
 
             numericInput(ns("a"), "Lower bound", -1),
             numericInput(ns("b"), "Upper bound", 2)
@@ -117,14 +104,6 @@ chapter2_ui <- function(id){
     results_panel <- tagList(
 
         card(
-            card_header("Result"),
-
-            h2(textOutput(ns("result")))
-        ),
-
-        br(),
-
-        card(
             card_header("Distribution plot"),
             plotOutput(ns("plot"), height = 350)
         ),
@@ -132,8 +111,8 @@ chapter2_ui <- function(id){
         br(),
 
         card(
-            card_header("Values / probabilities"),
-            DTOutput(ns("table"))
+            card_header("Result"),
+            h2(textOutput(ns("result")))
         )
     )
 
@@ -180,7 +159,9 @@ chapter2_server <- function(id){
         # helper
         # =====================================================
 
-        fmt <- function(x) round(x, input$digits)
+        fmt <- function(x){
+            sprintf("%.3f", round(x, 3))
+        }
 
         # =====================================================
         # main result
@@ -192,12 +173,27 @@ chapter2_server <- function(id){
 
                 input$dist,
 
-                "Binomial" = dbinom(input$x_bin, input$n, input$p),
+                "Binomial" = dbinom(
+                    input$x_bin,
+                    input$n,
+                    input$p
+                ),
 
-                "Poisson" = dpois(input$x_pois, input$lambda),
+                "Poisson" = dpois(
+                    input$x_pois,
+                    input$lambda
+                ),
 
-                "Normal" = pnorm(input$b, input$mean, input$sd) -
-                    pnorm(input$a, input$mean, input$sd)
+                "Normal" = pnorm(
+                    input$b,
+                    input$mean,
+                    input$sd
+                ) -
+                    pnorm(
+                        input$a,
+                        input$mean,
+                        input$sd
+                    )
             )
         })
 
@@ -212,16 +208,38 @@ chapter2_server <- function(id){
                 input$dist,
 
                 "Binomial" = paste0(
-                    "dbinom(", input$x_bin, ", ", input$n, ", ", input$p, ")"
+                    "dbinom(",
+                    input$x_bin,
+                    ", ",
+                    input$n,
+                    ", ",
+                    input$p,
+                    ")"
                 ),
 
                 "Poisson" = paste0(
-                    "dpois(", input$x_pois, ", ", input$lambda, ")"
+                    "dpois(",
+                    input$x_pois,
+                    ", ",
+                    input$lambda,
+                    ")"
                 ),
 
                 "Normal" = paste0(
-                    "pnorm(", input$b, ", ", input$mean, ", ", input$sd, ") - ",
-                    "pnorm(", input$a, ", ", input$mean, ", ", input$sd, ")"
+                    "pnorm(",
+                    input$b,
+                    ", ",
+                    input$mean,
+                    ", ",
+                    input$sd,
+                    ") - ",
+                    "pnorm(",
+                    input$a,
+                    ", ",
+                    input$mean,
+                    ", ",
+                    input$sd,
+                    ")"
                 )
             )
         })
@@ -231,7 +249,34 @@ chapter2_server <- function(id){
         # =====================================================
 
         output$result <- renderText({
-            fmt(result())
+
+            switch(
+
+                input$dist,
+
+                "Binomial" = paste0(
+                    "P(X = ",
+                    input$x_bin,
+                    ") = ",
+                    fmt(result())
+                ),
+
+                "Poisson" = paste0(
+                    "P(X = ",
+                    input$x_pois,
+                    ") = ",
+                    fmt(result())
+                ),
+
+                "Normal" = paste0(
+                    "P(",
+                    input$a,
+                    " ≤ X ≤ ",
+                    input$b,
+                    ") = ",
+                    fmt(result())
+                )
+            )
         })
 
         # =====================================================
@@ -247,8 +292,22 @@ chapter2_server <- function(id){
 
                 ggplot(data.frame(x, y), aes(x, y)) +
                     geom_col(fill = "#7B9ACC") +
+                    geom_col(
+                        data = data.frame(
+                            x = input$x_bin,
+                            y = dbinom(
+                                input$x_bin,
+                                input$n,
+                                input$p
+                            )
+                        ),
+                        fill = "#E76F51"
+                    ) +
                     theme_minimal(base_size = 14) +
-                    labs(x = "x", y = "Probability")
+                    labs(
+                        x = "Number of successes",
+                        y = "Probability"
+                    )
 
             } else if(input$dist == "Poisson"){
 
@@ -257,65 +316,58 @@ chapter2_server <- function(id){
 
                 ggplot(data.frame(x, y), aes(x, y)) +
                     geom_col(fill = "#CDB4DB") +
+                    geom_col(
+                        data = data.frame(
+                            x = input$x_pois,
+                            y = dpois(
+                                input$x_pois,
+                                input$lambda
+                            )
+                        ),
+                        fill = "#E76F51"
+                    ) +
                     theme_minimal(base_size = 14) +
-                    labs(x = "x", y = "Probability")
+                    labs(
+                        x = "Number of events",
+                        y = "Probability"
+                    )
 
             } else {
 
-                x <- seq(input$mean - 4*input$sd,
-                         input$mean + 4*input$sd,
-                         length.out = 300)
+                x <- seq(
+                    input$mean - 4 * input$sd,
+                    input$mean + 4 * input$sd,
+                    length.out = 300
+                )
 
-                y <- dnorm(x, input$mean, input$sd)
+                y <- dnorm(
+                    x,
+                    input$mean,
+                    input$sd
+                )
 
                 df <- data.frame(x, y)
 
                 ggplot(df, aes(x, y)) +
-                    geom_line(color = "#7B9ACC", linewidth = 1.2) +
+                    geom_line(
+                        color = "#7B9ACC",
+                        linewidth = 1.2
+                    ) +
                     geom_area(
-                        data = subset(df, x >= input$a & x <= input$b),
+                        data = subset(
+                            df,
+                            x >= input$a & x <= input$b
+                        ),
                         fill = "#CDB4DB",
-                        alpha = 0.5
+                        alpha = 0.6
                     ) +
                     theme_minimal(base_size = 14) +
-                    labs(x = "x", y = "Density")
-            }
-        })
-
-        # =====================================================
-        # TABLE OUTPUT
-        # =====================================================
-
-        output$table <- renderDT({
-
-            if(input$dist == "Binomial"){
-
-                data.frame(
-                    x = 0:input$n,
-                    prob = round(dbinom(0:input$n, input$n, input$p), input$digits)
-                )
-
-            } else if(input$dist == "Poisson"){
-
-                x <- 0:15
-
-                data.frame(
-                    x = x,
-                    prob = round(dpois(x, input$lambda), input$digits)
-                )
-
-            } else {
-
-                # NORMAL: ONLY interval probability (no density table)
-                data.frame(
-                    interval = paste0("[", input$a, ", ", input$b, "]"),
-                    probability = round(
-                        pnorm(input$b, input$mean, input$sd) -
-                            pnorm(input$a, input$mean, input$sd),
-                        input$digits
+                    labs(
+                        x = "x",
+                        y = "Density"
                     )
-                )
             }
         })
     })
 }
+
