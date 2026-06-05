@@ -1,452 +1,268 @@
 library(shiny)
 library(ggplot2)
-library(DT)
+library(patchwork)
 
 # =========================================================
-# Chapter 1 UI
+# UI
 # =========================================================
 
 chapter1_ui <- function(id){
 
     ns <- NS(id)
 
-    # =======================================================
-    # Sidebar controls
-    # =======================================================
-
     sidebar_controls <- sidebar(
 
         h4("Simulation controls"),
 
-        p(
-            "Adjust the simulation parameters and explore how the
-      distribution of goals changes."
-        ),
+        numericInput(ns("n_sim"), "Number of simulated games",
+                     value = 10000, min = 100),
 
-        numericInput(
-            ns("n_sim"),
-            "Number of simulations",
-            value = 10000,
-            min = 100,
-            step = 100
-        ),
+        sliderInput(ns("pois_mean"), "Average number of goal scoring opportunities",
+                    min = 1, max = 50, value = 25),
 
-        sliderInput(
-            ns("pois_mean"),
-            "Average opportunities per match",
-            min = 1,
-            max = 50,
-            value = 25
-        ),
+        sliderInput(ns("mu"), "Average probability of goal conversion",
+                    min = 0, max = 1, value = 0.1, step = 0.01),
 
-        sliderInput(
-            ns("beta_1"),
-            "Beta alpha 1",
-            min = 0.001,
-            max = 1,
-            value = 0.02,
-            step = 0.001
-        ),
+        sliderInput(ns("phi"), "Concentration",
+                    min = 0, max = 50, value = 2, step = 0.01),
 
-        sliderInput(
-            ns("beta_2"),
-            "Beta alpha 2",
-            min = 0.01,
-            max = 2,
-            value = 0.2,
-            step = 0.01
-        ),
+        numericInput(ns("seed"), "Random seed",
+                     value = sample(1:999, 1)),
 
-        numericInput(
-            ns("seed"),
-            "Random seed",
-            value = 111
-        ),
-
-        hr(),
-
-        actionButton(
-            ns("run"),
-            "Run simulation",
-            class = "btn-primary"
-        )
+        actionButton(ns("run"), "Run simulation", class = "btn-primary")
     )
-
-    # =======================================================
-    # Overview tab
-    # =======================================================
 
     overview_panel <- div(
-
         card(
-
-            card_header("What this chapter explores"),
-
-            p("
-        This chapter introduces statistical simulation using
-        a simple football goals model.
-      "),
-
-            p("
-        We repeatedly simulate matches and study the resulting
-        distribution of goals scored.
-      "),
-
-            tags$ul(
-                tags$li("Random variation"),
-                tags$li("Repeated simulation"),
-                tags$li("Distributions"),
-                tags$li("Summary statistics"),
-                tags$li("Sampling variability")
-            )
+            card_header("Overview"),
+            p("Poisson opportunities with Beta scoring probability."),
+            p("We compare simulated outcomes to the exact theoretical distribution.")
         )
     )
-
-    # =======================================================
-    # Code tab
-    # =======================================================
 
     code_panel <- div(
-
         card(
-
-            card_header("Generated R code"),
-
-            p("
-        This is the equivalent R code for the current settings.
-      "),
-
-            tags$pre(
-                style = "
-          background:#F8F9FA;
-          padding:15px;
-          border-radius:10px;
-          font-size:15px;
-        ",
-
-                textOutput(ns("generated_code"))
-            )
+            card_header("Generated Code"),
+            tags$pre(textOutput(ns("generated_code")))
         )
     )
-
-    # =======================================================
-    # Results tab
-    # =======================================================
 
     results_panel <- div(
 
-        fluidRow(
-
-            column(
-                4,
-
-                card(
-
-                    style = "
-            background:#EEF2FF;
-          ",
-
-                    h4("Mean"),
-
-                    h2(textOutput(ns("mean")))
-                )
-            ),
-
-            column(
-                4,
-
-                card(
-
-                    style = "
-            background:#F3E8FF;
-          ",
-
-                    h4("Standard deviation"),
-
-                    h2(textOutput(ns("sd")))
-                )
-            ),
-
-            column(
-                4,
-
-                card(
-
-                    style = "
-            background:#EAF7F2;
-          ",
-
-                    h4("Simulations"),
-
-                    h2(textOutput(ns("n_display")))
-                )
-            )
+        card(
+            card_header("Model components"),
+            plotOutput(ns("components"), height = 300)
         ),
 
-        br(),
-
         card(
-
             card_header("Distribution of goals"),
-
-            plotOutput(
-                ns("hist"),
-                height = 350
-            )
-        ),
-
-        br(),
-
-        fluidRow(
-
-            column(
-                6,
-
-                card(
-
-                    card_header("First few simulated values"),
-
-                    DTOutput(ns("head_table"))
-                )
-            ),
-
-            column(
-                6,
-
-                card(
-
-                    card_header("Frequency table"),
-
-                    DTOutput(ns("freq_table"))
-                )
-            )
-        ),
-
-        br(),
-
-        card(
-
-            card_header("Understanding the output"),
-
-            tags$pre(
-                "goals_per_match
-├── $data   → vector of simulated goals
-└── $table  → frequency table"
-            )
+            plotOutput(ns("hist"), height = 400)
         )
     )
-
-    # =======================================================
-    # Learn tab
-    # =======================================================
 
     learn_panel <- div(
-
         card(
-
             card_header("Key ideas"),
-
             tags$ul(
-
-                tags$li("
-          Simulation creates artificial data using probability models.
-        "),
-
-                tags$li("
-          Randomness still produces structure and patterns.
-        "),
-
-                tags$li("
-          Larger simulations produce more stable distributions.
-        "),
-
-                tags$li("
-          Summary statistics help describe distributions.
-        ")
-            )
-        ),
-
-        br(),
-
-        card(
-
-            card_header("Try changing..."),
-
-            tags$ul(
-
-                tags$li("Reduce the number of simulations."),
-                tags$li("Increase the Poisson mean."),
-                tags$li("Change the beta parameters."),
-                tags$li("Change the random seed.")
-            )
-        ),
-
-        br(),
-
-        card(
-
-            card_header("Big idea"),
-
-            tags$blockquote(
-                style = "
-    font-size:22px;
-    font-weight:700;
-    color:#7B9ACC;
-    border-left:5px solid #CDB4DB;
-    padding-left:18px;
-  ",
-                "Simulation helps us understand uncertainty."
+                tags$li("Two-stage randomness: N then Binomial thinning"),
+                tags$li("Beta introduces heterogeneity in scoring probability"),
+                tags$li("Mixture creates overdispersion"),
+                tags$li("Theory now matches simulation exactly")
             )
         )
     )
 
-    # =======================================================
-    # Build chapter page
-    # =======================================================
-
     chapter_page_ui(
-
         id = id,
-
         title = "🎲 Chapter 1: Randomness",
-
         sidebar = sidebar_controls,
-
         overview = overview_panel,
-
         code = code_panel,
-
         results = results_panel,
-
         learn = learn_panel
     )
 }
 
 # =========================================================
-# Chapter 1 Server
+# SERVER
 # =========================================================
 
 chapter1_server <- function(id){
 
     moduleServer(id, function(input, output, session){
 
+        observeEvent(input$run, {
+            updateNumericInput(session, "seed", value = sample(1:999, 1))
+        })
+
         sim <- eventReactive(input$run, {
 
+            phi <- pmax(input$phi, 0.01)
+
             pws::goals_sim(
-
                 n_sim = input$n_sim,
-
                 pois_mean = input$pois_mean,
-
-                beta_1 = input$beta_1,
-
-                beta_2 = input$beta_2,
-
+                beta_1 = input$mu * input$phi,
+                beta_2 = (1 - input$mu) * input$phi,
                 seed = input$seed
             )
-        },
-        ignoreNULL = FALSE)
-
-        # =====================================================
-        # Generated code
-        # =====================================================
+        })
 
         output$generated_code <- renderText({
 
             paste0(
-                "goals_per_match <- goals_sim(
-  n_sim = ", input$n_sim, ",
-  pois_mean = ", input$pois_mean, ",
-  beta_1 = ", input$beta_1, ",
-  beta_2 = ", input$beta_2, ",
-  seed = ", input$seed, "
-)
-
-head(goals_per_match$data)
-
-goals_per_match$table
-
-mean(goals_per_match$data)
-sd(goals_per_match$data)"
+                "goals_sim(\n",
+                "  n_sim = ", input$n_sim, ",\n",
+                "  pois_mean = ", input$pois_mean, ",\n",
+                "  mu = ", input$mu, ",\n",
+                "  phi = ", input$phi, ",\n",
+                "  seed = ", input$seed, "\n",
+                ")"
             )
         })
 
-    # =====================================================
-    # Summary stats
-    # =====================================================
+        output$components <- renderPlot({
 
-    output$mean <- renderText({
+            phi <- pmax(input$phi, 0.01)
 
-        round(mean(sim()$data), 3)
-    })
+            beta_1 <- input$mu * input$phi
+            beta_2 <- (1 - input$mu) * input$phi
 
-    output$sd <- renderText({
+            # ------------------------------------
+            # Poisson opportunities
+            # ------------------------------------
 
-        round(sd(sim()$data), 3)
-    })
+            max_n <- qpois(0.999, input$pois_mean)
 
-    output$n_display <- renderText({
+            pois_df <- data.frame(
+                Opportunities = 0:max_n,
+                Probability = dpois(
+                    0:max_n,
+                    lambda = input$pois_mean
+                )
+            )
 
-        input$n_sim
-    })
-
-    # =====================================================
-    # Histogram
-    # =====================================================
-
-    output$hist <- renderPlot({
-
-        ggplot(
-            sim()$table,
-            aes(Goals, Frequency)
-        ) +
-
-            geom_col(
-                fill = "#7B9ACC",
-                alpha = 0.9
+            p1 <- ggplot(
+                pois_df,
+                aes(
+                    x = factor(Opportunities),
+                    y = Probability
+                )
             ) +
+                geom_col(fill = "#7B9ACC") +
+                theme_minimal(base_size = 12) +
+                labs(
+                    title = "Number of chances",
+                    x = "Opportunities",
+                    y = "Probability"
+                )
 
-            theme_minimal(base_size = 14) +
+            # ------------------------------------
+            # Beta conversion probability
+            # ------------------------------------
 
-            labs(
-                x = "Goals scored",
-                y = "Frequency"
+            p_grid <- seq(
+                0,
+                1,
+                length.out = 500
             )
-    })
 
-    # =====================================================
-    # Head table
-    # =====================================================
-
-    output$head_table <- renderDT({
-
-        datatable(
-
-            data.frame(
-                goals = head(sim()$data)
-            ),
-
-            options = list(
-                dom = "t",
-                pageLength = 6
+            beta_df <- data.frame(
+                p = p_grid,
+                Density = dbeta(
+                    p_grid,
+                    shape1 = beta_1,
+                    shape2 = beta_2
+                )
             )
-        )
-    })
 
-    # =====================================================
-    # Frequency table
-    # =====================================================
+            p2 <- ggplot(
+                beta_df,
+                aes(
+                    x = p,
+                    y = Density
+                )
+            ) +
+                geom_line(
+                    colour = "#CDB4DB",
+                    linewidth = 1.2
+                ) +
+                geom_vline(
+                    xintercept = input$mu,
+                    linetype = 2,
+                    colour = "grey40"
+                ) +
+                theme_minimal(base_size = 12) +
+                labs(
+                    title = "Conversion probability",
+                    x = "p",
+                    y = "Density"
+                )
 
-    output$freq_table <- renderDT({
+            p1 + p2
+        })
 
-        datatable(
+        output$hist <- renderPlot({
 
-            sim()$table,
+            observed <- sim()$table
 
-            options = list(
-                pageLength = 12
+            lambda <- input$pois_mean * input$mu
+
+            max_goal <- max(
+                observed$Goals,
+                qpois(0.999, lambda)
             )
-        )
-    })
+
+
+            goals <- 0:max_goal
+
+            # =====================================================
+            # TRUE theoretical distribution
+            # =====================================================
+
+            phi <- pmax(input$phi, 0.01)
+
+            beta_1 <- input$mu * input$phi
+            beta_2 <- (1 - input$mu) * input$phi
+
+            probs <- dpois(
+                goals,
+                lambda = input$pois_mean * beta_1 /(beta_1 + beta_2)
+            )
+
+            # numerical safety
+            probs <- pmax(probs, 0)
+            probs <- probs / sum(probs)
+
+            theoretical <- data.frame(
+                Goals = goals,
+                Frequency = input$n_sim * probs,
+                Type = "Theoretical"
+            )
+
+            observed_df <- data.frame(
+                Goals = observed$Goals,
+                Frequency = observed$Frequency,
+                Type = "Observed"
+            )
+
+            plot_df <- rbind(observed_df, theoretical)
+            plot_df$Goals <- factor(plot_df$Goals, levels = sort(unique(plot_df$Goals)))
+
+            ggplot(plot_df, aes(x = Goals, y = Frequency, fill = Type)) +
+                geom_col(position = position_dodge(width = 0.9)) +
+                scale_fill_manual(
+                    values = c(
+                        Observed = "#7B9ACC",
+                        Theoretical = "#CDB4DB"
+                    )
+                ) +
+                theme_minimal(base_size = 14) +
+                labs(
+                    x = "Goals scored",
+                    y = "Frequency",
+                    fill = NULL
+                )
+        })
     })
 }
