@@ -50,7 +50,7 @@ chapter1_ui <- function(id){
     results_panel <- div(
 
         card(
-            card_header("Model components"),
+            card_header("Goal scoring specification"),
             plotOutput(ns("components"), height = 300)
         ),
 
@@ -102,8 +102,8 @@ chapter1_server <- function(id){
             pws::goals_sim(
                 n_sim = input$n_sim,
                 pois_mean = input$pois_mean,
-                beta_1 = input$mu * input$phi,
-                beta_2 = (1 - input$mu) * input$phi,
+                mu = input$mu,
+                phi = input$phi,
                 seed = input$seed
             )
         })

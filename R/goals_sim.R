@@ -4,8 +4,8 @@
 #'
 #' @param n_sim Number of games to simulate
 #' @param pois_mean Average number of events per game
-#' @param beta_1 First parameter that affects probability events become goals
-#' @param beta_2 Second parameter that affects probability events become goals
+#' @param mu Average conversion probability
+#' @param phi Concentration of conversion probabilities
 #' @param plot_max Maximum value for subsequent plotting (optional)
 #' @param seed Set seed to enable identical simulation across calls
 #'
@@ -19,8 +19,8 @@
 #'
 goals_sim <- function(n_sim = 10000,
                       pois_mean = 25,
-                      beta_1 = 0.02,
-                      beta_2 = 0.2,
+                      mu = 0.2,
+                      phi = 2,
                       plot_max = 10,
                       seed = NULL) {
     if (!is.null(seed))
@@ -29,8 +29,8 @@ goals_sim <- function(n_sim = 10000,
         1:n_sim,
         pws:::game_goals_sim,
         pois_mean = pois_mean,
-        beta_1 = beta_1,
-        beta_2 = beta_2
+        mu = mu,
+        phi = phi
     )  %>% unlist
     res_f <- factor(res, levels = 0:max(max(res), plot_max))
     res_df <- res_f %>% table %>% as.data.frame
