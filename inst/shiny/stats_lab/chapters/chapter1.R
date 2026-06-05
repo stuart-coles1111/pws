@@ -95,11 +95,14 @@ chapter1_server <- function(id){
 
         last_run_inputs <- reactiveVal(NULL)
 
+        # NEW: store simulation output explicitly
+        sim_data <- reactiveVal(NULL)
+
         # -------------------------------------------------
-        # Run simulation (freezes current inputs)
+        # Run simulation (triggered only on button press)
         # -------------------------------------------------
 
-        sim <- eventReactive(input$run, {
+        observeEvent(input$run, {
 
             updateNumericInput(session, "seed",
                                value = sample(1:999, 1))
@@ -111,12 +114,14 @@ chapter1_server <- function(id){
                 phi = input$phi
             ))
 
-            pws::goals_sim(
-                n_sim = input$n_sim,
-                pois_mean = input$pois_mean,
-                mu = input$mu,
-                phi = input$phi,
-                seed = input$seed
+            sim_data(
+                pws::goals_sim(
+                    n_sim = input$n_sim,
+                    pois_mean = input$pois_mean,
+                    mu = input$mu,
+                    phi = input$phi,
+                    seed = input$seed
+                )
             )
         })
 
@@ -186,20 +191,20 @@ chapter1_server <- function(id){
         })
 
         # -------------------------------------------------
-        # MAIN PLOT (correct logic)
+        # MAIN PLOT
         # -------------------------------------------------
 
         output$hist <- renderPlot({
 
             # -----------------------------
-            # THEORETICAL (always live)
+            # THEORETICAL (always shown)
             # -----------------------------
 
             lambda <- input$pois_mean * input$mu
             phi <- pmax(input$phi, 0.01)
 
-            beta_1 <- input$mu * input$phi
-            beta_2 <- (1 - input$mu) * input$phi
+            beta_1 <- input$mu * phi
+            beta_2 <- (1 - input$mu) * phi
 
             goals <- 0:qpois(0.999, lambda)
 
@@ -211,21 +216,23 @@ chapter1_server <- function(id){
             probs <- pmax(probs, 0)
             probs <- probs / sum(probs)
 
-            theoretical <- data.frame(
+            theoretical_df <- data.frame(
                 Goals = goals,
                 Frequency = input$n_sim * probs,
                 Type = "Theoretical"
             )
 
-            plot_df <- theoretical
+            plot_df <- theoretical_df
 
             # -----------------------------
-            # OBSERVED ONLY IF INPUTS MATCH LAST RUN
+            # OBSERVED (only after run)
             # -----------------------------
+
+            sim_out <- sim_data()
 
             show_observed <- FALSE
 
-            if (!is.null(sim()) && !is.null(last_run_inputs())) {
+            if (!is.null(sim_out) && !is.null(last_run_inputs())) {
 
                 prev <- last_run_inputs()
 
@@ -238,7 +245,7 @@ chapter1_server <- function(id){
 
             if (show_observed) {
 
-                observed <- sim()$table
+                observed <- sim_out$table
 
                 observed_df <- data.frame(
                     Goals = observed$Goals,
@@ -246,7 +253,7 @@ chapter1_server <- function(id){
                     Type = "Observed"
                 )
 
-                plot_df <- rbind(observed_df, theoretical)
+                plot_df <- rbind(observed_df, theoretical_df)
             }
 
             plot_df$Goals <- factor(
