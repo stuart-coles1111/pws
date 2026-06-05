@@ -1,3 +1,4 @@
+
 chapter3_ui <- function(id){
 
     ns <- NS(id)
@@ -15,7 +16,17 @@ chapter3_ui <- function(id){
             min = 100
         ),
 
-        actionButton(ns("run"), "Generate data"),
+        actionButton(
+            ns("run"),
+            "Generate data"
+        ),
+
+        hr(),
+
+        actionButton(
+            ns("fit"),
+            "Fit model"
+        ),
 
         hr(),
 
@@ -24,21 +35,21 @@ chapter3_ui <- function(id){
         numericInput(ns("x"), "x coordinate", 5),
         numericInput(ns("y"), "y coordinate", 10),
 
-        selectInput(ns("body"),
-                    "Body part",
-                    choices = c("Head", "Foot"))
+        selectInput(
+            ns("body"),
+            "Body part",
+            choices = c("Head", "Foot")
+        ),
+
+        actionButton(
+            ns("predict"),
+            "Predict"
+        )
     )
 
-    # -----------------------------------------------------
-    # OVERVIEW
-    # -----------------------------------------------------
-
     overview_panel <- card(
-
         card_header("What this chapter explores"),
-
         tags$p("This chapter introduces a statistical model for expected goals (xG)."),
-
         tags$ul(
             tags$li("Shots are simulated using a known data-generating process."),
             tags$li("A logistic regression model is fitted to recover structure."),
@@ -47,25 +58,16 @@ chapter3_ui <- function(id){
         )
     )
 
-    # -----------------------------------------------------
-    # CODE
-    # -----------------------------------------------------
-
     code_panel <- card(
-
         card_header("R code"),
-
         tags$pre(textOutput(ns("code")))
     )
-
-    # -----------------------------------------------------
-    # RESULTS
-    # -----------------------------------------------------
 
     results_panel <- tagList(
 
         card(
-            card_header("Model summary"),
+            card_header("Model parameters"),
+
             tableOutput(ns("model"))
         ),
 
@@ -80,18 +82,14 @@ chapter3_ui <- function(id){
 
         card(
             card_header("Prediction"),
-            h2(textOutput(ns("pred")))
+            h3(
+                textOutput(ns("pred"))
+            )
         )
     )
 
-    # -----------------------------------------------------
-    # LEARN
-    # -----------------------------------------------------
-
     learn_panel <- card(
-
         card_header("Key ideas"),
-
         tags$ul(
             tags$li("xG is a probability model for scoring a shot."),
             tags$li("Logistic regression links features to scoring probability."),
@@ -116,7 +114,7 @@ chapter3_server <- function(id){
     moduleServer(id, function(input, output, session){
 
         # -----------------------------------------------------
-        # simulate data (event-driven like Chapter 2)
+        # DATA GENERATION
         # -----------------------------------------------------
 
         xG_data <- eventReactive(input$run, {
@@ -128,10 +126,10 @@ chapter3_server <- function(id){
         })
 
         # -----------------------------------------------------
-        # fit model
+        # MODEL FITTING
         # -----------------------------------------------------
 
-        model <- reactive({
+        model <- eventReactive(input$fit, {
 
             req(xG_data())
 
@@ -139,10 +137,10 @@ chapter3_server <- function(id){
         })
 
         # -----------------------------------------------------
-        # prediction
+        # PREDICTION
         # -----------------------------------------------------
 
-        pred <- reactive({
+        pred <- eventReactive(input$predict, {
 
             req(model())
 
@@ -155,25 +153,41 @@ chapter3_server <- function(id){
         })
 
         # -----------------------------------------------------
-        # CODE (mirrors computation)
+        # CODE
         # -----------------------------------------------------
 
         output$code <- renderText({
 
-            "xG_data <- xGsim(n_data = ...)\n
-model <- xGfit(xG_data)\n
-xGpred(model, x, y, body)"
+            paste(
+                "xG_data <- xGsim(n_data = ...)",
+                "model <- xGfit(xG_data)",
+                "xGpred(model, x, y, body)",
+                sep = "\n\n"
+            )
         })
 
         # -----------------------------------------------------
-        # MODEL TABLE
+        # MODEL SUMMARY
         # -----------------------------------------------------
 
         output$model <- renderTable({
 
+            req(xG_data())
+
+            # show truth only before fitting
+            if (input$fit == 0) {
+
+                truth_tbl <- xG_data()$pars
+
+                return(round(truth_tbl, 3))
+            }
+
+            # after fitting add estimates
             req(model())
 
-            round(model()$summary, 3)
+            fit_tbl <- model()$summary
+
+            round(fit_tbl, 3)
         })
 
         # -----------------------------------------------------
@@ -195,7 +209,8 @@ xGpred(model, x, y, body)"
 
             req(pred())
 
-            round(pred(), 3)
+            sprintf("%.3f", pred())
         })
     })
 }
+
