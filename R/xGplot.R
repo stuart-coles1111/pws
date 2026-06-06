@@ -94,5 +94,5 @@ xGplot <- function(xG_data, plotlim = 60) {
         ggplot2:: xlab("x") + ggplot2::ylab("y") +
         ggplot2::theme(axis.title = ggplot2::element_text(face="italic"))
 
-    grid.arrange(pl1, pl2, pl3, pl4, nrow = 2)
+    list(pl1, pl2, pl3, pl4)
 }

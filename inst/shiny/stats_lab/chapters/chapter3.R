@@ -1,5 +1,3 @@
-
-
 chapter3_ui <- function(id){
 
     ns <- NS(id)
@@ -68,7 +66,6 @@ chapter3_ui <- function(id){
 
         card(
             card_header("Model parameters"),
-
             tableOutput(ns("model"))
         ),
 
@@ -76,16 +73,35 @@ chapter3_ui <- function(id){
 
         card(
             card_header("xG plot"),
-            plotOutput(ns("plot"), height = 400)
+
+            fluidRow(
+                column(
+                    6,
+                    plotOutput(ns("plot1"), height = 300)
+                ),
+                column(
+                    6,
+                    plotOutput(ns("plot2"), height = 300)
+                )
+            ),
+
+            fluidRow(
+                column(
+                    6,
+                    plotOutput(ns("plot3"), height = 300)
+                ),
+                column(
+                    6,
+                    plotOutput(ns("plot4"), height = 300)
+                )
+            )
         ),
 
         br(),
 
         card(
             card_header("Prediction"),
-            h3(
-                textOutput(ns("pred"))
-            )
+            h3(textOutput(ns("pred")))
         )
     )
 
@@ -138,6 +154,17 @@ chapter3_server <- function(id){
         })
 
         # -----------------------------------------------------
+        # PLOTS
+        # -----------------------------------------------------
+
+        plots <- reactive({
+
+            req(xG_data())
+
+            pws::xGplot(xG_data())
+        })
+
+        # -----------------------------------------------------
         # PREDICTION
         # -----------------------------------------------------
 
@@ -168,38 +195,75 @@ chapter3_server <- function(id){
         })
 
         # -----------------------------------------------------
-        # MODEL SUMMARY
+        # MODEL PARAMETERS
         # -----------------------------------------------------
 
         output$model <- renderTable({
 
-            req(xG_data())
+            # Before fitting show only truth
 
-            # show truth only before fitting
             if (input$fit == 0) {
 
-                truth_tbl <- xG_data()$pars
+                tbl <- data.frame(
+                    "True Parameters" = c(
+                        `(Intercept)` = 0.25,
+                        bodyHead = -0.05,
+                        distance = -0.10,
+                        angle_trans = -0.80,
+                        `bodyHead:distance` = -0.25
+                    )
+                )
 
-                return(round(truth_tbl, 3))
+                return(round(tbl, 3))
             }
 
-            # after fitting add estimates
             req(model())
 
-            fit_tbl <- model()$summary
+            tbl <- model()$summary
 
-            round(fit_tbl, 3)
+            colnames(tbl) <- c(
+                "True Parameters",
+                "Estimates"
+            )
+
+            round(tbl, 3)
+
+        }, rownames = TRUE)
+
+        # -----------------------------------------------------
+        # FIRST ROW: SHOWN AFTER GENERATE DATA
+        # -----------------------------------------------------
+
+        output$plot1 <- renderPlot({
+
+            req(plots())
+
+            plots()[[1]]
+        })
+
+        output$plot2 <- renderPlot({
+
+            req(plots())
+
+            plots()[[2]]
         })
 
         # -----------------------------------------------------
-        # PLOT
+        # SECOND ROW: SHOWN AFTER FIT MODEL
         # -----------------------------------------------------
 
-        output$plot <- renderPlot({
+        output$plot3 <- renderPlot({
 
-            req(xG_data())
+            req(model())
 
-            pws::xGplot(xG_data())
+            plots()[[3]]
+        })
+
+        output$plot4 <- renderPlot({
+
+            req(model())
+
+            plots()[[4]]
         })
 
         # -----------------------------------------------------
@@ -210,8 +274,10 @@ chapter3_server <- function(id){
 
             req(pred())
 
-            sprintf("%.3f", pred())
+            sprintf(
+                "P(goal) = %.3f",
+                pred()
+            )
         })
     })
 }
-
