@@ -9,6 +9,20 @@ chapter3_ui <- function(id){
         p("Simulate football shots, fit an xG model, and make predictions."),
 
         numericInput(
+            ns("seed"),
+            "Random seed",
+            value = sample(1:999, 1),
+            min = 1,
+            max = 999,
+            step = 1
+        ),
+
+        actionButton(
+            ns("randomise"),
+            "Randomise model parameters"
+        ),
+
+        numericInput(
             ns("n_data"),
             "Number of shots",
             value = 5000,
@@ -131,15 +145,54 @@ chapter3_server <- function(id){
     moduleServer(id, function(input, output, session){
 
         # -----------------------------------------------------
+        # TRUE PARAMETERS
+        # -----------------------------------------------------
+
+        true_params <- reactiveVal(
+            list(
+                intercept = 0.25,
+                bodyHead = -0.05,
+                distance = -0.10,
+                angle_trans = -0.80,
+                bodyHead_distance = -0.25
+            )
+        )
+
+        observeEvent(input$randomise, {
+
+            set.seed(input$seed)
+
+            true_params(
+                list(
+                    intercept = runif(1, 0.10, 0.50),
+                    bodyHead = runif(1, -0.10, -0.025),
+                    distance = runif(1, -0.20, -0.05),
+                    angle_trans = runif(1, -1.00, -0.50),
+                    bodyHead_distance = runif(1, -0.50, 0.00)
+                )
+            )
+
+        })
+
+        # -----------------------------------------------------
         # DATA GENERATION
         # -----------------------------------------------------
 
         xG_data <- eventReactive(input$run, {
 
+            pars <- true_params()
+
             pws::xGsim(
                 n_data = input$n_data,
-                seed = 123
-            )
+                bodypar = 0.2,
+                distpar = 0.2,
+                anglepar = 3,
+                intercept = pars$intercept,
+                dist_coeff = pars$distance,
+                dist_body_inter = pars$bodyHead_distance,
+                body_coeff = pars$bodyHead,
+                angle_coeff = pars$angle_trans,
+                seed = input$seed)
         })
 
         # -----------------------------------------------------
@@ -200,21 +253,26 @@ chapter3_server <- function(id){
 
         output$model <- renderTable({
 
-            # Before fitting show only truth
+            pars <- true_params()
+
+            truth <- data.frame(
+                "True Parameters" = c(
+                    `(Intercept)` = pars$intercept,
+                    bodyHead = pars$bodyHead,
+                    distance = pars$distance,
+                    angle_trans = pars$angle_trans,
+                    `bodyHead:distance` = pars$bodyHead_distance
+                )
+            )
 
             if (input$fit == 0) {
 
-                tbl <- data.frame(
-                    "True Parameters" = c(
-                        `(Intercept)` = 0.25,
-                        bodyHead = -0.05,
-                        distance = -0.10,
-                        angle_trans = -0.80,
-                        `bodyHead:distance` = -0.25
+                return(
+                    format(
+                        round(truth, 3),
+                        nsmall = 3
                     )
                 )
-
-                return(round(tbl, 3))
             }
 
             req(model())
@@ -226,7 +284,12 @@ chapter3_server <- function(id){
                 "Estimates"
             )
 
-            round(tbl, 3)
+            tbl[, 1] <- truth[, 1]
+
+            format(
+                round(tbl, 3),
+                nsmall = 3
+            )
 
         }, rownames = TRUE)
 
