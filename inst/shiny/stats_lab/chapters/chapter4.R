@@ -14,8 +14,6 @@ chapter4_ui <- function(id){
 
         numericInput(ns("Theta"), "True value (Θ)", value = 1),
 
-        numericInput(ns("dp"), "Decimal places", value = 2, min = 0, max = 10),
-
         checkboxInput(ns("lines"), "Show true value and score", value = TRUE),
 
         checkboxInput(ns("final_only"), "Show only final score plot", value = FALSE)
@@ -95,7 +93,7 @@ chapter4_server <- function(id){
                 S = input$S,
                 Theta = input$Theta,
                 alpha = 0.95,
-                dp = input$dp
+                dp = 3
             )
         })
 
@@ -105,16 +103,14 @@ chapter4_server <- function(id){
 
         output$plot <- renderPlot({
 
-            # IMPORTANT: plot function MUST use same sigma transformation internally
             pws::activity4_response_analysis(
                 G = input$G,
                 S = input$S,
                 Theta = input$Theta,
-                dp = input$dp,
+                dp = 3,
                 lines = input$lines,
                 final_score_only = input$final_only
             )
-
         })
 
         output$code <- renderText({
@@ -125,7 +121,7 @@ chapter4_server <- function(id){
                 ", S = ", input$S,
                 ", Theta = ", input$Theta,
                 ", alpha = 0.95, ",
-                "dp = ", input$dp,
+                "dp = 3",
                 ")"
             )
         })
