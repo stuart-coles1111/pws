@@ -28,6 +28,17 @@ chapter5_ui <- function(id){
 
     sidebar_controls <- sidebar(
 
+        numericInput(
+            ns("seed"),
+            "Random seed",
+            value = sample(
+                1:999,
+                1
+            ),
+            min = 1,
+            max = 999
+        ),
+
         radioButtons(
             ns("topic"),
             "Choose topic",
@@ -121,6 +132,16 @@ chapter5_ui <- function(id){
             ),
 
             h4("Regression controls"),
+
+            selectInput(
+                ns("end_season"),
+                "Final season included",
+                choices = unique(pws::PL_points$season),
+                selected = tail(
+                    unique(pws::PL_points$season),
+                    1
+                )
+            ),
 
             sliderInput(
                 ns("x_split"),
@@ -456,9 +477,7 @@ chapter5_server <- function(id){
 
             se = NULL,
 
-            ci = NULL,
-
-            reg_data = pws::PL_points
+            ci = NULL
         )
 
         # =====================================================
@@ -466,6 +485,8 @@ chapter5_server <- function(id){
         # =====================================================
 
         observeEvent(input$roll, {
+
+            set.seed(input$seed)
 
             rv$dice <- sample(
 
@@ -578,7 +599,11 @@ chapter5_server <- function(id){
 
                 paste0(
 
-                    "## Simulate dice rolls
+                    "set.seed(",
+                    input$seed,
+                    ")
+
+## Simulate dice rolls
 
 dice <- sample(
   1:6,
@@ -607,7 +632,7 @@ se <- sd(boot)
 ci <- p_hat + c(-1,1) *
       qnorm(",
         round(
-            1 - (1-input$conf)/2,
+            1 - (1 - input$conf)/2,
             3
         ),
         ") * se"
@@ -615,13 +640,33 @@ ci <- p_hat + c(-1,1) *
 
             } else {
 
+                end_index <- match(
+                    input$end_season,
+                    unique(pws::PL_points$season)
+                )
+
                 paste0(
 
-                    "fit <- lm(
+                    "seasons <- unique(
+  PL_points$season
+)
+
+PL_subset <- subset(
+
+  PL_points,
+
+  season %in%
+    seasons[1:",
+                end_index,
+                "]
+
+)
+
+fit <- lm(
 
   points_half2 ~ points_half1,
 
-  data = PL_points
+  data = PL_subset
 
 )
 
@@ -632,24 +677,23 @@ predict(
   newdata = data.frame(
 
     points_half1 = ",
-                input$x_split,
+input$x_split,
 
-                "
+"
 
   ),
 
   interval = 'confidence',
 
   level = ",
-                input$conf_reg,
+input$conf_reg,
 
-                "
+"
 
 )"
                 )
             }
         })
-
 # =====================================================
 # Summary cards
 # =====================================================
@@ -860,6 +904,27 @@ output$inference_results <- renderUI({
 # Regression
 # =====================================================
 
+# =====================================================
+# Regression data subset
+# =====================================================
+
+reg_data <- reactive({
+
+    seasons <- unique(
+        pws::PL_points$season
+    )
+
+    end_index <- match(
+        input$end_season,
+        seasons
+    )
+
+    pws::PL_points[
+        pws::PL_points$season %in%
+            seasons[1:end_index],
+    ]
+})
+
 reg_fit <- reactive({
 
     lm(
@@ -868,7 +933,7 @@ reg_fit <- reactive({
 
             points_half1,
 
-        data = rv$reg_data
+        data = reg_data()
     )
 })
 
@@ -898,7 +963,7 @@ plot_predictions <- reactive({
 
     fit <- reg_fit()
 
-    df <- rv$reg_data
+    df <- reg_data()
 
     grid <- data.frame(
 
@@ -940,7 +1005,7 @@ plot_predictions <- reactive({
 
 output$reg_plot <- renderPlot({
 
-    df <- rv$reg_data
+    df <- reg_data()
 
     plot_df <- plot_predictions()
 
@@ -1095,6 +1160,22 @@ output$regression_results <- renderUI({
 
         card_header(
             "Regression Summary"
+        ),
+
+        p(
+            strong("Seasons included: "),
+            paste(
+                unique(
+                    pws::PL_points$season
+                )[1],
+                "to",
+                input$end_season
+            )
+        ),
+
+        p(
+            strong("Observations: "),
+            nrow(reg_data())
         ),
 
         p(
