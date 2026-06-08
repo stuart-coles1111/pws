@@ -70,40 +70,15 @@ chapter1_ui <- function(id){
         )
     )
 
-    activity_panel <- div(
-
-        card(
-
-            card_header("Interactive Activity"),
-
-            p(
-                "This chapter is accompanied by a standalone Shiny activity."
-            ),
-
-            p(
-                "To launch it, run the following command in the R console:"
-            ),
-
-            tags$pre(
-                "pws::run_activity(1)"
-            ),
-
-            p(
-                "This will open the activity in a separate browser window."
-            )
-        )
+    chapter_page_ui(
+        id = id,
+        title = "🎲 Chapter 1: Randomness",
+        sidebar = sidebar_controls,
+        overview = overview_panel,
+        code = code_panel,
+        results = results_panel,
+        learn = learn_panel
     )
-
-chapter_page_ui(
-    id = id,
-    title = "🎲 Chapter 1: Randomness",
-    sidebar = sidebar_controls,
-    overview = overview_panel,
-    code = code_panel,
-    results = results_panel,
-    learn = learn_panel,
-    activity = activity_panel
-)
 }
 
 # =========================================================

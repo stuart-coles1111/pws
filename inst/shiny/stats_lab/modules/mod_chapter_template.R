@@ -5,7 +5,8 @@ chapter_page_ui <- function(
         overview,
         code,
         results,
-        learn
+        learn,
+        activity = NULL
 ){
 
     ns <- NS(id)
@@ -29,6 +30,8 @@ chapter_page_ui <- function(
 
             navset_card_tab(
 
+                id = ns("chapter_tab"),
+
                 nav_panel(
                     "Overview",
                     overview
@@ -47,7 +50,13 @@ chapter_page_ui <- function(
                 nav_panel(
                     "Learn",
                     learn
-                )
+                ),
+
+                if (!is.null(activity))
+                    nav_panel(
+                        "Activity",
+                        activity
+                    )
             )
         )
     )
