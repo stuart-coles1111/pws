@@ -76,6 +76,14 @@ chapter6_ui <- function(id){
                 "Simulations",
                 value = 10000,
                 min = 1000
+            ),
+
+            numericInput(
+                ns("seed"),
+                "Random seed",
+                value = sample.int(999, 1),
+                min = 1,
+                max = 999
             )
         ),
 
@@ -96,21 +104,15 @@ chapter6_ui <- function(id){
                 ns("n_var"),
                 "Candidate predictors",
                 50
+            ),
+
+            numericInput(
+                ns("seed"),
+                "Random seed",
+                value = sample.int(999, 1),
+                min = 1,
+                max = 999
             )
-        ),
-
-        hr(),
-
-        numericInput(
-            ns("seed"),
-            "Random seed",
-            111
-        ),
-
-        actionButton(
-            ns("run"),
-            "Run analysis",
-            class = "btn-primary"
         )
     )
 
@@ -225,9 +227,35 @@ chapter6_server <- function(id){
 
     moduleServer(id, function(input, output, session){
 
-        analysis <- eventReactive(input$run, {
+        # -------------------------------------------------
+        # Auto-switch to Results tab on experiment change
+        # -------------------------------------------------
 
-            set.seed(input$seed)
+        observeEvent(input$demo, {
+
+            updateTabsetPanel(
+                session,
+                "chapter_tab",
+                selected = "Results"
+            )
+
+            if (input$demo != "Birthday Problem") {
+
+                updateNumericInput(
+                    session,
+                    "seed",
+                    value = sample.int(999, 1)
+                )
+
+            }
+
+        }, ignoreInit = TRUE)
+
+        # -------------------------------------------------
+        # Reactive analysis (no Run button)
+        # -------------------------------------------------
+
+        analysis <- reactive({
 
             # =================================================
             # Birthday Problem
@@ -257,6 +285,8 @@ chapter6_server <- function(id){
 
             else if(input$demo == "Difference in Proportions"){
 
+                set.seed(input$seed)
+
                 p1 <- input$count1 / input$trial1
                 p2 <- input$count2 / input$trial2
 
@@ -276,17 +306,21 @@ chapter6_server <- function(id){
                     type = "prop",
                     d = d,
                     se = se,
-                    ci = ci
+                    ci = ci,
+                    estimate = p1 - p2
                 )
             }
 
             # =================================================
-            # Data dredging (fixed scale)
+            # Data dredging
             # =================================================
 
             else {
 
+                set.seed(input$seed)
+
                 y <- rnorm(input$n_data, 0, 5)
+
                 x <- matrix(
                     rnorm(input$n_var * input$n_data, 0, 10),
                     nrow = input$n_var
@@ -310,7 +344,7 @@ chapter6_server <- function(id){
                 )
             }
 
-        }, ignoreNULL = FALSE)
+        })
 
         # =====================================================
         # Code display
@@ -372,9 +406,7 @@ chapter6_server <- function(id){
 
             else if(a$type == "prop"){
 
-                df <- data.frame(d = a$d)
-
-                ggplot(df, aes(d)) +
+                ggplot(data.frame(d = a$d), aes(d)) +
                     geom_histogram(
                         bins = 20,
                         fill = "#7B9ACC",
@@ -417,18 +449,53 @@ chapter6_server <- function(id){
 
             } else if(a$type == "prop"){
 
+                inside <- 0 >= a$ci[1] && 0 <= a$ci[2]
+
+                sig_level <- 100 * (1 - input$alpha)
+
+                conclusion <- if (inside) {
+                    sprintf(
+                        "No evidence against common proportions at the %.1f%% significance level.",
+                        sig_level
+                    )
+                } else {
+                    sprintf(
+                        "Evidence against common proportions at the %.1f%% significance level.",
+                        sig_level
+                    )
+                }
+
                 card(
                     card_header("Difference in proportions"),
-                    p(sprintf("SE: %.4f", a$se)),
-                    p(sprintf("CI: %.3f to %.3f", a$ci[1], a$ci[2]))
+
+                    p(sprintf(
+                        "Estimated difference (p1 - p2): %.3f",
+                        a$estimate
+                    )),
+
+                    p(sprintf(
+                        "SE: %.4f",
+                        a$se
+                    )),
+
+                    p(sprintf(
+                        "%.0f%% CI: %.3f to %.3f",
+                        100 * input$alpha,
+                        a$ci[1],
+                        a$ci[2]
+                    )),
+
+                    hr(),
+
+                    strong(conclusion)
                 )
 
             } else {
 
                 card(
                     card_header("Regression result"),
-                    p(sprintf("Best p-value: %.5f", a$minp)),
-                    p(sprintf("Coefficient: %.3f", a$coef[2,1])),
+                    p(sprintf("Smallest p-value: %.5f", a$minp)),
+                    p(sprintf("Gradient: %.3f", a$coef[2,1])),
                     p(sprintf("Std error: %.3f", a$coef[2,2]))
                 )
             }
