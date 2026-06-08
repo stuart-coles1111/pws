@@ -76,9 +76,9 @@ chapter5_ui <- function(id){
                 ns("conf"),
                 "Confidence level",
                 min = 0.80,
-                max = 0.99,
+                max = 0.999,
                 value = 0.95,
-                step = 0.01
+                step = 0.001
             ),
 
             selectInput(
@@ -891,10 +891,10 @@ prediction <- reactive({
 })
 
 # =====================================================
-# Regression plot
+# Regression confidence band
 # =====================================================
 
-output$reg_plot <- renderPlot({
+plot_predictions <- reactive({
 
     fit <- reg_fit()
 
@@ -904,13 +904,9 @@ output$reg_plot <- renderPlot({
 
         points_half1 = seq(
 
-            min(
-                df$points_half1
-            ),
+            min(df$points_half1, na.rm = TRUE),
 
-            max(
-                df$points_half1
-            ),
+            max(df$points_half1, na.rm = TRUE),
 
             length.out = 100
         )
@@ -922,13 +918,31 @@ output$reg_plot <- renderPlot({
 
         newdata = grid,
 
-        interval = "confidence"
+        interval = "confidence",
+
+        level = input$conf_reg
     )
 
-    plot_df <- cbind(
+    cbind(
         grid,
         preds
     )
+})
+
+
+# =====================================================
+# Regression plot
+# =====================================================
+
+# =====================================================
+# Regression plot
+# =====================================================
+
+output$reg_plot <- renderPlot({
+
+    df <- rv$reg_data
+
+    plot_df <- plot_predictions()
 
     pr <- prediction()
 
@@ -947,13 +961,35 @@ output$reg_plot <- renderPlot({
             colour = pal_blue
         ) +
 
+        geom_ribbon(
+
+            data = plot_df,
+
+            aes(
+
+                x = points_half1,
+
+                ymin = lwr,
+
+                ymax = upr
+            ),
+
+            fill = pal_lav,
+
+            alpha = 0.20,
+
+            inherit.aes = FALSE
+        ) +
+
         geom_line(
 
             data = plot_df,
 
             aes(
-                points_half1,
-                fit
+
+                x = points_half1,
+
+                y = fit
             ),
 
             colour = pal_lav,
@@ -963,24 +999,60 @@ output$reg_plot <- renderPlot({
             inherit.aes = FALSE
         ) +
 
-        geom_ribbon(
+        geom_segment(
 
-            data = plot_df,
+            x = input$x_split,
+            xend = input$x_split,
 
-            aes(
+            y = min(df$points_half2, na.rm = TRUE),
+            yend = pr[1, "fit"],
 
-                points_half1,
+            colour = pal_red,
+            linetype = "dashed",
+            linewidth = 0.8
+        ) +
 
-                ymin = lwr,
+        geom_segment(
 
-                ymax = upr
-            ),
+            x = min(df$points_half1, na.rm = TRUE),
+            xend = input$x_split,
 
-            alpha = 0.20,
+            y = pr[1, "fit"],
+            yend = pr[1, "fit"],
 
-            fill = pal_lav,
+            colour = pal_red,
+            linetype = "dashed",
+            linewidth = 0.8
+        ) +
 
-            inherit.aes = FALSE
+        annotate(
+
+            "text",
+
+            x = input$x_split,
+
+            y = min(df$points_half2, na.rm = TRUE),
+
+            label = paste0("x = ", round(input$x_split, 1)),
+
+            colour = pal_red,
+
+            hjust = 1.2
+        ) +
+
+        annotate(
+
+            "text",
+
+            x = min(df$points_half1, na.rm = TRUE),
+
+            y = pr[1, "fit"],
+
+            label = paste0("ŷ = ", round(pr[1, "fit"], 1)),
+
+            colour = pal_red,
+
+            vjust = -1
         ) +
 
         annotate(
@@ -991,14 +1063,21 @@ output$reg_plot <- renderPlot({
 
             y = pr[1, "fit"],
 
-            size = 4,
+            colour = pal_red,
 
-            colour = pal_red
+            size = 4
         ) +
 
         theme_minimal(
 
             base_size = 14
+        ) +
+
+        labs(
+
+            x = "Points (Half 1)",
+
+            y = "Points (Half 2)"
         )
 })
 
@@ -1070,5 +1149,4 @@ output$regression_results <- renderUI({
 })
     })
 }
-
 
