@@ -1,3 +1,6 @@
+library(shiny)
+library(bslib)
+
 # =========================================================
 # HELPER FUNCTIONS
 # =========================================================
@@ -74,7 +77,7 @@ activity7_neg_log_lik <- function(
 # UI
 # =========================================================
 
-ui <- page_fluid(
+ui <- bslib::page_fluid(
 
     theme = bs_theme(
         version=5,

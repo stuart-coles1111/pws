@@ -1,13 +1,16 @@
-#' Run an activity app
-#'
-#' @param chapter Chapter number
-#' @export
 run_activity <- function(chapter) {
 
     port <- sample(8000:9000, 1)
 
+    logfile <- tempfile(fileext = ".log")
+
     callr::r_bg(
-        func = function(chapter, port) {
+        func = function(chapter, port, logfile) {
+
+            sink(logfile, append = TRUE, split = TRUE)
+            on.exit(sink(NULL), add = TRUE)
+
+            cat("Starting chapter", chapter, "\n")
 
             library(pws)
 
@@ -19,13 +22,17 @@ run_activity <- function(chapter) {
                 ),
                 host = "127.0.0.1",
                 port = port,
-                launch.browser = FALSE
+                launch.browser = FALSE,
+                quiet = FALSE
             )
 
         },
-        args = list(chapter = chapter, port = port)
+        args = list(chapter = chapter, port = port, logfile = logfile)
     )
 
-    # return URL to main session
+    Sys.sleep(1)
+
+    message("Log file: ", logfile)
+
     paste0("http://127.0.0.1:", port)
 }
