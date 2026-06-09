@@ -9,7 +9,7 @@ launch_activity_from_lab <- function(chapter) {
 
     url <- run_activity(chapter)
 
-    Sys.sleep(2)
+    Sys.sleep(1.5)
 
     url
 }
