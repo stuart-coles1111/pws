@@ -1,4 +1,3 @@
-schedule <- PL25_schedule
 
 # =========================================================
 # PLOTTING
@@ -59,9 +58,9 @@ season_sim <- function(df, team_h, team_a, tau) {
 
 league_sim <- function(df, tau) {
 
-    results <- season_sim(df, schedule[, 2], schedule[, 3], tau)
+    results <- season_sim(df, PL25_schedule[, 2], PL25_schedule[, 3], tau)
 
-    points <- schedule
+    points <- PL25_schedule
     points$hp <- results[[1]]
     points$ap <- results[[2]]
     points$gd <- results[[3]]
@@ -466,7 +465,7 @@ chapter8_server <- function(id) {
                 "# Dynamic model\n",
                 "dynamic_league_sim(\n",
                 "  teams = PL24_pars$teams,\n",
-                "  schedule = schedule,\n",
+                "  PL25_schedule = PL25_schedule,\n",
                 "  tau = ", round(PL24_pars$tau,3), ",\n",
                 "  sigma = ", input$sigma, "\n",
                 ")"
@@ -569,18 +568,18 @@ chapter8_server <- function(id) {
             list(p_h, p_a, g_h - g_a, g_h, g_a)
         }
 
-        dynamic_league_sim <- function(df, schedule, tau, sigma = 0.1) {
+        dynamic_league_sim <- function(df, PL25_schedule, tau, sigma = 0.1) {
 
             results <- dynamic_season_sim(
                 df,
-                schedule[,1],
-                schedule[,2],
-                schedule[,3],
+                PL25_schedule[,1],
+                PL25_schedule[,2],
+                PL25_schedule[,3],
                 tau,
                 sigma = sigma
             )
 
-            points <- schedule
+            points <- PL25_schedule
             points$hp <- results[[1]]
             points$ap <- results[[2]]
             points$gd <- results[[3]]
@@ -613,7 +612,7 @@ chapter8_server <- function(id) {
             sigma <- input$sigma
             teams <- PL24_pars$teams
             tau <- PL24_pars$tau
-            sched <- schedule
+            sched <- PL25_schedule
 
             later::later(function() {
 
