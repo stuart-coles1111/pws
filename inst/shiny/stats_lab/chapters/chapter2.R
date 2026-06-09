@@ -132,6 +132,25 @@ chapter2_ui <- function(id){
         )
     )
 
+
+    activity_panel <- div(
+
+        card(
+
+            card_header("Interactive Activity"),
+
+            p(
+                "Launch the companion activity for this chapter."
+            ),
+
+            actionButton(
+                ns("launch_activity"),
+                "Launch Activity",
+                class = "btn-success"
+            )
+        )
+    )
+
     # =========================================================
     # BUILD PAGE
     # =========================================================
@@ -143,7 +162,8 @@ chapter2_ui <- function(id){
         overview = overview_panel,
         code = code_panel,
         results = results_panel,
-        learn = learn_panel
+        learn = learn_panel,
+        activity = activity_panel
     )
 }
 
@@ -194,6 +214,18 @@ chapter2_server <- function(id){
                         input$mean,
                         input$sd
                     )
+            )
+        })
+
+        observeEvent(input$launch_activity, {
+
+            url <- pws:::launch_activity_from_lab(2)
+
+            shinyjs::runjs(
+                sprintf(
+                    "window.open('%s', '_blank');",
+                    url
+                )
             )
         })
 

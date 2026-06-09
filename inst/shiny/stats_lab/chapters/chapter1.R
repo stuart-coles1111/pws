@@ -77,19 +77,13 @@ chapter1_ui <- function(id){
             card_header("Interactive Activity"),
 
             p(
-                "This chapter is accompanied by a standalone Shiny activity."
+                "Launch the companion activity for this chapter."
             ),
 
-            p(
-                "To launch it, run the following command in the R console:"
-            ),
-
-            tags$pre(
-                "pws::run_activity(1)"
-            ),
-
-            p(
-                "This will open the activity in a separate browser window."
+            actionButton(
+                ns("launch_activity"),
+                "Launch Activity",
+                class = "btn-success"
             )
         )
     )
@@ -149,6 +143,20 @@ chapter1_server <- function(id){
                 )
             )
         })
+
+        observeEvent(input$launch_activity, {
+
+            url <- pws:::launch_activity_from_lab(1)
+
+            shinyjs::runjs(
+                sprintf(
+                    "window.open('%s', '_blank');",
+                    url
+                )
+            )
+        })
+
+
 
         # -------------------------------------------------
         # Code display
