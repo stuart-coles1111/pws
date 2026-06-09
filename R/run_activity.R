@@ -32,7 +32,5 @@ run_activity <- function(chapter) {
 
     Sys.sleep(1)
 
-    message("Log file: ", logfile)
-
     paste0("http://127.0.0.1:", port)
 }

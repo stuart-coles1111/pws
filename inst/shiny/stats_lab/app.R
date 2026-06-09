@@ -32,9 +32,9 @@ source("chapters/chapter8.R")
 
 ui <- page_navbar(
 
-    shinyjs::useShinyjs(),
-
     title = "📘 Statistics Lab",
+
+    header = shinyjs::useShinyjs(),
 
     theme = bs_theme(
         version = 5,
