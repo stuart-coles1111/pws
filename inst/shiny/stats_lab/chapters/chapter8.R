@@ -151,6 +151,55 @@ chapter8_ui <- function(id) {
         )
     )
 
+    code_panel <- div(
+
+        card(
+            card_header("Generated Code"),
+
+            tags$pre(textOutput(ns("generated_code")))
+        ),
+
+        br(),
+
+        card(
+
+            card_header("Simulation Pipeline"),
+
+            tags$ol(
+
+                tags$li(
+                    strong("Estimate team strengths"),
+                    " using attack (α), defence (β) and home advantage (τ)."
+                ),
+
+                tags$li(
+                    strong("Convert strengths into expected goals"),
+                    " using the Poisson model."
+                ),
+
+                tags$li(
+                    strong("Simulate every match"),
+                    " in the season."
+                ),
+
+                tags$li(
+                    strong("Award league points"),
+                    " and apply tie-break rules."
+                ),
+
+                tags$li(
+                    strong("Repeat thousands of times"),
+                    " to estimate uncertainty in final league positions."
+                ),
+
+                tags$li(
+                    strong("Dynamic model only:"),
+                    " allow team strengths to evolve throughout the season."
+                )
+            )
+        )
+    )
+
     results_panel <- div(
 
         uiOutput(ns("sim_banner")),
@@ -209,6 +258,91 @@ chapter8_ui <- function(id) {
     )
 
     # =======================================================
+    # Learn Panel
+    # =======================================================
+
+    learn_panel <- div(
+
+        card(
+
+            card_header("Key Ideas"),
+
+            tags$ul(
+
+                tags$li(
+                    strong("Complex systems"),
+                    " contain many interacting components whose behaviour cannot be understood by studying parts in isolation."
+                ),
+
+                tags$li(
+                    strong("Emergence"),
+                    " occurs when simple match-level rules generate unexpected season-level outcomes."
+                ),
+
+                tags$li(
+                    strong("Sensitivity to randomness"),
+                    " means small changes in individual matches can alter final league positions."
+                ),
+
+                tags$li(
+                    strong("Monte Carlo simulation"),
+                    " approximates the distribution of possible futures by repeatedly simulating complete seasons."
+                ),
+
+                tags$li(
+                    strong("Dynamic models"),
+                    " recognise that team quality may change over time rather than remaining fixed."
+                )
+            )
+        ),
+
+        br(),
+
+        card(
+
+            card_header("Static vs Dynamic Thinking"),
+
+            p(
+                "The static model assumes team strengths remain constant for the entire season."
+            ),
+
+            p(
+                "The dynamic model allows attack and defence parameters to evolve from week to week."
+            ),
+
+            p(
+                "This introduces an additional source of uncertainty and often produces wider distributions of possible league positions."
+            )
+        ),
+
+        br(),
+
+        card(
+
+            card_header("Questions to Explore"),
+
+            tags$ul(
+
+                tags$li(
+                    "Which teams are most affected by introducing dynamic variation?"
+                ),
+
+                tags$li(
+                    "Does increasing σ make the league more predictable or less predictable?"
+                ),
+
+                tags$li(
+                    "Why do strong teams still occasionally finish lower than expected?"
+                ),
+
+                tags$li(
+                    "Can a team become more likely to win the league even if its average strength stays unchanged?"
+                )
+            )
+        )
+    )
+
+    # =======================================================
     # Activity Panel
     # =======================================================
 
@@ -235,9 +369,9 @@ chapter8_ui <- function(id) {
         title = "🕸️ Chapter 8: Complexity",
         sidebar = sidebar_controls,
         overview = overview_panel,
-        code = NULL,
+        code = code_panel,
         results = results_panel,
-        learn = NULL,
+        learn = learn_panel,
         activity = activity_panel
     )
 }
@@ -326,6 +460,24 @@ chapter8_server <- function(id) {
                 rownames = FALSE
             ) |>
                 formatRound(c("Attack", "Defence"), digits = 3)
+        })
+
+        output$generated_code <- renderText({
+
+            paste0(
+                "# Static model\n",
+                "league_sim(\n",
+                "  teams = PL24_pars$teams,\n",
+                "  tau = ", round(PL24_pars$tau,3), "\n",
+                ")\n\n",
+                "# Dynamic model\n",
+                "dynamic_league_sim(\n",
+                "  teams = PL24_pars$teams,\n",
+                "  schedule = schedule,\n",
+                "  tau = ", round(PL24_pars$tau,3), ",\n",
+                "  sigma = ", input$sigma, "\n",
+                ")"
+            )
         })
 
         # =====================================================
