@@ -208,6 +208,28 @@ chapter8_ui <- function(id) {
         )
     )
 
+    # =======================================================
+    # Activity Panel
+    # =======================================================
+
+    activity_panel <- div(
+
+        card(
+
+            card_header("Interactive Activity"),
+
+            p(
+                "Launch the companion activity for this chapter."
+            ),
+
+            actionButton(
+                ns("launch_activity"),
+                "Launch Activity",
+                class = "btn-success"
+            )
+        )
+    )
+
     chapter_page_ui(
         id = id,
         title = "🕸️ Chapter 8: Complexity",
@@ -215,7 +237,8 @@ chapter8_ui <- function(id) {
         overview = overview_panel,
         code = NULL,
         results = results_panel,
-        learn = NULL
+        learn = NULL,
+        activity = activity_panel
     )
 }
 
@@ -226,6 +249,18 @@ chapter8_ui <- function(id) {
 chapter8_server <- function(id) {
 
     moduleServer(id, function(input, output, session) {
+
+        observeEvent(input$launch_activity, {
+
+            url <- pws:::launch_activity_from_lab(8)
+
+            shinyjs::runjs(
+                sprintf(
+                    "window.open('%s', '_blank');",
+                    url
+                )
+            )
+        })
 
         # -------------------------
         # BANNER STATE

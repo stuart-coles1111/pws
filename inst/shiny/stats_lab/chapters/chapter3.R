@@ -129,6 +129,29 @@ chapter3_ui <- function(id){
         )
     )
 
+    # =========================================================
+    # ACTIVITY PANEL
+    # =========================================================
+
+
+    activity_panel <- div(
+
+        card(
+
+            card_header("Interactive Activity"),
+
+            p(
+                "Launch the companion activity for this chapter."
+            ),
+
+            actionButton(
+                ns("launch_activity"),
+                "Launch Activity",
+                class = "btn-success"
+            )
+        )
+    )
+
     chapter_page_ui(
         id = id,
         title = "⚖ Chapter 3: Expectation",
@@ -136,7 +159,8 @@ chapter3_ui <- function(id){
         overview = overview_panel,
         code = code_panel,
         results = results_panel,
-        learn = learn_panel
+        learn = learn_panel,
+        activity = activity_panel
     )
 }
 
@@ -172,6 +196,18 @@ chapter3_server <- function(id){
                 )
             )
 
+        })
+
+        observeEvent(input$launch_activity, {
+
+            url <- pws:::launch_activity_from_lab(3)
+
+            shinyjs::runjs(
+                sprintf(
+                    "window.open('%s', '_blank');",
+                    url
+                )
+            )
         })
 
         # -----------------------------------------------------

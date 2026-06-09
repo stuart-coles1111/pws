@@ -436,6 +436,29 @@ increase in X.
         )
     )
 
+    # =========================================================
+    # ACTIVITY PANEL
+    # =========================================================
+
+
+    activity_panel <- div(
+
+        card(
+
+            card_header("Interactive Activity"),
+
+            p(
+                "Launch the companion activity for this chapter."
+            ),
+
+            actionButton(
+                ns("launch_activity"),
+                "Launch Activity",
+                class = "btn-success"
+            )
+        )
+    )
+
     # =====================================================
     # Build chapter
     # =====================================================
@@ -454,7 +477,9 @@ increase in X.
 
         results = results_panel,
 
-        learn = learn_panel
+        learn = learn_panel,
+
+        activity = activity_panel
     )
 }
 
@@ -479,6 +504,18 @@ chapter5_server <- function(id){
 
             ci = NULL
         )
+
+        observeEvent(input$launch_activity, {
+
+            url <- pws:::launch_activity_from_lab(5)
+
+            shinyjs::runjs(
+                sprintf(
+                    "window.open('%s', '_blank');",
+                    url
+                )
+            )
+        })
 
         # =====================================================
         # Inference
