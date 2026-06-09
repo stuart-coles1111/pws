@@ -2,9 +2,6 @@
 # Chapter 5 — Inference & Regression
 # =========================================================
 
-library(shiny)
-library(ggplot2)
-library(pws)
 
 # =========================================================
 # Colours

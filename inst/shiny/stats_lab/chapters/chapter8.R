@@ -1,10 +1,3 @@
-library(shiny)
-library(ggplot2)
-library(DT)
-library(dplyr)
-library(MASS)
-library(later)
-
 schedule <- PL25_schedule
 
 # =========================================================

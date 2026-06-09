@@ -1,6 +1,3 @@
-library(shiny)
-library(ggplot2)
-
 bp <- function(n) {
     p <- 1
     if (n > 1) {

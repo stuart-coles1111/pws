@@ -13,19 +13,26 @@ Depends:
     R (>= 2.10)
 LazyData: true
 Imports: 
+    bslib,
     dipsaus,
     dplyr,
     DT,
     ggplot2,
     grid,
     gridExtra,
+    gt,
     gtools,
+    later,
     latex2exp,
     magrittr,
     MASS,
+    patchwork,
+    purrr,
     reshape2,
     scales,
     shiny,
     shinydashboard,
     shinyjs,
-    stringi
+    stringi,
+    tidyr
+
