@@ -342,10 +342,33 @@ chapter8_ui <- function(id) {
 
         card(
 
-            card_header("Interactive Activity"),
+            style = "
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border: none;
+            padding: 10px;
+            font-family: 'Inter', sans-serif;
+        ",
+
+            card_header(
+                div(
+                    "Activity 8",
+                    style = "
+                    font-size: 1.4rem;
+                    font-weight: 700;
+                    color: #2c3e50;
+                "
+                )
+            ),
 
             p(
-                "Launch the companion activity for this chapter."
+                "Launch the companion activity: A Day at the Races",
+                style = "
+                font-size: 1.05rem;
+                color: #555;
+                line-height: 1.6;
+                margin-bottom: 20px;
+            "
             ),
 
             actionButton(

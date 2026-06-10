@@ -279,7 +279,7 @@ main_panel_ui <- function(show_comp_results = FALSE){
 
 ui <- page_navbar(
 
-    title = "🎿 Activity 6:  break the ski jump world record",
+    title = "🎿 Activity 6:  Breaking records",
 
     header = tagList(
 
