@@ -130,15 +130,94 @@ chapter8_ui <- function(id) {
     )
 
     overview_panel <- div(
+
         card(
-            card_header("What this chapter explores"),
-            p("Football seasons are complex systems."),
-            p("Simulation reveals uncertainty in outcomes."),
+
+            style = "
+        border-radius: 16px;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        padding: 10px;
+    ",
+
+            card_header(
+                div(
+                    "🕸️ Understanding Football as a Complex System",
+                    style = "
+                font-size: 1.4rem;
+                font-weight: 700;
+                color: #2c3e50;
+            "
+                )
+            ),
+
+            p(
+                strong("Main idea: "),
+                "A football season is not just a collection of matches.
+            It is a complex system where uncertainty at the match level
+            aggregates into unpredictable season-level outcomes."
+            ),
+
+            hr(),
+
+            h5("What is happening in this chapter?"),
+
+            tags$div(
+                style = "margin-left: 10px;",
+
+                p("① We model match outcomes using a Poisson goal-scoring process."),
+
+                p("② Team strength is represented through attack, defence, and home advantage."),
+
+                p("③ We simulate full league seasons many times to capture uncertainty in final standings."),
+
+                p("④ We compare two worlds: one where team strength is fixed, and one where it evolves over time.")
+            ),
+
+            hr(),
+
+            h5("Your job"),
+
+            p(
+                "Use simulation to explore how randomness and structural assumptions shape an entire league season."
+            ),
+
             tags$ul(
-                tags$li("Match outcome probabilities"),
-                tags$li("Poisson goal model"),
-                tags$li("League simulation"),
-                tags$li("Static vs dynamic models")
+                tags$li("Simulate full seasons under different assumptions"),
+                tags$li("Compare static and dynamic representations of team strength"),
+                tags$li("Investigate how uncertainty propagates from matches to league tables"),
+                tags$li("Explore how parameter choices affect long-run outcomes")
+            ),
+
+            hr(),
+
+            h5("What will you see?"),
+
+            tags$ul(
+                tags$li("Simulated distributions of final league positions"),
+                tags$li("Match-level win probabilities between teams"),
+                tags$li("Side-by-side comparisons of static vs dynamic models"),
+                tags$li("Visual evidence of how uncertainty changes across model assumptions")
+            ),
+
+            hr(),
+
+            div(
+                style = "
+            background-color: #f8f9fa;
+            border-left: 5px solid #7B9ACC;
+            padding: 12px;
+            border-radius: 8px;
+        ",
+
+                h5("Questions to investigate"),
+
+                tags$ul(
+                    tags$li("How much of a season’s outcome is determined by randomness?"),
+                    tags$li("What changes when team strength is allowed to evolve?"),
+                    tags$li("Why do strong teams still fail to finish at the top sometimes?"),
+                    tags$li("When does a static model become too simple to be useful?")
+                )
             )
         )
     )
@@ -257,78 +336,80 @@ chapter8_ui <- function(id) {
 
         card(
 
-            card_header("Key Ideas"),
+            style = "
+        border-radius: 16px;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        padding: 10px;
+    ",
 
-            tags$ul(
-
-                tags$li(
-                    strong("Complex systems"),
-                    " contain many interacting components whose behaviour cannot be understood by studying parts in isolation."
-                ),
-
-                tags$li(
-                    strong("Emergence"),
-                    " occurs when simple match-level rules generate unexpected season-level outcomes."
-                ),
-
-                tags$li(
-                    strong("Sensitivity to randomness"),
-                    " means small changes in individual matches can alter final league positions."
-                ),
-
-                tags$li(
-                    strong("Monte Carlo simulation"),
-                    " approximates the distribution of possible futures by repeatedly simulating complete seasons."
-                ),
-
-                tags$li(
-                    strong("Dynamic models"),
-                    " recognise that team quality may change over time rather than remaining fixed."
+            card_header(
+                div(
+                    "What should you have learned?",
+                    style = "
+                font-size: 1.3rem;
+                font-weight: 700;
+                color: #2c3e50;
+            "
                 )
-            )
-        ),
-
-        br(),
-
-        card(
-
-            card_header("Static vs Dynamic Thinking"),
-
-            p(
-                "The static model assumes team strengths remain constant for the entire season."
             ),
 
-            p(
-                "The dynamic model allows attack and defence parameters to evolve from week to week."
-            ),
+            tags$div(
 
-            p(
-                "This introduces an additional source of uncertainty and often produces wider distributions of possible league positions."
-            )
-        ),
+                h5("1. Small randomness can scale into large uncertainty"),
 
-        br(),
-
-        card(
-
-            card_header("Questions to Explore"),
-
-            tags$ul(
-
-                tags$li(
-                    "Which teams are most affected by introducing dynamic variation?"
+                p(
+                    "Individual match outcomes are only mildly uncertain,
+                but when repeated across an entire season,
+                this randomness produces a wide range of possible league tables."
                 ),
 
-                tags$li(
-                    "Does increasing σ make the league more predictable or less predictable?"
+                hr(),
+
+                h5("2. Complex outcomes can emerge from simple rules"),
+
+                p(
+                    "Even with relatively simple assumptions about goal scoring,
+                the interaction of teams across many matches generates
+                rich and unpredictable league dynamics."
                 ),
 
-                tags$li(
-                    "Why do strong teams still occasionally finish lower than expected?"
+                hr(),
+
+                h5("3. Model structure matters as much as parameter values"),
+
+                p(
+                    "Whether team strength is fixed or allowed to evolve
+                can meaningfully change predictions, even if average ability is similar."
                 ),
 
-                tags$li(
-                    "Can a team become more likely to win the league even if its average strength stays unchanged?"
+                hr(),
+
+                h5("4. Simulation is a tool for understanding uncertainty"),
+
+                p(
+                    "Monte Carlo simulation lets us observe the full distribution of possible seasons,
+                rather than a single predicted outcome."
+                ),
+
+                hr(),
+
+                h5("Key takeaway"),
+
+                div(
+                    style = "
+                background-color: #f8f9fa;
+                border-left: 5px solid #28a745;
+                padding: 12px;
+                border-radius: 8px;
+            ",
+
+                    p(
+                        strong("A league table is not a fixed outcome — it is a distribution."),
+                        br(),
+                        "Statistical modelling helps us understand not just what is likely to happen,
+                    but how many different futures are plausible given the same underlying system."
+                    )
                 )
             )
         )

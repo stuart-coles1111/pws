@@ -29,10 +29,111 @@ chapter1_ui <- function(id){
     )
 
     overview_panel <- div(
+
         card(
-            card_header("Overview"),
-            p("Poisson opportunities with Beta scoring probability."),
-            p("We compare simulated outcomes to the exact theoretical distribution.")
+
+            style = "
+            border-radius: 16px;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 10px;
+        ",
+
+            card_header(
+                div(
+                    "🎲 Understanding Random Goal Scoring",
+                    style = "
+                    font-size: 1.4rem;
+                    font-weight: 700;
+                    color: #2c3e50;
+                "
+                )
+            ),
+
+            p(
+                strong("Main idea: "),
+                "Although individual football matches are unpredictable,
+             the pattern of goals across many matches follows
+             predictable statistical rules."
+            ),
+
+            hr(),
+
+            h5("What happens in this model?"),
+
+            tags$div(
+                style = "margin-left: 10px;",
+
+                p("① A game contains a random number of scoring opportunities."),
+
+                p("② Each opportunity has some chance of becoming a goal."),
+
+                p("③ That conversion probability varies from game to game."),
+
+                p("④ The total number of goals scored is recorded.")
+            ),
+
+            hr(),
+
+            h5("Your job"),
+
+            p(
+                "Use the controls to create your own goal-scoring model by choosing:"
+            ),
+
+            tags$ul(
+                tags$li("The average number of opportunities per game"),
+                tags$li("The average probability of converting an opportunity"),
+                tags$li("How much the conversion probability varies"),
+                tags$li("How many games to simulate")
+            ),
+
+            hr(),
+
+            h5("What will you see?"),
+
+            tags$ul(
+                tags$li(
+                    "The distributions used to generate opportunities and scoring probabilities"
+                ),
+                tags$li(
+                    "The theoretical distribution of goals implied by your choices"
+                ),
+                tags$li(
+                    "The observed results from simulated matches"
+                ),
+                tags$li(
+                    "A comparison between theory and simulation"
+                )
+            ),
+
+            hr(),
+
+            div(
+                style = "
+                background-color: #f8f9fa;
+                border-left: 5px solid #7B9ACC;
+                padding: 12px;
+                border-radius: 8px;
+            ",
+
+                h5("Questions to investigate"),
+
+                tags$ul(
+                    tags$li(
+                        "How do the parameter values affect the shape of the goal distribution?"
+                    ),
+                    tags$li(
+                        "How closely do simulated results match theoretical expectations?"
+                    ),
+                    tags$li(
+                        "What changes when the number of simulated games increases?"
+                    ),
+                    tags$li(
+                        "Which inputs have the strongest influence on scoring outcomes?"
+                    )
+                )
+            )
         )
     )
 
@@ -55,13 +156,87 @@ chapter1_ui <- function(id){
     )
 
     learn_panel <- div(
+
         card(
-            card_header("Key ideas"),
-            tags$ul(
-                tags$li("Two-stage randomness: N then Binomial thinning"),
-                tags$li("Beta introduces heterogeneity in scoring probability"),
-                tags$li("Mixture creates overdispersion"),
-                tags$li("Theory now matches simulation exactly")
+
+            style = "
+            border-radius: 16px;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 10px;
+        ",
+
+            card_header(
+                div(
+                    "What should you have learned?",
+                    style = "
+                    font-size: 1.3rem;
+                    font-weight: 700;
+                    color: #2c3e50;
+                "
+                )
+            ),
+
+            tags$div(
+
+                h5("1. Random outcomes can still be predictable"),
+
+                p(
+                    "The number of goals in any single match is uncertain,
+                 but the pattern across many matches follows a
+                 predictable probability distribution."
+                ),
+
+                hr(),
+
+                h5("2. Randomness occurs at more than one level"),
+
+                p(
+                    "Some games generate many opportunities and some generate few.
+                 Even when an opportunity occurs, whether it becomes a goal
+                 is still uncertain."
+                ),
+
+                hr(),
+
+                h5("3. Assumptions shape outcomes"),
+
+                p(
+                    "Changing the average number of opportunities or the average
+                 conversion probability changes the distribution of goals.
+                 Different assumptions lead to different predictions."
+                ),
+
+                hr(),
+
+                h5("4. Simulation reveals theory"),
+
+                p(
+                    "As the number of simulated games increases, the observed
+                 frequencies move closer to the theoretical frequencies.
+                 Random variation becomes less noticeable."
+                ),
+
+                hr(),
+
+                h5("Key takeaway"),
+
+                div(
+                    style = "
+                    background-color: #f8f9fa;
+                    border-left: 5px solid #28a745;
+                    padding: 12px;
+                    border-radius: 8px;
+                ",
+
+                    p(
+                        strong("Statistical models do not predict individual games."),
+                        br(),
+                        "They describe the long-run patterns produced by many
+                     games and help us understand how randomness generates
+                     observable outcomes."
+                    )
+                )
             )
         )
     )
@@ -89,19 +264,9 @@ chapter1_ui <- function(id){
                 )
             ),
 
-            p(
-                "Launch the companion activity: Picturing Randomness",
-                style = "
-                font-size: 1.05rem;
-                color: #555;
-                line-height: 1.6;
-                margin-bottom: 20px;
-            "
-            ),
-
             actionButton(
                 ns("launch_activity"),
-                "Launch Activity",
+                "Launch Activity 1: Picturing Randomness",
                 class = "btn-success"
             )
         )

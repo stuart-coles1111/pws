@@ -120,16 +120,85 @@ chapter6_ui <- function(id){
     overview_panel <- div(
 
         card(
-            card_header("What this chapter explores"),
 
-            p("This chapter introduces probability,
-              confidence intervals and the dangers
-              of searching for patterns in random data."),
+            style = "
+            border-radius: 16px;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 10px;
+        ",
+
+            card_header(
+                div(
+                    "📐 When randomness looks like structure",
+                    style = "
+                    font-size: 1.4rem;
+                    font-weight: 700;
+                    color: #2c3e50;
+                "
+                )
+            ),
+
+            p(
+                strong("Main idea: "),
+                "Random data can easily produce patterns that look meaningful,
+             even when no real underlying relationship exists."
+            ),
+
+            hr(),
+
+            h5("The problem"),
+
+            p(
+                "In real-world data analysis, we are constantly searching for patterns.
+             The danger is that randomness itself can create patterns that appear real."
+            ),
+
+            hr(),
+
+            h5("What happens in this chapter?"),
+
+            tags$div(
+                style = "margin-left: 10px;",
+
+                p("① Explore how unlikely events can still occur (Birthday Problem)."),
+
+                p("② Estimate differences between groups using simulated data."),
+
+                p("③ Study how often random data produces ‘significant’ results."),
+
+                p("④ Observe how regression can find relationships in pure noise.")
+            ),
+
+            hr(),
+
+            h5("Your job"),
 
             tags$ul(
-                tags$li("The Birthday Problem"),
-                tags$li("Comparing two proportions"),
-                tags$li("Data dredging and false discoveries")
+                tags$li("Investigate how often random data appears structured"),
+                tags$li("Compare true effects with apparent effects"),
+                tags$li("Explore how sample size affects false discoveries"),
+                tags$li("Learn how easily regression can be misled")
+            ),
+
+            hr(),
+
+            div(
+                style = "
+                background-color:#f8f9fa;
+                border-left:5px solid #7B9ACC;
+                padding:12px;
+                border-radius:8px;
+            ",
+
+                h5("Questions to investigate"),
+
+                tags$ul(
+                    tags$li("Why do rare events become inevitable with enough trials?"),
+                    tags$li("How often do confidence intervals mislead us?"),
+                    tags$li("Can regression find patterns in pure noise?"),
+                    tags$li("When should we distrust a ‘significant’ result?")
+                )
             )
         )
     )
@@ -177,34 +246,84 @@ chapter6_ui <- function(id){
     learn_panel <- div(
 
         card(
-            card_header("Key ideas"),
 
-            tags$ul(
-                tags$li("Probability can be surprising."),
-                tags$li("Confidence intervals quantify uncertainty."),
-                tags$li("Large numbers of tests create false positives."),
-                tags$li("Significant results are not always meaningful.")
-            )
-        ),
+            style = "
+            border-radius: 16px;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 10px;
+        ",
 
-        br(),
+            card_header(
+                div(
+                    "What should you have learned?",
+                    style = "
+                    font-size: 1.3rem;
+                    font-weight: 700;
+                    color: #2c3e50;
+                "
+                )
+            ),
 
-        card(
-            card_header("Big idea"),
+            h5("1. Rare events are not impossible"),
 
-            tags$blockquote(
-                style="
-                    font-size:22px;
-                    font-weight:700;
-                    color:#7B9ACC;
-                    border-left:5px solid #CDB4DB;
-                    padding-left:18px;
-                ",
-                "The more we search random data, the easier it becomes to find apparently important patterns."
+            p(
+                "Even very unlikely events will occur if we repeat experiments enough times."
+            ),
+
+            hr(),
+
+            h5("2. Statistical methods always produce answers"),
+
+            p(
+                "Even when there is no real signal, methods like confidence intervals and regression will still produce results that look meaningful."
+            ),
+
+            hr(),
+
+            h5("3. ‘Significance’ does not guarantee truth"),
+
+            p(
+                "A statistically significant result can still arise from random variation rather than a real effect."
+            ),
+
+            hr(),
+
+            h5("4. Searching creates false discoveries"),
+
+            p(
+                "The more hypotheses or patterns we test, the more likely we are to find something that looks important by chance alone."
+            ),
+
+            hr(),
+
+            h5("5. Regression can be fooled by noise"),
+
+            p(
+                "With enough variables, regression will almost always find relationships—even in purely random data."
+            ),
+
+            hr(),
+
+            div(
+                style = "
+                background-color:#f8f9fa;
+                border-left:5px solid #dc3545;
+                padding:12px;
+                border-radius:8px;
+            ",
+
+                h5("Key takeaway"),
+
+                p(
+                    strong("Structure can be an illusion."),
+                    br(),
+                    "Statistical tools are powerful, but they do not distinguish between real patterns and patterns created by randomness.
+                 Interpretation matters as much as calculation."
+                )
             )
         )
     )
-
     # =======================================================
     # Activity Panel
     # =======================================================

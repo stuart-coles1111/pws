@@ -60,14 +60,103 @@ chapter3_ui <- function(id){
         )
     )
 
-    overview_panel <- card(
-        card_header("What this chapter explores"),
-        tags$p("This chapter introduces a statistical model for expected goals (xG)."),
-        tags$ul(
-            tags$li("Shots are simulated using a known data-generating process."),
-            tags$li("A logistic regression model is fitted to recover structure."),
-            tags$li("We compare true vs estimated relationships."),
-            tags$li("We use the model to predict shot success probability.")
+    overview_panel <- div(
+
+        card(
+
+            style = "
+            border-radius: 16px;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 10px;
+        ",
+
+            card_header(
+                div(
+                    "⚖ Understanding Prediction Models",
+                    style = "
+                    font-size: 1.4rem;
+                    font-weight: 700;
+                    color: #2c3e50;
+                "
+                )
+            ),
+
+            p(
+                strong("Main idea: "),
+                "Statistical models can learn patterns from historical data
+             and use those patterns to estimate the probability of future outcomes."
+            ),
+
+            hr(),
+
+            h5("The problem"),
+
+            p(
+                "Not all football shots are equally likely to result in a goal.
+             A shot taken close to goal is usually more dangerous than one
+             taken from distance, and other factors may also influence success."
+            ),
+
+            p(
+                "Expected goals (xG) models attempt to quantify this by assigning
+             a probability to every shot."
+            ),
+
+            hr(),
+
+            h5("What happens in this chapter?"),
+
+            tags$div(
+                style = "margin-left: 10px;",
+
+                p("① Generate a dataset of football shots."),
+
+                p("② Each shot has characteristics such as distance, angle and body part."),
+
+                p("③ Fit a statistical model to learn how those characteristics influence scoring."),
+
+                p("④ Use the fitted model to predict the probability of a goal.")
+            ),
+
+            hr(),
+
+            h5("Your job"),
+
+            tags$ul(
+                tags$li("Generate different datasets"),
+                tags$li("Fit the xG model"),
+                tags$li("Compare the true relationships with the estimated relationships"),
+                tags$li("Use the model to make predictions for new shots")
+            ),
+
+            hr(),
+
+            div(
+                style = "
+                background-color: #f8f9fa;
+                border-left: 5px solid #7B9ACC;
+                padding: 12px;
+                border-radius: 8px;
+            ",
+
+                h5("Questions to investigate"),
+
+                tags$ul(
+                    tags$li(
+                        "Which shot characteristics appear most important?"
+                    ),
+                    tags$li(
+                        "How close are the estimated effects to the true effects?"
+                    ),
+                    tags$li(
+                        "Does increasing the amount of data improve estimation?"
+                    ),
+                    tags$li(
+                        "How does changing a shot's location affect its predicted xG?"
+                    )
+                )
+            )
         )
     )
 
@@ -119,13 +208,93 @@ chapter3_ui <- function(id){
         )
     )
 
-    learn_panel <- card(
-        card_header("Key ideas"),
-        tags$ul(
-            tags$li("xG is a probability model for scoring a shot."),
-            tags$li("Logistic regression links features to scoring probability."),
-            tags$li("Distance, angle, and body part all matter."),
-            tags$li("We can simulate data where the truth is known.")
+    learn_panel <- div(
+
+        card(
+
+            style = "
+            border-radius: 16px;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 10px;
+        ",
+
+            card_header(
+                div(
+                    "What should you have learned?",
+                    style = "
+                    font-size: 1.3rem;
+                    font-weight: 700;
+                    color: #2c3e50;
+                "
+                )
+            ),
+
+            h5("1. Statistical models learn from data"),
+
+            p(
+                "Rather than being programmed with exact answers,
+             statistical models estimate relationships using observed data."
+            ),
+
+            hr(),
+
+            h5("2. Prediction is based on patterns"),
+
+            p(
+                "The model identifies how variables such as distance,
+             angle and body part are associated with the probability
+             of scoring."
+            ),
+
+            hr(),
+
+            h5("3. Models estimate, they do not know"),
+
+            p(
+                "The fitted model does not recover the true relationships perfectly.
+             It uses limited information and therefore produces estimates
+             rather than exact values."
+            ),
+
+            hr(),
+
+            h5("4. More data generally improves estimation"),
+
+            p(
+                "Larger datasets provide more evidence about the underlying
+             relationships and typically lead to more stable predictions."
+            ),
+
+            hr(),
+
+            h5("5. Predictions are probabilities"),
+
+            p(
+                "An xG value is not a prediction that a goal will definitely
+             be scored. It is an estimate of how likely a goal is."
+            ),
+
+            hr(),
+
+            div(
+                style = "
+                background-color: #f8f9fa;
+                border-left: 5px solid #28a745;
+                padding: 12px;
+                border-radius: 8px;
+            ",
+
+                h5("Key takeaway"),
+
+                p(
+                    strong("Statistical models turn data into predictions."),
+                    br(),
+                    "By learning relationships from historical observations,
+                 they allow us to estimate the probabilities of future events,
+                 even when individual outcomes remain uncertain."
+                )
+            )
         )
     )
 

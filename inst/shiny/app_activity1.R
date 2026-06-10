@@ -130,7 +130,7 @@ ui <- page_navbar(
             border-radius:12px;
             background:linear-gradient(90deg,#A8DADC,#CDB4DB);
             margin-bottom:15px;",
-            h1("🪙 Activity 1: Picturing randomness")
+            h1("🪙 Activity 1: Picturing Randomness")
         ),
 
         layout_sidebar(

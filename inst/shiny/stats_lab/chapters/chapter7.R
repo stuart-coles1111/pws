@@ -219,14 +219,93 @@ chapter7_ui <- function(id){
     )
 
     overview_panel <- div(
+
         card(
-            card_header("What this chapter explores"),
-            p("We compare competing statistical models for the same data."),
+
+            style = "
+        border-radius: 16px;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        padding: 10px;
+    ",
+
+            card_header(
+                div(
+                    "🧩 Comparing Statistical Models",
+                    style = "
+                font-size: 1.4rem;
+                font-weight: 700;
+                color: #2c3e50;
+            "
+                )
+            ),
+
+            p(
+                strong("Main idea: "),
+                "Different statistical models can explain the same data in different ways.
+            The goal is to compare these explanations and see which ones are more consistent with what we observe."
+            ),
+
+            hr(),
+
+            h5("What is happening in this chapter?"),
+
+            tags$div(
+                style = "margin-left: 10px;",
+
+                p("① We simulate outcomes from a simple two-dice game."),
+
+                p("② Each model proposes a different explanation of how scores are generated."),
+
+                p("③ We estimate probabilities implied by each model from the observed data."),
+
+                p("④ We compare how well each model matches the data using likelihood and diagnostics.")
+            ),
+
+            hr(),
+
+            h5("Your job"),
+
+            p(
+                "Use the controls to explore how different models behave and how well they fit the same dataset."
+            ),
+
             tags$ul(
-                tags$li("Simulation"),
-                tags$li("Competing explanations"),
-                tags$li("Likelihood"),
-                tags$li("Model checking")
+                tags$li("Generate game outcomes by adjusting the probability of Dice 1"),
+                tags$li("Compare observed score distributions to different model assumptions"),
+                tags$li("Inspect estimated probabilities under each model"),
+                tags$li("Evaluate model performance using diagnostic summaries")
+            ),
+
+            hr(),
+
+            h5("What will you see?"),
+
+            tags$ul(
+                tags$li("Simulated score distributions from the two-dice process"),
+                tags$li("Competing model-based probability estimates"),
+                tags$li("Observed vs expected frequency comparisons"),
+                tags$li("Numerical summaries of model fit and performance")
+            ),
+
+            hr(),
+
+            div(
+                style = "
+            background-color: #f8f9fa;
+            border-left: 5px solid #7B9ACC;
+            padding: 12px;
+            border-radius: 8px;
+        ",
+
+                h5("Questions to investigate"),
+
+                tags$ul(
+                    tags$li("How do different models change our interpretation of the same data?"),
+                    tags$li("Which models capture the structure in the data most effectively?"),
+                    tags$li("When does a simpler model perform just as well as a complex one?"),
+                    tags$li("How does model choice affect what we predict about future outcomes?")
+                )
             )
         )
     )
@@ -272,11 +351,85 @@ chapter7_ui <- function(id){
     )
 
     learn_panel <- div(
+
         card(
-            card_header("Big idea"),
-            tags$blockquote(
-                style = "font-size:20px;font-weight:700;color:#7B9ACC;",
-                "Good models explain patterns without overcomplicating them."
+
+            style = "
+        border-radius: 16px;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        padding: 10px;
+    ",
+
+            card_header(
+                div(
+                    "What should you have learned?",
+                    style = "
+                font-size: 1.3rem;
+                font-weight: 700;
+                color: #2c3e50;
+            "
+                )
+            ),
+
+            tags$div(
+
+                h5("1. The same data can support multiple models"),
+
+                p(
+                    "A single dataset does not determine a unique explanation.
+                Different models can describe the same patterns in different ways,
+                with varying assumptions about how the data were generated."
+                ),
+
+                hr(),
+
+                h5("2. Models differ in how they structure randomness"),
+
+                p(
+                    "Some models assume uniform randomness, while others introduce structure
+                such as grouping, weighting, or conditional probabilities.
+                These assumptions strongly influence predicted outcomes."
+                ),
+
+                hr(),
+
+                h5("3. Model comparison is about relative performance"),
+
+                p(
+                    "We are not asking which model is ‘true’, but which model best explains
+                the observed data according to measures like likelihood and predictive fit."
+                ),
+
+                hr(),
+
+                h5("4. Cross-validation helps test generalisation"),
+
+                p(
+                    "A model that fits existing data well is not necessarily useful.
+                Cross-validation checks whether a model performs well on unseen data,
+                which is a stronger test of usefulness."
+                ),
+
+                hr(),
+
+                h5("Key takeaway"),
+
+                div(
+                    style = "
+                background-color: #f8f9fa;
+                border-left: 5px solid #28a745;
+                padding: 12px;
+                border-radius: 8px;
+            ",
+
+                    p(
+                        strong("Statistical modelling is a comparison process, not a search for certainty."),
+                        br(),
+                        "We use models to represent competing explanations of data,
+                    and we choose between them based on how well they describe and predict what we observe."
+                    )
+                )
             )
         )
     )

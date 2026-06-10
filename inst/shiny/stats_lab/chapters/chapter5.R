@@ -174,56 +174,70 @@ chapter5_ui <- function(id){
     # =====================================================
 
     overview_panel <- div(
+        card(
 
-        conditionalPanel(
-            condition = sprintf(
-                "input['%s']=='Inference'",
-                ns("topic")
+            card_header("📊 Learning from Samples"),
+
+            p(
+                strong("Main idea: "),
+                "We rarely observe an entire population. Instead, we collect a sample and use it to estimate unknown quantities."
             ),
 
-            card(
+            hr(),
 
-                card_header("What this topic explores"),
+            h5("The problem"),
 
-                p("
-Bootstrap methods allow us to estimate
-uncertainty using repeated simulation.
-"),
-
-                tags$ul(
-                    tags$li("Sampling variability"),
-                    tags$li("Bootstrap distributions"),
-                    tags$li("Standard errors"),
-                    tags$li("Confidence intervals")
-                )
-            )
-        ),
-
-        conditionalPanel(
-            condition = sprintf(
-                "input['%s']=='Regression'",
-                ns("topic")
+            p(
+                "Suppose we want to know the probability of rolling a six with a particular die. We cannot know the true probability directly, but we can estimate it from observed rolls."
             ),
 
-            card(
+            hr(),
 
-                card_header("What this topic explores"),
+            h5("What happens in this topic?"),
 
-                p("
-Regression models relationships
-between quantitative variables.
-"),
+            p("① Roll a die repeatedly."),
+
+            p("② Estimate the probability of rolling a six."),
+
+            p("③ Generate many bootstrap samples."),
+
+            p("④ Use the bootstrap distribution to measure uncertainty."),
+
+            p("⑤ Construct a confidence interval."),
+
+            hr(),
+
+            h5("Your job"),
+
+            tags$ul(
+                tags$li("Explore how estimates vary from sample to sample"),
+                tags$li("Investigate the effect of sample size"),
+                tags$li("Compare different bootstrap methods"),
+                tags$li("Study how confidence intervals change")
+            ),
+
+            hr(),
+
+            div(
+                style = "
+            background-color:#f8f9fa;
+            border-left:5px solid #7B9ACC;
+            padding:12px;
+            border-radius:8px;
+        ",
+
+                h5("Questions to investigate"),
 
                 tags$ul(
-                    tags$li("Linear trends"),
-                    tags$li("Predictions"),
-                    tags$li("Slope"),
-                    tags$li("Confidence intervals")
+                    tags$li("How close is the estimate to the true probability?"),
+                    tags$li("Why do different samples produce different estimates?"),
+                    tags$li("How does sample size affect uncertainty?"),
+                    tags$li("What does a confidence interval tell us?")
                 )
             )
         )
-    )
 
+    )
     # =====================================================
     # Generated Code
     # =====================================================
@@ -340,97 +354,68 @@ between quantitative variables.
 
     learn_panel <- div(
 
-        conditionalPanel(
-            condition = sprintf(
-                "input['%s']=='Inference'",
-                ns("topic")
+        card(
+
+            card_header("What should you have learned?"),
+
+            h5("1. Samples vary"),
+
+            p(
+                "Different samples from the same population produce different estimates."
             ),
 
-            card(
+            hr(),
 
-                card_header("Bootstrap confidence intervals"),
+            h5("2. Estimation involves uncertainty"),
 
-                p("
-The bootstrap estimates uncertainty
-by repeatedly resampling data.
-"),
-
-                tags$ol(
-                    tags$li("Collect data"),
-                    tags$li("Resample"),
-                    tags$li("Recalculate the statistic"),
-                    tags$li("Study the distribution")
-                )
+            p(
+                "An estimate is not a fact. It is our best guess based on limited information."
             ),
 
-            br(),
+            hr(),
 
-            card(
+            h5("3. Bootstrap methods mimic repeated sampling"),
 
-                card_header("Key formula"),
-
-                tags$pre(
-                    "CI = Estimate ± z × SE"
-                )
+            p(
+                "By repeatedly resampling the observed data, we can study how much an estimate might vary."
             ),
 
-            br(),
+            hr(),
 
-            card(
+            h5("4. Confidence intervals measure precision"),
 
-                card_header("Common mistake"),
-
-                p("
-A 95% confidence interval does not
-mean there is a 95% probability that
-the true parameter lies inside the
-calculated interval.
-")
-            )
-        ),
-
-        conditionalPanel(
-            condition = sprintf(
-                "input['%s']=='Regression'",
-                ns("topic")
+            p(
+                "Narrow intervals indicate more precise estimates, while wider intervals indicate greater uncertainty."
             ),
 
-            card(
+            hr(),
 
-                card_header("Simple linear regression"),
+            h5("5. Statistical inference is about populations"),
 
-                tags$pre(
-                    "Y = β₀ + β₁X + ε"
-                )
+            p(
+                "The ultimate goal is not to describe the sample itself, but to learn about the larger population from which it came."
             ),
 
-            br(),
+            hr(),
 
-            card(
+            div(
+                style = "
+            background-color:#f8f9fa;
+            border-left:5px solid #28a745;
+            padding:12px;
+            border-radius:8px;
+        ",
 
-                card_header("Interpreting the slope"),
+                h5("Key takeaway"),
 
-                p("
-The slope measures the average change
-in Y associated with a one-unit
-increase in X.
-")
-            ),
-
-            br(),
-
-            card(
-
-                card_header("Model assumptions"),
-
-                tags$ul(
-                    tags$li("Linearity"),
-                    tags$li("Independence"),
-                    tags$li("Constant variance"),
-                    tags$li("Approximately normal residuals")
+                p(
+                    strong("Statistics allows us to learn from incomplete information."),
+                    br(),
+                    "Inference uses samples to estimate unknown population quantities while acknowledging uncertainty."
                 )
             )
         )
+
     )
 
     # =========================================================

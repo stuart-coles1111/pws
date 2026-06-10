@@ -68,16 +68,110 @@ chapter2_ui <- function(id){
     # OVERVIEW PANEL
     # =========================================================
 
-    overview_panel <- card(
+    overview_panel <- div(
 
-        card_header("What this chapter explores"),
+        card(
 
-        tags$p("This chapter introduces probability distributions."),
+            style = "
+            border-radius: 16px;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 10px;
+        ",
 
-        tags$ul(
-            tags$li("Binomial distribution: counts of successes"),
-            tags$li("Poisson distribution: counts of events"),
-            tags$li("Normal distribution: continuous variation via intervals")
+            card_header(
+                div(
+                    "🌗 Understanding Probability Distributions",
+                    style = "
+                    font-size: 1.4rem;
+                    font-weight: 700;
+                    color: #2c3e50;
+                "
+                )
+            ),
+
+            p(
+                strong("Main idea: "),
+                "A probability distribution describes how likely different
+             outcomes are before we observe what actually happens."
+            ),
+
+            hr(),
+
+            h5("What is a probability distribution?"),
+
+            p(
+                "Probability distributions provide a mathematical description
+             of uncertainty. They tell us which outcomes are likely,
+             which are unlikely, and how probability is distributed
+             across all possible values."
+            ),
+
+            hr(),
+
+            h5("Distributions to explore"),
+
+            tags$ul(
+
+                tags$li(
+                    strong("Binomial distribution: "),
+                    "the number of successes in a fixed number of attempts."
+                ),
+
+                tags$li(
+                    strong("Poisson distribution: "),
+                    "the number of events occurring in a period of time or space."
+                ),
+
+                tags$li(
+                    strong("Normal distribution: "),
+                    "continuous measurements that vary around an average value."
+                )
+            ),
+
+            hr(),
+
+            h5("Your job"),
+
+            p(
+                "Adjust the parameters and investigate how the shape of each
+             distribution changes."
+            ),
+
+            tags$ul(
+                tags$li("Which outcomes are most likely?"),
+                tags$li("Which outcomes become less likely?"),
+                tags$li("How does changing the parameters alter uncertainty?"),
+                tags$li("How are discrete and continuous distributions different?")
+            ),
+
+            hr(),
+
+            div(
+                style = "
+                background-color: #f8f9fa;
+                border-left: 5px solid #7B9ACC;
+                padding: 12px;
+                border-radius: 8px;
+            ",
+
+                h5("Questions to investigate"),
+
+                tags$ul(
+                    tags$li(
+                        "How does increasing the probability of success affect a Binomial distribution?"
+                    ),
+                    tags$li(
+                        "How does the event rate affect a Poisson distribution?"
+                    ),
+                    tags$li(
+                        "How does the standard deviation affect a Normal distribution?"
+                    ),
+                    tags$li(
+                        "What differences do you notice between discrete and continuous models?"
+                    )
+                )
+            )
         )
     )
 
@@ -117,15 +211,95 @@ chapter2_ui <- function(id){
     # LEARN PANEL
     # =========================================================
 
-    learn_panel <- card(
+    learn_panel <- div(
 
-        card_header("Key ideas"),
+        card(
 
-        tags$ul(
-            tags$li("Binomial and Poisson are discrete probability models."),
-            tags$li("Normal distribution is continuous."),
-            tags$li("Normal probabilities are always intervals (areas)."),
-            tags$li("The same probability function depends on parameter values.")
+            style = "
+            border-radius: 16px;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 10px;
+        ",
+
+            card_header(
+                div(
+                    "What should you have learned?",
+                    style = "
+                    font-size: 1.3rem;
+                    font-weight: 700;
+                    color: #2c3e50;
+                "
+                )
+            ),
+
+            h5("1. Probability distributions describe uncertainty"),
+
+            p(
+                "Rather than predicting a single outcome, a distribution
+             describes the range of possible outcomes and their
+             probabilities."
+            ),
+
+            hr(),
+
+            h5("2. Different problems require different distributions"),
+
+            p(
+                "No single probability model works for every situation.
+             Binomial, Poisson and Normal distributions are designed
+             for different types of data and questions."
+            ),
+
+            hr(),
+
+            h5("3. Parameters determine the shape of a distribution"),
+
+            p(
+                "Changing the parameter values changes the probabilities.
+             The same mathematical model can describe many different
+             real-world situations."
+            ),
+
+            hr(),
+
+            h5("4. Discrete and continuous uncertainty are different"),
+
+            p(
+                "Some variables can take only specific values
+             (such as counts of goals or events), while others can vary
+             continuously across a range of values."
+            ),
+
+            hr(),
+
+            h5("5. Probability is a long-run concept"),
+
+            p(
+                "A probability does not guarantee what will happen next.
+             Instead, it describes what tends to happen when the same
+             process is repeated many times."
+            ),
+
+            hr(),
+
+            div(
+                style = "
+                background-color: #f8f9fa;
+                border-left: 5px solid #28a745;
+                padding: 12px;
+                border-radius: 8px;
+            ",
+
+                h5("Key takeaway"),
+
+                p(
+                    strong("Probability distributions are models of uncertainty."),
+                    br(),
+                    "They allow us to quantify how likely different outcomes
+                 are and form the foundation of statistical reasoning."
+                )
+            )
         )
     )
 

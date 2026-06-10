@@ -19,19 +19,113 @@ chapter4_ui <- function(id){
         checkboxInput(ns("final_only"), "Show only final score plot", value = FALSE)
     )
 
-    overview_panel <- card(
+    overview_panel <- div(
 
-        card_header("What this chapter explores"),
+        card(
 
-        tags$p(
-            "This chapter introduces how probabilistic scores arise from a normal model centred on a guess."
-        ),
+            style = "
+            border-radius: 16px;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 10px;
+        ",
 
-        tags$ul(
-            tags$li("A guess (G) defines the centre of belief"),
-            tags$li("Uncertainty (S) defines interval width (not SD)"),
-            tags$li("True value (Θ) evaluates the prediction"),
-            tags$li("Scores are log densities under a normal model")
+            card_header(
+                div(
+                    "📉 Understanding Uncertainty",
+                    style = "
+                    font-size: 1.4rem;
+                    font-weight: 700;
+                    color: #2c3e50;
+                "
+                )
+            ),
+
+            p(
+                strong("Main idea: "),
+                "A good prediction should communicate both what you expect
+             to happen and how certain you are about that expectation."
+            ),
+
+            hr(),
+
+            h5("The problem"),
+
+            p(
+                "Suppose you are asked to predict an unknown quantity.
+             Giving a single number is often not enough because
+             uncertainty is part of every prediction."
+            ),
+
+            p(
+                "A useful prediction therefore combines two things:"
+            ),
+
+            tags$ul(
+                tags$li(
+                    strong("A best guess"),
+                    " about the true value"
+                ),
+                tags$li(
+                    strong("A measure of uncertainty"),
+                    " describing how confident you are"
+                )
+            ),
+
+            hr(),
+
+            h5("What happens in this chapter?"),
+
+            tags$div(
+                style = "margin-left: 10px;",
+
+                p("① Choose a guess for the true value."),
+
+                p("② Specify how uncertain you are."),
+
+                p("③ Reveal the true value."),
+
+                p("④ Evaluate the prediction using a scoring rule.")
+            ),
+
+            hr(),
+
+            h5("Your job"),
+
+            tags$ul(
+                tags$li("Explore different combinations of guesses and uncertainty"),
+                tags$li("Investigate how scores change when predictions are accurate or inaccurate"),
+                tags$li("Compare cautious predictions with confident predictions"),
+                tags$li("Discover what kinds of predictions receive the best scores")
+            ),
+
+            hr(),
+
+            div(
+                style = "
+                background-color: #f8f9fa;
+                border-left: 5px solid #7B9ACC;
+                padding: 12px;
+                border-radius: 8px;
+            ",
+
+                h5("Questions to investigate"),
+
+                tags$ul(
+                    tags$li(
+                        "What happens when the guess is correct but uncertainty is very small?"
+                    ),
+                    tags$li(
+                        "What happens when the guess is wrong but uncertainty is large?"
+                    ),
+                    tags$li(
+                        "Can being overconfident hurt your score?"
+                    ),
+                    tags$li(
+                        "What level of uncertainty seems appropriate for different situations?"
+                    )
+                )
+            )
         )
     )
 
@@ -59,15 +153,92 @@ chapter4_ui <- function(id){
         )
     )
 
-    learn_panel <- card(
+    learn_panel <- div(
 
-        card_header("Key ideas"),
+        card(
 
-        tags$ul(
-            tags$li("Uncertainty S is converted to standard deviation internally."),
-            tags$li("Sharper predictions are more strongly penalised."),
-            tags$li("Scores are log densities of a Gaussian model."),
-            tags$li("Performance depends on distance relative to uncertainty.")
+            style = "
+            border-radius: 16px;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 10px;
+        ",
+
+            card_header(
+                div(
+                    "What should you have learned?",
+                    style = "
+                    font-size: 1.3rem;
+                    font-weight: 700;
+                    color: #2c3e50;
+                "
+                )
+            ),
+
+            h5("1. Every prediction contains uncertainty"),
+
+            p(
+                "Even when we provide a best estimate, we are rarely
+             completely certain that it is correct."
+            ),
+
+            hr(),
+
+            h5("2. Good predictions balance accuracy and confidence"),
+
+            p(
+                "A useful prediction should be close to the truth while
+             also expressing an appropriate level of uncertainty."
+            ),
+
+            hr(),
+
+            h5("3. Overconfidence can be costly"),
+
+            p(
+                "Very narrow predictions may perform well when they are correct,
+             but they are heavily penalised when they are wrong."
+            ),
+
+            hr(),
+
+            h5("4. Uncertainty is information"),
+
+            p(
+                "Reporting uncertainty is not a weakness.
+             It provides valuable information about how reliable
+             a prediction is likely to be."
+            ),
+
+            hr(),
+
+            h5("5. Scoring rules reward honest forecasting"),
+
+            p(
+                "Well-designed scoring systems encourage people to report
+             both their best estimate and their genuine uncertainty."
+            ),
+
+            hr(),
+
+            div(
+                style = "
+                background-color: #f8f9fa;
+                border-left: 5px solid #28a745;
+                padding: 12px;
+                border-radius: 8px;
+            ",
+
+                h5("Key takeaway"),
+
+                p(
+                    strong("The goal is not to appear certain."),
+                    br(),
+                    "The goal is to describe uncertainty as accurately as possible.
+                 Good statistical predictions combine a best guess with an honest
+                 assessment of how confident we should be."
+                )
+            )
         )
     )
 
