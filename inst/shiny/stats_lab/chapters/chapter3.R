@@ -326,19 +326,10 @@ chapter3_ui <- function(id){
                 )
             ),
 
-            p(
-                "Launch the companion activity: Place Your Bets",
-                style = "
-                font-size: 1.05rem;
-                color: #555;
-                line-height: 1.6;
-                margin-bottom: 20px;
-            "
-            ),
 
             actionButton(
                 ns("launch_activity"),
-                "Launch Activity",
+                "Launch Activity 3: Place Your Bets",
                 class = "btn-success"
             )
         )

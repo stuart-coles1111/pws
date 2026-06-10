@@ -446,19 +446,10 @@ chapter5_ui <- function(id){
                 )
             ),
 
-            p(
-                "Launch the companion activity: Statistical Magic",
-                style = "
-                font-size: 1.05rem;
-                color: #555;
-                line-height: 1.6;
-                margin-bottom: 20px;
-            "
-            ),
 
             actionButton(
                 ns("launch_activity"),
-                "Launch Activity",
+                "Launch Activity 5: Statistical Magic",
                 class = "btn-success"
             )
         )

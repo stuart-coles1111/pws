@@ -351,19 +351,10 @@ chapter6_ui <- function(id){
                 )
             ),
 
-            p(
-                "Launch the companion activity: Breaking Records",
-                style = "
-                font-size: 1.05rem;
-                color: #555;
-                line-height: 1.6;
-                margin-bottom: 20px;
-            "
-            ),
 
             actionButton(
                 ns("launch_activity"),
-                "Launch Activity",
+                "Launch Activity 6: Breaking Records",
                 class = "btn-success"
             )
         )

@@ -457,19 +457,10 @@ chapter7_ui <- function(id){
                 )
             ),
 
-            p(
-                "Launch the companion activity: A Dice Tournament",
-                style = "
-                font-size: 1.05rem;
-                color: #555;
-                line-height: 1.6;
-                margin-bottom: 20px;
-            "
-            ),
 
             actionButton(
                 ns("launch_activity"),
-                "Launch Activity",
+                "Launch Activity 7: A Dice Tournament",
                 class = "btn-success"
             )
         )

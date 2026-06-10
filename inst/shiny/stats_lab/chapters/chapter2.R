@@ -331,19 +331,9 @@ chapter2_ui <- function(id){
                 )
             ),
 
-            p(
-                "Launch the companion activity: Who Wants to be a Danish Millionaire?",
-                style = "
-                font-size: 1.05rem;
-                color: #555;
-                line-height: 1.6;
-                margin-bottom: 20px;
-            "
-            ),
-
             actionButton(
                 ns("launch_activity"),
-                "Launch Activity",
+                "Launch Activity 2: Who Wants to be a Danish Millionaire?",
                 class = "btn-success"
             )
         )

@@ -442,19 +442,9 @@ chapter8_ui <- function(id) {
                 )
             ),
 
-            p(
-                "Launch the companion activity: A Day at the Races",
-                style = "
-                font-size: 1.05rem;
-                color: #555;
-                line-height: 1.6;
-                margin-bottom: 20px;
-            "
-            ),
-
             actionButton(
                 ns("launch_activity"),
-                "Launch Activity",
+                "Launch Activity 8: A Day at the Races",
                 class = "btn-success"
             )
         )
