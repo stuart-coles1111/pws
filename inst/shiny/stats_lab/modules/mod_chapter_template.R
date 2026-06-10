@@ -38,17 +38,17 @@ chapter_page_ui <- function(
                 ),
 
                 nav_panel(
+                    "Investigate",
+                    results
+                ),
+
+                nav_panel(
                     "Generated Code",
                     code
                 ),
 
                 nav_panel(
-                    "Results",
-                    results
-                ),
-
-                nav_panel(
-                    "Learn",
+                    "Summary",
                     learn
                 ),
 
