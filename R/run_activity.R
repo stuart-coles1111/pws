@@ -7,7 +7,8 @@ run_activity <- function(chapter) {
     if (is_deployed) {
 
         urls <- c(
-            "1" = "https://bujx5j-stuart-coles.shinyapps.io/app-activity-1"
+            "1" = "https://bujx5j-stuart-coles.shinyapps.io/app-activity-1",
+            "2" = "http://bujx5j-stuart-coles.shinyapps.io/app-activity-2"
         )
 
         return(urls[as.character(chapter)])
