@@ -1,19 +1,22 @@
 run_activity <- function(chapter) {
 
-
-    is_deployed <-
-        nzchar(Sys.getenv("SHINY_PORT"))
+    is_deployed <- nzchar(Sys.getenv("SHINY_PORT"))
 
     if (is_deployed) {
 
         urls <- c(
             "1" = "https://bujx5j-stuart-coles.shinyapps.io/app-activity-1",
-            "2" = "http://bujx5j-stuart-coles.shinyapps.io/app-activity-2"
+            "2" = "https://bujx5j-stuart-coles.shinyapps.io/app-activity-2",
+            "3" = "https://bujx5j-stuart-coles.shinyapps.io/app-activity-3",
+            "4" = "https://bujx5j-stuart-coles.shinyapps.io/app-activity-4"
         )
 
-        return(urls[as.character(chapter)])
+        if (as.character(chapter) %in% names(urls)) {
+            return(urls[as.character(chapter)])
+        } else {
+            return(NULL)
+        }
     }
-
 
     port <- sample(8000:9000, 1)
 
@@ -25,8 +28,6 @@ run_activity <- function(chapter) {
             sink(logfile, append = TRUE, split = TRUE)
             on.exit(sink(NULL), add = TRUE)
 
-            cat("Starting chapter", chapter, "\n")
-
             library(pws)
 
             shiny::runApp(
@@ -37,10 +38,8 @@ run_activity <- function(chapter) {
                 ),
                 host = "127.0.0.1",
                 port = port,
-                launch.browser = FALSE,
-                quiet = FALSE
+                launch.browser = FALSE
             )
-
         },
         args = list(chapter = chapter, port = port, logfile = logfile)
     )
