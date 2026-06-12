@@ -264,24 +264,20 @@ chapter1_ui <- function(id){
                 )
             ),
 
-            actionButton(
-                ns("launch_activity"),
-                "Launch Activity 1: Picturing Randomness",
-                class = "btn-success"
-            )
+            uiOutput(ns("launch_activity_ui"))
         )
     )
 
-chapter_page_ui(
-    id = id,
-    title = "🎲 Chapter 1: Randomness",
-    sidebar = sidebar_controls,
-    overview = overview_panel,
-    code = code_panel,
-    results = results_panel,
-    learn = learn_panel,
-    activity = activity_panel
-)
+    chapter_page_ui(
+        id = id,
+        title = "🎲 Chapter 1: Randomness",
+        sidebar = sidebar_controls,
+        overview = overview_panel,
+        code = code_panel,
+        results = results_panel,
+        learn = learn_panel,
+        activity = activity_panel
+    )
 }
 
 # =========================================================
@@ -328,18 +324,18 @@ chapter1_server <- function(id){
             )
         })
 
-        observeEvent(input$launch_activity, {
 
-            url <- pws:::launch_activity_from_lab(1)
 
-            shinyjs::runjs(
-                sprintf(
-                    "window.open('%s', '_blank');",
-                    url
-                )
+        output$launch_activity_ui <- renderUI({
+
+            tags$a(
+                href = pws:::run_activity(1),
+                target = "_blank",
+                class = "btn btn-success",
+                "Launch Activity 1: Picturing Randomness"
             )
-        })
 
+        })
 
 
         # -------------------------------------------------

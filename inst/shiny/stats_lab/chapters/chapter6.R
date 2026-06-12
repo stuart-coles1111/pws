@@ -352,11 +352,7 @@ chapter6_ui <- function(id){
             ),
 
 
-            actionButton(
-                ns("launch_activity"),
-                "Launch Activity 6: Breaking Records",
-                class = "btn-success"
-            )
+            uiOutput(ns("launch_activity_ui"))
         )
     )
 
@@ -381,16 +377,15 @@ chapter6_server <- function(id){
     moduleServer(id, function(input, output, session){
 
 
-        observeEvent(input$launch_activity, {
+        output$launch_activity_ui <- renderUI({
 
-            url <- pws:::launch_activity_from_lab(6)
-
-            shinyjs::runjs(
-                sprintf(
-                    "window.open('%s', '_blank');",
-                    url
-                )
+            tags$a(
+                href = pws:::run_activity(6),
+                target = "_blank",
+                class = "btn btn-success",
+                "Launch Activity 6: Breaking Records"
             )
+
         })
 
         # -------------------------------------------------

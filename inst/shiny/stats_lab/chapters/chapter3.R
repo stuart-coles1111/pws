@@ -327,11 +327,8 @@ chapter3_ui <- function(id){
             ),
 
 
-            actionButton(
-                ns("launch_activity"),
-                "Launch Activity 3: Place Your Bets",
-                class = "btn-success"
-            )
+            uiOutput(ns("launch_activity_ui"))
+
         )
     )
 
@@ -381,16 +378,15 @@ chapter3_server <- function(id){
 
         })
 
-        observeEvent(input$launch_activity, {
+        output$launch_activity_ui <- renderUI({
 
-            url <- pws:::launch_activity_from_lab(3)
-
-            shinyjs::runjs(
-                sprintf(
-                    "window.open('%s', '_blank');",
-                    url
-                )
+            tags$a(
+                href = pws:::run_activity(3),
+                target = "_blank",
+                class = "btn btn-success",
+                "Launch Activity 3: Place Your Bets"
             )
+
         })
 
         # -----------------------------------------------------

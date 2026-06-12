@@ -447,11 +447,7 @@ chapter5_ui <- function(id){
             ),
 
 
-            actionButton(
-                ns("launch_activity"),
-                "Launch Activity 5: Statistical Magic",
-                class = "btn-success"
-            )
+            uiOutput(ns("launch_activity_ui"))
         )
     )
 
@@ -501,16 +497,15 @@ chapter5_server <- function(id){
             ci = NULL
         )
 
-        observeEvent(input$launch_activity, {
+        output$launch_activity_ui <- renderUI({
 
-            url <- pws:::launch_activity_from_lab(5)
-
-            shinyjs::runjs(
-                sprintf(
-                    "window.open('%s', '_blank');",
-                    url
-                )
+            tags$a(
+                href = pws:::run_activity(5),
+                target = "_blank",
+                class = "btn btn-success",
+                "Launch Activity 5: Picturing Randomness"
             )
+
         })
 
         # =====================================================

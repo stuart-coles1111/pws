@@ -442,11 +442,7 @@ chapter8_ui <- function(id) {
                 )
             ),
 
-            actionButton(
-                ns("launch_activity"),
-                "Launch Activity 8: A Day at the Races",
-                class = "btn-success"
-            )
+            uiOutput(ns("launch_activity_ui"))
         )
     )
 
@@ -470,16 +466,15 @@ chapter8_server <- function(id) {
 
     moduleServer(id, function(input, output, session) {
 
-        observeEvent(input$launch_activity, {
+        output$launch_activity_ui <- renderUI({
 
-            url <- pws:::launch_activity_from_lab(8)
-
-            shinyjs::runjs(
-                sprintf(
-                    "window.open('%s', '_blank');",
-                    url
-                )
+            tags$a(
+                href = pws:::run_activity(8),
+                target = "_blank",
+                class = "btn btn-success",
+                "Launch Activity 8: A Day at the Races"
             )
+
         })
 
         # -------------------------

@@ -331,11 +331,7 @@ chapter2_ui <- function(id){
                 )
             ),
 
-            actionButton(
-                ns("launch_activity"),
-                "Launch Activity 2: Who Wants to be a Danish Millionaire?",
-                class = "btn-success"
-            )
+            uiOutput(ns("launch_activity_ui"))
         )
     )
 
@@ -405,17 +401,17 @@ chapter2_server <- function(id){
             )
         })
 
-        observeEvent(input$launch_activity, {
+        output$launch_activity_ui <- renderUI({
 
-            url <- pws:::launch_activity_from_lab(2)
-
-            shinyjs::runjs(
-                sprintf(
-                    "window.open('%s', '_blank');",
-                    url
-                )
+            tags$a(
+                href = pws:::run_activity(2),
+                target = "_blank",
+                class = "btn btn-success",
+                "Launch Activity 2: Who Wants to be a Danish Millionaire?"
             )
+
         })
+
 
         # =====================================================
         # CODE OUTPUT

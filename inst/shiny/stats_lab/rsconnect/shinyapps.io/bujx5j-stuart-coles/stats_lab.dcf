@@ -5,6 +5,6 @@ account: bujx5j-stuart-coles
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 17499136
-bundleId: 12119283
+bundleId: 12119328
 url: https://bujx5j-stuart-coles.shinyapps.io/stats_lab/
 version: 1

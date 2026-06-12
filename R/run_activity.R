@@ -44,7 +44,5 @@ run_activity <- function(chapter) {
         args = list(chapter = chapter, port = port, logfile = logfile)
     )
 
-    Sys.sleep(1)
-
     paste0("http://127.0.0.1:", port)
 }

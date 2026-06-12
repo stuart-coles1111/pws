@@ -271,11 +271,7 @@ chapter4_ui <- function(id){
             ),
 
 
-            actionButton(
-                ns("launch_activity"),
-                "Launch Activity 4: Quiz Time",
-                class = "btn-success"
-            )
+            uiOutput(ns("launch_activity_ui"))
         )
     )
 
@@ -295,16 +291,15 @@ chapter4_server <- function(id){
 
     moduleServer(id, function(input, output, session){
 
-        observeEvent(input$launch_activity, {
+        output$launch_activity_ui <- renderUI({
 
-            url <- pws:::launch_activity_from_lab(4)
-
-            shinyjs::runjs(
-                sprintf(
-                    "window.open('%s', '_blank');",
-                    url
-                )
+            tags$a(
+                href = pws:::run_activity(4),
+                target = "_blank",
+                class = "btn btn-success",
+                "Launch Activity 4: Quiz Time"
             )
+
         })
 
         score_obj <- reactive({

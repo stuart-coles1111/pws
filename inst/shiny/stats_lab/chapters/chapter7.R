@@ -455,14 +455,8 @@ chapter7_ui <- function(id){
                     color: #2c3e50;
                 "
                 )
-            ),
-
-
-            actionButton(
-                ns("launch_activity"),
-                "Launch Activity 7: A Dice Tournament",
-                class = "btn-success"
             )
+
         )
     )
 
@@ -480,11 +474,7 @@ chapter7_ui <- function(id){
                 "Launch the companion activity for this chapter."
             ),
 
-            actionButton(
-                ns("launch_activity"),
-                "Launch Activity",
-                class = "btn-success"
-            )
+            uiOutput(ns("launch_activity_ui"))
         )
     )
 
@@ -508,16 +498,15 @@ chapter7_server <- function(id){
 
     moduleServer(id, function(input, output, session){
 
-        observeEvent(input$launch_activity, {
+        output$launch_activity_ui <- renderUI({
 
-            url <- pws:::launch_activity_from_lab(7)
-
-            shinyjs::runjs(
-                sprintf(
-                    "window.open('%s', '_blank');",
-                    url
-                )
+            tags$a(
+                href = pws:::run_activity(7),
+                target = "_blank",
+                class = "btn btn-success",
+                "Launch Activity 7: A Dice Tournament"
             )
+
         })
 
         seed_val <- reactiveVal(sample(1:999, 1))

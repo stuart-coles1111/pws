@@ -1,0 +1,9 @@
+rsconnect::deployApp(
+    appDir = "inst/shiny/stats_lab",
+    appName = "stats_lab"
+)
+
+rsconnect::deployApp(
+    appDir = "inst/shiny/app_activity5",
+    appName = "app-activity-5"
+)
