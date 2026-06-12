@@ -339,14 +339,14 @@ chapter7_ui <- function(id){
 
         card(
             card_header("Estimated probability of each score"),
-            DTOutput(ns("prob_table"))
+            DT::DTOutput(ns("prob_table"))
         ),
 
         br(),
 
         card(
             card_header("Model diagnostic values"),
-            DTOutput(ns("model_table"))
+            DT::DTOutput(ns("model_table"))
         )
     )
 
