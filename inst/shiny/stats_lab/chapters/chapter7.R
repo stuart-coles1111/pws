@@ -597,7 +597,7 @@ chapter7_server <- function(id){
                 )
         })
 
-        output$prob_table <- renderDT({
+        output$prob_table <- DT::renderDT({
 
             x <- as.numeric(table(factor(sim_data(), levels = 1:9)))
             ests <- mod_ests(x)
@@ -612,7 +612,7 @@ chapter7_server <- function(id){
             datatable(df, rownames = FALSE, options = list(dom = "t"))
         })
 
-    output$model_table <- renderDT({
+    output$model_table <- DT::renderDT({
 
         df <- as.data.frame(
             double_dice_game_model_check(sim_data(), seed = 3)

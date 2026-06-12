@@ -295,15 +295,15 @@ server <- function(input, output, session) {
     # TABLES
     # =========================================================
 
-    output$pool <- renderDT({
+    output$pool <- DT::renderDT({
         datatable(values$current_pool, options = list(dom = "t"))
     })
 
-    output$price <- renderDT({
+    output$price <- DT::renderDT({
         datatable(round(values$price, 1), options = list(dom = "t"))
     })
 
-    output$bank <- renderDT({
+    output$bank <- DT::renderDT({
         datatable(values$bank_updated, options = list(dom = "t"))
     })
 

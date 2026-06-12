@@ -554,7 +554,7 @@ server <- function(input, output, session){
     # Table
     # -----------------------------------------------------
 
-    output$score_table <- renderDT({
+    output$score_table <- DT::renderDT({
 
         req(input$reveal)
 

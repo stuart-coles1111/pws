@@ -283,7 +283,7 @@ chapter8_ui <- function(id) {
 
                 card(
                     card_header("Team Parameters"),
-                    DTOutput(ns("parameter_table"))
+                    DT::DTOutput(ns("parameter_table"))
                 ),
 
                 div(
@@ -301,7 +301,7 @@ chapter8_ui <- function(id) {
                 style = "flex:1;",
                 card(
                     card_header("Match Outcome Probabilities"),
-                    DTOutput(ns("match_probs"))
+                    DT::DTOutput(ns("match_probs"))
                 )
             )
         ),
@@ -507,7 +507,7 @@ chapter8_server <- function(id) {
         # MATCH PROBS
         # -------------------------
 
-        output$match_probs <- renderDT({
+        output$match_probs <- DT::renderDT({
 
             home <- PL24_pars$teams |> dplyr::filter(teams == input$team1)
             away <- PL24_pars$teams |> dplyr::filter(teams == input$team2)
@@ -530,7 +530,7 @@ chapter8_server <- function(id) {
 
         output$tau_value <- renderText(round(PL24_pars$tau, 3))
 
-        output$parameter_table <- renderDT({
+        output$parameter_table <- DT::renderDT({
 
             home <- PL24_pars$teams |>
                 dplyr::filter(teams == input$team1) |>
