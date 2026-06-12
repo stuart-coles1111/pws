@@ -1,5 +1,19 @@
 run_activity <- function(chapter) {
 
+
+    is_deployed <-
+        nzchar(Sys.getenv("SHINY_PORT"))
+
+    if (is_deployed) {
+
+        urls <- c(
+            "1" = "https://bujx5j-stuart-coles.shinyapps.io/app-activity-1"
+        )
+
+        return(urls[as.character(chapter)])
+    }
+
+
     port <- sample(8000:9000, 1)
 
     logfile <- tempfile(fileext = ".log")
@@ -17,7 +31,7 @@ run_activity <- function(chapter) {
             shiny::runApp(
                 system.file(
                     "shiny",
-                    paste0("app_activity", chapter, ".R"),
+                    paste0("app_activity", chapter, "/app.R"),
                     package = "pws"
                 ),
                 host = "127.0.0.1",
