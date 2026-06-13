@@ -401,10 +401,26 @@ chapter2_server <- function(id){
             )
         })
 
+        activity_url <- reactiveVal(NULL)
+
+        observe({
+
+            if (is.null(activity_url())) {
+
+                activity_url(
+                    pws:::run_activity(2)
+                )
+
+            }
+
+        })
+
         output$launch_activity_ui <- renderUI({
 
+            req(activity_url())
+
             tags$a(
-                href = pws:::run_activity(2),
+                href = activity_url(),
                 target = "_blank",
                 class = "btn btn-success",
                 "Launch Activity 2: Who Wants to be a Danish Millionaire?"

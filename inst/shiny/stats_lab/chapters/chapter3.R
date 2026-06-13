@@ -378,10 +378,26 @@ chapter3_server <- function(id){
 
         })
 
+        activity_url <- reactiveVal(NULL)
+
+        observe({
+
+            if (is.null(activity_url())) {
+
+                activity_url(
+                    pws:::run_activity(3)
+                )
+
+            }
+
+        })
+
         output$launch_activity_ui <- renderUI({
 
+            req(activity_url())
+
             tags$a(
-                href = pws:::run_activity(3),
+                href = activity_url(),
                 target = "_blank",
                 class = "btn btn-success",
                 "Launch Activity 3: Place Your Bets"

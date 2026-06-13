@@ -497,13 +497,29 @@ chapter5_server <- function(id){
             ci = NULL
         )
 
+        activity_url <- reactiveVal(NULL)
+
+        observe({
+
+            if (is.null(activity_url())) {
+
+                activity_url(
+                    pws:::run_activity(5)
+                )
+
+            }
+
+        })
+
         output$launch_activity_ui <- renderUI({
 
+            req(activity_url())
+
             tags$a(
-                href = pws:::run_activity(5),
+                href = activity_url(),
                 target = "_blank",
                 class = "btn btn-success",
-                "Launch Activity 5: Picturing Randomness"
+                "Launch Activity 5: Statistics is Magic"
             )
 
         })

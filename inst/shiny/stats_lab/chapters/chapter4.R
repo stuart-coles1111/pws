@@ -291,10 +291,26 @@ chapter4_server <- function(id){
 
     moduleServer(id, function(input, output, session){
 
+        activity_url <- reactiveVal(NULL)
+
+        observe({
+
+            if (is.null(activity_url())) {
+
+                activity_url(
+                    pws:::run_activity(4)
+                )
+
+            }
+
+        })
+
         output$launch_activity_ui <- renderUI({
 
+            req(activity_url())
+
             tags$a(
-                href = pws:::run_activity(4),
+                href = activity_url(),
                 target = "_blank",
                 class = "btn btn-success",
                 "Launch Activity 4: Quiz Time"

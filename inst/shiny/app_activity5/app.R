@@ -185,7 +185,7 @@ activity5_trick_analysis <- function(
 
 ui <- page_navbar(
 
-    title = "🪄 Activity 5: Statistical Magic",
+    title = "🪄 Activity 5: Statistics is Magic",
 
     theme = bs_theme(
         version = 5,
