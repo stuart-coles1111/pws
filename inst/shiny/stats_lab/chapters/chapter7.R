@@ -196,6 +196,9 @@ chapter7_ui <- function(id){
 
     sidebar_controls <- sidebar(
 
+        h4("Model Estimation and Comparison"),
+
+
         numericInput(ns("seed"), "Random seed", value = sample(1:999, 1)),
 
         numericInput(ns("n_sim"), "Number of plays", 100),

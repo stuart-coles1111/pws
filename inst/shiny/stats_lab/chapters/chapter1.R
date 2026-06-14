@@ -8,10 +8,7 @@ chapter1_ui <- function(id){
 
     sidebar_controls <- sidebar(
 
-        h4("Simulation controls"),
-
-        numericInput(ns("n_sim"), "Number of simulated games",
-                     value = 10000, min = 100),
+        h4("Comparing Theoretical and Observed Frequencies"),
 
         sliderInput(ns("pois_mean"), "Average number of goal scoring opportunities",
                     min = 1, max = 50, value = 25),
@@ -24,6 +21,9 @@ chapter1_ui <- function(id){
 
         numericInput(ns("seed"), "Random seed",
                      value = sample(1:999, 1)),
+
+        numericInput(ns("n_sim"), "Number of simulated games",
+                     value = 1000, min = 100),
 
         actionButton(ns("run"), "Run simulation", class = "btn-primary")
     )

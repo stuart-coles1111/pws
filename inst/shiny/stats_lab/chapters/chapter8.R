@@ -94,6 +94,8 @@ chapter8_ui <- function(id) {
 
     sidebar_controls <- sidebar(
 
+        h4("A Football Predictor"),
+
         selectInput(ns("team1"), "Home team",
                     choices = PL24_pars$teams$teams,
                     selected = "Manchester City"),
@@ -102,13 +104,14 @@ chapter8_ui <- function(id) {
                     choices = PL24_pars$teams$teams,
                     selected = "Liverpool"),
 
-        numericInput(ns("n_sim"), "League simulations",
-                     value = 1000, min = 100, step = 100),
-
         sliderInput(ns("sigma"), "Dynamic variation (sigma)",
                     min = 0, max = 0.2, value = 0.05, step = 0.01),
 
         numericInput(ns("seed"), "Random seed", value = 44),
+
+        numericInput(ns("n_sim"), "Number of  seasons to simulate",
+                     value = 1000, min = 100, step = 100),
+
 
         hr(),
 
@@ -121,9 +124,9 @@ chapter8_ui <- function(id) {
         hr(),
 
         selectInput(ns("comparison_team"),
-                    "Comparison team",
+                    "Team for comparison",
                     choices = PL24_pars$teams$teams,
-                    selected = "Manchester City"),
+                    selected = "Arsenal"),
 
         actionButton(ns("run_compare"),
                      "Compare static vs dynamic")

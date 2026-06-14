@@ -4,7 +4,7 @@ chapter4_ui <- function(id){
 
     sidebar_controls <- sidebar(
 
-        h4("Response scoring explorer"),
+        h4("A Quiz Score Explorer"),
 
         p("Explore how a guess (G) and uncertainty (S) determine a score when the true value is Θ."),
 

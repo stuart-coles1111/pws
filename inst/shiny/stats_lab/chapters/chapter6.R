@@ -17,7 +17,7 @@ chapter6_ui <- function(id){
 
     sidebar_controls <- sidebar(
 
-        h4("Choose experiment"),
+        h4("Statistics in Context"),
 
         selectInput(
             ns("demo"),

@@ -25,6 +25,9 @@ chapter5_ui <- function(id){
 
     sidebar_controls <- sidebar(
 
+        h4("Basics of Inference"),
+
+
         numericInput(
             ns("seed"),
             "Random seed",
@@ -55,7 +58,7 @@ chapter5_ui <- function(id){
                 ns("topic")
             ),
 
-            h4("Dice experiment controls"),
+            h5("The Two-Dice game"),
 
             numericInput(
                 ns("n"),
@@ -128,7 +131,7 @@ chapter5_ui <- function(id){
                 ns("topic")
             ),
 
-            h4("Regression controls"),
+            h4("Regression Fitting"),
 
             selectInput(
                 ns("end_season"),

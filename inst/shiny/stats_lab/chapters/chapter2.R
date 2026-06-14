@@ -8,9 +8,9 @@ chapter2_ui <- function(id){
 
     sidebar_controls <- sidebar(
 
-        h4("Distribution explorer"),
+        h4("Understanding Probability Distributions"),
 
-        p("Explore binomial, poisson, and normal probabilities."),
+        p("Explore the Binomial, Poisson, and Normal distributions"),
 
         hr(),
 
