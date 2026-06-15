@@ -418,36 +418,7 @@ chapter8_ui <- function(id) {
         )
     )
 
-    # =======================================================
-    # Activity Panel
-    # =======================================================
 
-    activity_panel <- div(
-
-        card(
-
-            style = "
-            border-radius: 16px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            border: none;
-            padding: 10px;
-            font-family: 'Inter', sans-serif;
-        ",
-
-            card_header(
-                div(
-                    "Activity 8",
-                    style = "
-                    font-size: 1.4rem;
-                    font-weight: 700;
-                    color: #2c3e50;
-                "
-                )
-            ),
-
-            uiOutput(ns("launch_activity_ui"))
-        )
-    )
 
     chapter_page_ui(
         id = id,
@@ -456,9 +427,8 @@ chapter8_ui <- function(id) {
         overview = overview_panel,
         code = code_panel,
         results = results_panel,
-        learn = learn_panel,
-        activity = activity_panel
-    )
+        learn = learn_panel
+        )
 }
 
 # =========================================================
@@ -469,32 +439,6 @@ chapter8_server <- function(id) {
 
     moduleServer(id, function(input, output, session) {
 
-        activity_url <- reactiveVal(NULL)
-
-        observe({
-
-            if (is.null(activity_url())) {
-
-                activity_url(
-                    pws:::run_activity(8)
-                )
-
-            }
-
-        })
-
-        output$launch_activity_ui <- renderUI({
-
-            req(activity_url())
-
-            tags$a(
-                href = activity_url(),
-                target = "_blank",
-                class = "btn btn-success",
-                "Launch Activity 8: A Day at the Races"
-            )
-
-        })
 
         # -------------------------
         # BANNER STATE

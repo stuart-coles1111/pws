@@ -437,49 +437,7 @@ chapter7_ui <- function(id){
         )
     )
 
-    activity_panel <- div(
 
-        card(
-
-            style = "
-            border-radius: 16px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            border: none;
-            padding: 10px;
-            font-family: 'Inter', sans-serif;
-        ",
-
-            card_header(
-                div(
-                    "Activity 7",
-                    style = "
-                    font-size: 1.4rem;
-                    font-weight: 700;
-                    color: #2c3e50;
-                "
-                )
-            )
-
-        )
-    )
-
-    # =======================================================
-    # Activity Panel
-    # =======================================================
-
-    activity_panel <- div(
-
-        card(
-
-            card_header("Interactive Activity"),
-
-            p(
-                "Launch the companion activity for this chapter."
-            ),
-
-            uiOutput(ns("launch_activity_ui"))
-        )
-    )
 
     chapter_page_ui(
         id = id,
@@ -488,8 +446,7 @@ chapter7_ui <- function(id){
         overview = overview_panel,
         code = code_panel,
         results = results_panel,
-        learn = learn_panel,
-        activity = activity_panel
+        learn = learn_panel
     )
 }
 
@@ -500,33 +457,6 @@ chapter7_ui <- function(id){
 chapter7_server <- function(id){
 
     moduleServer(id, function(input, output, session){
-
-        activity_url <- reactiveVal(NULL)
-
-        observe({
-
-            if (is.null(activity_url())) {
-
-                activity_url(
-                    pws:::run_activity(7)
-                )
-
-            }
-
-        })
-
-        output$launch_activity_ui <- renderUI({
-
-            req(activity_url())
-
-            tags$a(
-                href = activity_url(),
-                target = "_blank",
-                class = "btn btn-success",
-                "Launch Activity 7: A Dice Tournament"
-            )
-
-        })
 
         seed_val <- reactiveVal(sample(1:999, 1))
 

@@ -50,13 +50,7 @@ chapter_page_ui <- function(
                 nav_panel(
                     "Summary",
                     learn
-                ),
-
-                if (!is.null(activity))
-                    nav_panel(
-                        "Activity",
-                        activity
-                    )
+                )
             )
         )
     )

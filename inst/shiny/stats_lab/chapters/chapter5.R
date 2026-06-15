@@ -421,38 +421,7 @@ chapter5_ui <- function(id){
 
     )
 
-    # =========================================================
-    # ACTIVITY PANEL
-    # =========================================================
 
-
-    activity_panel <- div(
-
-        card(
-
-            style = "
-            border-radius: 16px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            border: none;
-            padding: 10px;
-            font-family: 'Inter', sans-serif;
-        ",
-
-            card_header(
-                div(
-                    "Activity 5",
-                    style = "
-                    font-size: 1.4rem;
-                    font-weight: 700;
-                    color: #2c3e50;
-                "
-                )
-            ),
-
-
-            uiOutput(ns("launch_activity_ui"))
-        )
-    )
 
     # =====================================================
     # Build chapter
@@ -500,32 +469,7 @@ chapter5_server <- function(id){
             ci = NULL
         )
 
-        activity_url <- reactiveVal(NULL)
 
-        observe({
-
-            if (is.null(activity_url())) {
-
-                activity_url(
-                    pws:::run_activity(5)
-                )
-
-            }
-
-        })
-
-        output$launch_activity_ui <- renderUI({
-
-            req(activity_url())
-
-            tags$a(
-                href = activity_url(),
-                target = "_blank",
-                class = "btn btn-success",
-                "Launch Activity 5: Statistics is Magic"
-            )
-
-        })
 
         # =====================================================
         # Inference
