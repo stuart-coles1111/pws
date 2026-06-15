@@ -1,3 +1,10 @@
+#' Launch apps for Playing WIth Statistics
+#'
+#' Provide menu for launching apps that accompany the book Playing With Statistics
+#'
+#'
+#' @export
+
 stats_lab <- function() {
 
     apps <- c(
