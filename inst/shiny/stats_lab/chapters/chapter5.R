@@ -10,6 +10,7 @@
 pal_blue <- "#7B9ACC"
 pal_lav  <- "#CDB4DB"
 pal_red  <- "#D9534F"
+pal_blue_soft <- "#A9BFE3"
 
 # =========================================================
 # UI
@@ -26,18 +27,6 @@ chapter5_ui <- function(id){
     sidebar_controls <- sidebar(
 
         h4("Basics of Inference"),
-
-
-        numericInput(
-            ns("seed"),
-            "Random seed",
-            value = sample(
-                1:999,
-                1
-            ),
-            min = 1,
-            max = 999
-        ),
 
         radioButtons(
             ns("topic"),
@@ -57,6 +46,18 @@ chapter5_ui <- function(id){
                 "input['%s']=='Inference'",
                 ns("topic")
             ),
+
+            h5("Simulation settings"),
+
+            numericInput(
+                ns("seed"),
+                "Random seed",
+                value = sample(1:999, 1),
+                min = 1,
+                max = 999
+            ),
+
+            hr(),
 
             h5("The Two-Dice game"),
 
@@ -78,7 +79,7 @@ chapter5_ui <- function(id){
 
             numericInput(
                 ns("B"),
-                "Bootstrap simulations",
+                "Number of bootstrap simulations",
                 value = 1000,
                 min = 100
             ),
@@ -111,13 +112,13 @@ chapter5_ui <- function(id){
             actionButton(
                 ns("bootstrap"),
                 "Bootstrap",
-                class = "btn-primary"
+                class = "btn-info"
             ),
 
             actionButton(
                 ns("ci"),
                 "Confidence Interval",
-                class = "btn-primary"
+                class = "btn-secondary"
             )
         ),
 
@@ -451,28 +452,20 @@ chapter5_ui <- function(id){
 # =========================================================
 # SERVER
 # =========================================================
-
 chapter5_server <- function(id){
 
     moduleServer(id, function(input, output, session){
 
         rv <- reactiveValues(
-
             dice = NULL,
-
             bootstrap_p = NULL,
-
             p_hat = NULL,
-
             se = NULL,
-
-            ci = NULL
+            ci_active = FALSE
         )
 
-
-
         # =====================================================
-        # Inference
+        # Inference: roll dice
         # =====================================================
 
         observeEvent(input$roll, {
@@ -480,13 +473,9 @@ chapter5_server <- function(id){
             set.seed(input$seed)
 
             rv$dice <- sample(
-
                 1:6,
-
                 size = input$n,
-
                 replace = TRUE,
-
                 prob = c(
                     rep((1 - input$p_true)/5, 5),
                     input$p_true
@@ -494,12 +483,12 @@ chapter5_server <- function(id){
             )
 
             rv$bootstrap_p <- NULL
-            rv$ci <- NULL
+            rv$ci_active <- FALSE   # reset CI when new data
         })
 
-        # -----------------------------------------------------
+        # =====================================================
         # Bootstrap
-        # -----------------------------------------------------
+        # =====================================================
 
         observeEvent(input$bootstrap, {
 
@@ -512,17 +501,10 @@ chapter5_server <- function(id){
                 if (input$boot_method == "true_p") {
 
                     d <- sample(
-
                         1:6,
-
                         size = n,
-
                         replace = TRUE,
-
-                        prob = c(
-                            rep((1 - input$p_true)/5, 5),
-                            input$p_true
-                        )
+                        prob = c(rep((1 - input$p_true)/5, 5), input$p_true)
                     )
 
                 } else if (input$boot_method == "est_p") {
@@ -530,695 +512,367 @@ chapter5_server <- function(id){
                     p_hat <- mean(rv$dice == 6)
 
                     d <- sample(
-
                         1:6,
-
                         size = n,
-
                         replace = TRUE,
-
-                        prob = c(
-                            rep((1 - p_hat)/5, 5),
-                            p_hat
-                        )
+                        prob = c(rep((1 - p_hat)/5, 5), p_hat)
                     )
 
                 } else {
 
-                    d <- sample(
-                        rv$dice,
-                        size = n,
-                        replace = TRUE
-                    )
+                    d <- sample(rv$dice, size = n, replace = TRUE)
                 }
 
                 mean(d == 6)
             })
 
             rv$p_hat <- mean(rv$dice == 6)
-
             rv$se <- sd(rv$bootstrap_p)
         })
 
-        # -----------------------------------------------------
-        # Confidence interval
-        # -----------------------------------------------------
+        # =====================================================
+        # CI activation button
+        # =====================================================
 
         observeEvent(input$ci, {
-
             req(rv$bootstrap_p)
+            rv$ci_active <- TRUE
+        })
 
-            z <- qnorm(
-                1 - (1 - input$conf)/2
-            )
+        # =====================================================
+        # Reactive CI (only if activated)
+        # =====================================================
 
-            rv$ci <- c(
+        ci_inference <- reactive({
 
+            req(rv$bootstrap_p, rv$p_hat, rv$se)
+            req(rv$ci_active)
+
+            z <- qnorm(1 - (1 - input$conf) / 2)
+
+            c(
                 rv$p_hat - z * rv$se,
-
                 rv$p_hat + z * rv$se
             )
         })
 
         # =====================================================
-        # Generated code
+        # Outputs
         # =====================================================
 
-        output$generated_code <- renderText({
+        output$p_hat_display <- renderText({
+            req(rv$p_hat)
+            round(rv$p_hat, 3)
+        })
 
-            if (input$topic == "Inference") {
+        output$se_display <- renderText({
+            req(rv$se)
+            round(rv$se, 4)
+        })
 
-                paste0(
+        output$conf_display <- renderText({
+            paste0(round(100 * input$conf), "%")
+        })
 
-                    "set.seed(",
-                    input$seed,
-                    ")
+        # =====================================================
+        # Dice plot
+        # =====================================================
 
-## Simulate dice rolls
+        output$dice_plot <- renderPlot({
 
-dice <- sample(
-  1:6,
-  size = ", input$n, ",
-  replace = TRUE
-)
+            req(rv$dice)
 
-## Bootstrap
+            df <- data.frame(
+                face = factor(rv$dice, levels = 1:6)
+            )
 
-B <- ", input$B, "
+            ggplot(df, aes(face)) +
 
-boot <- replicate(
-  B,
-  mean(
-    sample(
-      dice,
-      replace = TRUE
-    ) == 6
-  )
-)
+                geom_bar(
+                    aes(fill = face == "6"),
+                    colour = "white",
+                    linewidth = 0.4
+                ) +
 
-p_hat <- mean(dice == 6)
+                scale_fill_manual(
+                    values = c(
+                        "FALSE" = "#A9BFE3",  # soft blue (non-6)
+                        "TRUE"  = "#D9534F"   # highlight red (6)
+                    ),
+                    guide = "none"
+                ) +
 
-se <- sd(boot)
+                theme_minimal(base_size = 14) +
 
-ci <- p_hat + c(-1,1) *
-      qnorm(",
-        round(
-            1 - (1 - input$conf)/2,
-            3
-        ),
-        ") * se"
+                labs(
+                    x = "Face",
+                    y = "Frequency"
                 )
+        })
 
-            } else {
+        # =====================================================
+        # Bootstrap plot (CI only after activation)
+        # =====================================================
 
-                end_index <- match(
-                    input$end_season,
-                    unique(pws::PL_points$season)
-                )
+        output$bootstrap_plot <- renderPlot({
 
-                paste0(
+            req(rv$bootstrap_p)
 
-                    "seasons <- unique(
-  PL_points$season
-)
+            df <- data.frame(p = rv$bootstrap_p)
 
-PL_subset <- subset(
+            p <- ggplot(df, aes(p)) +
+                geom_histogram(
+                    bins = 30,
+                    fill = pal_lav,
+                    colour = "white"
+                ) +
+                theme_minimal(base_size = 14) +
+                labs(x = expression(hat(p)), y = "Frequency")
 
-  PL_points,
+            if (isTRUE(rv$ci_active)) {
 
-  season %in%
-    seasons[1:",
-                end_index,
-                "]
+                ci <- ci_inference()
 
-)
+                p <- p +
+                    annotate(
+                        "rect",
+                        xmin = ci[1],
+                        xmax = ci[2],
+                        ymin = 0,
+                        ymax = Inf,
+                        alpha = 0.15,
+                        fill = pal_red
+                    ) +
+                    geom_vline(
+                        xintercept = ci,
+                        colour = pal_red,
+                        linewidth = 1.2
+                    )
+            }
 
-fit <- lm(
+            p
+        })
 
-  points_half2 ~ points_half1,
+        # =====================================================
+        # Inference summary UI
+        # =====================================================
 
-  data = PL_subset
+        output$inference_results <- renderUI({
 
-)
+            req(rv$p_hat)
 
-predict(
+            if (!isTRUE(rv$ci_active)) {
 
-  fit,
-
-  newdata = data.frame(
-
-    points_half1 = ",
-input$x_split,
-
-"
-
-  ),
-
-  interval = 'confidence',
-
-  level = ",
-input$conf_reg,
-
-"
-
-)"
+                return(
+                    card(
+                        card_header("Inference Summary"),
+                        p(em("Click 'Confidence Interval' to reveal the interval."))
+                    )
                 )
             }
-        })
-# =====================================================
-# Summary cards
-# =====================================================
 
-output$p_hat_display <- renderText({
+            ci <- ci_inference()
 
-    req(rv$p_hat)
+            card(
+                card_header("Inference Summary"),
 
-    round(rv$p_hat, 3)
-})
+                p(strong("Estimated p: "), round(rv$p_hat, 3)),
+                p(strong("Bootstrap SE: "), round(rv$se, 4)),
 
-output$se_display <- renderText({
-
-    req(rv$se)
-
-    round(rv$se, 4)
-})
-
-output$conf_display <- renderText({
-
-    paste0(
-        round(
-            100 * input$conf
-        ),
-        "%"
-    )
-})
-
-# =====================================================
-# Dice plot
-# =====================================================
-
-output$dice_plot <- renderPlot({
-
-    req(rv$dice)
-
-    ggplot(
-
-        data.frame(
-            face = factor(
-                rv$dice,
-                levels = 1:6
+                p(
+                    strong("Confidence Interval: "),
+                    paste0("[", round(ci[1], 3), ", ", round(ci[2], 3), "]")
+                )
             )
-        ),
+        })
 
-        aes(face)
+        # =====================================================
+        # Regression (unchanged)
+        # =====================================================
 
-    ) +
+        reg_data <- reactive({
 
-        geom_bar(
+            seasons <- unique(pws::PL_points$season)
 
-            fill = pal_blue
+            end_index <- match(input$end_season, seasons)
 
-        ) +
+            pws::PL_points[
+                pws::PL_points$season %in% seasons[1:end_index],
+            ]
+        })
 
-        theme_minimal(
+        reg_fit <- reactive({
+            lm(points_half2 ~ points_half1, data = reg_data())
+        })
 
-            base_size = 14
+        prediction <- reactive({
 
-        ) +
+            predict(
+                reg_fit(),
+                newdata = data.frame(points_half1 = input$x_split),
+                interval = "confidence",
+                level = input$conf_reg
+            )
+        })
 
-        labs(
+        plot_predictions <- reactive({
 
-            x = "Face",
+            fit <- reg_fit()
+            df <- reg_data()
 
-            y = "Frequency"
-        )
-})
+            grid <- data.frame(
+                points_half1 = seq(
+                    min(df$points_half1, na.rm = TRUE),
+                    max(df$points_half1, na.rm = TRUE),
+                    length.out = 100
+                )
+            )
 
-# =====================================================
-# Bootstrap plot
-# =====================================================
+            preds <- predict(
+                fit,
+                newdata = grid,
+                interval = "confidence",
+                level = input$conf_reg
+            )
 
-output$bootstrap_plot <- renderPlot({
+            cbind(grid, preds)
+        })
 
-    req(rv$bootstrap_p)
+        output$reg_plot <- renderPlot({
 
-    df <- data.frame(
+            df <- reg_data()
 
-        p = rv$bootstrap_p
-    )
+            plot_df <- plot_predictions()
 
-    p <- ggplot(
+            pr <- prediction()
 
-        df,
+            ggplot(
 
-        aes(p)
+                df,
 
-    ) +
-
-        geom_histogram(
-
-            bins = 30,
-
-            fill = pal_lav
-
-        ) +
-
-        theme_minimal(
-
-            base_size = 14
-
-        ) +
-
-        labs(
-
-            x = expression(hat(p)),
-
-            y = "Frequency"
-        )
-
-    if (!is.null(rv$ci)) {
-
-        p <- p +
-
-            annotate(
-
-                "rect",
-
-                xmin = rv$ci[1],
-
-                xmax = rv$ci[2],
-
-                ymin = 0,
-
-                ymax = Inf,
-
-                alpha = 0.15,
-
-                fill = pal_red
+                aes(
+                    points_half1,
+                    points_half2
+                )
 
             ) +
 
-            geom_vline(
+                # observations
+                geom_point(
+                    colour = pal_blue
+                ) +
 
-                xintercept = rv$ci,
+                # confidence band
+                geom_ribbon(
 
-                colour = pal_red,
+                    data = plot_df,
 
-                linewidth = 1.2
-            )
-    }
-
-    p
-})
-
-# =====================================================
-# Inference summary
-# =====================================================
-
-output$inference_results <- renderUI({
-
-    req(rv$p_hat)
-
-    card(
-
-        card_header(
-            "Inference Summary"
-        ),
-
-        p(
-            strong("Estimated p: "),
-            round(
-                rv$p_hat,
-                3
-            )
-        ),
-
-        p(
-            strong("Bootstrap SE: "),
-            round(
-                rv$se,
-                4
-            )
-        ),
-
-        if (!is.null(rv$ci)) {
-
-            p(
-                strong("Confidence Interval: "),
-                paste0(
-                    "[",
-                    round(
-                        rv$ci[1],
-                        3
+                    aes(
+                        x = points_half1,
+                        ymin = lwr,
+                        ymax = upr
                     ),
-                    ", ",
-                    round(
-                        rv$ci[2],
-                        3
+
+                    fill = pal_lav,
+
+                    alpha = 0.20,
+
+                    inherit.aes = FALSE
+                ) +
+
+                # regression line
+                geom_line(
+
+                    data = plot_df,
+
+                    aes(
+                        x = points_half1,
+                        y = fit
                     ),
-                    "]"
+
+                    colour = pal_lav,
+
+                    linewidth = 1.2,
+
+                    inherit.aes = FALSE
+                ) +
+
+                # vertical prediction line
+                geom_vline(
+
+                    xintercept = input$x_split,
+
+                    colour = pal_red,
+
+                    linetype = "dashed",
+
+                    linewidth = 0.8
+                ) +
+
+                # horizontal prediction line
+                geom_hline(
+
+                    yintercept = as.numeric(pr[1, "fit"]),
+
+                    colour = pal_red,
+
+                    linetype = "dashed",
+
+                    linewidth = 0.8
+                ) +
+
+                # prediction point
+
+                annotate(
+                    "point",
+                    x = input$x_split,
+                    y = as.numeric(pr[1, "fit"]),
+                    colour = pal_red,
+                    size = 4
+                ) +
+
+                theme_minimal(
+
+                    base_size = 14
+                ) +
+
+                labs(
+
+                    x = "Points (Half 1)",
+
+                    y = "Points (Half 2)"
+                )
+        })
+
+        output$regression_results <- renderUI({
+
+            fit <- reg_fit()
+            pr <- prediction()
+
+            card(
+
+                card_header("Regression Summary"),
+
+                p(strong("Observations: "), nrow(reg_data())),
+
+                p(strong("Slope: "), round(coef(fit)[2], 3)),
+
+                p(strong("Intercept: "), round(coef(fit)[1], 1)),
+
+                p(strong("Prediction: "), round(pr[1, "fit"], 1)),
+
+                p(
+                    strong("Confidence Interval: "),
+                    paste0(
+                        "[",
+                        round(pr[1, "lwr"], 1),
+                        ", ",
+                        round(pr[1, "upr"], 1),
+                        "]"
+                    )
                 )
             )
+        })
 
-        } else {
-
-            p(
-                em(
-                    "Confidence interval not yet calculated."
-                )
-            )
-        }
-    )
-})
-
-# =====================================================
-# Regression
-# =====================================================
-
-# =====================================================
-# Regression data subset
-# =====================================================
-
-reg_data <- reactive({
-
-    seasons <- unique(
-        pws::PL_points$season
-    )
-
-    end_index <- match(
-        input$end_season,
-        seasons
-    )
-
-    pws::PL_points[
-        pws::PL_points$season %in%
-            seasons[1:end_index],
-    ]
-})
-
-reg_fit <- reactive({
-
-    lm(
-
-        points_half2 ~
-
-            points_half1,
-
-        data = reg_data()
-    )
-})
-
-prediction <- reactive({
-
-    predict(
-
-        reg_fit(),
-
-        newdata = data.frame(
-
-            points_half1 =
-                input$x_split
-        ),
-
-        interval = "confidence",
-
-        level = input$conf_reg
-    )
-})
-
-# =====================================================
-# Regression confidence band
-# =====================================================
-
-plot_predictions <- reactive({
-
-    fit <- reg_fit()
-
-    df <- reg_data()
-
-    grid <- data.frame(
-
-        points_half1 = seq(
-
-            min(df$points_half1, na.rm = TRUE),
-
-            max(df$points_half1, na.rm = TRUE),
-
-            length.out = 100
-        )
-    )
-
-    preds <- predict(
-
-        fit,
-
-        newdata = grid,
-
-        interval = "confidence",
-
-        level = input$conf_reg
-    )
-
-    cbind(
-        grid,
-        preds
-    )
-})
-
-
-# =====================================================
-# Regression plot
-# =====================================================
-
-# =====================================================
-# Regression plot
-# =====================================================
-
-output$reg_plot <- renderPlot({
-
-    df <- reg_data()
-
-    plot_df <- plot_predictions()
-
-    pr <- prediction()
-
-    ggplot(
-
-        df,
-
-        aes(
-            points_half1,
-            points_half2
-        )
-
-    ) +
-
-        geom_point(
-            colour = pal_blue
-        ) +
-
-        geom_ribbon(
-
-            data = plot_df,
-
-            aes(
-
-                x = points_half1,
-
-                ymin = lwr,
-
-                ymax = upr
-            ),
-
-            fill = pal_lav,
-
-            alpha = 0.20,
-
-            inherit.aes = FALSE
-        ) +
-
-        geom_line(
-
-            data = plot_df,
-
-            aes(
-
-                x = points_half1,
-
-                y = fit
-            ),
-
-            colour = pal_lav,
-
-            linewidth = 1.2,
-
-            inherit.aes = FALSE
-        ) +
-
-        geom_segment(
-
-            x = input$x_split,
-            xend = input$x_split,
-
-            y = min(df$points_half2, na.rm = TRUE),
-            yend = pr[1, "fit"],
-
-            colour = pal_red,
-            linetype = "dashed",
-            linewidth = 0.8
-        ) +
-
-        geom_segment(
-
-            x = min(df$points_half1, na.rm = TRUE),
-            xend = input$x_split,
-
-            y = pr[1, "fit"],
-            yend = pr[1, "fit"],
-
-            colour = pal_red,
-            linetype = "dashed",
-            linewidth = 0.8
-        ) +
-
-        annotate(
-
-            "text",
-
-            x = input$x_split,
-
-            y = min(df$points_half2, na.rm = TRUE),
-
-            label = paste0("x = ", round(input$x_split, 1)),
-
-            colour = pal_red,
-
-            hjust = 1.2
-        ) +
-
-        annotate(
-
-            "text",
-
-            x = min(df$points_half1, na.rm = TRUE),
-
-            y = pr[1, "fit"],
-
-            label = paste0("ŷ = ", round(pr[1, "fit"], 1)),
-
-            colour = pal_red,
-
-            vjust = -1
-        ) +
-
-        annotate(
-
-            "point",
-
-            x = input$x_split,
-
-            y = pr[1, "fit"],
-
-            colour = pal_red,
-
-            size = 4
-        ) +
-
-        theme_minimal(
-
-            base_size = 14
-        ) +
-
-        labs(
-
-            x = "Points (Half 1)",
-
-            y = "Points (Half 2)"
-        )
-})
-
-# =====================================================
-# Regression summary
-# =====================================================
-
-output$regression_results <- renderUI({
-
-    fit <- reg_fit()
-
-    pr <- prediction()
-
-    card(
-
-        card_header(
-            "Regression Summary"
-        ),
-
-        p(
-            strong("Seasons included: "),
-            paste(
-                unique(
-                    pws::PL_points$season
-                )[1],
-                "to",
-                input$end_season
-            )
-        ),
-
-        p(
-            strong("Observations: "),
-            nrow(reg_data())
-        ),
-
-        p(
-            strong("Slope: "),
-            round(
-                coef(fit)[2],
-                3
-            )
-        ),
-
-        p(
-            strong("Intercept: "),
-            round(
-                coef(fit)[1],
-                3
-            )
-        ),
-
-        p(
-            strong("Prediction: "),
-            round(
-                pr[1, "fit"],
-                3
-            )
-        ),
-
-        p(
-            strong(
-                "Confidence Interval: "
-            ),
-
-            paste0(
-
-                "[",
-
-                round(
-                    pr[1, "lwr"],
-                    3
-                ),
-
-                ", ",
-
-                round(
-                    pr[1, "upr"],
-                    3
-                ),
-
-                "]"
-            )
-        )
-    )
-})
     })
 }
-
