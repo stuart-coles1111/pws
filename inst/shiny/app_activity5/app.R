@@ -70,7 +70,7 @@ show_card_plot <- function(
             paste0("Card ", card_num),
             y = unit(0.95, "npc"),
             gp = gpar(
-                fontsize = 14,
+                fontsize = 25,
                 fontface = "bold",
                 col = "#2E3440"
             )
@@ -393,12 +393,12 @@ INFO BOX
 
     nav_panel(
 
-        "🂱 Interactive Trick",
+        "🂱 A Card Trick",
 
         div(
             class = "main-title",
 
-            h1("🂱 Interactive Trick")
+            h1("🂱 A Card Trick")
         ),
 
         layout_sidebar(
@@ -410,6 +410,14 @@ INFO BOX
                 h4("Controls"),
 
                 numericInput(
+                    "seed",
+                    "Random seed:",
+                    NULL,
+                    1
+                ),
+
+
+                numericInput(
                     "picture_value",
                     "Picture card value:",
                     10,
@@ -417,19 +425,13 @@ INFO BOX
                     10
                 ),
 
-                numericInput(
-                    "seed",
-                    "Random seed:",
-                    NULL,
-                    1
-                ),
 
-                numericInput(
+                sliderInput(
                     "pause_time",
                     "Pause between cards (seconds):",
                     0.1,
-                    0.1,
-                    0.1
+                    2,
+                    0.75
                 ),
 
                 actionButton(

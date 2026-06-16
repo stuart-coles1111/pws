@@ -34,4 +34,5 @@ Imports:
     shinydashboard,
     shinyjs,
     stringi,
+    tibble,
     tidyr

@@ -137,7 +137,7 @@ ui <- page_navbar(
 
             sidebar = card(
 
-                h4("Your sequence"),
+                h4("Data Entry"),
 
                 textAreaInput(
                     "user_seq",
@@ -147,14 +147,14 @@ ui <- page_navbar(
                 ),
 
                 actionButton(
-                    "submit_seq",
-                    "Analyse my sequence",
-                    class = "btn-primary"
+                    "random_seq",
+                    "Generate random sequence"
                 ),
 
                 actionButton(
-                    "random_seq",
-                    "Generate random sequence"
+                    "submit_seq",
+                    "Analyse data",
+                    class = "btn-primary"
                 ),
 
                 hr(),
@@ -193,13 +193,19 @@ ui <- page_navbar(
                     "compare_theoretical",
                     "Compare to theoretical population",
                     TRUE
+                ),
+
+                actionButton(
+                    "compare_groups",
+                    "Compare with groups",
+                    class = "btn-success"
                 )
             ),
 
             mainPanel(
 
                 card(
-                    h4("Sequence"),
+                    h4("Your sequence"),
 
                     div(
                         style = "font-family:monospace; font-size:18px;",
@@ -245,10 +251,7 @@ ui <- page_navbar(
                     )
                 ),
 
-                card(
-                    h4("Group results analysis"),
-                    gt_output("stats_table")
-                ),
+                uiOutput("stats_card"),
 
                 card(
                     h4("Number of Heads"),
@@ -404,9 +407,9 @@ ui <- page_navbar(
 server <- function(input, output, session){
 
     rv <- reactiveValues(
-        seq = generate_seq(50),
         user_seq = NULL,
-        uploaded_data = NULL
+        uploaded_data = NULL,
+        show_comparison = FALSE
     )
 
     observeEvent(input$upload_data, {
@@ -444,6 +447,8 @@ server <- function(input, output, session){
 
     observeEvent(input$submit_seq, {
 
+        rv$show_comparison <- FALSE
+
         seq <- parse_seq(input$user_seq)
 
         if(is.null(seq)){
@@ -458,11 +463,27 @@ server <- function(input, output, session){
     })
 
     observeEvent(input$random_seq, {
-        rv$user_seq <- generate_seq(50)
+
+        seq <- generate_seq(50)
+
+        updateTextAreaInput(
+            session,
+            "user_seq",
+            value = paste(seq, collapse = "")
+        )
+    })
+
+    observeEvent(input$compare_groups, {
+
+        req(rv$user_seq)
+
+        rv$show_comparison <- TRUE
+
     })
 
     current_seq <- reactive({
-        if(!is.null(rv$user_seq)) rv$user_seq else rv$seq
+        req(rv$user_seq)
+        rv$user_seq
     })
 
     uploaded_heads <- reactive({
@@ -476,15 +497,30 @@ server <- function(input, output, session){
     })
 
     output$user_heads <- renderText({
+        req(rv$user_seq)
         activity1_stats(current_seq())$heads
     })
 
     output$user_run <- renderText({
+        req(rv$user_seq)
         activity1_stats(current_seq())$longest_run
     })
 
     output$seq_text <- renderText({
+        req(rv$user_seq)
         paste(current_seq(), collapse = " ")
+    })
+
+    output$stats_card <- renderUI({
+
+        if (!rv$show_comparison) {
+            return(NULL)
+        }
+
+        card(
+            h4("Group results analysis"),
+            gt_output("stats_table")
+        )
     })
 
     output$seq_plot <- renderPlot({
@@ -503,7 +539,7 @@ server <- function(input, output, session){
         uploaded_available <- !is.null(rv$uploaded_data)
 
         summary_df <- data.frame(
-            Statistic = c("Heads", "Longest run"),
+            Statistic = c("Number of Heads", "Longest Run"),
             Smartodds_Mean = c(
                 round(mean(human_heads), 2),
                 round(mean(human_runs), 2)
@@ -512,14 +548,17 @@ server <- function(input, output, session){
                 round(sd(human_heads), 2),
                 round(sd(human_runs), 2)
             ),
-            Theoretical_Mean = c(25, round(pws:::mean_max_run_length(50), 2)),
+            Theoretical_Mean = c(
+                25,
+                round(pws:::mean_max_run_length(50), 2)
+            ),
             Theoretical_SD = c(
                 round(sqrt(50 * 0.5 * 0.5), 2),
                 round(sqrt(pws:::var_max_run_length(50)), 2)
             )
         )
 
-        if(uploaded_available){
+        if (uploaded_available) {
             summary_df$Uploaded_Mean <- c(
                 round(mean(uploaded_heads()), 2),
                 round(mean(uploaded_runs()), 2)
@@ -530,98 +569,222 @@ server <- function(input, output, session){
             )
         }
 
-        gt_tbl <- gt(summary_df) %>%
-            fmt_number(columns = where(is.numeric), decimals = 2)
+        # transpose
+        summary_df_t <- as.data.frame(t(summary_df[-1]))
 
-        gt_tbl
+        # use the statistics as column names
+        names(summary_df_t) <- summary_df$Statistic
+
+        # create source column from row names
+        summary_df_t$Source <- rownames(summary_df_t)
+        rownames(summary_df_t) <- NULL
+
+        # move Source to first column
+        summary_df_t <- summary_df_t[, c("Source", "Number of Heads", "Longest Run")]
+
+        # prettier labels
+        summary_df_t$Source <- gsub("_", " ", summary_df_t$Source)
+
+        gt(summary_df_t) %>%
+            cols_label(
+                Source = "",
+                `Number of Heads` = "Number of Heads",
+                `Longest Run` = "Longest Run"
+            )
     })
 
     output$heads_plot <- renderPlot({
+
+        req(rv$user_seq)
+
+        if(!rv$show_comparison){
+            return(NULL)
+        }
 
         user_heads <- sum(current_seq() == "H")
 
         p <- ggplot()
 
         if(input$compare_humans){
+
             p <- p + geom_histogram(
-                data = data.frame(value = human_heads),
-                aes(value, y = after_stat(density)),
+                data = data.frame(
+                    value = human_heads,
+                    source = "Smartodds"
+                ),
+                aes(
+                    x = value,
+                    y = after_stat(density),
+                    fill = source
+                ),
                 binwidth = 1,
-                fill = "#7B9ACC",
-                alpha = 0.4,
-                boundary = -0.5
+                alpha = 0.5,
+                boundary = -0.5,
+                position = "identity"
             )
         }
 
         if(input$compare_uploaded && !is.null(rv$uploaded_data)){
+
             p <- p + geom_histogram(
-                data = data.frame(value = uploaded_heads()),
-                aes(value, y = after_stat(density)),
+                data = data.frame(
+                    value = uploaded_heads(),
+                    source = "Uploaded"
+                ),
+                aes(
+                    x = value,
+                    y = after_stat(density),
+                    fill = source
+                ),
                 binwidth = 1,
-                fill = "#F4A261",
                 alpha = 0.5,
-                boundary = -0.5
+                boundary = -0.5,
+                position = "identity"
             )
         }
 
         if(input$compare_theoretical){
+
             p <- p + geom_col(
-                data = theoretical_heads_df(),
-                aes(x, prob),
-                fill = "#CDB4DB",
+                data = theoretical_heads_df() %>%
+                    mutate(source = "Theoretical"),
+                aes(
+                    x = x,
+                    y = prob,
+                    fill = source
+                ),
                 alpha = 0.7,
                 width = 0.9
             )
         }
 
-        p +
-            geom_vline(xintercept = user_heads, colour = "red", linewidth = 1.4) +
-            labs(x = "Number of Heads", y = "Probability / Density") +
+        p <- p +
+            geom_vline(
+                aes(
+                    xintercept = user_heads,
+                    colour = "Your sequence"
+                ),
+                linewidth = 1.4
+            ) +
+            scale_fill_manual(
+                name = NULL,
+                values = c(
+                    Smartodds = "#7B9ACC",
+                    Uploaded = "#F4A261",
+                    Theoretical = "#CDB4DB"
+                ),
+                drop = FALSE
+            ) +
+            scale_colour_manual(
+                name = NULL,
+                values = c(
+                    "Your sequence" = "red"
+                )
+            ) +
+            labs(
+                x = "Number of Heads",
+                y = "Frequency density"
+            ) +
             theme_minimal(base_size = 14)
+
+        p
     })
 
     output$runs_plot <- renderPlot({
+
+        req(rv$user_seq)
+
+        if(!rv$show_comparison){
+            return(NULL)
+        }
 
         user_run <- max(rle(current_seq())$lengths)
 
         p <- ggplot()
 
         if(input$compare_humans){
+
             p <- p + geom_histogram(
-                data = data.frame(value = human_runs),
-                aes(value, y = after_stat(density)),
+                data = data.frame(
+                    value = human_runs,
+                    source = "Smartodds"
+                ),
+                aes(
+                    x = value,
+                    y = after_stat(density),
+                    fill = source
+                ),
                 binwidth = 1,
-                fill = "#7B9ACC",
-                alpha = 0.4,
-                boundary = -0.5
+                alpha = 0.5,
+                boundary = -0.5,
+                position = "identity"
             )
         }
 
         if(input$compare_uploaded && !is.null(rv$uploaded_data)){
+
             p <- p + geom_histogram(
-                data = data.frame(value = uploaded_runs()),
-                aes(value, y = after_stat(density)),
+                data = data.frame(
+                    value = uploaded_runs(),
+                    source = "Uploaded"
+                ),
+                aes(
+                    x = value,
+                    y = after_stat(density),
+                    fill = source
+                ),
                 binwidth = 1,
-                fill = "#F4A261",
                 alpha = 0.5,
-                boundary = -0.5
+                boundary = -0.5,
+                position = "identity"
             )
         }
 
         if(input$compare_theoretical){
+
             p <- p + geom_col(
-                data = theoretical_runs_df(),
-                aes(x, prob),
-                fill = "#CDB4DB",
+                data = theoretical_runs_df() %>%
+                    mutate(source = "Theoretical"),
+                aes(
+                    x = x,
+                    y = prob,
+                    fill = source
+                ),
                 alpha = 0.7,
                 width = 0.9
             )
         }
 
-        p +
-            geom_vline(xintercept = user_run, colour = "red", linewidth = 1.4) +
-            labs(x = "Longest Run", y = "Probability / Density") +
+        p <- p +
+            geom_vline(
+                aes(
+                    xintercept = user_run,
+                    colour = "Your sequence"
+                ),
+                linewidth = 1.4
+            ) +
+            scale_fill_manual(
+                name = NULL,
+                values = c(
+                    Smartodds = "#7B9ACC",
+                    Uploaded = "#F4A261",
+                    Theoretical = "#CDB4DB"
+                ),
+                drop = FALSE
+            ) +
+            scale_colour_manual(
+                name = NULL,
+                values = c(
+                    "Your sequence" = "red"
+                )
+            ) +
+            labs(
+                x = "Longest Run",
+                y = "Frequency density"
+            ) +
             theme_minimal(base_size = 14)
+
+        p
     })
 }
 
