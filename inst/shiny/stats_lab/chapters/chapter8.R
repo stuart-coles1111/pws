@@ -228,7 +228,7 @@ chapter8_ui <- function(id) {
     code_panel <- div(
 
         card(
-            card_header("Generated Code"),
+            card_header("Generated R Code"),
 
             tags$pre(textOutput(ns("generated_code")))
         ),

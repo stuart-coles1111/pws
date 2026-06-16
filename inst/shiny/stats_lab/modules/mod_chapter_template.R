@@ -43,7 +43,7 @@ chapter_page_ui <- function(
                 ),
 
                 nav_panel(
-                    "Generated Code",
+                    "R Code",
                     code
                 ),
 

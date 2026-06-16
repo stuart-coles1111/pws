@@ -16,8 +16,8 @@ chapter1_ui <- function(id){
         sliderInput(ns("mu"), "Average probability of goal conversion",
                     min = 0, max = 1, value = 0.1, step = 0.01),
 
-        sliderInput(ns("phi"), "Concentration",
-                    min = 0, max = 50, value = 2, step = 0.01),
+        sliderInput(ns("phi"), "Shape",
+                    min = 0, max = 200, value = 10, step = 1),
 
         numericInput(ns("seed"), "Random seed",
                      value = sample(1:999, 1)),
@@ -139,7 +139,7 @@ chapter1_ui <- function(id){
 
     code_panel <- div(
         card(
-            card_header("Generated Code"),
+            card_header("Generated R Code"),
             tags$pre(textOutput(ns("generated_code")))
         )
     )

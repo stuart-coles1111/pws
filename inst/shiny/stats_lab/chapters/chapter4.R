@@ -8,11 +8,23 @@ chapter4_ui <- function(id){
 
         p("Explore how a guess (G) and uncertainty (S) determine a score when the true value is Θ."),
 
-        numericInput(ns("G"), "Guess (G)", value = 0),
+        sliderInput(
+            ns("Theta"),
+            "True value (Θ)",
+            min = -10, max = 10, value = 1, step = 0.1
+        ),
 
-        numericInput(ns("S"), "Uncertainty (S)", value = 1, min = 0.01),
+        sliderInput(
+            ns("G"),
+            "Guess (G)",
+            min = -10, max = 10, value = 0, step = 0.1
+        ),
 
-        numericInput(ns("Theta"), "True value (Θ)", value = 1),
+        sliderInput(
+            ns("S"),
+            "Uncertainty (S)",
+            min = 0.1, max = 10, value = 1, step = 0.1
+        ),
 
         checkboxInput(ns("lines"), "Show true value and score", value = TRUE),
 
@@ -131,7 +143,7 @@ chapter4_ui <- function(id){
 
     code_panel <- card(
 
-        card_header("R code"),
+        card_header("Generated R code"),
 
         tags$pre(
             textOutput(ns("code"))
@@ -141,16 +153,17 @@ chapter4_ui <- function(id){
     results_panel <- tagList(
 
         card(
-            card_header("Score"),
-            h2(textOutput(ns("score")))
-        ),
-
-        br(),
-
-        card(
             card_header("Response analysis plot"),
             plotOutput(ns("plot"), height = 450)
-        )
+        ),
+
+        card(
+            card_header("Score"),
+            div(
+                style = "font-size: 2rem; font-weight: 700;",
+                textOutput(ns("score"))
+            )
+            )
     )
 
     learn_panel <- div(

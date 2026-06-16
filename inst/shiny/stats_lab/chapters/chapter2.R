@@ -33,10 +33,17 @@ chapter2_ui <- function(id){
         conditionalPanel(
             condition = sprintf("input['%s'] == 'Binomial'", ns("dist")),
 
-            numericInput(ns("n"), "n (trials)", 10, min = 1),
-            numericInput(ns("p"), "p (success probability)", 0.5, min = 0, max = 1),
-            numericInput(ns("x_bin"), "x (successes)", 7, min = 0)
-        ),
+            sliderInput(ns("n"), "n (trials)", min = 1, max = 100, value = 10, step = 1),
+            sliderInput(ns("p"), "p (success probability)", min = 0, max = 1, value = 0.5, step = 0.01),
+            sliderInput(
+                ns("x_bin"),
+                "x (successes)",
+                min = 0,
+                max = 10,  # initial value, updated reactively
+                value = 7,
+                step = 1
+            )
+            ),
 
         # =====================================================
         # POISSON
@@ -45,8 +52,22 @@ chapter2_ui <- function(id){
         conditionalPanel(
             condition = sprintf("input['%s'] == 'Poisson'", ns("dist")),
 
-            numericInput(ns("lambda"), "λ (rate)", 2.5, min = 0.1),
-            numericInput(ns("x_pois"), "x (events)", 3, min = 0)
+            sliderInput(
+                ns("lambda"),
+                "λ (rate)",
+                min = 0.1,
+                max = 50,  # initial value, updated reactively
+                value = 10,
+                step = 0.1
+            ),
+            sliderInput(
+                ns("x_pois"),
+                "x (events)",
+                min = 0,
+                max = 25,  # initial value, updated reactively
+                value = 10,
+                step = 1
+            ),
         ),
 
         # =====================================================
@@ -56,11 +77,32 @@ chapter2_ui <- function(id){
         conditionalPanel(
             condition = sprintf("input['%s'] == 'Normal'", ns("dist")),
 
-            numericInput(ns("mean"), "Mean", 1),
-            numericInput(ns("sd"), "SD", 3, min = 0.001),
+            sliderInput(
+                ns("mean"),
+                "μ (mean)",
+                min = -20,
+                max = 20,
+                value = 1,
+                step = 0.1
+            ),
 
-            numericInput(ns("a"), "Lower bound", -1),
-            numericInput(ns("b"), "Upper bound", 2)
+            sliderInput(
+                ns("sd"),
+                "σ (standard deviation)",
+                min = 0.1,
+                max = 10,
+                value = 3,
+                step = 0.1
+            ),
+
+            sliderInput(
+                ns("interval"),
+                "Interval for X",
+                min = -10,
+                max = 10,
+                value = c(-1, 2),
+                step = 0.1
+            )
         )
     )
 
@@ -323,6 +365,7 @@ chapter2_ui <- function(id){
 # Chapter 2 SERVER
 # =========================================================
 
+
 chapter2_server <- function(id){
 
     moduleServer(id, function(input, output, session){
@@ -334,6 +377,15 @@ chapter2_server <- function(id){
         fmt <- function(x){
             sprintf("%.3f", round(x, 3))
         }
+
+        bounds <- reactive({
+            req(input$interval)
+
+            list(
+                a = input$interval[1],
+                b = input$interval[2]
+            )
+        })
 
         # =====================================================
         # main result
@@ -357,12 +409,12 @@ chapter2_server <- function(id){
                 ),
 
                 "Normal" = pnorm(
-                    input$b,
+                    bounds()$b,
                     input$mean,
                     input$sd
                 ) -
                     pnorm(
-                        input$a,
+                        bounds()$a,
                         input$mean,
                         input$sd
                     )
@@ -370,7 +422,48 @@ chapter2_server <- function(id){
         })
 
 
+        observeEvent(input$n, {
+            updateSliderInput(
+                session,
+                "x_bin",
+                min = 0,
+                max = input$n,
+                value = min(input$x_bin, input$n)
+            )
+        })
 
+
+        observeEvent(input$lambda, {
+
+            upper <- qpois(0.999, input$lambda)
+
+            updateSliderInput(
+                session,
+                "x_pois",
+                min = 0,
+                max = upper,
+                value = min(input$x_pois, upper)
+            )
+        })
+
+        observe({
+
+            lower <- floor(input$mean - 4 * input$sd)
+            upper <- ceiling(input$mean + 4 * input$sd)
+
+            current <- input$interval
+
+            updateSliderInput(
+                session,
+                "interval",
+                min = lower,
+                max = upper,
+                value = c(
+                    max(current[1], lower),
+                    min(current[2], upper)
+                )
+            )
+        })
 
         # =====================================================
         # CODE OUTPUT
@@ -402,14 +495,14 @@ chapter2_server <- function(id){
 
                 "Normal" = paste0(
                     "pnorm(",
-                    input$b,
+                    bounds()$b,
                     ", ",
                     input$mean,
                     ", ",
                     input$sd,
                     ") - ",
                     "pnorm(",
-                    input$a,
+                    bounds()$a,
                     ", ",
                     input$mean,
                     ", ",
@@ -445,9 +538,9 @@ chapter2_server <- function(id){
 
                 "Normal" = paste0(
                     "P(",
-                    input$a,
+                    input$interval[1],
                     " ≤ X ≤ ",
-                    input$b,
+                    input$interval[2],
                     ") = ",
                     fmt(result())
                 )
@@ -486,7 +579,9 @@ chapter2_server <- function(id){
 
             } else if(input$dist == "Poisson"){
 
-                x <- 0:max(15, input$x_pois + 10)
+                upper <- qpois(0.999, input$lambda)
+
+                x <- 0:upper
                 y <- dpois(x, input$lambda)
 
                 ggplot(data.frame(x, y), aes(x, y)) +
@@ -531,7 +626,7 @@ chapter2_server <- function(id){
                     geom_area(
                         data = subset(
                             df,
-                            x >= input$a & x <= input$b
+                            x >= bounds()$a & x <= bounds()$b
                         ),
                         fill = "#CDB4DB",
                         alpha = 0.6
