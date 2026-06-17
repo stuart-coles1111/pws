@@ -198,10 +198,17 @@ chapter7_ui <- function(id){
 
         h4("Model Estimation and Comparison"),
 
+        numericInput(
+            ns("seed"),
+            "Random seed",
+            value = sample(1:999,1)
+        ),
 
-        numericInput(ns("seed"), "Random seed", value = sample(1:999, 1)),
-
-        numericInput(ns("n_sim"), "Number of plays", 100),
+        numericInput(
+            ns("n_sim"),
+            "Number of plays",
+            100
+        ),
 
         sliderInput(
             ns("p"),
@@ -211,14 +218,46 @@ chapter7_ui <- function(id){
             value = 0.4
         ),
 
-        selectInput(
-            ns("model_choice"),
-            "Compare observed data to model",
-            choices = c("None", "N", "S", "D", "P"),
-            selected = "None"
+        actionButton(
+            ns("run"),
+            "Run simulation",
+            class = "btn-primary"
         ),
 
-        actionButton(ns("run"), "Run simulation", class = "btn-primary")
+        hr(),
+
+        actionButton(
+            ns("fit_models"),
+            "Fit models",
+            class = "btn-success"
+        ),
+
+        checkboxGroupInput(
+            ns("models"),
+            "Models to display",
+            choices = c(
+                "Model N" = "N",
+                "Model S" = "S",
+                "Model D" = "D",
+                "Model P" = "P"
+            )
+        ),
+
+        hr(),
+
+        actionButton(
+            ns("compare"),
+            "Compare diagnostics",
+            class = "btn-warning"
+        ),
+
+        hr(),
+
+        actionButton(
+            ns("reset"),
+            "Start again",
+            class = "btn-danger"
+        )
     )
 
     overview_panel <- div(
@@ -322,34 +361,33 @@ chapter7_ui <- function(id){
 
     results_panel <- div(
 
-        h3("Summary diagnostics for data generated in the Two-Dice game."),
-        br(),
-
-        fluidRow(
-            column(4, card(h4("Mean"), h2(textOutput(ns("mean"))))),
-            column(4, card(h4("SD"), h2(textOutput(ns("sd"))))),
-            column(4, card(h4("N"), h2(textOutput(ns("n_display")))))
-        ),
-
-        br(),
-
         card(
             card_header("Score distribution"),
-            plotOutput(ns("hist"), height = 350)
+
+            plotOutput(
+                ns("hist"),
+                height = 350
+            )
         ),
 
         br(),
 
         card(
-            card_header("Estimated probability of each score"),
-            DT::DTOutput(ns("prob_table"))
+            card_header("Estimated probabilities"),
+
+            DT::DTOutput(
+                ns("prob_table")
+            )
         ),
 
         br(),
 
         card(
-            card_header("Model diagnostic values"),
-            DT::DTOutput(ns("model_table"))
+            card_header("Model diagnostics"),
+
+            DT::DTOutput(
+                ns("model_table")
+            )
         )
     )
 
@@ -450,6 +488,7 @@ chapter7_ui <- function(id){
     )
 }
 
+
 # =========================================================
 # SERVER
 # =========================================================
@@ -458,153 +497,412 @@ chapter7_server <- function(id){
 
     moduleServer(id, function(input, output, session){
 
-        seed_val <- reactiveVal(sample(1:999, 1))
 
-        sim_data <- eventReactive(input$run, {
+        # -----------------------------
+        # Reactive state
+        # -----------------------------
 
-            set.seed(seed_val())
+        sim_data <- reactiveVal(NULL)
 
-            x <- double_dice_game_sim(
-                input$n_sim,
-                input$p
+        fitted_models <- reactiveVal(NULL)
+
+        diagnostics <- reactiveVal(NULL)
+
+
+        show_probs <- reactiveVal(FALSE)
+
+        show_diag <- reactiveVal(FALSE)
+
+
+
+        # These are used by conditionalPanel()
+        output$show_probs <- reactive({
+            isTRUE(show_probs())
+        })
+
+        output$show_diag <- reactive({
+            isTRUE(show_diag())
+        })
+
+
+        # -----------------------------
+        # Run simulation
+        # -----------------------------
+
+        observeEvent(input$run, {
+
+
+            set.seed(input$seed)
+
+
+            sim_data(
+                double_dice_game_sim(
+                    n = input$n_sim,
+                    p = input$p
+                )
             )
 
-            seed_val(sample(1:999, 1))
 
-            x
-        }, ignoreInit = TRUE)
+            fitted_models(NULL)
 
-        output$generated_code <- renderText({
+            diagnostics(NULL)
 
-            paste0(
-                "game_scores <- double_dice_game_sim(\n",
-                "  n = ", input$n_sim, ",\n",
-                "  p = ", input$p, "\n",
-                ")\n\n",
-                "double_dice_game_model_check(game_scores)"
+            show_probs(FALSE)
+
+            show_diag(FALSE)
+
+        })
+
+
+
+        # -----------------------------
+        # Fit models button
+        # -----------------------------
+
+        observeEvent(input$fit_models, {
+
+
+            req(sim_data())
+
+
+            counts <- table(
+                factor(
+                    sim_data(),
+                    levels = 1:9
+                )
             )
+
+
+            fitted_models(
+                mod_ests(
+                    as.numeric(counts)
+                )
+            )
+
+
+            show_probs(TRUE)
+
         })
 
-        output$mean <- renderText({
-            round(mean(sim_data()), 3)
+
+
+        # -----------------------------
+        # Compare diagnostics button
+        # -----------------------------
+
+        observeEvent(input$compare, {
+
+
+            req(sim_data())
+
+
+            diagnostics(
+
+                double_dice_game_model_check(
+                    sim_data(),
+                    seed = 3
+                )
+
+            )
+
+
+            show_diag(TRUE)
+
         })
 
-        output$sd <- renderText({
-            round(sd(sim_data()), 3)
+
+
+        # -----------------------------
+        # Start again
+        # -----------------------------
+
+        observeEvent(input$reset, {
+
+
+            sim_data(NULL)
+
+            fitted_models(NULL)
+
+            diagnostics(NULL)
+
+            show_probs(FALSE)
+
+            show_diag(FALSE)
+
+
+            updateCheckboxGroupInput(
+                session,
+                "models",
+                selected = character(0)
+            )
+
         })
 
-        output$n_display <- renderText({
-            input$n_sim
-        })
+
+
+        # -----------------------------
+        # Plot
+        # -----------------------------
+
+        # -----------------------------
+        # Plot
+        # -----------------------------
 
         output$hist <- renderPlot({
 
-            df <- model_compare()
+            req(sim_data())
 
-            # reshape into long format
-            df_long <- tidyr::pivot_longer(
-                df,
-                cols = c("Observed", "Expected"),
-                names_to = "Type",
-                values_to = "Frequency"
+            observed <- data.frame(
+
+                Score = 1:9,
+
+                Frequency =
+                    as.numeric(
+                        table(
+                            factor(
+                                sim_data(),
+                                levels = 1:9
+                            )
+                        )
+                    ),
+
+                Type = "Observed"
+
             )
 
-            # drop Expected when no model selected
-            if (input$model_choice == "None") {
-                df_long <- df_long[df_long$Type == "Observed", ]
+            plot_data <- observed
+
+            title_text <- "Observed frequencies"
+
+            if (!is.null(fitted_models())) {
+
+                ests <- fitted_models()
+
+                model_probs <- list(
+
+                    N = ests$p_N,
+
+                    S = ests$p_S,
+
+                    D = ests$p_D,
+
+                    P = ests$p_P
+
+                )
+
+                fitted <- purrr::map_dfr(
+
+                    input$models,
+
+                    function(m) {
+
+                        data.frame(
+
+                            Score = 1:9,
+
+                            Frequency =
+                                model_probs[[m]] *
+                                length(sim_data()),
+
+                            Type =
+                                paste(
+                                    "Model",
+                                    m
+                                )
+
+                        )
+
+                    }
+
+                )
+
+                plot_data <- rbind(
+                    observed,
+                    fitted
+                )
+
+                title_text <- "Observed vs fitted models"
             }
 
-            ggplot(df_long, aes(x = factor(Score), y = Frequency, fill = Type)) +
-                geom_col(
-                    position = position_dodge(width = 0.7),
-                    width = 0.6,
-                    alpha = 0.7
-                ) +
-                theme_minimal() +
-                labs(
-                    x = "Score",
-                    y = "Frequency",
-                    title = paste("Observed vs Model:", input$model_choice),
-                    fill = ""
-                ) +
-                scale_fill_manual(
-                    values = c(
-                        "Observed" = "#4C78A8",
-                        "Expected" = "#F58518"
-                    )
+            ggplot(
+
+                plot_data,
+
+                aes(
+                    x = factor(Score),
+                    y = Frequency,
+                    fill = Type
                 )
+
+            ) +
+
+                geom_col(
+                    position = "dodge"
+                ) +
+
+                scale_fill_manual(
+
+                    values = c(
+
+                        "Observed" = "#4C78A8",
+
+                        "Model N" = "#F58518",
+
+                        "Model S" = "#54A24B",
+
+                        "Model D" = "#E45756",
+
+                        "Model P" = "#B279A2"
+
+                    ),
+
+                    drop = FALSE
+
+                ) +
+
+                theme_minimal() +
+
+                labs(
+
+                    title = title_text,
+
+                    x = "Score",
+
+                    y = "Frequency",
+
+                    fill = ""
+
+                )
+
         })
+
+
+
+        # -----------------------------
+        # Probability table
+        # -----------------------------
 
         output$prob_table <- DT::renderDT({
 
-            x <- as.numeric(table(factor(sim_data(), levels = 1:9)))
-            ests <- mod_ests(x)
+
+            req(fitted_models())
+
+
+            ests <- fitted_models()
+
 
             df <- data.frame(
+
                 Score = 1:9,
-                "Model N" = round(ests$p_N, 3),
-                "Model S" = round(ests$p_S, 3),
-                "Model D" = round(ests$p_D, 3),
-                "Model P" = round(ests$p_P, 3)
+
+                "Model N" =
+                    round(
+                        ests$p_N,
+                        3
+                    ),
+
+                "Model S" =
+                    round(
+                        ests$p_S,
+                        3
+                    ),
+
+                "Model D" =
+                    round(
+                        ests$p_D,
+                        3
+                    ),
+
+                "Model P" =
+                    round(
+                        ests$p_P,
+                        3
+                    )
+
             )
-            datatable(df, rownames = FALSE, options = list(dom = "t"))
+
+
+            DT::datatable(
+                df,
+                rownames = FALSE,
+                options = list(
+                    dom = "t"
+                )
+            )
+
+
         })
 
-    output$model_table <- DT::renderDT({
 
-        df <- as.data.frame(
-            double_dice_game_model_check(sim_data(), seed = 3)
-        )
 
-        dt <- datatable(
-            df,
-            options = list(
-                dom = "t",
-                paging = FALSE,
-                ordering = FALSE
+        # -----------------------------
+        # Diagnostics table
+        # -----------------------------
+
+        output$model_table <- DT::renderDT({
+
+
+            req(diagnostics())
+
+
+            df <- as.data.frame(
+                diagnostics()
             )
-        )
 
-        for (col in names(df)) {
 
-            min_val <- min(df[[col]], na.rm = TRUE)
+            dt <- DT::datatable(
 
-            dt <- dt |>
-                formatStyle(
-                    columns = col,
-                    valueColumns = col,
-                    backgroundColor = styleEqual(
-                        min_val,
-                        "#c6efce"
-                    )
+                df,
+
+                options = list(
+                    dom = "t",
+                    paging = FALSE,
+                    ordering = FALSE
                 )
-        }
 
-        dt
+            )
+
+
+            # highlight best (lowest) diagnostic value
+            # in each column
+
+            for(col in names(df)){
+
+
+                best_value <- min(
+                    df[[col]],
+                    na.rm = TRUE
+                )
+
+
+                dt <- dt |>
+
+                    DT::formatStyle(
+
+                        columns = col,
+
+                        valueColumns = col,
+
+                        backgroundColor =
+                            DT::styleEqual(
+
+                                best_value,
+
+                                "#c6efce"
+
+                            )
+
+                    )
+
+            }
+
+
+            dt
+
+
+        })
+
+
     })
 
-model_compare <- reactive({
-
-    x <- sim_data()
-    tab <- table(factor(x, levels = 1:9))
-    n <- sum(tab)
-
-    ests <- mod_ests(as.numeric(tab))
-
-    model_probs <- switch(
-        input$model_choice,
-        "N" = ests$p_N,
-        "S" = ests$p_S,
-        "D" = ests$p_D,
-        "P" = ests$p_P,
-        NULL
-    )
-
-    data.frame(
-        Score = 1:9,
-        Observed = as.numeric(tab),
-        Expected = if (is.null(model_probs)) rep(NA, 9) else model_probs * n
-    )
-})
-    })
 }
