@@ -49,6 +49,115 @@ chapter3_ui <- function(id){
         )
     )
 
+    overview_panel <- div(
+
+        card(
+
+            style = "
+        border-radius: 16px;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        padding: 10px;
+    ",
+
+            card_header(
+                div(
+                    "⚖ Understanding Expected Goals (xG)",
+                    style = "
+                font-size: 1.4rem;
+                font-weight: 700;
+                color: #2c3e50;
+            "
+                )
+            ),
+
+            p(
+                strong("Main idea: "),
+                "Goals are rare and unpredictable events, but the probability
+             of scoring from a shot can be estimated from information
+             about where and how the shot was taken."
+            ),
+
+            hr(),
+
+            h5("What happens in this model?"),
+
+            tags$div(
+                style = "margin-left: 10px;",
+
+                p("① Thousands of shots are generated from a simulated football season."),
+
+                p("② Each shot has a location, angle and body part."),
+
+                p("③ A hidden probability model determines whether a goal is scored."),
+
+                p("④ A statistical model attempts to recover those relationships.")
+            ),
+
+            hr(),
+
+            h5("Your job"),
+
+            p(
+                "Use the controls to generate data, fit an xG model and
+             investigate how shot characteristics influence scoring probability."
+            ),
+
+            tags$ul(
+                tags$li("Generate different datasets"),
+                tags$li("Fit logistic regression models"),
+                tags$li("Compare estimated and true parameters"),
+                tags$li("Predict scoring probabilities for new shots")
+            ),
+
+            hr(),
+
+            h5("What will you see?"),
+
+            tags$ul(
+                tags$li("The true model used to generate goals"),
+                tags$li("Observed goal-scoring patterns"),
+                tags$li("Fitted xG model predictions"),
+                tags$li("Predicted probabilities for user-selected shots")
+            ),
+
+            hr(),
+
+            div(
+                style = "
+            background-color: #f8f9fa;
+            border-left: 5px solid #7B9ACC;
+            padding: 12px;
+            border-radius: 8px;
+        ",
+
+                h5("Questions to investigate"),
+
+                tags$ul(
+                    tags$li(
+                        "How does distance affect the chance of scoring?"
+                    ),
+                    tags$li(
+                        "Why do narrow shooting angles reduce xG?"
+                    ),
+                    tags$li(
+                        "How well does the fitted model recover the true parameters?"
+                    ),
+                    tags$li(
+                        "What information is required to predict future outcomes?"
+                    )
+                )
+            )
+        )
+    )
+
+    code_panel <- div(
+        card(
+            card_header("Generated R Code"),
+            tags$pre(textOutput(ns("generated_code")))
+        )
+    )
+
     results_panel <- tagList(
 
         card(
@@ -82,7 +191,96 @@ chapter3_ui <- function(id){
 
         card(
             card_header("Prediction"),
-            h3(textOutput(ns("pred")))
+
+            textOutput(
+                ns("pred")
+            )
+        )
+    )
+
+    learn_panel <- div(
+
+        card(
+
+            style = "
+        border-radius: 16px;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        padding: 10px;
+    ",
+
+            card_header(
+                div(
+                    "What should you have learned?",
+                    style = "
+                font-size: 1.3rem;
+                font-weight: 700;
+                color: #2c3e50;
+            "
+                )
+            ),
+
+            tags$div(
+
+                h5("1. Expected goals are probabilities"),
+
+                p(
+                    "An xG value is the estimated probability that a shot
+                 results in a goal. It is not a prediction that a goal
+                 will definitely be scored."
+                ),
+
+                hr(),
+
+                h5("2. Context influences success"),
+
+                p(
+                    "Distance, shooting angle and body part all affect
+                 scoring probability. Better shooting situations
+                 generally produce larger xG values."
+                ),
+
+                hr(),
+
+                h5("3. Models learn from data"),
+
+                p(
+                    "The logistic regression model estimates relationships
+                 between shot characteristics and outcomes using
+                 historical observations."
+                ),
+
+                hr(),
+
+                h5("4. Estimates contain uncertainty"),
+
+                p(
+                    "Even when the true model is known, fitted parameter
+                 estimates vary from sample to sample because the data
+                 contain random variation."
+                ),
+
+                hr(),
+
+                h5("Key takeaway"),
+
+                div(
+                    style = "
+                background-color: #f8f9fa;
+                border-left: 5px solid #28a745;
+                padding: 12px;
+                border-radius: 8px;
+            ",
+
+                    p(
+                        strong("Expected goals quantify chance, not certainty."),
+                        br(),
+                        "Statistical models convert information about shot
+                     quality into probabilities that help explain and
+                     predict football performance."
+                    )
+                )
+            )
         )
     )
 
@@ -90,16 +288,53 @@ chapter3_ui <- function(id){
         id = id,
         title = "⚖ Chapter 3: Expectation",
         sidebar = sidebar_controls,
-        overview = NULL,
-        code = NULL,
+        overview = overview_panel,
+        code = code_panel,
         results = results_panel,
-        learn = NULL
+        learn = learn_panel
     )
 }
 
 chapter3_server <- function(id){
 
     moduleServer(id, function(input, output, session){
+
+        output$generated_code <- renderText({
+
+            code <- paste0(
+
+                "# Generate simulated shot data\n",
+                "shots <- xGsim(\n",
+                "  n_data = ", input$n_data, ",\n",
+                "  seed = ", input$seed, "\n",
+                ")\n\n"
+            )
+
+            if (!is.null(state$model)) {
+
+                code <- paste0(
+                    code,
+                    "# Fit xG model\n",
+                    "model <- xGfit(shots)\n\n"
+                )
+            }
+
+            if (!is.null(state$pred)) {
+
+                code <- paste0(
+                    code,
+                    "# Predict scoring probability\n",
+                    "xGpred(\n",
+                    "  model,\n",
+                    "  x = ", input$x, ",\n",
+                    "  y = ", input$y, ",\n",
+                    "  body = \"", input$body, "\"\n",
+                    ")\n"
+                )
+            }
+
+            code
+        })
 
         # -----------------------------------------------------
         # TRUE PARAMETERS
@@ -127,7 +362,15 @@ chapter3_server <- function(id){
         # -----------------------------------------------------
         observeEvent(input$randomise, {
 
-            set.seed(input$seed)
+            new_seed <- sample(1:999, 1)
+
+            updateNumericInput(
+                session,
+                "seed",
+                value = new_seed
+            )
+
+            set.seed(new_seed)
 
             true_params(list(
                 intercept = runif(1, 0.10, 0.50),
@@ -285,7 +528,10 @@ chapter3_server <- function(id){
 
             req(state$pred)
 
-            sprintf("P(goal) = %.3f", state$pred)
+            sprintf(
+                "P(goal) = %.3f",
+                state$pred
+            )
         })
     })
 }
