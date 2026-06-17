@@ -104,6 +104,8 @@ chapter8_ui <- function(id) {
                     choices = PL24_pars$teams$teams,
                     selected = "Liverpool"),
 
+        hr(),
+
         sliderInput(ns("sigma"), "Dynamic variation (sigma)",
                     min = 0, max = 0.2, value = 0.05, step = 0.01),
 
@@ -112,8 +114,6 @@ chapter8_ui <- function(id) {
         numericInput(ns("n_sim"), "Number of  seasons to simulate",
                      value = 1000, min = 100, step = 100),
 
-
-        hr(),
 
         actionButton(ns("run_static"),
                      "Calculate static league position probabilities"),
@@ -279,24 +279,31 @@ chapter8_ui <- function(id) {
         uiOutput(ns("sim_banner")),
 
         div(
-            style = "display:flex; gap:15px;",
+            style = "display:flex; gap:15px; align-items:flex-start;",
 
             div(
                 style = "flex:1;",
 
                 card(
-                    card_header("Team Parameters"),
-                    DT::DTOutput(ns("parameter_table"))
-                ),
 
-                div(
-                    style = "margin-top:10px;
-                             padding:10px;
-                             background:#f8f9fa;
-                             border-radius:8px;",
-                    strong("Home advantage (τ)"),
-                    br(),
-                    textOutput(ns("tau_value"))
+                    card_header("Team Parameters"),
+
+                    DT::DTOutput(ns("parameter_table")),
+
+                    hr(),
+
+                    div(
+                        style = "
+                padding:8px;
+                background:#f8f9fa;
+                border-radius:8px;
+            ",
+
+                        strong("Home advantage (τ)"),
+                        br(),
+
+                        textOutput(ns("tau_value"))
+                    )
                 )
             ),
 
