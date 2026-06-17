@@ -24,7 +24,7 @@ chapter6_ui <- function(id){
             "Experiment",
             choices = c(
                 "Birthday Problem",
-                "Difference in Proportions",
+                "Assessing the ITV jinx",
                 "Data Dredging"
             )
         ),
@@ -479,7 +479,7 @@ chapter6_server <- function(id){
             # Difference in Proportions
             # =================================================
 
-            else if(input$demo == "Difference in Proportions"){
+            else if(input$demo == "Assessing the ITV jinx"){
 
                 set.seed(input$seed)
 
@@ -554,7 +554,7 @@ chapter6_server <- function(id){
                 "Birthday Problem" =
                     "plot_bp(p = p_level, nmax = 60)",
 
-                "Difference in Proportions" =
+                "Assessing the ITV jinx" =
                     paste0(
                         "prop.diff(counts = c(",
                         input$count1, ",", input$count2,
@@ -641,10 +641,6 @@ chapter6_server <- function(id){
 
         output$results_panel <- renderUI({
 
-            if (!summary_visible()) {
-                    return(NULL)
-            }
-
             a <- analysis()
 
             if(a$type == "birthday"){
@@ -656,7 +652,7 @@ chapter6_server <- function(id){
                         sprintf(
                             paste0(
                                 "Minimum number of invitees required for there ",
-                                "to be a probability of at least %.0f%% that",
+                                "to be a probability of at least %.0f%% that ",
                                 "2 or more people share the same birthday is %d."
                             ),
                             100 * input$p_level,
@@ -709,6 +705,10 @@ chapter6_server <- function(id){
                 )
 
             } else {
+
+                if (!summary_visible()) {
+                    return(NULL)
+                }
 
                 card(
 
