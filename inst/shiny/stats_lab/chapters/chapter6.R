@@ -29,6 +29,10 @@ chapter6_ui <- function(id){
             )
         ),
 
+        # ==========================================
+        # Birthday Problem
+        # ==========================================
+
         conditionalPanel(
 
             condition = sprintf(
@@ -36,28 +40,56 @@ chapter6_ui <- function(id){
                 ns("demo")
             ),
 
-            numericInput(
+            sliderInput(
                 ns("p_level"),
                 "Probability threshold (p)",
-                value = 0.5,
-                min = 0.1,
+                min = 0.01,
                 max = 0.99,
+                value = 0.50,
                 step = 0.01
             )
         ),
 
+        # ==========================================
+        # Difference in Proportions
+        # ==========================================
+
         conditionalPanel(
 
             condition = sprintf(
-                "input['%s'] == 'Difference in Proportions'",
+                "input['%s'] == 'Assessing the ITV jinx'",
                 ns("demo")
             ),
 
-            numericInput(ns("count1"), "Successes group 1", 21),
-            numericInput(ns("trial1"), "Trials group 1", 31),
+            h5("BBC"),
 
-            numericInput(ns("count2"), "Successes group 2", 9),
-            numericInput(ns("trial2"), "Trials group 2", 23),
+            numericInput(
+                ns("trial1"),
+                "Number of Matches",
+                31
+            ),
+
+            numericInput(
+                ns("count1"),
+                "England Wins",
+                21
+            ),
+
+            hr(),
+
+            h5("ITV"),
+
+            numericInput(
+                ns("trial2"),
+                "Number of Matches",
+                23
+            ),
+
+            numericInput(
+                ns("count2"),
+                "England Wins",
+                9
+            ),
 
             sliderInput(
                 ns("alpha"),
@@ -69,20 +101,24 @@ chapter6_ui <- function(id){
             ),
 
             numericInput(
-                ns("nsim"),
-                "Simulations",
-                value = 10000,
-                min = 1000
-            ),
-
-            numericInput(
                 ns("seed"),
                 "Random seed",
                 value = sample.int(999, 1),
                 min = 1,
                 max = 999
+            ),
+
+            numericInput(
+                ns("nsim"),
+                "Number of Bootstrap Simulations",
+                value = 5000,
+                min = 1000
             )
         ),
+
+        # ==========================================
+        # Data Dredging
+        # ==========================================
 
         conditionalPanel(
 
@@ -92,25 +128,38 @@ chapter6_ui <- function(id){
             ),
 
             numericInput(
-                ns("n_data"),
-                "Observations",
-                100
-            ),
-
-            numericInput(
-                ns("n_var"),
-                "Candidate predictors",
-                50
-            ),
-
-            numericInput(
                 ns("seed"),
                 "Random seed",
                 value = sample.int(999, 1),
                 min = 1,
                 max = 999
+            ),
+
+            sliderInput(
+                ns("n_data"),
+                "Observations",
+                min = 10,
+                max = 500,
+                value = 100,
+                step = 10
+            ),
+
+            sliderInput(
+                ns("n_var"),
+                "Candidate predictors",
+                min = 5,
+                max = 200,
+                value = 50,
+                step = 5
+            ),
+
+            actionButton(
+                ns("show_summary"),
+                "Summary",
+                icon = icon("book-open")
             )
         )
+
     )
 
     # =======================================================
@@ -210,7 +259,7 @@ chapter6_ui <- function(id){
     code_panel <- div(
 
         card(
-            card_header("Generated R code"),
+            card_header("Genrated R code"),
 
             tags$pre(
                 style="
@@ -344,7 +393,7 @@ chapter6_server <- function(id){
 
     moduleServer(id, function(input, output, session){
 
-
+        summary_visible <- reactiveVal(FALSE)
 
 
         # -------------------------------------------------
@@ -353,6 +402,8 @@ chapter6_server <- function(id){
 
 
         observeEvent(input$demo, {
+
+            summary_visible(FALSE)
 
             updateTabsetPanel(
                 session,
@@ -373,9 +424,32 @@ chapter6_server <- function(id){
 
         }, ignoreInit = TRUE)
 
+        observeEvent(
+            list(
+                input$p_level,
+                input$count1,
+                input$trial1,
+                input$count2,
+                input$trial2,
+                input$alpha,
+                input$nsim,
+                input$seed,
+                input$n_data,
+                input$n_var
+            ),
+            {
+                summary_visible(FALSE)
+            },
+            ignoreInit = TRUE
+        )
+
         # -------------------------------------------------
         # Reactive analysis (no Run button)
         # -------------------------------------------------
+
+        observeEvent(input$show_summary, {
+            summary_visible(TRUE)
+        })
 
         analysis <- reactive({
 
@@ -523,6 +597,13 @@ chapter6_server <- function(id){
                         colour = "darkred",
                         linetype = "dotted"
                     ) +
+                    annotate(
+                        "point",
+                        x = a$required_n,
+                        y = bp(a$required_n),
+                        colour = "red",
+                        size = 4
+                    ) +
                     theme_minimal(base_size = 14)
             }
 
@@ -560,13 +641,28 @@ chapter6_server <- function(id){
 
         output$results_panel <- renderUI({
 
+            if (!summary_visible()) {
+                    return(NULL)
+            }
+
             a <- analysis()
 
             if(a$type == "birthday"){
 
                 card(
                     card_header("Key result"),
-                    h3(sprintf("Required n = %d", a$required_n))
+
+                    h4(
+                        sprintf(
+                            paste0(
+                                "Minimum number of invitees required for there ",
+                                "to be a probability of at least %.0f%% that",
+                                "2 or more people share the same birthday is %d."
+                            ),
+                            100 * input$p_level,
+                            a$required_n
+                        )
+                    )
                 )
 
             } else if(a$type == "prop"){
@@ -577,12 +673,12 @@ chapter6_server <- function(id){
 
                 conclusion <- if (inside) {
                     sprintf(
-                        "No evidence against common proportions at the %.1f%% significance level.",
+                        "No evidence of an ITV jinx at the %.1f%% significance level.",
                         sig_level
                     )
                 } else {
                     sprintf(
-                        "Evidence against common proportions at the %.1f%% significance level.",
+                        "Some evidence of an ITV jinx at the %.1f%% significance level.",
                         sig_level
                     )
                 }
@@ -601,7 +697,7 @@ chapter6_server <- function(id){
                     )),
 
                     p(sprintf(
-                        "%.0f%% CI: %.3f to %.3f",
+                        "%.0f%% Confidence interval: [%.3f, %.3f]",
                         100 * input$alpha,
                         a$ci[1],
                         a$ci[2]
@@ -615,10 +711,57 @@ chapter6_server <- function(id){
             } else {
 
                 card(
-                    card_header("Regression result"),
-                    p(sprintf("Smallest p-value: %.5f", a$minp)),
-                    p(sprintf("Gradient: %.3f", a$coef[2,1])),
-                    p(sprintf("Std error: %.3f", a$coef[2,2]))
+
+                    card_header("Data dredging result"),
+
+                    p(
+                        "The graph shows the strongest apparent relationship between Y and the ",
+                        "candidate predictor variables generated in this simulation."
+                    ),
+
+                    p(
+                        "The regression statistics for this selected relationship are:"
+                    ),
+
+                    tags$ul(
+                        tags$li(
+                            sprintf(
+                                "Gradient estimate: %.3f",
+                                a$coef[2,1]
+                            )
+                        ),
+                        tags$li(
+                            sprintf(
+                                "Standard error: %.3f",
+                                a$coef[2,2]
+                            )
+                        ),
+                        tags$li(
+                            sprintf(
+                                "Smallest p-value: %.5f",
+                                a$minp
+                            )
+                        )
+                    ),
+
+                    hr(),
+
+                    p(
+                        "In the simulation, Y and all candidate predictors were generated independently, ",
+                        "so the true regression gradient is zero."
+                    ),
+
+                    p(
+                        "However, after examining many candidate predictors, one of them will often ",
+                        "appear to have a statistically significant relationship with Y purely by chance."
+                    ),
+
+                    p(
+                        strong("Key lesson: "),
+                        "when many possible relationships are investigated, the most extreme result ",
+                        "often looks meaningful even when every variable is completely unrelated. ",
+                        "Data dredging turns random variation into apparently convincing evidence."
+                    )
                 )
             }
         })
