@@ -8,183 +8,24 @@ chapter1_ui <- function(id){
 
     sidebar_controls <- sidebar(
 
-        radioButtons(
-            ns("mode"),
-            "Investigation",
-            choices = c(
-                "Goal scoring simulation" = "simulation",
-                "Simple statistics toolkit" = "toolkit"
-            )
-        ),
+        h4("Comparing Theoretical and Observed Frequencies"),
 
+        sliderInput(ns("pois_mean"), "Average number of goal scoring opportunities",
+                    min = 1, max = 50, value = 25),
 
-        conditionalPanel(
+        sliderInput(ns("mu"), "Average probability of goal conversion",
+                    min = 0, max = 1, value = 0.1, step = 0.01),
 
-            condition = sprintf(
-                "input['%s'] == 'simulation'",
-                ns("mode")
-            ),
+        sliderInput(ns("phi"), "Shape",
+                    min = 0, max = 200, value = 10, step = 1),
 
-            h4("Comparing Theoretical and Observed Frequencies"),
+        numericInput(ns("seed"), "Random seed",
+                     value = sample(1:999, 1)),
 
-            sliderInput(
-                ns("pois_mean"),
-                "Average number of goal scoring opportunities",
-                min = 1,
-                max = 50,
-                value = 25
-            ),
+        numericInput(ns("n_sim"), "Number of simulated games",
+                     value = 1000, min = 100),
 
-            sliderInput(
-                ns("mu"),
-                "Average probability of goal conversion",
-                min = 0,
-                max = 1,
-                value = 0.1,
-                step = 0.01
-            ),
-
-            sliderInput(
-                ns("phi"),
-                "Shape",
-                min = 0,
-                max = 200,
-                value = 10,
-                step = 1
-            ),
-
-            numericInput(
-                ns("seed"),
-                "Random seed",
-                value = sample(1:999,1)
-            ),
-
-            numericInput(
-                ns("n_sim"),
-                "Number of simulated games",
-                value = 1000,
-                min = 100
-            ),
-
-            actionButton(
-                ns("run"),
-                "Run simulation",
-                class = "btn-primary"
-            )
-        ),
-
-
-        conditionalPanel(
-
-            condition = sprintf(
-                "input['%s'] == 'toolkit'",
-                ns("mode")
-            ),
-
-            h4("Simple Statistics Toolkit"),
-
-            radioButtons(
-                ns("data_source"),
-                "Data source",
-                choices = c(
-                    "Enter vector" = "vector",
-                    "Upload CSV" = "csv"
-                )
-            ),
-
-            textAreaInput(
-                ns("vector_input"),
-                "Data values",
-                value = "1,2,3,4,5",
-                rows = 4
-            ),
-
-            fileInput(
-                ns("csv_file"),
-                "CSV file"
-            ),
-
-            selectInput(
-                ns("toolkit_action"),
-                "Analysis",
-                choices = c(
-                    "Summary statistics",
-                    "Histogram",
-                    "Scatterplot"
-                )
-            ),
-
-            numericInput(
-                ns("hist_row"),
-                "Histogram row",
-                value = 1,
-                min = 1
-            ),
-
-            selectInput(
-                ns("x_col"),
-                "X column",
-                choices = NULL
-            ),
-
-            selectInput(
-                ns("y_col"),
-                "Y column",
-                choices = NULL
-            )
-        )
-    )
-    conditionalPanel(
-
-        radioButtons(
-            ns("data_source"),
-            "Data source",
-            choices = c(
-                "Enter vector" = "vector",
-                "Upload CSV" = "csv"
-            )
-        ),
-
-        textAreaInput(
-            ns("vector_input"),
-            "Data values",
-            value = "1,2,3,4,5",
-            rows = 4
-        ),
-
-        fileInput(
-            ns("csv_file"),
-            "CSV file"
-        ),
-
-        selectInput(
-            ns("toolkit_action"),
-            "Analysis",
-            choices = c(
-                "Summary statistics",
-                "Histogram",
-                "Scatterplot"
-            )
-        ),
-
-        numericInput(
-            ns("hist_row"),
-            "Histogram row",
-            value = 1,
-            min = 1
-        ),
-
-        selectInput(
-            ns("x_col"),
-            "X column",
-            choices = NULL
-        ),
-
-        selectInput(
-            ns("y_col"),
-            "Y column",
-            choices = NULL
-        )
+        actionButton(ns("run"), "Run simulation", class = "btn-primary")
     )
 
     overview_panel <- div(
@@ -303,18 +144,16 @@ chapter1_ui <- function(id){
         )
     )
 
-    # results_panel <- div(
-    #     card(
-    #         card_header("Goal scoring specification"),
-    #         plotOutput(ns("components"), height = 300)
-    #     ),
-    #     card(
-    #         card_header("Distribution of goals"),
-    #         plotOutput(ns("hist"), height = 400)
-    #     )
-    # )
-
-    results_panel <- uiOutput(ns("results_panel"))
+    results_panel <- div(
+        card(
+            card_header("Goal scoring specification"),
+            plotOutput(ns("components"), height = 300)
+        ),
+        card(
+            card_header("Distribution of goals"),
+            plotOutput(ns("hist"), height = 400)
+        )
+    )
 
     learn_panel <- div(
 
@@ -431,51 +270,6 @@ chapter1_server <- function(id){
         # NEW: store simulation output explicitly
         sim_data <- reactiveVal(NULL)
 
-        toolkit_data <- reactive({
-
-            req(input$mode == "toolkit")
-
-            if (input$data_source == "vector") {
-
-                x <- as.numeric(
-                    trimws(
-                        unlist(
-                            strsplit(
-                                input$vector_input,
-                                ","
-                            )
-                        )
-                    )
-                )
-
-                validate(
-                    need(
-                        all(!is.na(x)),
-                        "Vector must contain only numbers."
-                    )
-                )
-
-                return(
-                    list(
-                        type = "vector",
-                        data = x
-                    )
-                )
-            }
-
-            req(input$csv_file)
-
-            df <- read.csv(
-                input$csv_file$datapath,
-                check.names = FALSE
-            )
-
-            list(
-                type = "matrix",
-                data = as.matrix(df)
-            )
-        })
-
         # -------------------------------------------------
         # Run simulation (triggered only on button press)
         # -------------------------------------------------
@@ -504,34 +298,6 @@ chapter1_server <- function(id){
         })
 
 
-        output$results_panel <- renderUI({
-
-            if (input$mode == "simulation") {
-
-                div(
-
-                    card(
-                        card_header("Goal scoring specification"),
-                        plotOutput(session$ns("components"), height = 300)
-                    ),
-
-                    card(
-                        card_header("Distribution of goals"),
-                        plotOutput(session$ns("hist"), height = 400)
-                    )
-                )
-
-            } else {
-
-                div(
-
-                    card(
-                        card_header("Toolkit"),
-                        p("Toolkit mode selected")
-                    )
-                )
-            }
-        })
 
         # -------------------------------------------------
         # Code display
