@@ -160,44 +160,70 @@ chapter3_ui <- function(id){
 
     results_panel <- tagList(
 
-        card(
-            card_header("Model parameters"),
-            tableOutput(ns("model"))
-        ),
+        fluidRow(
 
-        br(),
+            column(
+                4,
 
-        card(
-            card_header("xG plot"),
+                card(
+                    card_header("Model parameters"),
 
-            h4("Observed Values", style = "text-align:center;"),
+                    tableOutput(ns("model")),
 
-            fluidRow(
-                column(6, plotOutput(ns("plot1"), height = 300)),
-                column(6, plotOutput(ns("plot2"), height = 300))
+                    br(),
+
+                    h5("Prediction"),
+
+                    div(
+                        style = "
+        background-color: #f8f9fa;
+        border-left: 5px solid #28a745;
+        padding: 12px;
+        border-radius: 8px;
+        margin-top: 10px;
+    ",
+
+                        h5("⚽ Goal prediction"),
+
+                        textOutput(
+                            ns("pred")
+                        )
+                    )
+                )
             ),
 
-            br(),
 
-            h4("Fitted Model Heatmap", style = "text-align:center;"),
+            column(
+                8,
 
-            fluidRow(
-                column(6, plotOutput(ns("plot3"), height = 300)),
-                column(6, plotOutput(ns("plot4"), height = 300))
-            )
-        ),
+                card(
+                    card_header("xG plot"),
 
-        br(),
+                    h4(
+                        "Observed Values",
+                        style = "text-align:center;"
+                    ),
 
-        card(
-            card_header("Prediction"),
+                    fluidRow(
+                        column(6, plotOutput(ns("plot1"), height = 300)),
+                        column(6, plotOutput(ns("plot2"), height = 300))
+                    ),
 
-            textOutput(
-                ns("pred")
+                    br(),
+
+                    h4(
+                        "Fitted Model Heatmap",
+                        style = "text-align:center;"
+                    ),
+
+                    fluidRow(
+                        column(6, plotOutput(ns("plot3"), height = 300)),
+                        column(6, plotOutput(ns("plot4"), height = 300))
+                    )
+                )
             )
         )
     )
-
     learn_panel <- div(
 
         card(

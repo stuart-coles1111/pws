@@ -280,50 +280,29 @@ chapter5_ui <- function(id){
             fluidRow(
 
                 column(
-                    4,
+                    6,
 
                     card(
-                        h4("Estimated p"),
-                        h2(textOutput(ns("p_hat_display")))
+                        card_header("Observed dice outcomes"),
+
+                        plotOutput(
+                            ns("dice_plot"),
+                            height = 350
+                        )
                     )
                 ),
 
                 column(
-                    4,
+                    6,
 
                     card(
-                        h4("Bootstrap SE"),
-                        h2(textOutput(ns("se_display")))
+                        card_header("Bootstrap distribution"),
+
+                        plotOutput(
+                            ns("bootstrap_plot"),
+                            height = 350
+                        )
                     )
-                ),
-
-                column(
-                    4,
-
-                    card(
-                        h4("Confidence level"),
-                        h2(textOutput(ns("conf_display")))
-                    )
-                )
-            ),
-
-            br(),
-
-            card(
-                card_header("Observed dice outcomes"),
-                plotOutput(
-                    ns("dice_plot"),
-                    height = 300
-                )
-            ),
-
-            br(),
-
-            card(
-                card_header("Bootstrap distribution"),
-                plotOutput(
-                    ns("bootstrap_plot"),
-                    height = 350
                 )
             ),
 
@@ -340,6 +319,7 @@ chapter5_ui <- function(id){
 
             card(
                 card_header("Regression model"),
+
                 plotOutput(
                     ns("reg_plot"),
                     height = 450

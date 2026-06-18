@@ -55,7 +55,7 @@ chapter2_ui <- function(id){
             sliderInput(
                 ns("lambda"),
                 "λ (rate)",
-                min = 0.1,
+                min = 0,
                 max = 50,  # initial value, updated reactively
                 value = 10,
                 step = 0.1
@@ -403,10 +403,14 @@ chapter2_server <- function(id){
                     input$p
                 ),
 
-                "Poisson" = dpois(
-                    input$x_pois,
-                    input$lambda
-                ),
+                "Poisson" = {
+                    req(input$lambda > 0)
+
+                    dpois(
+                        input$x_pois,
+                        input$lambda
+                    )
+                },
 
                 "Normal" = pnorm(
                     bounds()$b,
@@ -433,7 +437,10 @@ chapter2_server <- function(id){
         })
 
 
+
         observeEvent(input$lambda, {
+
+            req(input$lambda > 0)
 
             upper <- qpois(0.999, input$lambda)
 
@@ -518,6 +525,13 @@ chapter2_server <- function(id){
 
         output$result <- renderText({
 
+            validate(
+                need(
+                    !(input$dist == "Poisson" && input$lambda <= 0),
+                    "λ must be strictly positive"
+                )
+            )
+
             switch(
 
                 input$dist,
@@ -578,6 +592,8 @@ chapter2_server <- function(id){
                     )
 
             } else if(input$dist == "Poisson"){
+
+                req(input$lambda > 0)
 
                 upper <- qpois(0.999, input$lambda)
 
