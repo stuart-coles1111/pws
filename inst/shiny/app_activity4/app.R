@@ -283,6 +283,32 @@ ui <- page_fluid(
 
             hr(),
 
+            h4("Template Generator"),
+
+            numericInput(
+                "num_teams",
+                "Number of teams for template",
+                value = 10,
+                min = 1,
+                max = 100
+            ),
+
+            downloadButton(
+                "download_template",
+                "Download CSV Template"
+            ),
+
+            hr(),
+
+            fileInput(
+                "upload_csv",
+                "Upload Team CSV"
+            ),
+
+            hr(),
+
+            h4("Manual Entry"),
+
             textInput(
                 "team_name",
                 "Team name",
@@ -293,22 +319,8 @@ ui <- page_fluid(
                 "save_team",
                 "Save Team",
                 class = "btn-primary"
-            ),
-
-            hr(),
-
-            downloadButton(
-                "download_template",
-                "Download CSV Template"
-            ),
-
-            br(),
-            br(),
-
-            fileInput(
-                "upload_csv",
-                "Upload Team CSV"
             )
+
         ),
 
         navset_tab(
@@ -1168,34 +1180,29 @@ server <- function(input, output, session){
             "activity4_template.csv"
         },
 
-
         content = function(file) {
 
+            n <- input$num_teams
 
             template <- tibble::tibble(
-
-                team = 1:10
-
+                team = as.character(1:n)
             )
 
 
             for(i in 1:10){
 
-                template[[paste0("G",i)]] <- NA_real_
+                template[[paste0("G", i)]] <- NA_real_
 
-                template[[paste0("S",i)]] <- NA_real_
+                template[[paste0("S", i)]] <- NA_real_
 
             }
 
 
             write.csv(
-
                 template,
-
                 file,
-
-                row.names = FALSE
-
+                row.names = FALSE,
+                na = ""
             )
 
         }
