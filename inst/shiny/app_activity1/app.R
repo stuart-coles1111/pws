@@ -115,6 +115,24 @@ ui <- page_navbar(
         fg = "#2E3440"
     ),
 
+    header = tags$head(
+        tags$style(HTML("
+        .container-fluid {
+            max-width: 100% !important;
+            padding-left: 20px !important;
+            padding-right: 20px !important;
+        }
+
+        .bslib-page-sidebar-main {
+            width: 100% !important;
+        }
+
+        .card {
+            width: 100%;
+        }
+    "))
+    ),
+
     # =====================================================
     # TAB 1 — MAIN ACTIVITY
     # =====================================================
@@ -134,6 +152,8 @@ ui <- page_navbar(
         ),
 
         layout_sidebar(
+
+            fillable = TRUE,
 
             sidebar = card(
 
@@ -199,10 +219,22 @@ ui <- page_navbar(
                     "compare_groups",
                     "Compare with groups",
                     class = "btn-success"
+                ),
+
+                actionButton(
+                    "groups_analysis",
+                    "Groups analysis",
+                    class = "btn-info"
                 )
             ),
 
-            mainPanel(
+
+            # ==========================
+            # MAIN CONTENT
+            # ==========================
+
+            div(
+                style = "width:100%;",
 
                 card(
                     h4("Your sequence"),
@@ -213,10 +245,16 @@ ui <- page_navbar(
                     )
                 ),
 
+
                 card(
                     h4("Visual structure"),
-                    plotOutput("seq_plot", height = 120)
+
+                    plotOutput(
+                        "seq_plot",
+                        height = 120
+                    )
                 ),
+
 
                 card(
                     h4("Sequence statistics"),
@@ -225,43 +263,85 @@ ui <- page_navbar(
 
                         column(
                             6,
+
                             div(
                                 style = "
-                                background:#EEF2FF;
-                                padding:18px;
-                                border-radius:10px;
-                                text-align:center;",
+                        background:#EEF2FF;
+                        padding:18px;
+                        border-radius:10px;
+                        text-align:center;",
+
                                 h5("Heads"),
-                                h2(textOutput("user_heads"))
+
+                                h2(
+                                    textOutput("user_heads")
+                                )
                             )
                         ),
 
+
                         column(
                             6,
+
                             div(
                                 style = "
-                                background:#F3E8FF;
-                                padding:18px;
-                                border-radius:10px;
-                                text-align:center;",
+                        background:#F3E8FF;
+                        padding:18px;
+                        border-radius:10px;
+                        text-align:center;",
+
                                 h5("Longest run"),
-                                h2(textOutput("user_run"))
+
+                                h2(
+                                    textOutput("user_run")
+                                )
                             )
                         )
                     )
                 ),
 
-                uiOutput("stats_card"),
 
-                card(
-                    h4("Number of Heads"),
-                    plotOutput("heads_plot", height = 320)
+                # ======================
+                # GRAPHS SIDE BY SIDE
+                # ======================
+
+                fluidRow(
+
+                    column(
+                        6,
+
+                        card(
+                            h4("Number of Heads"),
+
+                            plotOutput(
+                                "heads_plot",
+                                height = 320
+                            )
+                        )
+                    ),
+
+
+                    column(
+                        6,
+
+                        card(
+                            h4("Longest Run"),
+
+                            plotOutput(
+                                "runs_plot",
+                                height = 320
+                            )
+                        )
+                    )
                 ),
 
-                card(
-                    h4("Longest Run"),
-                    plotOutput("runs_plot", height = 320)
-                )
+
+                # ======================
+                # RESULTS BELOW GRAPHS
+                # ======================
+
+                uiOutput("stats_card")
+
             )
         )
     ),
@@ -409,7 +489,8 @@ server <- function(input, output, session){
     rv <- reactiveValues(
         user_seq = NULL,
         uploaded_data = NULL,
-        show_comparison = FALSE
+        show_comparison = FALSE,
+        show_group_analysis = FALSE
     )
 
     observeEvent(input$upload_data, {
@@ -481,6 +562,14 @@ server <- function(input, output, session){
 
     })
 
+    observeEvent(input$groups_analysis, {
+
+        req(rv$user_seq)
+
+        rv$show_group_analysis <- TRUE
+
+    })
+
     current_seq <- reactive({
         req(rv$user_seq)
         rv$user_seq
@@ -513,7 +602,7 @@ server <- function(input, output, session){
 
     output$stats_card <- renderUI({
 
-        if (!rv$show_comparison) {
+        if (!rv$show_group_analysis) {
             return(NULL)
         }
 
