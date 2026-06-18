@@ -841,38 +841,92 @@ server <- function(input, output, session){
     })
 
     # =======================================================
-    # TEAM CSV UPLOAD
+    # TEAM CSV UPLOAD (WIDE FORMAT)
     # =======================================================
 
     observeEvent(input$upload_csv, {
 
         req(input$upload_csv)
 
+
         d <- read_csv(
             input$upload_csv$datapath,
             show_col_types = FALSE
         )
 
+
+        expected <- c(
+            "team",
+            paste0(rep(c("G","S"),10), rep(1:10, each=2))
+        )
+
+
         validate(
             need(
-                all(c("team","question","G","S") %in% names(d)),
-                "CSV must contain: team, question, G, S"
+                all(expected %in% names(d)),
+                paste(
+                    "CSV must contain columns:",
+                    paste(expected, collapse=", ")
+                )
             )
         )
 
+
+        # Convert wide format:
+        #
+        # team G1 S1 G2 S2 ...
+        #
+        # into:
+        #
+        # team question G S
+
+
+        long_data <- d %>%
+
+            pivot_longer(
+
+                cols = matches("^[GS][0-9]+$"),
+
+                names_to = c(".value","question"),
+
+                names_pattern = "([GS])(\\d+)"
+
+            ) %>%
+
+            mutate(
+
+                team = as.character(team),
+
+                question = as.integer(question)
+
+            )
+
+
         current <- team_data()
 
+
         current <- current %>%
-            filter(!team %in% unique(d$team))
+
+            filter(
+                !team %in% unique(long_data$team)
+            )
+
 
         team_data(
-            bind_rows(current, d)
+
+            bind_rows(
+                current,
+                long_data
+            )
+
         )
+
 
         showNotification(
             "Teams uploaded successfully.",
             type = "message"
         )
+
     })
 
     # =======================================================
@@ -1043,7 +1097,7 @@ server <- function(input, output, session){
 
         d <- all_scores() %>%
 
-            select(
+            dplyr::select(
                 team,
                 question,
                 label,
@@ -1114,21 +1168,38 @@ server <- function(input, output, session){
             "activity4_template.csv"
         },
 
-        content = function(file){
 
-            template <- tibble(
-                team = c("Team A", "Team A"),
-                question = c(1, 2),
-                G = c(NA, NA),
-                S = c(NA, NA)
+        content = function(file) {
+
+
+            template <- tibble::tibble(
+
+                team = 1:10
+
             )
+
+
+            for(i in 1:10){
+
+                template[[paste0("G",i)]] <- NA_real_
+
+                template[[paste0("S",i)]] <- NA_real_
+
+            }
+
 
             write.csv(
+
                 template,
+
                 file,
+
                 row.names = FALSE
+
             )
+
         }
+
     )
 }
 
