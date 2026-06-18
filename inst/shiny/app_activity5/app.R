@@ -417,12 +417,13 @@ INFO BOX
                 ),
 
 
-                numericInput(
+                sliderInput(
                     "picture_value",
                     "Picture card value:",
-                    10,
-                    1,
-                    10
+                    min = 1,
+                    max = 10,
+                    value = 10,
+                    step = 1
                 ),
 
 
@@ -492,21 +493,24 @@ INFO BOX
 
                 h4("Simulation Controls"),
 
-                numericInput(
+                sliderInput(
                     "sim_nrep",
                     "Number of simulations:",
-                    1000,
-                    100,
-                    100
+                    min = 100,
+                    max = 5000,
+                    value = 1000,
+                    step = 100
                 ),
 
-                numericInput(
+                sliderInput(
                     "sim_picture",
                     "Picture card value:",
-                    10,
-                    1,
-                    10
+                    min = 1,
+                    max = 10,
+                    value = 10,
+                    step = 1
                 ),
+
 
                 numericInput(
                     "sim_seed",
@@ -1163,12 +1167,12 @@ server <- function(input, output, session){
 
                     "Failure probability:
                     <b>",
-                    round(res$fail_prob,6),
+                    round(res$fail_prob,3),
                     "</b><br>",
 
                     "SE:
                     <b>",
-                    round(res$fail_prob_se,6),
+                    round(res$fail_prob_se,3),
                     "</b>"
                 )
             )
