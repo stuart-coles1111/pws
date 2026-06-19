@@ -10,10 +10,10 @@ chapter1_ui <- function(id){
 
         radioButtons(
             ns("mode"),
-            "Investigation",
+            "Mode",
             choices = c(
-                "Goal scoring simulation" = "simulation",
-                "Simple statistics toolkit" = "toolkit"
+                "Simple Statistics Toolkit" = "toolkit",
+                "Goal scoring simulation" = "simulation"
             )
         ),
 
@@ -83,14 +83,16 @@ chapter1_ui <- function(id){
 
             h4("Simple Statistics Toolkit"),
 
+
             radioButtons(
                 ns("data_source"),
                 "Data source",
                 choices = c(
-                    "Enter vector" = "vector",
+                    "Enter data (x)" = "vector",
                     "Upload CSV" = "csv"
                 )
             ),
+
 
             conditionalPanel(
 
@@ -101,12 +103,16 @@ chapter1_ui <- function(id){
 
                 textAreaInput(
                     ns("vector_input"),
-                    "Data values",
-                    value = "1,2,3,4,5",
-                    rows = 4
+                    "Data values (x)",
+                    value = paste(
+                        rpois(100, lambda = 2.5),
+                        collapse = ","
+                    ),
+                    rows = 6
                 )
 
             ),
+
 
             conditionalPanel(
 
@@ -143,35 +149,86 @@ chapter1_ui <- function(id){
 
             ),
 
+
             selectInput(
                 ns("toolkit_action"),
                 "Analysis",
-                choices = c(
-                    "Summary statistics",
-                    "Histogram",
-                    "Scatterplot"
+                choices = NULL
+            ),
+
+            conditionalPanel(
+
+                condition = sprintf(
+                    "input['%s'] == 'toolkit'",
+                    ns("mode")
+                ),
+
+                uiOutput(ns("analysis_choices"))
+
+            ),
+
+
+            conditionalPanel(
+
+                condition = sprintf(
+                    "input['%s'] == 'Histogram'",
+                    ns("toolkit_action")
+                ),
+
+                sliderInput(
+                    ns("hist_bins"),
+                    "Number of histogram bins",
+                    min = 1,
+                    max = 10,
+                    value = 5,
+                    step = 1
                 )
+
             ),
 
-            selectInput(
-                ns("hist_col"),
-                "Histogram variable",
-                choices = NULL
+
+            conditionalPanel(
+
+                condition = sprintf(
+                    "input['%s'] == 'csv' && input['%s'] == 'Histogram'",
+                    ns("data_source"),
+                    ns("toolkit_action")
+                ),
+
+                selectInput(
+                    ns("hist_col"),
+                    "Histogram variable",
+                    choices = NULL
+                )
+
             ),
 
-            selectInput(
-                ns("x_col"),
-                "X column",
-                choices = NULL
-            ),
 
-            selectInput(
-                ns("y_col"),
-                "Y column",
-                choices = NULL
+            conditionalPanel(
+
+                condition = sprintf(
+                    "input['%s'] == 'csv' && input['%s'] == 'Scatterplot'",
+                    ns("data_source"),
+                    ns("toolkit_action")
+                ),
+
+                selectInput(
+                    ns("x_col"),
+                    "X column",
+                    choices = NULL
+                ),
+
+                selectInput(
+                    ns("y_col"),
+                    "Y column",
+                    choices = NULL
+                )
+
             )
+
+        )
+
     )
-)
 
     overview_panel <- div(
 
@@ -437,6 +494,36 @@ chapter1_server <- function(id){
             }
         )
 
+
+        observe({
+
+            if(input$data_source == "vector"){
+
+                updateSelectInput(
+                    session,
+                    "toolkit_action",
+                    choices = c(
+                        "Summary statistics",
+                        "Histogram"
+                    )
+                )
+
+            } else {
+
+                updateSelectInput(
+                    session,
+                    "toolkit_action",
+                    choices = c(
+                        "Summary statistics",
+                        "Histogram",
+                        "Scatterplot"
+                    )
+                )
+
+            }
+
+        })
+
         # -------------------------------------------------
         # Store snapshot of last simulation inputs
         # -------------------------------------------------
@@ -545,7 +632,7 @@ chapter1_server <- function(id){
                 x <- dat$data
 
                 return(data.frame(
-                    Variable = "Vector",
+                    Variable = "x",
                     Count = length(x),
                     Mean = mean(x),
                     Median = median(x),
@@ -587,7 +674,6 @@ chapter1_server <- function(id){
 
             dat <- toolkit_data()
 
-
             if(dat$type == "vector"){
 
                 x <- dat$data
@@ -598,9 +684,9 @@ chapter1_server <- function(id){
 
             }
 
-
             hist(
                 x,
+                breaks = seq(min(x)-0.5, max(x)+0.5, length.out = input$hist_bins + 1),
                 col = "#7B9ACC",
                 border = "white",
                 main = "Histogram",
