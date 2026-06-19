@@ -150,7 +150,9 @@ chapter4_ui <- function(id){
         )
     )
 
-    results_panel <- tagList(
+    results_panel <- layout_columns(
+
+        col_widths = c(9, 3),
 
         card(
             card_header("Response analysis plot"),
@@ -159,11 +161,17 @@ chapter4_ui <- function(id){
 
         card(
             card_header("Score"),
+
             div(
-                style = "font-size: 2rem; font-weight: 700;",
+                style = "
+        font-size: 1.5rem;
+        font-weight: 700;
+        text-align: center;
+        padding-top: 150px;
+      ",
                 textOutput(ns("score"))
             )
-            )
+        )
     )
 
     learn_panel <- div(
@@ -284,7 +292,7 @@ chapter4_server <- function(id){
         })
 
         output$score <- renderText({
-            score_obj()$scores
+            round(score_obj()$scores, 2)
         })
 
         output$plot <- renderPlot({

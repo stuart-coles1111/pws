@@ -22,26 +22,23 @@ launch_activity <- function(app_name) {
         args = list(appdir, port)
     )
 
-    # Wait until Shiny is actually listening
-    deadline <- Sys.time() + 10
+
+    url <- sprintf("http://127.0.0.1:%s", port)
+
+    deadline <- Sys.time() + 15
 
     repeat {
 
-        con <- suppressWarnings(
-            try(
-                socketConnection(
-                    host = "127.0.0.1",
-                    port = port,
-                    open = "r+",
-                    blocking = TRUE,
-                    timeout = 0.1
-                ),
-                silent = TRUE
-            )
+        ready <- tryCatch(
+            {
+                con <- url(url)
+                close(con)
+                TRUE
+            },
+            error = function(e) FALSE
         )
 
-        if (!inherits(con, "try-error")) {
-            close(con)
+        if (ready) {
             break
         }
 
@@ -53,12 +50,11 @@ launch_activity <- function(app_name) {
             stop("Timed out waiting for app to start.")
         }
 
-        Sys.sleep(0.05)
+        Sys.sleep(0.1)
     }
 
-    utils::browseURL(
-        sprintf("http://127.0.0.1:%s", port)
-    )
+
+    utils::browseURL(url)
 
     invisible(p)
 }
