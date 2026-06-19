@@ -37,6 +37,7 @@ source("modules/mod_chapter_template.R")
 # Source chapters
 # =========================================================
 
+source("chapters/toolkit.R")
 source("chapters/chapter1.R")
 source("chapters/chapter2.R")
 source("chapters/chapter3.R")
@@ -65,6 +66,16 @@ ui <- page_navbar(
         bg = "#F7F7FB",
         fg = "#2E3440"
     ),
+
+    # =======================================================
+    # Toolkit
+    # =======================================================
+
+    nav_panel(
+        "🧰 Toolkit",
+        stats_toolkit_ui("toolkit")
+    ),
+
 
     # =======================================================
     # Chapter 1
@@ -143,6 +154,9 @@ ui <- page_navbar(
 # =========================================================
 
 server <- function(input, output, session){
+
+    # toolkit
+    stats_toolkit_server("toolkit")
 
     # Chapter 1
     chapter1_server("chapter1")
