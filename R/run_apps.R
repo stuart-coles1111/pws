@@ -63,33 +63,13 @@ run_activity8 <- function() {
 
 launch <- function() {
 
-    choice <- shiny::runApp(
-        system.file("shiny", "launcher", package = "pws"),
+    shiny::runApp(
+        system.file(
+            "shiny",
+            "launcher",
+            package = "pws"
+        ),
         launch.browser = TRUE
-    )
-
-    switch(
-        choice,
-
-        "lab" = run_lab(),
-
-        "activity1" = run_activity1(),
-
-        "activity2" = run_activity2(),
-
-        "activity3" = run_activity3(),
-
-        "activity4" = run_activity4(),
-
-        "activity5" = run_activity5(),
-
-        "activity6" = run_activity6(),
-
-        "activity7" = run_activity7(),
-
-        "activity8" = run_activity8(),
-
-        "quit" = invisible(NULL)
     )
 
 }

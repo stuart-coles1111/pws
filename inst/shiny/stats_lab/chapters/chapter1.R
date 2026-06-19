@@ -92,16 +92,55 @@ chapter1_ui <- function(id){
                 )
             ),
 
-            textAreaInput(
-                ns("vector_input"),
-                "Data values",
-                value = "1,2,3,4,5",
-                rows = 4
+            conditionalPanel(
+
+                condition = sprintf(
+                    "input['%s'] == 'vector'",
+                    ns("data_source")
+                ),
+
+                textAreaInput(
+                    ns("vector_input"),
+                    "Data values",
+                    value = "1,2,3,4,5",
+                    rows = 4
+                )
+
             ),
 
-            fileInput(
-                ns("csv_file"),
-                "CSV file"
+            conditionalPanel(
+
+                condition = sprintf(
+                    "input['%s'] == 'csv'",
+                    ns("data_source")
+                ),
+
+                numericInput(
+                    ns("template_rows"),
+                    "Template rows",
+                    value = 20,
+                    min = 1
+                ),
+
+                numericInput(
+                    ns("template_cols"),
+                    "Template columns",
+                    value = 3,
+                    min = 1
+                ),
+
+                downloadButton(
+                    ns("download_template"),
+                    "Download CSV template"
+                ),
+
+                hr(),
+
+                fileInput(
+                    ns("csv_file"),
+                    "Upload completed CSV"
+                )
+
             ),
 
             selectInput(
@@ -114,11 +153,10 @@ chapter1_ui <- function(id){
                 )
             ),
 
-            numericInput(
-                ns("hist_row"),
-                "Histogram row",
-                value = 1,
-                min = 1
+            selectInput(
+                ns("hist_col"),
+                "Histogram variable",
+                choices = NULL
             ),
 
             selectInput(
@@ -132,60 +170,8 @@ chapter1_ui <- function(id){
                 "Y column",
                 choices = NULL
             )
-        )
     )
-    conditionalPanel(
-
-        radioButtons(
-            ns("data_source"),
-            "Data source",
-            choices = c(
-                "Enter vector" = "vector",
-                "Upload CSV" = "csv"
-            )
-        ),
-
-        textAreaInput(
-            ns("vector_input"),
-            "Data values",
-            value = "1,2,3,4,5",
-            rows = 4
-        ),
-
-        fileInput(
-            ns("csv_file"),
-            "CSV file"
-        ),
-
-        selectInput(
-            ns("toolkit_action"),
-            "Analysis",
-            choices = c(
-                "Summary statistics",
-                "Histogram",
-                "Scatterplot"
-            )
-        ),
-
-        numericInput(
-            ns("hist_row"),
-            "Histogram row",
-            value = 1,
-            min = 1
-        ),
-
-        selectInput(
-            ns("x_col"),
-            "X column",
-            choices = NULL
-        ),
-
-        selectInput(
-            ns("y_col"),
-            "Y column",
-            choices = NULL
-        )
-    )
+)
 
     overview_panel <- div(
 
@@ -303,16 +289,6 @@ chapter1_ui <- function(id){
         )
     )
 
-    # results_panel <- div(
-    #     card(
-    #         card_header("Goal scoring specification"),
-    #         plotOutput(ns("components"), height = 300)
-    #     ),
-    #     card(
-    #         card_header("Distribution of goals"),
-    #         plotOutput(ns("hist"), height = 400)
-    #     )
-    # )
 
     results_panel <- uiOutput(ns("results_panel"))
 
@@ -422,6 +398,45 @@ chapter1_server <- function(id){
 
     moduleServer(id, function(input, output, session){
 
+        output$download_template <- downloadHandler(
+
+            filename = function(){
+
+                paste0(
+                    "statistics_template_",
+                    Sys.Date(),
+                    ".csv"
+                )
+
+            },
+
+            content = function(file){
+
+
+                template <- as.data.frame(
+                    matrix(
+                        "",
+                        nrow = input$template_rows,
+                        ncol = input$template_cols
+                    )
+                )
+
+
+                names(template) <- paste0(
+                    "Variable_",
+                    seq_len(input$template_cols)
+                )
+
+
+                write.csv(
+                    template,
+                    file,
+                    row.names = FALSE
+                )
+
+            }
+        )
+
         # -------------------------------------------------
         # Store snapshot of last simulation inputs
         # -------------------------------------------------
@@ -435,7 +450,9 @@ chapter1_server <- function(id){
 
             req(input$mode == "toolkit")
 
-            if (input$data_source == "vector") {
+
+            if(input$data_source == "vector"){
+
 
                 x <- as.numeric(
                     trimws(
@@ -448,6 +465,7 @@ chapter1_server <- function(id){
                     )
                 )
 
+
                 validate(
                     need(
                         all(!is.na(x)),
@@ -455,25 +473,170 @@ chapter1_server <- function(id){
                     )
                 )
 
+
                 return(
                     list(
-                        type = "vector",
-                        data = x
+                        type="vector",
+                        data=x
                     )
                 )
+
             }
+
 
             req(input$csv_file)
 
-            df <- read.csv(
+
+            df <- readr::read_csv(
                 input$csv_file$datapath,
-                check.names = FALSE
+                col_types = readr::cols(.default = readr::col_double()),
+                show_col_types = FALSE
             )
 
             list(
-                type = "matrix",
-                data = as.matrix(df)
+                type="csv",
+                data=df
             )
+
+        })
+
+        observeEvent(toolkit_data(), {
+
+            req(input$data_source == "csv")
+
+            dat <- toolkit_data()$data
+
+            updateSelectInput(
+                session,
+                "x_col",
+                choices = names(dat)
+            )
+
+            updateSelectInput(
+                session,
+                "y_col",
+                choices = names(dat)
+            )
+
+        })
+
+        observeEvent(toolkit_data(), {
+
+            dat <- toolkit_data()
+
+            if(dat$type == "csv"){
+
+                updateSelectInput(
+                    session,
+                    "hist_col",
+                    choices = names(dat$data)
+                )
+
+            }
+
+        })
+
+        output$summary_table <- renderTable({
+
+            dat <- toolkit_data()
+
+            if(dat$type == "vector"){
+
+                x <- dat$data
+
+                return(data.frame(
+                    Variable = "Vector",
+                    Count = length(x),
+                    Mean = mean(x),
+                    Median = median(x),
+                    SD = sd(x),
+                    Min = min(x),
+                    Max = max(x)
+                ))
+            }
+
+            df <- dat$data
+
+            numeric_cols <- sapply(df, is.numeric)
+
+            df <- df[, numeric_cols, drop = FALSE]
+
+            validate(
+                need(ncol(df) > 0, "No numeric columns found in CSV.")
+            )
+
+            stats <- lapply(names(df), function(col){
+
+                x <- df[[col]]
+
+                data.frame(
+                    Variable = col,
+                    Count = length(x),
+                    Mean = mean(x, na.rm = TRUE),
+                    Median = median(x, na.rm = TRUE),
+                    SD = sd(x, na.rm = TRUE),
+                    Min = min(x, na.rm = TRUE),
+                    Max = max(x, na.rm = TRUE)
+                )
+            })
+
+            do.call(rbind, stats)
+        })
+
+        output$tool_hist <- renderPlot({
+
+            dat <- toolkit_data()
+
+
+            if(dat$type == "vector"){
+
+                x <- dat$data
+
+            } else {
+
+                x <- dat$data[[input$hist_col]]
+
+            }
+
+
+            hist(
+                x,
+                col = "#7B9ACC",
+                border = "white",
+                main = "Histogram",
+                xlab = "Value"
+            )
+
+        })
+
+        output$scatter <- renderPlot({
+
+            dat <- toolkit_data()
+
+            validate(
+                need(
+                    dat$type == "csv",
+                    "Scatterplots require uploaded CSV data with multiple variables."
+                )
+            )
+
+            req(input$x_col, input$y_col)
+
+            df <- dat$data
+
+            x <- df[[input$x_col]]
+            y <- df[[input$y_col]]
+
+            plot(
+                x,
+                y,
+                pch = 19,
+                col = "#CDB4DB",
+                xlab = input$x_col,
+                ylab = input$y_col,
+                main = "Scatterplot"
+            )
+
         })
 
         # -------------------------------------------------
@@ -482,8 +645,6 @@ chapter1_server <- function(id){
 
         observeEvent(input$run, {
 
-            updateNumericInput(session, "seed",
-                               value = sample(1:999, 1))
 
             last_run_inputs(list(
                 n_sim = input$n_sim,
@@ -521,13 +682,36 @@ chapter1_server <- function(id){
                     )
                 )
 
-            } else {
+            }else {
 
                 div(
 
                     card(
-                        card_header("Toolkit"),
-                        p("Toolkit mode selected")
+                        card_header("Toolkit output"),
+
+                        conditionalPanel(
+                            condition = sprintf(
+                                "input['%s'] == 'Summary statistics'",
+                                session$ns("toolkit_action")
+                            ),
+                            tableOutput(session$ns("summary_table"))
+                        ),
+
+                        conditionalPanel(
+                            condition = sprintf(
+                                "input['%s'] == 'Histogram'",
+                                session$ns("toolkit_action")
+                            ),
+                            plotOutput(session$ns("tool_hist"))
+                        ),
+
+                        conditionalPanel(
+                            condition = sprintf(
+                                "input['%s'] == 'Scatterplot'",
+                                session$ns("toolkit_action")
+                            ),
+                            plotOutput(session$ns("scatter"))
+                        )
                     )
                 )
             }
@@ -538,15 +722,52 @@ chapter1_server <- function(id){
         # -------------------------------------------------
 
         output$generated_code <- renderText({
-            paste0(
-                "goals_sim(\n",
-                "  n_sim = ", input$n_sim, ",\n",
-                "  pois_mean = ", input$pois_mean, ",\n",
-                "  mu = ", input$mu, ",\n",
-                "  phi = ", input$phi, ",\n",
-                "  seed = ", input$seed, "\n",
-                ")"
-            )
+
+            if(input$mode == "simulation"){
+
+                paste0(
+                    "goals_sim(\n",
+                    "  n_sim = ", input$n_sim,",\n",
+                    "  pois_mean = ", input$pois_mean,",\n",
+                    "  mu = ", input$mu,",\n",
+                    "  phi = ", input$phi,",\n",
+                    "  seed = ", input$seed,"\n",
+                    ")"
+                )
+
+            } else {
+
+                if(input$toolkit_action == "Summary statistics"){
+
+                    paste0(
+                        "# Work with your dataset\n",
+                        "data <- your_dataset\n\n",
+                        "# Summary statistics for all variables\n",
+                        "summary(data)"
+                    )
+
+                } else if(input$toolkit_action == "Histogram"){
+
+                    paste0(
+                        "# Work with your dataset\n",
+                        "data <- your_dataset\n\n",
+                        "# Histogram of a variable\n",
+                        "hist(data$", input$hist_col,
+                        ",\n     col = 'steelblue')"
+                    )
+
+                } else {
+
+                    paste0(
+                        "# Work with your dataset\n",
+                        "data <- your_dataset\n\n",
+                        "# Scatterplot of two variables\n",
+                        "plot(data$", input$x_col,
+                        ", data$", input$y_col,
+                        ",\n     pch = 19,\n     col = '#CDB4DB')"
+                    )
+                }
+            }
         })
 
         # -------------------------------------------------
