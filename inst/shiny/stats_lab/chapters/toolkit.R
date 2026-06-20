@@ -704,50 +704,83 @@ stats_toolkit_server <-function(id){
 
         output$generated_code <- renderText({
 
+            if (input$data_source == "vector") {
 
-            if(input$toolkit_action=="Summary statistics"){
+                vals <- toolkit_data()$data
 
-
-                "summary(data)"
-
-
-            } else if(input$toolkit_action=="Histogram"){
-
-                if(input$data_source == "vector"){
-
-                    paste0(
-                        "hist(x, breaks = ",
-                        input$hist_bins,
-                        ")"
-                    )
-
-                } else {
-
-                    paste0(
-                        "hist(data$",
-                        input$hist_col,
-                        ", breaks = ",
-                        input$hist_bins,
-                        ")"
-                    )
-
-                }
+                data_code <- paste0(
+                    "x <- c(",
+                    paste(head(vals, 20), collapse = ", "),
+                    if(length(vals) > 20) ", ..." else "",
+                    ")"
+                )
 
             } else {
 
+                data_code <- "data <- read.csv('my_data.csv')"
+            }
 
-                paste0(
-                    "plot(data$",
+            if (input$toolkit_action == "Summary statistics") {
+
+                analysis_code <-
+
+                    if (input$data_source == "vector") {
+
+                        "summary(x)"
+
+                    } else {
+
+                        "summary(data)"
+                    }
+
+            } else if (input$toolkit_action == "Histogram") {
+
+                analysis_code <-
+
+                    if (input$data_source == "vector") {
+
+                        paste0(
+                            "hist(x, breaks = ",
+                            input$hist_bins,
+                            ")"
+                        )
+
+                    } else {
+
+                        paste0(
+                            "x <- data$",
+                            input$hist_col,
+                            "\n",
+                            "hist(x, breaks = ",
+                            input$hist_bins,
+                            ")"
+                        )
+                    }
+
+            } else {
+
+                analysis_code <- paste0(
+                    "x <- data$",
                     input$x_col,
-                    ", data$",
+                    "\n",
+                    "y <- data$",
                     input$y_col,
-                    ")"
+                    "\n",
+                    "plot(x, y)"
                 )
 
             }
 
-        })
+            paste(
+                "# Data",
+                data_code,
+                "",
+                "# Analysis",
+                analysis_code,
+                sep = "\n"
+            )
 
+        })
 
     })
 

@@ -26,7 +26,7 @@ launch_activity <- function(app_name) {
         args = list(appdir, port),
         stdout = "|",
         stderr = "|",
-        supervise = TRUE
+        supervise = FALSE
     )
 
     Sys.sleep(1)
