@@ -79,7 +79,7 @@ chapter5_ui <- function(id){
 
             numericInput(
                 ns("B"),
-                "Number of bootstrap simulations",
+                "Number of simulations for inference",
                 value = 1000,
                 min = 100
             ),
@@ -95,11 +95,11 @@ chapter5_ui <- function(id){
 
             selectInput(
                 ns("boot_method"),
-                "Bootstrap method",
+                "Inference method",
                 choices = c(
-                    "Simulation (true p)" = "true_p",
-                    "Simulation (estimated p)" = "est_p",
-                    "Resampling from data" = "resample"
+                    "Process Simulation (exact)" = "true_p",
+                    "Process Simulation (approx)" = "est_p",
+                    "Resampling" = "resample"
                 )
             ),
 
@@ -111,7 +111,7 @@ chapter5_ui <- function(id){
 
             actionButton(
                 ns("bootstrap"),
-                "Bootstrap",
+                "Simulate Estimates",
                 class = "btn-info"
             ),
 
@@ -296,7 +296,7 @@ chapter5_ui <- function(id){
                     6,
 
                     card(
-                        card_header("Bootstrap distribution"),
+                        card_header("Estimator distribution"),
 
                         plotOutput(
                             ns("bootstrap_plot"),
@@ -552,6 +552,86 @@ chapter5_server <- function(id){
 
         output$conf_display <- renderText({
             paste0(round(100 * input$conf), "%")
+        })
+
+        # =====================================================
+        # Generated R code panel
+        # =====================================================
+
+        output$generated_code <- renderText({
+
+            if (input$topic == "Inference") {
+
+                code <- paste0(
+                    "## Two-dice inference investigation
+
+# Generate observed dice rolls
+set.seed(", input$seed, ")
+
+dice <- sample(
+    1:6,
+    size = ", input$n, ",
+    replace = TRUE,
+    prob = c(
+        rep((1 - ", input$p_true, ")/5, 5),
+        ", input$p_true, "
+    )
+)
+
+# Estimate probability of rolling a six
+p_hat <- mean(dice == 6)
+
+# Bootstrap distribution
+bootstrap_p <- replicate(
+    ", input$B, ",
+    mean(sample(dice, replace = TRUE) == 6)
+)
+
+# Bootstrap standard error
+se <- sd(bootstrap_p)
+
+# Confidence interval
+z <- qnorm(1 - (1 - ", input$conf, ")/2)
+
+c(
+    p_hat - z * se,
+    p_hat + z * se
+)"
+                )
+
+            } else {
+
+                code <- paste0(
+                    "## Regression investigation
+
+# Select seasons
+data <- subset(
+    pws::PL_points,
+    season <= '", input$end_season, "'
+)
+
+# Fit regression model
+
+model <- lm(
+    points_half2 ~ points_half1,
+    data = data
+)
+
+# Prediction at selected point
+
+predict(
+    model,
+    newdata = data.frame(
+        points_half1 = ", input$x_split, "
+    ),
+    interval = 'confidence',
+    level = ", input$conf_reg, "
+)"
+                )
+
+            }
+
+            code
         })
 
         # =====================================================

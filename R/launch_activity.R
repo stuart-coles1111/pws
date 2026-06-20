@@ -11,6 +11,10 @@ launch_activity <- function(app_name) {
     p <- callr::r_bg(
         function(appdir, port) {
 
+            message("Starting app")
+            message(appdir)
+            message(port)
+
             shiny::runApp(
                 appdir,
                 host = "127.0.0.1",
@@ -19,9 +23,26 @@ launch_activity <- function(app_name) {
             )
 
         },
-        args = list(appdir, port)
+        args = list(appdir, port),
+        stdout = "|",
+        stderr = "|",
+        supervise = TRUE
     )
 
+    Sys.sleep(1)
+
+    if (!p$is_alive()) {
+
+        cat(
+            paste(p$read_error_lines(), collapse = "\n"),
+            "\n"
+        )
+
+        cat(
+            paste(p$read_output_lines(), collapse = "\n"),
+            "\n"
+        )
+    }
 
     url <- sprintf("http://127.0.0.1:%s", port)
 
@@ -29,18 +50,19 @@ launch_activity <- function(app_name) {
 
     repeat {
 
-        ready <- tryCatch(
-            {
-                con <- url(url)
-                close(con)
-                TRUE
-            },
-            error = function(e) FALSE
-        )
+        ready <- tryCatch({
 
-        if (ready) {
+            res <- httr::GET(
+                url,
+                httr::timeout(1)
+            )
+
+            httr::status_code(res) == 200
+
+        }, error = function(e) FALSE)
+
+        if (ready)
             break
-        }
 
         if (!p$is_alive()) {
             stop("App process terminated before starting.")

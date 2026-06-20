@@ -1,5 +1,6 @@
 library(shiny)
 library(bslib)
+library(pws)
 
 ui <- page_sidebar(
 
@@ -89,7 +90,7 @@ ui <- page_sidebar(
 
                 actionButton(
                     "lab",
-                    "Open Lab",
+                    "Stats Lab",
                     class="btn-primary"
                 )
             ),
@@ -140,7 +141,7 @@ ui <- page_sidebar(
                 style="
                 border-radius:16px;
                 border:none;
-                box-shadow:0 4px12px rgba(0,0,0,0.08);
+                box-shadow:0 4px 12px rgba(0,0,0,0.08);
                 ",
 
                 card_header(
@@ -178,51 +179,79 @@ ui <- page_sidebar(
             )
 
         )
-    )
+    ),
+
+
+    # JavaScript to close browser window
+    tags$script("
+        Shiny.addCustomMessageHandler('closeWindow', function(message) {
+            window.close();
+        });
+    ")
+
 )
+
 
 server <- function(input, output, session) {
 
+
     observeEvent(input$lab, {
-        launch_activity("stats_lab")
+        pws:::safe_launch("stats_lab")
     })
+
 
     observeEvent(input$activity1, {
-        launch_activity("app_activity1")
+        pws:::safe_launch("app_activity1")
     })
+
 
     observeEvent(input$activity2, {
-        launch_activity("app_activity2")
+        pws:::safe_launch("app_activity2")
     })
+
 
     observeEvent(input$activity3, {
-        launch_activity("app_activity3")
+        pws:::safe_launch("app_activity3")
     })
+
 
     observeEvent(input$activity4, {
-        launch_activity("app_activity4")
+        pws:::safe_launch("app_activity4")
     })
+
 
     observeEvent(input$activity5, {
-        launch_activity("app_activity5")
+        pws:::safe_launch("app_activity5")
     })
+
 
     observeEvent(input$activity6, {
-        launch_activity("app_activity6")
+        pws:::safe_launch("app_activity6")
     })
+
 
     observeEvent(input$activity7, {
-        launch_activity("app_activity7")
+        pws:::safe_launch("app_activity7")
     })
+
 
     observeEvent(input$activity8, {
-        launch_activity("app_activity8")
+        pws:::safe_launch("app_activity8")
     })
 
+
     observeEvent(input$quit, {
+
+        session$sendCustomMessage(
+            "closeWindow",
+            TRUE
+        )
+
         stopApp()
+
     })
 
 }
+
 
 shinyApp(ui, server)

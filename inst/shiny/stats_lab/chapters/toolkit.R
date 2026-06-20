@@ -200,7 +200,7 @@ stats_toolkit_ui <- function(id){
     results_panel <- card(
 
         card_header(
-            "Investigate your data"
+            "Data Exploration"
         ),
 
 

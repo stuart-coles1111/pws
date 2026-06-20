@@ -212,7 +212,7 @@ chapter7_ui <- function(id){
 
         sliderInput(
             ns("p"),
-            "Probability of Dice 1",
+            "Probability of Selecting the Red Dice",
             min = 0,
             max = 1,
             value = 0.4
@@ -361,23 +361,26 @@ chapter7_ui <- function(id){
 
     results_panel <- div(
 
-        card(
-            card_header("Score distribution"),
+        layout_columns(
 
-            plotOutput(
-                ns("hist"),
-                height = 350
-            )
-        ),
+            card(
+                card_header("Score distribution"),
 
-        br(),
+                plotOutput(
+                    ns("hist"),
+                    height = 350
+                )
+            ),
 
-        card(
-            card_header("Estimated probabilities"),
+            card(
+                card_header("Estimated probabilities"),
 
-            DT::DTOutput(
-                ns("prob_table")
-            )
+                DT::DTOutput(
+                    ns("prob_table")
+                )
+            ),
+
+            col_widths = c(6, 6)
         ),
 
         br(),
@@ -524,6 +527,93 @@ chapter7_server <- function(id){
             isTRUE(show_diag())
         })
 
+        # -----------------------------
+        # Generated R code panel
+        # -----------------------------
+
+        output$generated_code <- renderText({
+
+            code <- paste0(
+                "## Double Dice Game Simulation
+
+# Set random seed
+set.seed(", input$seed, ")
+
+# Simulate game outcomes
+
+game_scores <- double_dice_game_sim(
+    n = ", input$n_sim, ",
+    p = ", input$p, "
+)
+
+# Estimate model probabilities
+
+counts <- table(
+    factor(
+        game_scores,
+        levels = 1:9
+    )
+)
+
+estimates <- mod_ests(
+    as.numeric(counts)
+)
+
+# Model probabilities
+
+Model_N <- estimates$p_N
+
+Model_S <- estimates$p_S
+
+Model_D <- estimates$p_D
+
+Model_P <- estimates$p_P
+"
+            )
+
+
+if (!is.null(fitted_models())) {
+
+    code <- paste0(
+        code,
+        "
+
+# Models currently displayed
+
+models_selected <- c(",
+        paste(
+            input$models,
+            collapse = ", "
+        ),
+        ")
+
+# Compare fitted models with observed data
+"
+    )
+
+}
+
+
+if (!is.null(diagnostics())) {
+
+    code <- paste0(
+        code,
+        "
+
+# Model diagnostics
+
+double_dice_game_model_check(
+    game_scores
+)
+"
+    )
+
+}
+
+
+code
+
+        })
 
         # -----------------------------
         # Run simulation

@@ -483,7 +483,7 @@ server <- function(input, output, session) {
                 div(
                     class = "hero-card",
 
-                    h2("🎬 Final Question"),
+                    h2("🎬 Question Number 15"),
 
                     div(class = "money-display", "For 1,000,000 kr"),
 
@@ -526,7 +526,7 @@ server <- function(input, output, session) {
 
 <br><br>
 
-Should he answer the question or walk away?
+Should Balder answer the question or walk away and keep 50,000 Kroner??
 "
                         )
 
