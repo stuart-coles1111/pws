@@ -9,7 +9,6 @@ stats_toolkit_ui <- function(id){
 
     sidebar_controls <- sidebar(
 
-
         h4("Simple Statistics Toolkit"),
 
 
@@ -26,20 +25,67 @@ stats_toolkit_ui <- function(id){
 
         conditionalPanel(
 
+            radioButtons(
+                ns("vector_mode"),
+                "Vector source",
+                choices = c(
+                    "Manual entry" = "manual",
+                    "Simulate Poisson data" = "simulate"
+                )
+            ),
+
             condition = sprintf(
                 "input['%s']=='vector'",
                 ns("data_source")
             ),
 
 
-            textAreaInput(
-                ns("vector_input"),
-                "Data values (x)",
-                value = paste(
-                    rpois(100,2.5),
-                    collapse=","
+            conditionalPanel(
+
+                condition = sprintf(
+                    "input['%s']=='manual'",
+                    ns("vector_mode")
                 ),
-                rows=6
+
+                textAreaInput(
+                    ns("vector_input"),
+                    "Data values (x)",
+                    value = paste(
+                        rpois(100,2.5),
+                        collapse=","
+                    ),
+                    rows=6
+                )
+
+            ),
+
+            conditionalPanel(
+
+                condition = sprintf(
+                    "input['%s']=='simulate'",
+                    ns("vector_mode")
+                ),
+
+                numericInput(
+                    ns("seed"),
+                    "Random seed",
+                    sample(1:999,1),
+                    min=1,
+                    max=999
+                ),
+
+                numericInput(
+                    ns("sim_n"),
+                    "Number of observations",
+                    100,
+                    min=1
+                ),
+
+                actionButton(
+                    ns("simulate_data"),
+                    "Generate data"
+                )
+
             )
 
         ),
@@ -383,7 +429,15 @@ stats_toolkit_server <-function(id){
                     "toolkit_action",
                     choices = c(
                         "Summary statistics",
-                        "Histogram"
+                        "Mean",
+                        "Median",
+                        "SD",
+                        "Variance",
+                        "Min",
+                        "Max",
+                        "Frequency table",
+                        "Histogram",
+                        "Boxplot"
                     )
                 )
 
@@ -395,8 +449,17 @@ stats_toolkit_server <-function(id){
                     "toolkit_action",
                     choices = c(
                         "Summary statistics",
+                        "Mean",
+                        "Median",
+                        "SD",
+                        "Variance",
+                        "Min",
+                        "Max",
+                        "Frequency table",
                         "Histogram",
-                        "Scatterplot"
+                        "Boxplot",
+                        "Scatterplot",
+                        "Correlation"
                     )
                 )
 
@@ -405,7 +468,27 @@ stats_toolkit_server <-function(id){
         })
 
 
+        observeEvent(input$simulate_data,{
 
+            set.seed(input$seed)
+
+            lambda <- runif(1,2,20)
+
+            x <- rpois(
+                input$sim_n,
+                lambda
+            )
+
+            updateTextAreaInput(
+                session,
+                "vector_input",
+                value = paste(
+                    x,
+                    collapse=","
+                )
+            )
+
+        })
 
 
         toolkit_data <- reactive({
