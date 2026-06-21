@@ -468,11 +468,13 @@ stats_toolkit_server <-function(id){
         })
 
 
-        observeEvent(input$simulate_data,{
+        observeEvent(input$simulate_data, {
 
-            set.seed(input$seed)
+            current_seed <- input$seed
 
-            lambda <- runif(1,2,20)
+            set.seed(current_seed)
+
+            lambda <- runif(1, 2, 20)
 
             x <- rpois(
                 input$sim_n,
@@ -484,8 +486,14 @@ stats_toolkit_server <-function(id){
                 "vector_input",
                 value = paste(
                     x,
-                    collapse=","
+                    collapse = ","
                 )
+            )
+
+            updateNumericInput(
+                session,
+                "seed",
+                value = sample(1:999, 1)
             )
 
         })
