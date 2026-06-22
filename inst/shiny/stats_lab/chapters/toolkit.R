@@ -1,7 +1,3 @@
-# =========================================================
-# UI
-# =========================================================
-
 stats_toolkit_ui <- function(id){
 
     ns <- NS(id)
@@ -25,6 +21,12 @@ stats_toolkit_ui <- function(id){
 
         conditionalPanel(
 
+            condition = sprintf(
+                "input['%s']=='vector'",
+                ns("data_source")
+            ),
+
+
             radioButtons(
                 ns("vector_mode"),
                 "Vector source",
@@ -32,11 +34,6 @@ stats_toolkit_ui <- function(id){
                     "Manual entry" = "manual",
                     "Simulate Poisson data" = "simulate"
                 )
-            ),
-
-            condition = sprintf(
-                "input['%s']=='vector'",
-                ns("data_source")
             ),
 
 
@@ -47,6 +44,7 @@ stats_toolkit_ui <- function(id){
                     ns("vector_mode")
                 ),
 
+
                 textAreaInput(
                     ns("vector_input"),
                     "Data values (x)",
@@ -54,10 +52,11 @@ stats_toolkit_ui <- function(id){
                         rpois(100,2.5),
                         collapse=","
                     ),
-                    rows=6
+                    rows = 6
                 )
 
             ),
+
 
             conditionalPanel(
 
@@ -66,20 +65,23 @@ stats_toolkit_ui <- function(id){
                     ns("vector_mode")
                 ),
 
+
                 numericInput(
                     ns("seed"),
                     "Random seed",
                     sample(1:999,1),
-                    min=1,
-                    max=999
+                    min = 1,
+                    max = 999
                 ),
+
 
                 numericInput(
                     ns("sim_n"),
                     "Number of observations",
                     100,
-                    min=1
+                    min = 1
                 ),
+
 
                 actionButton(
                     ns("simulate_data"),
@@ -89,6 +91,7 @@ stats_toolkit_ui <- function(id){
             )
 
         ),
+
 
 
 
@@ -104,7 +107,7 @@ stats_toolkit_ui <- function(id){
                 ns("template_rows"),
                 "Template rows",
                 20,
-                min=1
+                min = 1
             ),
 
 
@@ -112,7 +115,7 @@ stats_toolkit_ui <- function(id){
                 ns("template_cols"),
                 "Template columns",
                 3,
-                min=1
+                min = 1
             ),
 
 
@@ -124,24 +127,27 @@ stats_toolkit_ui <- function(id){
 
             fileInput(
                 ns("csv_file"),
-                "Upload completed CSV"
+                "Upload completed CSV",
+                accept = ".csv"
             )
 
         ),
 
 
 
+
         selectInput(
             ns("toolkit_action"),
             "Analysis",
-            choices=NULL
+            choices = NULL
         ),
+
 
 
 
         conditionalPanel(
 
-            condition=sprintf(
+            condition = sprintf(
                 "input['%s']=='Histogram'",
                 ns("toolkit_action")
             ),
@@ -159,29 +165,37 @@ stats_toolkit_ui <- function(id){
 
 
 
+
         conditionalPanel(
 
-            condition=sprintf(
-                "input['%s']=='csv' && input['%s']=='Histogram'",
+            condition = sprintf(
+                "input['%s']=='csv' &&
+                (input['%s']=='Histogram' ||
+                 input['%s']=='Boxplot' ||
+                 input['%s']=='Frequency table')",
                 ns("data_source"),
+                ns("toolkit_action"),
+                ns("toolkit_action"),
                 ns("toolkit_action")
             ),
 
 
             selectInput(
                 ns("hist_col"),
-                "Histogram variable",
-                choices=NULL
+                "Variable",
+                choices = NULL
             )
 
         ),
 
 
 
+
         conditionalPanel(
 
-            condition=sprintf(
-                "input['%s']=='csv' && input['%s']=='Scatterplot'",
+            condition = sprintf(
+                "input['%s']=='csv' &&
+                input['%s']=='Scatterplot'",
                 ns("data_source"),
                 ns("toolkit_action")
             ),
@@ -190,14 +204,21 @@ stats_toolkit_ui <- function(id){
             selectInput(
                 ns("x_col"),
                 "X column",
-                choices=NULL
+                choices = NULL
             ),
 
 
             selectInput(
                 ns("y_col"),
                 "Y column",
-                choices=NULL
+                choices = NULL
+            ),
+
+
+            checkboxInput(
+                ns("add_lm"),
+                "Add linear regression line",
+                value = FALSE
             )
 
         )
@@ -216,8 +237,7 @@ stats_toolkit_ui <- function(id){
 
 
         p(
-            "Explore basic statistical summaries and visualisations
-            from either manually entered data or uploaded CSV files."
+            "Explore basic statistical summaries and visualisations from either manually entered data or uploaded CSV files."
         ),
 
 
@@ -252,10 +272,27 @@ stats_toolkit_ui <- function(id){
 
         conditionalPanel(
 
-            condition=sprintf(
-                "input['%s']=='Summary statistics'",
+            condition = sprintf(
+                "input['%s']=='Summary statistics' ||
+                 input['%s']=='Mean' ||
+                 input['%s']=='Median' ||
+                 input['%s']=='SD' ||
+                 input['%s']=='Variance' ||
+                 input['%s']=='Min' ||
+                 input['%s']=='Max' ||
+                 input['%s']=='Frequency table' ||
+                 input['%s']=='Correlation'",
+                ns("toolkit_action"),
+                ns("toolkit_action"),
+                ns("toolkit_action"),
+                ns("toolkit_action"),
+                ns("toolkit_action"),
+                ns("toolkit_action"),
+                ns("toolkit_action"),
+                ns("toolkit_action"),
                 ns("toolkit_action")
             ),
+
 
             tableOutput(
                 ns("summary_table")
@@ -264,16 +301,18 @@ stats_toolkit_ui <- function(id){
         ),
 
 
+
         conditionalPanel(
 
-            condition=sprintf(
+            condition = sprintf(
                 "input['%s']=='Histogram'",
                 ns("toolkit_action")
             ),
 
+
             plotOutput(
                 ns("tool_hist"),
-                height="400px"
+                height = "400px"
             )
 
         ),
@@ -282,20 +321,51 @@ stats_toolkit_ui <- function(id){
 
         conditionalPanel(
 
-            condition=sprintf(
+            condition = sprintf(
+                "input['%s']=='Boxplot'",
+                ns("toolkit_action")
+            ),
+
+
+            plotOutput(
+                ns("tool_boxplot"),
+                height = "400px"
+            )
+
+        ),
+
+
+
+        conditionalPanel(
+
+            condition = sprintf(
                 "input['%s']=='Scatterplot'",
                 ns("toolkit_action")
             ),
 
+
             plotOutput(
                 ns("scatter"),
-                height="400px"
+                height = "400px"
+            ),
+
+            conditionalPanel(
+
+                condition = sprintf(
+                    "input['%s']=='Scatterplot' && input['%s']==true",
+                    ns("toolkit_action"),
+                    ns("add_lm")
+                ),
+
+                tableOutput(
+                    ns("regression_results")
+                )
+
             )
 
         )
 
     )
-
 
 
 
@@ -322,7 +392,6 @@ stats_toolkit_ui <- function(id){
 
 
 
-
     learn_panel <- card(
 
         card_header(
@@ -331,14 +400,12 @@ stats_toolkit_ui <- function(id){
 
 
         p(
-            "Summary statistics describe the centre and spread
-            of data."
+            "Summary statistics describe the centre and spread of data."
         ),
 
 
         p(
-            "Graphs help reveal patterns that are not obvious
-            from numbers alone."
+            "Graphs help reveal patterns that are not obvious from numbers alone."
         )
 
     )
@@ -349,25 +416,25 @@ stats_toolkit_ui <- function(id){
 
     chapter_page_ui(
 
-        id=id,
+        id = id,
 
-        title="🧰 Statistics Toolkit",
+        title = "🧰 Statistics Toolkit",
 
-        sidebar=sidebar_controls,
+        sidebar = sidebar_controls,
 
-        overview=overview_panel,
+        overview = overview_panel,
 
-        results=results_panel,
+        results = results_panel,
 
-        code=code_panel,
+        code = code_panel,
 
-        learn=learn_panel
+        learn = learn_panel
 
     )
 
 }
 
-stats_toolkit_server <-function(id){
+stats_toolkit_server<-function(id){
 
     moduleServer(id, function(input, output, session){
 
@@ -545,19 +612,12 @@ stats_toolkit_server <-function(id){
 
 
 
-            req(input$csv_file)
-
+            req(input$csv_file$datapath)
 
 
             df <- readr::read_csv(
 
                 input$csv_file$datapath,
-
-                col_types =
-                    readr::cols(
-                        .default =
-                            readr::col_double()
-                    ),
 
                 show_col_types = FALSE
 
@@ -575,75 +635,181 @@ stats_toolkit_server <-function(id){
 
 
 
-        observeEvent(toolkit_data(),{
+        observe({
 
+            dat <- toolkit_data()
 
-            req(
-                input$data_source=="csv"
-            )
+            req(dat$type == "csv")
 
-
-            dat <- toolkit_data()$data
+            df <- dat$data
 
 
             updateSelectInput(
                 session,
                 "x_col",
-                choices = names(dat)
+                choices = names(df)
             )
 
 
             updateSelectInput(
                 session,
                 "y_col",
-                choices = names(dat)
+                choices = names(df)
             )
 
 
             updateSelectInput(
                 session,
                 "hist_col",
-                choices = names(dat)
+                choices = names(df)
             )
-
 
         })
 
 
 
 
-
-
         output$summary_table <- renderTable({
-
 
             dat <- toolkit_data()
 
+            action <- input$toolkit_action
 
+            # --------------------------------------------------
+            # Frequency table
+            # --------------------------------------------------
 
-            if(dat$type=="vector"){
+            if(action == "Frequency table") {
 
+                x <-
+
+                    if(dat$type == "vector") {
+
+                        dat$data
+
+                    } else {
+
+                        req(input$hist_col)
+
+                        dat$data[[input$hist_col]]
+
+                    }
+
+                return(
+                    as.data.frame(table(x))
+                )
+            }
+
+            # --------------------------------------------------
+            # Single statistics
+            # --------------------------------------------------
+
+            if(action %in% c(
+                "Mean",
+                "Median",
+                "SD",
+                "Variance",
+                "Min",
+                "Max"
+            )) {
+
+                stat_fun <- switch(
+
+                    action,
+
+                    "Mean" = mean,
+                    "Median" = median,
+                    "SD" = sd,
+                    "Variance" = var,
+                    "Min" = min,
+                    "Max" = max
+                )
+
+                if(dat$type == "vector") {
+
+                    return(
+
+                        data.frame(
+                            Statistic = action,
+                            Value = stat_fun(dat$data)
+                        )
+
+                    )
+
+                }
+
+                df <- dat$data
+
+                numeric_cols <- sapply(df, is.numeric)
+
+                df <- df[, numeric_cols, drop = FALSE]
+
+                return(
+
+                    data.frame(
+                        Variable = names(df),
+                        Value = sapply(
+                            df,
+                            stat_fun,
+                            na.rm = TRUE
+                        )
+                    )
+
+                )
+            }
+
+            # --------------------------------------------------
+            # Correlation matrix
+            # --------------------------------------------------
+
+            if(action == "Correlation") {
+
+                req(dat$type == "csv")
+
+                df <- dat$data
+
+                numeric_cols <- sapply(df, is.numeric)
+
+                df <- df[, numeric_cols, drop = FALSE]
+
+                return(
+
+                    round(
+                        cor(
+                            df,
+                            use = "complete.obs"
+                        ),
+                        3
+                    )
+
+                )
+            }
+
+            # --------------------------------------------------
+            # Summary statistics (existing behaviour)
+            # --------------------------------------------------
+
+            if(dat$type == "vector") {
 
                 x <- dat$data
-
 
                 return(
 
                     data.frame(
 
-                        Variable="x",
+                        Variable = "x",
 
-                        Count=length(x),
+                        Count = length(x),
 
-                        Mean=mean(x),
+                        Mean = mean(x),
 
-                        Median=median(x),
+                        Median = median(x),
 
-                        SD=sd(x),
+                        SD = sd(x),
 
-                        Min=min(x),
+                        Min = min(x),
 
-                        Max=max(x)
+                        Max = max(x)
 
                     )
 
@@ -651,21 +817,11 @@ stats_toolkit_server <-function(id){
 
             }
 
-
-
             df <- dat$data
 
+            numeric_cols <- sapply(df, is.numeric)
 
-
-            numeric_cols <-
-                sapply(df,is.numeric)
-
-
-
-            df <-
-                df[,numeric_cols,drop=FALSE]
-
-
+            df <- df[, numeric_cols, drop = FALSE]
 
             results <- lapply(
 
@@ -673,9 +829,7 @@ stats_toolkit_server <-function(id){
 
                 function(col){
 
-
                     x <- df[[col]]
-
 
                     data.frame(
 
@@ -699,9 +853,7 @@ stats_toolkit_server <-function(id){
 
             )
 
-
             do.call(rbind, results)
-
 
         })
 
@@ -749,13 +901,48 @@ stats_toolkit_server <-function(id){
         })
 
 
+        output$tool_boxplot <- renderPlot({
+
+            dat <- toolkit_data()
+
+            x <-
+
+                if(dat$type == "vector") {
+
+                    dat$data
+
+                } else {
+
+                    req(input$hist_col)
+
+                    dat$data[[input$hist_col]]
+
+                }
 
 
+            boxplot(
+
+                x,
+
+                col = "#7B9ACC",
+
+                border = "#2c3e50",
+
+                whisklty = 1,
+
+                staplewex = 0.5,
+
+                main = "Boxplot",
+
+                ylab = "Value"
+
+            )
+
+        })
 
 
 
         output$scatter <- renderPlot({
-
 
             dat <- toolkit_data()
 
@@ -767,11 +954,16 @@ stats_toolkit_server <-function(id){
             )
 
 
+            x <- dat$data[[input$x_col]]
+
+            y <- dat$data[[input$y_col]]
+
+
             plot(
 
-                dat$data[[input$x_col]],
+                x,
 
-                dat$data[[input$y_col]],
+                y,
 
                 pch=19,
 
@@ -785,12 +977,73 @@ stats_toolkit_server <-function(id){
 
             )
 
+
+            if(input$add_lm) {
+
+
+                model <- lm(
+                    y ~ x
+                )
+
+
+                abline(
+                    model,
+                    col="#7B9ACC",
+                    lwd=3
+                )
+
+
+
+            }
+
+
         })
 
 
 
+        output$regression_results <- renderTable({
+
+            req(
+                input$add_lm,
+                input$toolkit_action == "Scatterplot"
+            )
 
 
+            dat <- toolkit_data()
+
+
+            x <- dat$data[[input$x_col]]
+
+            y <- dat$data[[input$y_col]]
+
+
+            model <- lm(
+                y ~ x
+            )
+
+
+            coefs <- summary(model)$coefficients
+
+
+            data.frame(
+
+                Term = rownames(coefs),
+
+                Estimate = round(
+                    coefs[,1],
+                    4
+                ),
+
+                "Standard Error" = round(
+                    coefs[,2],
+                    4
+                ),
+
+                row.names = NULL
+
+            )
+
+        })
 
 
         output$generated_code <- renderText({
@@ -809,11 +1062,19 @@ stats_toolkit_server <-function(id){
             } else {
 
                 data_code <- "data <- read.csv('my_data.csv')"
+
             }
 
-            if (input$toolkit_action == "Summary statistics") {
 
-                analysis_code <-
+            action <- input$toolkit_action
+
+
+            analysis_code <- switch(
+
+                action,
+
+
+                "Summary statistics" = {
 
                     if (input$data_source == "vector") {
 
@@ -822,13 +1083,124 @@ stats_toolkit_server <-function(id){
                     } else {
 
                         "summary(data)"
+
                     }
 
-            } else if (input$toolkit_action == "Histogram") {
+                },
 
-                analysis_code <-
 
-                    if (input$data_source == "vector") {
+                "Mean" = {
+
+                    if(input$data_source == "vector") {
+
+                        "mean(x)"
+
+                    } else {
+
+                        "sapply(data, mean, na.rm = TRUE)"
+
+                    }
+
+                },
+
+
+                "Median" = {
+
+                    if(input$data_source == "vector") {
+
+                        "median(x)"
+
+                    } else {
+
+                        "sapply(data, median, na.rm = TRUE)"
+
+                    }
+
+                },
+
+
+                "SD" = {
+
+                    if(input$data_source == "vector") {
+
+                        "sd(x)"
+
+                    } else {
+
+                        "sapply(data, sd, na.rm = TRUE)"
+
+                    }
+
+                },
+
+
+                "Variance" = {
+
+                    if(input$data_source == "vector") {
+
+                        "var(x)"
+
+                    } else {
+
+                        "sapply(data, var, na.rm = TRUE)"
+
+                    }
+
+                },
+
+
+                "Min" = {
+
+                    if(input$data_source == "vector") {
+
+                        "min(x)"
+
+                    } else {
+
+                        "sapply(data, min, na.rm = TRUE)"
+
+                    }
+
+                },
+
+
+                "Max" = {
+
+                    if(input$data_source == "vector") {
+
+                        "max(x)"
+
+                    } else {
+
+                        "sapply(data, max, na.rm = TRUE)"
+
+                    }
+
+                },
+
+
+                "Frequency table" = {
+
+                    if(input$data_source == "vector") {
+
+                        "table(x)"
+
+                    } else {
+
+                        paste0(
+                            "table(data$",
+                            input$hist_col,
+                            ")"
+                        )
+
+                    }
+
+                },
+
+
+                "Histogram" = {
+
+                    if(input$data_source == "vector") {
 
                         paste0(
                             "hist(x, breaks = ",
@@ -839,28 +1211,80 @@ stats_toolkit_server <-function(id){
                     } else {
 
                         paste0(
-                            "x <- data$",
+                            "hist(data$",
                             input$hist_col,
-                            "\n",
-                            "hist(x, breaks = ",
+                            ", breaks = ",
                             input$hist_bins,
                             ")"
                         )
+
                     }
 
-            } else {
+                },
 
-                analysis_code <- paste0(
-                    "x <- data$",
-                    input$x_col,
-                    "\n",
-                    "y <- data$",
-                    input$y_col,
-                    "\n",
-                    "plot(x, y)"
-                )
 
-            }
+                "Boxplot" = {
+
+                    if(input$data_source == "vector") {
+
+                        "boxplot(x)"
+
+                    } else {
+
+                        paste0(
+                            "boxplot(data$",
+                            input$hist_col,
+                            ")"
+                        )
+
+                    }
+
+                },
+
+
+                "Correlation" = {
+
+                    "cor(data, use = 'complete.obs')"
+
+                },
+
+
+                "Scatterplot" = {
+
+                    code <- paste0(
+                        "plot(data$",
+                        input$x_col,
+                        ", data$",
+                        input$y_col,
+                        ")"
+                    )
+
+
+                    if(input$add_lm) {
+
+                        code <- paste0(
+                            code,
+                            "\n",
+                            "model <- lm(data$",
+                            input$y_col,
+                            " ~ data$",
+                            input$x_col,
+                            ")",
+                            "\n",
+                            "abline(model)",
+                            "\n",
+                            "summary(model)$coefficients"
+                        )
+
+                    }
+
+
+                    code
+
+                }
+
+            )
+
 
             paste(
                 "# Data",
