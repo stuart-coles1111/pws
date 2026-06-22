@@ -216,7 +216,7 @@ ui <- page_navbar(
 
             fluidRow(
                 column(
-                    width = 6,
+                    width = 4,
                     div(
                         h4("Game Log"),
                         div(class = "log-box", uiOutput("m_log_ui"))
@@ -224,7 +224,7 @@ ui <- page_navbar(
                 ),
 
                 column(
-                    width = 6,
+                    width = 8,
                     plotOutput("m_plot", height = "300px")
                 )
             )
@@ -364,7 +364,7 @@ ui <- page_navbar(
 
                 fluidRow(
                     column(
-                        width = 6,
+                        width = 4,
                         div(
                             h4("Game Log"),
                             div(class = "log-box", uiOutput("s_log_ui"))
@@ -372,7 +372,7 @@ ui <- page_navbar(
                     ),
 
                     column(
-                        width = 6,
+                        width = 8,
                         plotOutput("s_plot", height = "300px")
                     )
                 )
