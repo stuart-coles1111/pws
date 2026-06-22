@@ -2,7 +2,6 @@ stats_toolkit_ui <- function(id){
 
     ns <- NS(id)
 
-
     sidebar_controls <- sidebar(
 
         h4("Simple Statistics Toolkit"),
@@ -271,17 +270,16 @@ stats_toolkit_ui <- function(id){
 
 
         conditionalPanel(
-
             condition = sprintf(
                 "input['%s']=='Summary statistics' ||
-                 input['%s']=='Mean' ||
-                 input['%s']=='Median' ||
-                 input['%s']=='SD' ||
-                 input['%s']=='Variance' ||
-                 input['%s']=='Min' ||
-                 input['%s']=='Max' ||
-                 input['%s']=='Frequency table' ||
-                 input['%s']=='Correlation'",
+     input['%s']=='Mean' ||
+     input['%s']=='Median' ||
+     input['%s']=='SD' ||
+     input['%s']=='Variance' ||
+     input['%s']=='Min' ||
+     input['%s']=='Max' ||
+     input['%s']=='Frequency table' ||
+     input['%s']=='Correlation'",
                 ns("toolkit_action"),
                 ns("toolkit_action"),
                 ns("toolkit_action"),
@@ -293,11 +291,9 @@ stats_toolkit_ui <- function(id){
                 ns("toolkit_action")
             ),
 
-
-            tableOutput(
+            uiOutput(
                 ns("summary_table")
             )
-
         ),
 
 
@@ -435,6 +431,7 @@ stats_toolkit_ui <- function(id){
 }
 
 stats_toolkit_server<-function(id){
+
 
     moduleServer(id, function(input, output, session){
 
@@ -667,56 +664,102 @@ stats_toolkit_server<-function(id){
         })
 
 
-
-
-        output$summary_table <- renderTable({
+        output$summary_table_inner <- renderTable({
 
             dat <- toolkit_data()
-
             action <- input$toolkit_action
 
             # --------------------------------------------------
             # Frequency table
             # --------------------------------------------------
-
             if(action == "Frequency table") {
 
                 x <-
-
                     if(dat$type == "vector") {
-
                         dat$data
-
                     } else {
-
                         req(input$hist_col)
-
                         dat$data[[input$hist_col]]
-
                     }
 
-                return(
-                    as.data.frame(table(x))
-                )
+                return(as.data.frame(table(x)))
             }
 
             # --------------------------------------------------
-            # Single statistics
+            # Correlation matrix
             # --------------------------------------------------
+            if(action == "Correlation") {
 
-            if(action %in% c(
-                "Mean",
-                "Median",
-                "SD",
-                "Variance",
-                "Min",
-                "Max"
-            )) {
+                req(dat$type == "csv")
+
+                df <- dat$data
+                numeric_cols <- sapply(df, is.numeric)
+                df <- df[, numeric_cols, drop = FALSE]
+
+                return(round(cor(df, use = "complete.obs"), 3))
+            }
+
+            # --------------------------------------------------
+            # Summary statistics (full table version)
+            # --------------------------------------------------
+            if(action == "Summary statistics") {
+
+                if(dat$type == "vector") {
+
+                    x <- dat$data
+
+                    return(
+                        data.frame(
+                            Variable = "x",
+                            Count = length(x),
+                            Mean = mean(x),
+                            Median = median(x),
+                            SD = sd(x),
+                            Min = min(x),
+                            Max = max(x)
+                        )
+                    )
+                }
+
+                df <- dat$data
+                numeric_cols <- sapply(df, is.numeric)
+                df <- df[, numeric_cols, drop = FALSE]
+
+                results <- lapply(names(df), function(col) {
+
+                    x <- df[[col]]
+
+                    data.frame(
+                        Variable = col,
+                        Count = length(x),
+                        Mean = mean(x, na.rm = TRUE),
+                        Median = median(x, na.rm = TRUE),
+                        SD = sd(x, na.rm = TRUE),
+                        Min = min(x, na.rm = TRUE),
+                        Max = max(x, na.rm = TRUE)
+                    )
+                })
+
+                do.call(rbind, results)
+            }
+
+            # --------------------------------------------------
+            # Fallback (should rarely hit)
+            # --------------------------------------------------
+            data.frame(Message = "No table output for this selection")
+        })
+
+        output$summary_table <- renderUI({
+
+            dat <- toolkit_data()
+            action <- input$toolkit_action
+
+
+            if(action %in% c("Mean","Median","SD","Variance","Min","Max")) {
+
 
                 stat_fun <- switch(
-
                     action,
-
                     "Mean" = mean,
                     "Median" = median,
                     "SD" = sd,
@@ -725,18 +768,45 @@ stats_toolkit_server<-function(id){
                     "Max" = max
                 )
 
-                if(dat$type == "vector") {
+
+                make_box <- function(title, value){
+
+                    value_box(
+                        title = title,
+
+                        value = formatC(
+                            value,
+                            digits = 3,
+                            format = "f"
+                        ),
+
+                        theme = switch(
+                            action,
+                            "Mean" = "primary",
+                            "Median" = "success",
+                            "SD" = "warning",
+                            "Variance" = "danger",
+                            "Min" = "info",
+                            "Max" = "secondary"
+                        )
+                        )
+
+                }
+
+
+                if(dat$type == "vector"){
 
                     return(
-
-                        data.frame(
-                            Statistic = action,
-                            Value = stat_fun(dat$data)
+                        layout_columns(
+                            make_box(
+                                action,
+                                stat_fun(dat$data)
+                            )
                         )
-
                     )
 
                 }
+
 
                 df <- dat$data
 
@@ -744,120 +814,35 @@ stats_toolkit_server<-function(id){
 
                 df <- df[, numeric_cols, drop = FALSE]
 
-                return(
 
-                    data.frame(
-                        Variable = names(df),
-                        Value = sapply(
-                            df,
-                            stat_fun,
-                            na.rm = TRUE
+                boxes <- lapply(
+                    names(df),
+                    function(col){
+
+                        make_box(
+                            col,
+                            stat_fun(
+                                df[[col]],
+                                na.rm = TRUE
+                            )
                         )
-                    )
 
+                    }
                 )
-            }
 
-            # --------------------------------------------------
-            # Correlation matrix
-            # --------------------------------------------------
-
-            if(action == "Correlation") {
-
-                req(dat$type == "csv")
-
-                df <- dat$data
-
-                numeric_cols <- sapply(df, is.numeric)
-
-                df <- df[, numeric_cols, drop = FALSE]
 
                 return(
-
-                    round(
-                        cor(
-                            df,
-                            use = "complete.obs"
-                        ),
-                        3
+                    layout_columns(
+                        !!!boxes
                     )
-
-                )
-            }
-
-            # --------------------------------------------------
-            # Summary statistics (existing behaviour)
-            # --------------------------------------------------
-
-            if(dat$type == "vector") {
-
-                x <- dat$data
-
-                return(
-
-                    data.frame(
-
-                        Variable = "x",
-
-                        Count = length(x),
-
-                        Mean = mean(x),
-
-                        Median = median(x),
-
-                        SD = sd(x),
-
-                        Min = min(x),
-
-                        Max = max(x)
-
-                    )
-
                 )
 
             }
 
-            df <- dat$data
 
-            numeric_cols <- sapply(df, is.numeric)
-
-            df <- df[, numeric_cols, drop = FALSE]
-
-            results <- lapply(
-
-                names(df),
-
-                function(col){
-
-                    x <- df[[col]]
-
-                    data.frame(
-
-                        Variable = col,
-
-                        Count = length(x),
-
-                        Mean = mean(x, na.rm = TRUE),
-
-                        Median = median(x, na.rm = TRUE),
-
-                        SD = sd(x, na.rm = TRUE),
-
-                        Min = min(x, na.rm = TRUE),
-
-                        Max = max(x, na.rm = TRUE)
-
-                    )
-
-                }
-
-            )
-
-            do.call(rbind, results)
+            tableOutput(session$ns("summary_table_inner"))
 
         })
-
-
 
 
 
