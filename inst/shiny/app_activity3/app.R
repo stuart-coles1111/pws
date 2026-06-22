@@ -214,13 +214,20 @@ ui <- page_navbar(
 
             hr(),
 
-            plotOutput("m_plot", height = "220px"),
+            fluidRow(
+                column(
+                    width = 6,
+                    div(
+                        h4("Game Log"),
+                        div(class = "log-box", uiOutput("m_log_ui"))
+                    )
+                ),
 
-            hr(),
-
-            h4("Game Log"),
-
-            div(class = "log-box", uiOutput("m_log_ui"))
+                column(
+                    width = 6,
+                    plotOutput("m_plot", height = "300px")
+                )
+            )
         )
     )),
 
@@ -341,39 +348,33 @@ ui <- page_navbar(
             ),
 
             div(
-
                 class = "card-style",
 
                 uiOutput("s_p_display"),
 
                 hr(),
 
-                div(
-                    class = "big-timer",
-                    textOutput("s_timer")
-                ),
+                div(class = "big-timer", textOutput("s_timer")),
 
                 hr(),
 
-                div(
-                    class = "big-bank",
-                    textOutput("s_bank_display")
-                ),
+                div(class = "big-bank", textOutput("s_bank_display")),
 
                 hr(),
 
-                plotOutput(
-                    "s_plot",
-                    height = "220px"
-                ),
+                fluidRow(
+                    column(
+                        width = 6,
+                        div(
+                            h4("Game Log"),
+                            div(class = "log-box", uiOutput("s_log_ui"))
+                        )
+                    ),
 
-                hr(),
-
-                h4("Game Log"),
-
-                div(
-                    class = "log-box",
-                    uiOutput("s_log_ui")
+                    column(
+                        width = 6,
+                        plotOutput("s_plot", height = "300px")
+                    )
                 )
             )
         )
