@@ -271,17 +271,13 @@ stats_toolkit_ui <- function(id){
 
         conditionalPanel(
             condition = sprintf(
-                "input['%s']=='Summary statistics' ||
-     input['%s']=='Mean' ||
-     input['%s']=='Median' ||
-     input['%s']=='SD' ||
-     input['%s']=='Variance' ||
-     input['%s']=='Min' ||
-     input['%s']=='Max' ||
-     input['%s']=='Frequency table' ||
-     input['%s']=='Correlation'",
-                ns("toolkit_action"),
-                ns("toolkit_action"),
+                "input['%s']=='Mean' ||
+         input['%s']=='Median' ||
+         input['%s']=='SD' ||
+         input['%s']=='Variance' ||
+         input['%s']=='Min' ||
+         input['%s']=='Max' ||
+         input['%s']=='Frequency table'",
                 ns("toolkit_action"),
                 ns("toolkit_action"),
                 ns("toolkit_action"),
@@ -492,7 +488,6 @@ stats_toolkit_server<-function(id){
                     session,
                     "toolkit_action",
                     choices = c(
-                        "Summary statistics",
                         "Mean",
                         "Median",
                         "SD",
@@ -507,12 +502,10 @@ stats_toolkit_server<-function(id){
 
             } else {
 
-
                 updateSelectInput(
                     session,
                     "toolkit_action",
                     choices = c(
-                        "Summary statistics",
                         "Mean",
                         "Median",
                         "SD",
@@ -522,15 +515,13 @@ stats_toolkit_server<-function(id){
                         "Frequency table",
                         "Histogram",
                         "Boxplot",
-                        "Scatterplot",
-                        "Correlation"
+                        "Scatterplot"
                     )
                 )
 
             }
 
         })
-
 
         observeEvent(input$simulate_data, {
 
@@ -664,14 +655,14 @@ stats_toolkit_server<-function(id){
         })
 
 
-        output$summary_table_inner <- renderTable({
+        output$summary_table_inner <- DT::renderDataTable({
 
             dat <- toolkit_data()
             action <- input$toolkit_action
 
-            # --------------------------------------------------
-            # Frequency table
-            # --------------------------------------------------
+            # ---------------------------
+            # Frequency table (IMPROVED)
+            # ---------------------------
             if(action == "Frequency table") {
 
                 x <-
@@ -682,73 +673,28 @@ stats_toolkit_server<-function(id){
                         dat$data[[input$hist_col]]
                     }
 
-                return(as.data.frame(table(x)))
-            }
+                freq <- as.data.frame(table(x))
+                names(freq) <- c("Value", "Count")
 
-            # --------------------------------------------------
-            # Correlation matrix
-            # --------------------------------------------------
-            if(action == "Correlation") {
-
-                req(dat$type == "csv")
-
-                df <- dat$data
-                numeric_cols <- sapply(df, is.numeric)
-                df <- df[, numeric_cols, drop = FALSE]
-
-                return(round(cor(df, use = "complete.obs"), 3))
-            }
-
-            # --------------------------------------------------
-            # Summary statistics (full table version)
-            # --------------------------------------------------
-            if(action == "Summary statistics") {
-
-                if(dat$type == "vector") {
-
-                    x <- dat$data
-
-                    return(
-                        data.frame(
-                            Variable = "x",
-                            Count = length(x),
-                            Mean = mean(x),
-                            Median = median(x),
-                            SD = sd(x),
-                            Min = min(x),
-                            Max = max(x)
-                        )
+                return(
+                    DT::datatable(
+                        freq,
+                        options = list(
+                            pageLength = 10,
+                            dom = "t",
+                            ordering = TRUE
+                        ),
+                        rownames = FALSE
                     )
-                }
-
-                df <- dat$data
-                numeric_cols <- sapply(df, is.numeric)
-                df <- df[, numeric_cols, drop = FALSE]
-
-                results <- lapply(names(df), function(col) {
-
-                    x <- df[[col]]
-
-                    data.frame(
-                        Variable = col,
-                        Count = length(x),
-                        Mean = mean(x, na.rm = TRUE),
-                        Median = median(x, na.rm = TRUE),
-                        SD = sd(x, na.rm = TRUE),
-                        Min = min(x, na.rm = TRUE),
-                        Max = max(x, na.rm = TRUE)
-                    )
-                })
-
-                do.call(rbind, results)
+                )
             }
 
-            # --------------------------------------------------
-            # Fallback (should rarely hit)
-            # --------------------------------------------------
-            data.frame(Message = "No table output for this selection")
+            # ---------------------------
+            # fallback
+            # ---------------------------
+            data.frame(Message = "Select Frequency table")
+
         })
-
         output$summary_table <- renderUI({
 
             dat <- toolkit_data()
@@ -840,8 +786,7 @@ stats_toolkit_server<-function(id){
             }
 
 
-            tableOutput(session$ns("summary_table_inner"))
-
+            DT::dataTableOutput(session$ns("summary_table_inner"))
         })
 
 
@@ -1059,21 +1004,6 @@ stats_toolkit_server<-function(id){
                 action,
 
 
-                "Summary statistics" = {
-
-                    if (input$data_source == "vector") {
-
-                        "summary(x)"
-
-                    } else {
-
-                        "summary(data)"
-
-                    }
-
-                },
-
-
                 "Mean" = {
 
                     if(input$data_source == "vector") {
@@ -1223,13 +1153,6 @@ stats_toolkit_server<-function(id){
                         )
 
                     }
-
-                },
-
-
-                "Correlation" = {
-
-                    "cor(data, use = 'complete.obs')"
 
                 },
 
