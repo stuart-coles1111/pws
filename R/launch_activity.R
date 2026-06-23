@@ -24,8 +24,8 @@ launch_activity <- function(app_name) {
 
         },
         args = list(appdir, port),
-        stdout = "|",
-        stderr = "|",
+        stdout = "NULL",
+        stderr = "NULL",
         supervise = FALSE
     )
 

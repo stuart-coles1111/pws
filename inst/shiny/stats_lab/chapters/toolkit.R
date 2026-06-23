@@ -135,66 +135,76 @@ stats_toolkit_ui <- function(id){
 
 
 
-        selectInput(
+        checkboxGroupInput(
             ns("toolkit_action"),
-            "Analysis",
+            "Display",
             choices = NULL
         ),
-
-
-
 
         conditionalPanel(
 
             condition = sprintf(
-                "input['%s']=='Histogram'",
+                "input['%s'].indexOf('Summary statistics') > -1",
                 ns("toolkit_action")
             ),
 
-
-            sliderInput(
-                ns("hist_bins"),
-                "Histogram bins",
-                1,
-                10,
-                5
+            checkboxGroupInput(
+                ns("summary_stats"),
+                "Statistics",
+                choices = c(
+                    "Mean",
+                    "Median",
+                    "SD",
+                    "Variance",
+                    "Min",
+                    "Max"
+                ),
+                selected = c(
+                    "Mean",
+                    "Median",
+                    "SD"
+                )
             )
 
         ),
 
 
-
-
         conditionalPanel(
 
             condition = sprintf(
-                "input['%s']=='csv' &&
-                (input['%s']=='Histogram' ||
-                 input['%s']=='Boxplot' ||
-                 input['%s']=='Frequency table')",
-                ns("data_source"),
-                ns("toolkit_action"),
-                ns("toolkit_action"),
-                ns("toolkit_action")
+                "input['%s']=='csv'",
+                ns("data_source")
             ),
 
-
             selectInput(
-                ns("hist_col"),
+                ns("summary_col"),
                 "Variable",
                 choices = NULL
             )
 
         ),
 
+        conditionalPanel(
 
+            condition = sprintf(
+                "input['%s'].indexOf('Histogram') > -1",
+                ns("toolkit_action")
+            ),
+
+            sliderInput(
+                ns("hist_bins"),
+                "Histogram bins",
+                min = 1,
+                max = 50,
+                value = 10
+            )
+        ),
 
 
         conditionalPanel(
 
             condition = sprintf(
-                "input['%s']=='csv' &&
-                input['%s']=='Scatterplot'",
+                "input['%s']=='csv' && input['%s'].indexOf('Scatterplot') > -1",
                 ns("data_source"),
                 ns("toolkit_action")
             ),
@@ -268,93 +278,8 @@ stats_toolkit_ui <- function(id){
             "Data Exploration"
         ),
 
-
-        conditionalPanel(
-            condition = sprintf(
-                "input['%s']=='Mean' ||
-         input['%s']=='Median' ||
-         input['%s']=='SD' ||
-         input['%s']=='Variance' ||
-         input['%s']=='Min' ||
-         input['%s']=='Max' ||
-         input['%s']=='Frequency table'",
-                ns("toolkit_action"),
-                ns("toolkit_action"),
-                ns("toolkit_action"),
-                ns("toolkit_action"),
-                ns("toolkit_action"),
-                ns("toolkit_action"),
-                ns("toolkit_action")
-            ),
-
-            uiOutput(
-                ns("summary_table")
-            )
-        ),
-
-
-
-        conditionalPanel(
-
-            condition = sprintf(
-                "input['%s']=='Histogram'",
-                ns("toolkit_action")
-            ),
-
-
-            plotOutput(
-                ns("tool_hist"),
-                height = "400px"
-            )
-
-        ),
-
-
-
-        conditionalPanel(
-
-            condition = sprintf(
-                "input['%s']=='Boxplot'",
-                ns("toolkit_action")
-            ),
-
-
-            plotOutput(
-                ns("tool_boxplot"),
-                height = "400px"
-            )
-
-        ),
-
-
-
-        conditionalPanel(
-
-            condition = sprintf(
-                "input['%s']=='Scatterplot'",
-                ns("toolkit_action")
-            ),
-
-
-            plotOutput(
-                ns("scatter"),
-                height = "400px"
-            ),
-
-            conditionalPanel(
-
-                condition = sprintf(
-                    "input['%s']=='Scatterplot' && input['%s']==true",
-                    ns("toolkit_action"),
-                    ns("add_lm")
-                ),
-
-                tableOutput(
-                    ns("regression_results")
-                )
-
-            )
-
+        uiOutput(
+            ns("combined_results")
         )
 
     )
@@ -429,9 +354,14 @@ stats_toolkit_ui <- function(id){
 stats_toolkit_server<-function(id){
 
 
+
     moduleServer(id, function(input, output, session){
 
+        ns <- session$ns
 
+        session$onSessionEnded(function() {
+            graphics.off()
+        })
 
         output$download_template <- downloadHandler(
 
@@ -477,49 +407,31 @@ stats_toolkit_server<-function(id){
 
         )
 
+        observeEvent(input$data_source, {
 
+            base_choices <- c(
+                "Summary statistics",
+                "Frequency table",
+                "Histogram",
+                "Boxplot"
+            )
 
-
-        observe({
-
-            if(input$data_source == "vector"){
-
-                updateSelectInput(
-                    session,
-                    "toolkit_action",
-                    choices = c(
-                        "Mean",
-                        "Median",
-                        "SD",
-                        "Variance",
-                        "Min",
-                        "Max",
-                        "Frequency table",
-                        "Histogram",
-                        "Boxplot"
-                    )
+            if(input$data_source == "csv") {
+                base_choices <- c(
+                    base_choices,
+                    "Scatterplot"
                 )
-
-            } else {
-
-                updateSelectInput(
-                    session,
-                    "toolkit_action",
-                    choices = c(
-                        "Mean",
-                        "Median",
-                        "SD",
-                        "Variance",
-                        "Min",
-                        "Max",
-                        "Frequency table",
-                        "Histogram",
-                        "Boxplot",
-                        "Scatterplot"
-                    )
-                )
-
             }
+
+            updateCheckboxGroupInput(
+                session,
+                "toolkit_action",
+                choices = base_choices,
+                selected = intersect(
+                    isolate(input$toolkit_action),
+                    base_choices
+                )
+            )
 
         })
 
@@ -558,103 +470,239 @@ stats_toolkit_server<-function(id){
 
             if(input$data_source == "vector"){
 
-
                 x <- as.numeric(
-
                     trimws(
-
-                        unlist(
-
-                            strsplit(
-                                input$vector_input,
-                                ","
-                            )
-
-                        )
-
+                        unlist(strsplit(input$vector_input, ","))
                     )
-
                 )
-
 
                 validate(
-
-                    need(
-                        all(!is.na(x)),
-                        "Vector must contain only numbers."
-                    )
-
+                    need(all(!is.na(x)), "Vector must contain only numbers.")
                 )
 
+                return(list(
+                    type = "vector",
+                    data = x
+                ))
+            }
 
-                return(
+            # CSV mode
+            req(input$data_source == "csv")
+            req(input$csv_file)
 
-                    list(
-                        type="vector",
-                        data=x
-                    )
+            if (is.null(input$csv_file$datapath) || input$csv_file$datapath == "") {
+                return(NULL)
+            }
 
-                )
+            df <- readr::read_csv(
+                input$csv_file$datapath,
+                show_col_types = FALSE
+            )
+
+            list(
+                type = "csv",
+                data = df
+            )
+        })
+
+        observeEvent(input$data_source, {
+
+            if(input$data_source == "vector") {
+
+                updateSelectInput(session, "x_col", choices = character(0))
+                updateSelectInput(session, "y_col", choices = character(0))
 
             }
 
-
-
-            req(input$csv_file$datapath)
-
-
-            df <- readr::read_csv(
-
-                input$csv_file$datapath,
-
-                show_col_types = FALSE
-
-            )
-
-
-            list(
-                type="csv",
-                data=df
-            )
-
         })
-
-
-
 
 
         observe({
 
-            dat <- toolkit_data()
+            req(input$data_source == "csv")
 
+            dat <- toolkit_data()
+            req(!is.null(dat))
             req(dat$type == "csv")
 
             df <- dat$data
 
+            current_x <- isolate(input$x_col)
+            current_y <- isolate(input$y_col)
+            current_summary <- isolate(input$summary_col)
 
             updateSelectInput(
                 session,
                 "x_col",
-                choices = names(df)
+                choices = names(df),
+                selected = if(current_x %in% names(df)) current_x else names(df)[1]
             )
-
 
             updateSelectInput(
                 session,
                 "y_col",
-                choices = names(df)
+                choices = names(df),
+                selected = if(current_y %in% names(df)) current_y else names(df)[min(2, ncol(df))]
             )
-
 
             updateSelectInput(
                 session,
-                "hist_col",
-                choices = names(df)
+                "summary_col",
+                choices = names(df),
+                selected = if(current_summary %in% names(df)) current_summary else names(df)[1]
             )
 
         })
 
+        output$combined_results <- renderUI({
 
+            req(input$toolkit_action)
+
+            displays <- input$toolkit_action
+
+            numeric_panels <- list()
+            graphic_panels <- list()
+
+            # ---------------------------
+            # Summary statistics
+            # ---------------------------
+            if("Summary statistics" %in% displays){
+
+                numeric_panels <- append(
+                    numeric_panels,
+                    list(
+                        card(
+                            card_header("Summary Statistics"),
+                            uiOutput(ns("summary_table"))
+                        )
+                    )
+                )
+            }
+
+            # ---------------------------
+            # Frequency table
+            # ---------------------------
+            if("Frequency table" %in% displays){
+
+                numeric_panels <- append(
+                    numeric_panels,
+                    list(
+                        card(
+                            card_header("Frequency Table"),
+                            DT::dataTableOutput(
+                                ns("summary_table_inner")
+                            )
+                        )
+                    )
+                )
+            }
+
+            # ---------------------------
+            # Histogram
+            # ---------------------------
+            if("Histogram" %in% displays){
+
+                graphic_panels <- append(
+                    graphic_panels,
+                    list(
+                        card(
+                            card_header("Histogram"),
+                            plotOutput(
+                                ns("tool_hist"),
+                                height = "400px"
+                            )
+                        )
+                    )
+                )
+            }
+
+            # ---------------------------
+            # Boxplot
+            # ---------------------------
+            if("Boxplot" %in% displays){
+
+                graphic_panels <- append(
+                    graphic_panels,
+                    list(
+                        card(
+                            card_header("Boxplot"),
+                            plotOutput(
+                                ns("tool_boxplot"),
+                                height = "400px"
+                            )
+                        )
+                    )
+                )
+            }
+
+            # ---------------------------
+            # Scatterplot
+            # ---------------------------
+            if(
+                input$data_source == "csv" &&
+                "Scatterplot" %in% displays
+            ){
+
+                graphic_panels <- append(
+                    graphic_panels,
+                    list(
+                        card(
+                            card_header("Scatterplot"),
+                            plotOutput(
+                                ns("scatter"),
+                                height = "400px"
+                            )
+                        )
+                    )
+                )
+
+                numeric_panels <- append(
+                    numeric_panels,
+                    list(
+                        card(
+                            card_header("Regression Results"),
+                            tableOutput(
+                                ns("regression_results")
+                            )
+                        )
+                    )
+                )
+            }
+
+            # ---------------------------
+            # Layout logic
+            # ---------------------------
+
+            if(
+                length(numeric_panels) > 0 &&
+                length(graphic_panels) > 0
+            ){
+
+                layout_columns(
+
+                    col_widths = c(6, 6),
+
+                    tagList(numeric_panels),
+
+                    tagList(graphic_panels)
+
+                )
+
+            } else if(length(numeric_panels) > 0){
+
+                tagList(numeric_panels)
+
+            } else if(length(graphic_panels) > 0){
+
+                tagList(graphic_panels)
+
+            } else {
+
+                p("Select an analysis to display.")
+
+            }
+
+        })
         output$summary_table_inner <- DT::renderDataTable({
 
             dat <- toolkit_data()
@@ -663,14 +711,13 @@ stats_toolkit_server<-function(id){
             # ---------------------------
             # Frequency table (IMPROVED)
             # ---------------------------
-            if(action == "Frequency table") {
-
+            if("Frequency table" %in% input$toolkit_action){
                 x <-
                     if(dat$type == "vector") {
                         dat$data
                     } else {
-                        req(input$hist_col)
-                        dat$data[[input$hist_col]]
+                        req(input$summary_col)
+                        dat$data[[input$summary_col]]
                     }
 
                 freq <- as.data.frame(table(x))
@@ -697,96 +744,91 @@ stats_toolkit_server<-function(id){
         })
         output$summary_table <- renderUI({
 
+            req(input$summary_stats)
+
+            stats_selected <- input$summary_stats
+
             dat <- toolkit_data()
-            action <- input$toolkit_action
 
+            if(dat$type == "vector"){
 
-            if(action %in% c("Mean","Median","SD","Variance","Min","Max")) {
+                x <- dat$data
 
+            } else {
 
-                stat_fun <- switch(
-                    action,
-                    "Mean" = mean,
-                    "Median" = median,
-                    "SD" = sd,
-                    "Variance" = var,
-                    "Min" = min,
-                    "Max" = max
-                )
+                req(input$summary_col)
 
-
-                make_box <- function(title, value){
-
-                    value_box(
-                        title = title,
-
-                        value = formatC(
-                            value,
-                            digits = 3,
-                            format = "f"
-                        ),
-
-                        theme = switch(
-                            action,
-                            "Mean" = "primary",
-                            "Median" = "success",
-                            "SD" = "warning",
-                            "Variance" = "danger",
-                            "Min" = "info",
-                            "Max" = "secondary"
-                        )
-                        )
-
-                }
-
-
-                if(dat$type == "vector"){
-
-                    return(
-                        layout_columns(
-                            make_box(
-                                action,
-                                stat_fun(dat$data)
-                            )
-                        )
-                    )
-
-                }
-
-
-                df <- dat$data
-
-                numeric_cols <- sapply(df, is.numeric)
-
-                df <- df[, numeric_cols, drop = FALSE]
-
-
-                boxes <- lapply(
-                    names(df),
-                    function(col){
-
-                        make_box(
-                            col,
-                            stat_fun(
-                                df[[col]],
-                                na.rm = TRUE
-                            )
-                        )
-
-                    }
-                )
-
-
-                return(
-                    layout_columns(
-                        !!!boxes
-                    )
-                )
+                x <- dat$data[[input$summary_col]]
 
             }
 
+            stat_values <- list(
 
-            DT::dataTableOutput(session$ns("summary_table_inner"))
+                Mean = mean(
+                    x,
+                    na.rm = TRUE
+                ),
+
+                Median = median(
+                    x,
+                    na.rm = TRUE
+                ),
+
+                SD = sd(
+                    x,
+                    na.rm = TRUE
+                ),
+
+                Variance = var(
+                    x,
+                    na.rm = TRUE
+                ),
+
+                Min = min(
+                    x,
+                    na.rm = TRUE
+                ),
+
+                Max = max(
+                    x,
+                    na.rm = TRUE
+                )
+
+            )
+
+            boxes <- lapply(
+
+                stats_selected,
+
+                function(stat){
+
+                    div(
+                        style = "font-size: 0.85em;",
+                        value_box(
+
+                            title = stat,
+
+                            value = tags$div(
+                                style = "font-size: 1.2em; font-weight: 600;",
+                                formatC(
+                                    signif(stat_values[[stat]], 3),
+                                    format = "fg"
+                                )
+                            )
+
+                        )
+
+                    )
+
+                }
+
+            )
+
+            layout_columns(
+                col_widths = c(4, 4, 4),
+                !!!boxes
+            )
+
         })
 
 
@@ -794,91 +836,59 @@ stats_toolkit_server<-function(id){
 
         output$tool_hist <- renderPlot({
 
-
             dat <- toolkit_data()
 
+            x <- if(dat$type == "vector") {
+                dat$data
+            } else {
+                req(input$summary_col)
+                dat$data[[input$summary_col]]
+            }
 
-            x <-
-
-                if(dat$type=="vector"){
-
-                    dat$data
-
-                } else {
-
-                    dat$data[[input$hist_col]]
-
-                }
-
-
+            validate(need(length(x) > 0, "No data"))
 
             hist(
-
                 x,
-
-                breaks=input$hist_bins,
-
-                col="#7B9ACC",
-
-                border="white",
-
-                main="Histogram",
-
-                xlab="Value"
-
+                breaks = input$hist_bins,
+                col = "#7B9ACC",
+                border = "white",
+                main = "Histogram",
+                xlab = "Value"
             )
-
         })
-
 
         output$tool_boxplot <- renderPlot({
 
             dat <- toolkit_data()
 
-            x <-
+            x <- if(dat$type == "vector") {
+                dat$data
+            } else {
+                req(input$summary_col)
+                dat$data[[input$summary_col]]
+            }
 
-                if(dat$type == "vector") {
-
-                    dat$data
-
-                } else {
-
-                    req(input$hist_col)
-
-                    dat$data[[input$hist_col]]
-
-                }
-
-
-            boxplot(
-
-                x,
-
-                col = "#7B9ACC",
-
-                border = "#2c3e50",
-
-                whisklty = 1,
-
-                staplewex = 0.5,
-
-                main = "Boxplot",
-
-                ylab = "Value"
-
+            validate(
+                need(is.numeric(x), "Boxplot requires numeric data")
             )
 
+            boxplot(
+                x,
+                col = "#7B9ACC",
+                border = "#2c3e50",
+                main = "Boxplot",
+                ylab = "Value"
+            )
         })
-
-
 
         output$scatter <- renderPlot({
 
             dat <- toolkit_data()
-
+            req(input$data_source == "csv")
+            req(!is.null(input$csv_file))
+            req(input$csv_file$datapath != "")
 
             req(
-                dat$type=="csv",
                 input$x_col,
                 input$y_col
             )
@@ -933,48 +943,31 @@ stats_toolkit_server<-function(id){
 
         output$regression_results <- renderTable({
 
+            dat <- toolkit_data()
+            req(input$data_source == "csv")
+            req(!is.null(input$csv_file))
+            req(input$csv_file$datapath != "")
+
             req(
                 input$add_lm,
-                input$toolkit_action == "Scatterplot"
+                "Scatterplot" %in% input$toolkit_action
             )
-
-
-            dat <- toolkit_data()
-
 
             x <- dat$data[[input$x_col]]
-
             y <- dat$data[[input$y_col]]
 
-
-            model <- lm(
-                y ~ x
-            )
-
+            model <- lm(y ~ x)
 
             coefs <- summary(model)$coefficients
 
-
             data.frame(
-
                 Term = rownames(coefs),
-
-                Estimate = round(
-                    coefs[,1],
-                    4
-                ),
-
-                "Standard Error" = round(
-                    coefs[,2],
-                    4
-                ),
-
+                Estimate = round(coefs[,1], 4),
+                "Standard Error" = round(coefs[,2], 4),
                 row.names = NULL
-
             )
 
         })
-
 
         output$generated_code <- renderText({
 
@@ -1104,7 +1097,7 @@ stats_toolkit_server<-function(id){
 
                         paste0(
                             "table(data$",
-                            input$hist_col,
+                            input$summary_col,
                             ")"
                         )
 
@@ -1127,7 +1120,7 @@ stats_toolkit_server<-function(id){
 
                         paste0(
                             "hist(data$",
-                            input$hist_col,
+                            input$summary_col,
                             ", breaks = ",
                             input$hist_bins,
                             ")"
@@ -1148,7 +1141,7 @@ stats_toolkit_server<-function(id){
 
                         paste0(
                             "boxplot(data$",
-                            input$hist_col,
+                            input$summary_col,
                             ")"
                         )
 
