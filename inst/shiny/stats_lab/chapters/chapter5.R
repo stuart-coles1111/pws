@@ -450,7 +450,18 @@ chapter5_server <- function(id){
 
         observeEvent(input$roll, {
 
-            set.seed(input$seed)
+            # generate a new seed every time you roll
+            new_seed <- sample(1:999, 1)
+
+            # update the UI so the user sees it change
+            updateNumericInput(
+                session,
+                "seed",
+                value = new_seed
+            )
+
+            # use the new seed for reproducibility
+            set.seed(new_seed)
 
             rv$dice <- sample(
                 1:6,
@@ -465,7 +476,6 @@ chapter5_server <- function(id){
             rv$bootstrap_p <- NULL
             rv$ci_active <- FALSE   # reset CI when new data
         })
-
         # =====================================================
         # Bootstrap
         # =====================================================
