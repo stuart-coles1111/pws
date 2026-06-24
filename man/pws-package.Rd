@@ -11,5 +11,10 @@ Description: Tools and data for Playing With Statistics. Includes match data der
 \author{
 \strong{Maintainer}: Stuart Coles \email{stuart.coles1111@gmail.com}
 
+Authors:
+\itemize{
+  \item Stuart Coles \email{stuart.coles1111@gmail.com}
+}
+
 }
 \keyword{internal}
