@@ -971,6 +971,12 @@ stats_toolkit_server<-function(id){
 
         output$generated_code <- renderText({
 
+            req(input$toolkit_action)
+
+            #-------------------------
+            # Data
+            #-------------------------
+
             if (input$data_source == "vector") {
 
                 vals <- toolkit_data()$data
@@ -978,7 +984,7 @@ stats_toolkit_server<-function(id){
                 data_code <- paste0(
                     "x <- c(",
                     paste(head(vals, 20), collapse = ", "),
-                    if(length(vals) > 20) ", ..." else "",
+                    if (length(vals) > 20) ", ..." else "",
                     ")"
                 )
 
@@ -988,136 +994,126 @@ stats_toolkit_server<-function(id){
 
             }
 
+            #-------------------------
+            # Analysis
+            #-------------------------
 
-            action <- input$toolkit_action
+            analysis_code <- character(0)
 
+            ## Summary statistics
+            if ("Summary statistics" %in% input$toolkit_action) {
 
-            analysis_code <- switch(
+                req(input$summary_stats)
 
-                action,
+                stats <- input$summary_stats
 
+                if (input$data_source == "vector") {
 
-                "Mean" = {
+                    if ("Mean" %in% stats)
+                        analysis_code <- c(analysis_code, "mean(x)")
 
-                    if(input$data_source == "vector") {
+                    if ("Median" %in% stats)
+                        analysis_code <- c(analysis_code, "median(x)")
 
-                        "mean(x)"
+                    if ("SD" %in% stats)
+                        analysis_code <- c(analysis_code, "sd(x)")
 
-                    } else {
+                    if ("Variance" %in% stats)
+                        analysis_code <- c(analysis_code, "var(x)")
 
-                        "sapply(data, mean, na.rm = TRUE)"
+                    if ("Min" %in% stats)
+                        analysis_code <- c(analysis_code, "min(x)")
 
-                    }
+                    if ("Max" %in% stats)
+                        analysis_code <- c(analysis_code, "max(x)")
 
-                },
+                } else {
 
+                    varname <- input$summary_col
 
-                "Median" = {
+                    if ("Mean" %in% stats)
+                        analysis_code <- c(
+                            analysis_code,
+                            paste0("mean(data$", varname, ", na.rm = TRUE)")
+                        )
 
-                    if(input$data_source == "vector") {
+                    if ("Median" %in% stats)
+                        analysis_code <- c(
+                            analysis_code,
+                            paste0("median(data$", varname, ", na.rm = TRUE)")
+                        )
 
-                        "median(x)"
+                    if ("SD" %in% stats)
+                        analysis_code <- c(
+                            analysis_code,
+                            paste0("sd(data$", varname, ", na.rm = TRUE)")
+                        )
 
-                    } else {
+                    if ("Variance" %in% stats)
+                        analysis_code <- c(
+                            analysis_code,
+                            paste0("var(data$", varname, ", na.rm = TRUE)")
+                        )
 
-                        "sapply(data, median, na.rm = TRUE)"
+                    if ("Min" %in% stats)
+                        analysis_code <- c(
+                            analysis_code,
+                            paste0("min(data$", varname, ", na.rm = TRUE)")
+                        )
 
-                    }
+                    if ("Max" %in% stats)
+                        analysis_code <- c(
+                            analysis_code,
+                            paste0("max(data$", varname, ", na.rm = TRUE)")
+                        )
 
-                },
+                }
 
+            }
 
-                "SD" = {
+            ## Frequency table
+            if ("Frequency table" %in% input$toolkit_action) {
 
-                    if(input$data_source == "vector") {
+                if (input$data_source == "vector") {
 
-                        "sd(x)"
-
-                    } else {
-
-                        "sapply(data, sd, na.rm = TRUE)"
-
-                    }
-
-                },
-
-
-                "Variance" = {
-
-                    if(input$data_source == "vector") {
-
-                        "var(x)"
-
-                    } else {
-
-                        "sapply(data, var, na.rm = TRUE)"
-
-                    }
-
-                },
-
-
-                "Min" = {
-
-                    if(input$data_source == "vector") {
-
-                        "min(x)"
-
-                    } else {
-
-                        "sapply(data, min, na.rm = TRUE)"
-
-                    }
-
-                },
-
-
-                "Max" = {
-
-                    if(input$data_source == "vector") {
-
-                        "max(x)"
-
-                    } else {
-
-                        "sapply(data, max, na.rm = TRUE)"
-
-                    }
-
-                },
-
-
-                "Frequency table" = {
-
-                    if(input$data_source == "vector") {
-
+                    analysis_code <- c(
+                        analysis_code,
                         "table(x)"
+                    )
 
-                    } else {
+                } else {
 
+                    analysis_code <- c(
+                        analysis_code,
                         paste0(
                             "table(data$",
                             input$summary_col,
                             ")"
                         )
+                    )
 
-                    }
+                }
 
-                },
+            }
 
+            ## Histogram
+            if ("Histogram" %in% input$toolkit_action) {
 
-                "Histogram" = {
+                if (input$data_source == "vector") {
 
-                    if(input$data_source == "vector") {
-
+                    analysis_code <- c(
+                        analysis_code,
                         paste0(
                             "hist(x, breaks = ",
                             input$hist_bins,
                             ")"
                         )
+                    )
 
-                    } else {
+                } else {
 
+                    analysis_code <- c(
+                        analysis_code,
                         paste0(
                             "hist(data$",
                             input$summary_col,
@@ -1125,79 +1121,83 @@ stats_toolkit_server<-function(id){
                             input$hist_bins,
                             ")"
                         )
+                    )
 
-                    }
+                }
 
-                },
+            }
 
+            ## Boxplot
+            if ("Boxplot" %in% input$toolkit_action) {
 
-                "Boxplot" = {
+                if (input$data_source == "vector") {
 
-                    if(input$data_source == "vector") {
-
+                    analysis_code <- c(
+                        analysis_code,
                         "boxplot(x)"
+                    )
 
-                    } else {
+                } else {
 
+                    analysis_code <- c(
+                        analysis_code,
                         paste0(
                             "boxplot(data$",
                             input$summary_col,
                             ")"
                         )
+                    )
 
-                    }
+                }
 
-                },
+            }
 
+            ## Scatterplot
+            if (
+                input$data_source == "csv" &&
+                "Scatterplot" %in% input$toolkit_action
+            ) {
 
-                "Scatterplot" = {
-
-                    code <- paste0(
+                analysis_code <- c(
+                    analysis_code,
+                    paste0(
                         "plot(data$",
                         input$x_col,
                         ", data$",
                         input$y_col,
                         ")"
                     )
+                )
 
+                if (input$add_lm) {
 
-                    if(input$add_lm) {
-
-                        code <- paste0(
-                            code,
-                            "\n",
+                    analysis_code <- c(
+                        analysis_code,
+                        paste0(
                             "model <- lm(data$",
                             input$y_col,
                             " ~ data$",
                             input$x_col,
-                            ")",
-                            "\n",
-                            "abline(model)",
-                            "\n",
-                            "summary(model)$coefficients"
-                        )
-
-                    }
-
-
-                    code
+                            ")"
+                        ),
+                        "abline(model)",
+                        "summary(model)$coefficients"
+                    )
 
                 }
 
-            )
-
+            }
 
             paste(
                 "# Data",
                 data_code,
                 "",
                 "# Analysis",
-                analysis_code,
+                paste(analysis_code, collapse = "\n"),
                 sep = "\n"
             )
 
         })
-
     })
 
 }
