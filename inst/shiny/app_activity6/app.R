@@ -1,3 +1,4 @@
+suppressPackageStartupMessages({
 library(shiny)
 library(bslib)
 library(shinyjs)
@@ -6,6 +7,8 @@ library(dplyr)
 library(reshape2)
 library(gtools)
 library(rhandsontable)
+})
+
 
 # =========================================================
 # Helper Functions

@@ -2,6 +2,7 @@
 # Statistics Lab (pws)
 # =========================================================
 
+suppressPackageStartupMessages({
 library(shiny)
 library(bslib)
 library(pws)
@@ -25,7 +26,7 @@ library(shinydashboard)
 library(shinyjs)
 library(stringi)
 library(tidyr)
-
+})
 
 # =========================================================
 # Source reusable UI template

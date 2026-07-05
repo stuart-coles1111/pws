@@ -483,7 +483,7 @@ chapter8_server <- function(id) {
                 PL24_pars$tau
             )
 
-            datatable(
+            DT::datatable(
                 data.frame(
                     Outcome = c("Home win", "Draw", "Away win"),
                     Probability = round(as.numeric(probs), 3)
@@ -505,7 +505,7 @@ chapter8_server <- function(id) {
                 dplyr::filter(teams == input$team2) |>
                 dplyr::select(Team = teams, Attack = alpha, Defence = beta)
 
-            datatable(
+            DT::datatable(
                 bind_rows(home, away),
                 options = list(dom = "t"),
                 rownames = FALSE

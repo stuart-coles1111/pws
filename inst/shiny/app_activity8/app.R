@@ -1,3 +1,4 @@
+suppressPackageStartupMessages({
 library(shiny)
 library(shinydashboard)
 library(shinyjs)
@@ -6,6 +7,8 @@ library(ggplot2)
 library(dplyr)
 library(bslib)
 library(MASS)
+})
+
 # =========================================================
 # GLOBALS
 # =========================================================

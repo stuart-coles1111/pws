@@ -1,8 +1,10 @@
+suppressPackageStartupMessages({
 library(shiny)
 library(bslib)
 library(ggplot2)
 library(dplyr)
 library(gt)
+})
 
 # =========================================================
 # Helpers

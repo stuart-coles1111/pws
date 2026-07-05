@@ -1,3 +1,4 @@
+suppressPackageStartupMessages({
 library(shiny)
 library(bslib)
 library(ggplot2)
@@ -6,6 +7,7 @@ library(tidyr)
 library(DT)
 library(patchwork)
 library(readr)
+})
 
 # =========================================================
 # DEFAULT QUESTIONS
@@ -1119,7 +1121,7 @@ server <- function(input, output, session){
                 score
             )
 
-        datatable(
+        DT::datatable(
             d,
             rownames = FALSE,
             options = list(

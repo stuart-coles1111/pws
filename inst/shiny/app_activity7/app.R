@@ -1,5 +1,7 @@
+suppressPackageStartupMessages({
 library(shiny)
 library(bslib)
+})
 
 # =========================================================
 # HELPER FUNCTIONS

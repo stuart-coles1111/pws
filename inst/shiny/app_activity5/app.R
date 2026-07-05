@@ -1,9 +1,11 @@
+suppressPackageStartupMessages({
 library(shiny)
 library(grid)
 library(magick)
 library(bslib)
 library(shinyjs)
 library(ggplot2)
+})
 
 # =========================================================
 # Helper Functions
