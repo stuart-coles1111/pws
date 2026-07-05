@@ -38,7 +38,7 @@ chapter_page_ui <- function(
                 ),
 
                 nav_panel(
-                    "Investigate",
+                    "Explore",
                     results
                 ),
 
