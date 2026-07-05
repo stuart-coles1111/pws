@@ -107,7 +107,7 @@ validate_uploaded_data <- function(df){
 
 ui <- page_navbar(
 
-    title = "🪙 Activity 1: Picturing randomness",
+    title = "🪙 Activity 1: Picturing Randomness",
 
     theme = bs_theme(
         version = 5,
@@ -136,20 +136,69 @@ ui <- page_navbar(
     ),
 
     # =====================================================
-    # TAB 1 — MAIN ACTIVITY
+    # OVERVIEW
+    # =====================================================
+
+    overview_page(
+
+        title = "🪙 Activity 1: Picturing Randomness",
+
+        explanation = tagList(
+
+            p(
+                "This activity investigates what randomness looks like in practice."
+            ),
+
+            p(
+                "Students create an imaginary sequence of 50 coin tosses and compare it with genuinely random sequences. By examining features such as the number of heads and the longest run, students discover that random processes often produce more structure than intuition suggests."
+            )
+        ),
+
+        individual = tagList(
+
+            tags$ol(
+                tags$li("Enter a sequence of 50 imaginary coin tosses."),
+                tags$li("Analyse the sequence using the app."),
+                tags$li("Compare your results with theoretical random sequences."),
+                tags$li("Reflect on whether your sequence appears truly random.")
+            )
+        ),
+
+        group = tagList(
+
+            tags$ol(
+                tags$li("Each student generates a sequence independently."),
+                tags$li("Upload the combined class data."),
+                tags$li("Compare the class results with theoretical randomness and the Smartodds dataset."),
+                tags$li("Discuss any systematic differences between human and random sequences.")
+            )
+        ),
+
+        question = tagList(
+
+            tags$ul(
+                tags$li("What features make a sequence appear random?"),
+                tags$li("Do humans generate random sequences in the same way as a fair coin?"),
+                tags$li("Why are long runs more common than most people expect?")
+            )
+        )
+    ),
+
+    # =====================================================
+    # ACTIVITY
     # =====================================================
 
     nav_panel(
 
-        "🪙 Activity",
+        "Activity",
 
         div(
             style = "
-            text-align:center;
-            padding:16px;
-            border-radius:12px;
-            background:linear-gradient(90deg,#A8DADC,#CDB4DB);
-            margin-bottom:15px;",
+                text-align:center;
+                padding:16px;
+                border-radius:12px;
+                background:linear-gradient(90deg,#A8DADC,#CDB4DB);
+                margin-bottom:15px;",
             h1("🪙 Activity 1: Picturing Randomness")
         ),
 
@@ -230,11 +279,6 @@ ui <- page_navbar(
                 )
             ),
 
-
-            # ==========================
-            # MAIN CONTENT
-            # ==========================
-
             div(
                 style = "width:100%;",
 
@@ -247,7 +291,6 @@ ui <- page_navbar(
                     )
                 ),
 
-
                 card(
                     h4("Visual structure"),
 
@@ -256,7 +299,6 @@ ui <- page_navbar(
                         height = 120
                     )
                 ),
-
 
                 card(
                     h4("Sequence statistics"),
@@ -268,10 +310,10 @@ ui <- page_navbar(
 
                             div(
                                 style = "
-                        background:#EEF2FF;
-                        padding:18px;
-                        border-radius:10px;
-                        text-align:center;",
+                                    background:#EEF2FF;
+                                    padding:18px;
+                                    border-radius:10px;
+                                    text-align:center;",
 
                                 h5("Heads"),
 
@@ -281,16 +323,15 @@ ui <- page_navbar(
                             )
                         ),
 
-
                         column(
                             6,
 
                             div(
                                 style = "
-                        background:#F3E8FF;
-                        padding:18px;
-                        border-radius:10px;
-                        text-align:center;",
+                                    background:#F3E8FF;
+                                    padding:18px;
+                                    border-radius:10px;
+                                    text-align:center;",
 
                                 h5("Longest run"),
 
@@ -301,11 +342,6 @@ ui <- page_navbar(
                         )
                     )
                 ),
-
-
-                # ======================
-                # GRAPHS SIDE BY SIDE
-                # ======================
 
                 fluidRow(
 
@@ -322,7 +358,6 @@ ui <- page_navbar(
                         )
                     ),
 
-
                     column(
                         6,
 
@@ -337,146 +372,7 @@ ui <- page_navbar(
                     )
                 ),
 
-
-                # ======================
-                # RESULTS BELOW GRAPHS
-                # ======================
-
                 uiOutput("stats_card")
-
-            )
-        )
-    ),
-
-    # =====================================================
-    # TAB 2 — SUMMARY (NEW)
-    # =====================================================
-
-    nav_panel(
-
-        "📘 Summary",
-
-        div(
-            style = "
-            text-align:center;
-            padding:18px;
-            border-radius:14px;
-            background:linear-gradient(90deg,#A8DADC,#CDB4DB);
-            margin-bottom:20px;",
-            h1("📘 Understanding Randomness in Coin Tosses"),
-            p("What structure appears inside random sequences?")
-        ),
-
-        fluidRow(
-
-            column(
-                6,
-
-                div(
-                    class = "card-style",
-
-                    h3("🪙 What is happening?"),
-
-                    div(
-                        class = "info-box",
-
-                        tags$p("Each sequence is generated by repeated random coin flips."),
-                        tags$p("Even though outcomes are random, patterns still emerge."),
-                        tags$p("We study how these patterns behave across people and theory.")
-                    )
-                )
-            ),
-
-            column(
-                6,
-
-                div(
-                    class = "card-style",
-
-                    h3("📊 Why compare groups?"),
-
-                    div(
-                        class = "info-box",
-
-                        tags$p("Human-generated sequences are often not truly random."),
-                        tags$p("People tend to underestimate long runs of the same outcome."),
-                        tags$p("Comparing datasets reveals these systematic biases.")
-                    )
-                )
-            )
-        ),
-
-        fluidRow(
-
-            column(
-                6,
-
-                div(
-                    class = "card-style",
-
-                    h3("📐 Key ideas"),
-
-                    div(
-                        class = "info-box",
-
-                        tags$ul(
-                            tags$li("Bernoulli trials"),
-                            tags$li("Binomial distribution"),
-                            tags$li("Runs and clustering"),
-                            tags$li("Sampling variability"),
-                            tags$li("Human perception of randomness")
-                        )
-                    )
-                )
-            ),
-
-            column(
-                6,
-
-                div(
-                    class = "card-style",
-
-                    h3("🔍 Questions"),
-
-                    div(
-                        class = "info-box",
-
-                        tags$ul(
-                            tags$li("Why do humans avoid long runs?"),
-                            tags$li("How random is human data compared to theory?"),
-                            tags$li("What changes with longer sequences?"),
-                            tags$li("How reliable are these statistics?")
-                        )
-                    )
-                )
-            )
-        ),
-
-        fluidRow(
-
-            column(
-                12,
-
-                div(
-                    class = "card-style",
-
-                    h3("🧠 Big idea"),
-
-                    div(
-                        class = "info-box",
-
-                        tags$p("Randomness still produces structure."),
-                        tags$blockquote(
-                            style = "
-                                font-size:22px;
-                                font-weight:700;
-                                color:#7B9ACC;
-                                border-left:5px solid #CDB4DB;
-                                padding-left:18px;",
-                            "Apparent patterns are inevitable in random processes."
-                        )
-                    )
-                )
             )
         )
     )

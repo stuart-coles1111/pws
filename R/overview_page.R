@@ -1,0 +1,99 @@
+#' Create a standard Overview tab for an activity app
+#'
+#' Creates a Shiny `nav_panel()` containing the standard overview layout
+#' used throughout the activity apps. The overview consists of four
+#' sections: *Activity Explanation*, *Individual Execution*,
+#' *Group Execution*, and *Question to Explore*.
+#'
+#' @param title A character string giving the title displayed at the top of
+#'   the overview page.
+#' @param explanation UI content describing the purpose and statistical
+#'   background of the activity.
+#' @param individual UI content describing how the activity should be
+#'   completed individually.
+#' @param group UI content describing how the activity should be completed
+#'   in groups or as a class.
+#' @param question UI content containing the key question(s) students should
+#'   investigate during the activity.
+#'
+#' @return A `bslib::nav_panel()` object that can be supplied as a child of
+#'   `bslib::page_navbar()`.
+#'
+#' @export
+#'
+#' @examples
+#' overview_page(
+#'   title = "Activity 1: Picturing Randomness",
+#'   explanation = tagList(
+#'     p("Students investigate how random sequences behave.")
+#'   ),
+#'   individual = tagList(
+#'     tags$ol(
+#'       tags$li("Complete the activity individually."),
+#'       tags$li("Compare your results with theory.")
+#'     )
+#'   ),
+#'   group = tagList(
+#'     p("Pool class results and discuss any differences.")
+#'   ),
+#'   question = tagList(
+#'     p("Do humans generate truly random sequences?")
+#'   )
+#' )
+
+overview_page <- function(
+        title,
+        explanation,
+        individual,
+        group,
+        question
+) {
+
+    nav_panel(
+
+        "Overview",
+
+        div(
+            style = "
+                text-align:center;
+                padding:16px;
+                border-radius:12px;
+                background:linear-gradient(90deg,#A8DADC,#CDB4DB);
+                margin-bottom:20px;",
+            h1(title)
+        ),
+
+        card(
+            card_header(h3("Activity Explanation")),
+            explanation
+        ),
+
+        br(),
+
+        fluidRow(
+
+            column(
+                6,
+                card(
+                    card_header(h3("Individual Execution")),
+                    individual
+                )
+            ),
+
+            column(
+                6,
+                card(
+                    card_header(h3("Group Execution")),
+                    group
+                )
+            )
+        ),
+
+        br(),
+
+        card(
+            card_header(h3("Question to Explore")),
+            question
+        )
+    )
+}
