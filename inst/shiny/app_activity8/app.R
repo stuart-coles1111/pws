@@ -125,7 +125,8 @@ ui <- shinydashboard::dashboardPage(
     skin = "green",
 
     header = shinydashboard::dashboardHeader(
-        title = "🏇 A day at the races"
+        title = "🏇 A day at the races",
+        titleWidth = 300
     ),
 
     sidebar = shinydashboard::dashboardSidebar(
@@ -155,15 +156,21 @@ ui <- shinydashboard::dashboardPage(
           background-color:#F7F7FB;
         }
 
-        .main-header .logo {
-          background-color:#7B9ACC !important;
-          color:white !important;
-          font-weight:700;
-        }
+.main-header .logo,
+.main-header .navbar {
+    height: 50px !important;
+    line-height: 50px !important;
+}
 
-        .main-header .navbar {
-          background-color:#7B9ACC !important;
-        }
+.main-header .logo {
+    background-color:#7B9ACC !important;
+    color:white !important;
+    font-weight:700;
+}
+
+.main-header .navbar {
+    background-color:#7B9ACC !important;
+}
 
         .main-sidebar {
           background: linear-gradient(180deg,#A8DADC,#CDB4DB);
@@ -214,6 +221,8 @@ ui <- shinydashboard::dashboardPage(
           box-shadow: 0 4px 12px rgba(0,0,0,0.12);
           animation: pulseBanner 1.2s infinite;
         }
+
+
 
         @keyframes pulseBanner {
           0%   { opacity: 1; }
@@ -1269,6 +1278,10 @@ server <- function(input, output, session) {
                 y = "Price"
             ) +
 
+            ggplot2::scale_y_continuous(
+                expand = ggplot2::expansion(mult = c(0, 0.12))
+            ) +
+
             ggplot2::theme_minimal(base_size = 15) +
 
             ggplot2::theme(
@@ -1323,6 +1336,10 @@ server <- function(input, output, session) {
                 title = "Team Bank",
                 x = "Team",
                 y = "Bank"
+            ) +
+
+            ggplot2::scale_y_continuous(
+                expand = ggplot2::expansion(mult = c(0, 0.12))
             ) +
 
             ggplot2::theme_minimal(base_size = 15) +
