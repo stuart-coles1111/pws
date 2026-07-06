@@ -214,65 +214,41 @@ ui <- page_navbar(
         base_font = font_google("Inter")
     ),
 
-    tags$head(
-        tags$style(HTML("
+    header = tagList(
+
+        tags$head(
+            tags$style(HTML("
+
+            .container-fluid {
+                max-width: 100% !important;
+                padding-left: 20px !important;
+                padding-right: 20px !important;
+            }
+
+            .bslib-page-sidebar-main {
+                width: 100% !important;
+            }
+
+            .card {
+                width: 100%;
+            }
 
             .main-title{
                 background:linear-gradient(90deg,#A8DADC,#CDB4DB);
-                padding:20px;
-                border-radius:14px;
-                margin-bottom:20px;
+                padding:16px;
+                border-radius:12px;
+                margin-bottom:15px;
                 text-align:center;
-            }
-
-            .card-style{
-                background:white;
-                border-radius:14px;
-                padding:20px;
-                margin-bottom:20px;
-                box-shadow:0 3px 10px rgba(0,0,0,0.08);
-            }
-
-            .question-card{
-                border-left:6px solid #A8DADC;
-            }
-
-            .score-big{
-                font-size:34px;
-                font-weight:700;
-                text-align:center;
-                color:#7B9ACC;
-            }
-
-            .answer-box{
-                background:#F1F5FB;
-                border-left:5px solid #7B9ACC;
-                padding:12px;
-                border-radius:10px;
-                margin-top:15px;
-                font-size:18px;
-                font-weight:600;
-            }
-
-            .small-note{
-                color:#666;
-                font-size:13px;
-            }
-
-            .info-box{
-                background:#F8F9FB;
-                padding:18px;
-                border-radius:14px;
-                line-height:1.7;
             }
 
         "))
-    ),
+        ),
 
-    div(
-        class = "main-title",
-        h1("🎯 Activity 4: Quiz Time"),
-        p("Estimate the true value and quantify your uncertainty.")
+        div(
+            class = "main-title",
+            h1("🎯 Activity 4: Quiz Time")
+        )
+
     ),
 
     # =========================

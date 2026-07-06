@@ -1,10 +1,10 @@
 suppressPackageStartupMessages({
-library(shiny)
-library(grid)
-library(magick)
-library(bslib)
-library(shinyjs)
-library(ggplot2)
+    library(shiny)
+    library(grid)
+    library(magick)
+    library(bslib)
+    library(shinyjs)
+    library(ggplot2)
 })
 
 # =========================================================
@@ -198,565 +198,238 @@ ui <- page_navbar(
         base_font = font_google("Inter")
     ),
 
+    # -------------------------
+    # GLOBAL CSS (THIS IS KEY)
+    # -------------------------
+
     header = tagList(
 
-        useShinyjs(),
-
         tags$head(
-
-            tags$script(
-                src = "https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"
-            ),
-
-            tags$script(HTML("
-Shiny.addCustomMessageHandler('trigger_confetti', function(message) {
-  confetti({ particleCount: 120, spread: 70, origin: { x: 0.2, y: 0.6 }});
-  confetti({ particleCount: 120, spread: 70, origin: { x: 0.8, y: 0.6 }});
-  confetti({ particleCount: 200, spread: 100, origin: { y: 0.5 }});
-});
-")),
-
             tags$style(HTML("
+            body{
+                background:#F7F7FB;
+            }
 
-body{
-    background:#F7F7FB;
-}
+            .main-title{
+                background:linear-gradient(90deg,#A8DADC,#CDB4DB);
+                padding:20px;
+                border-radius:16px;
+                text-align:center;
+                margin-bottom:20px;
+            }
 
-/* =========================================
-TITLE
-========================================= */
+            .main-title h1{
+                font-weight:800;
+                color:#2E3440;
+                margin-bottom:8px;
+            }
 
-.main-title{
-    background:linear-gradient(90deg,#A8DADC,#CDB4DB);
-    padding:20px;
-    border-radius:16px;
-    text-align:center;
-    margin-bottom:20px;
-}
+            .main-title p{
+                font-size:17px;
+                color:#4C566A;
+                margin:0;
+            }
 
-.main-title h1{
-    font-weight:800;
-    color:#2E3440;
-    margin-bottom:8px;
-}
+            .card-style{
+                background:white;
+                border-radius:16px;
+                padding:22px;
+                margin-bottom:18px;
+                box-shadow:0 3px 12px rgba(0,0,0,0.08);
+            }
 
-.main-title p{
-    font-size:17px;
-    color:#4C566A;
-    margin:0;
-}
+            .button-stack {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
 
-/* =========================================
-CARDS
-========================================= */
+            .btn-race-info{
+                background:#4C78A8 !important;
+                color:white !important;
+            }
 
-.card-style{
-    background:white;
-    border-radius:16px;
-    padding:22px;
-    margin-bottom:18px;
-    box-shadow:0 3px 12px rgba(0,0,0,0.08);
-}
+            .btn-race-warning{
+                background:#F58518 !important;
+                color:white !important;
+            }
 
-/* =========================================
-BUTTONS
-========================================= */
+            .btn-race-success{
+                background:#54A24B !important;
+                color:white !important;
+            }
 
-.btn{
-    border-radius:10px !important;
-    font-weight:600 !important;
-    border:none !important;
-    box-shadow:0 2px 6px rgba(0,0,0,0.08);
-    transition:all 0.2s ease;
-}
+            .btn-race-danger{
+                background:#E45756 !important;
+                color:white !important;
+            }
 
-.btn:hover{
-    transform:translateY(-1px);
-    box-shadow:0 4px 10px rgba(0,0,0,0.12);
-}
-
-.btn-primary{
-    background:#7B9ACC !important;
-    border:none !important;
-    color:white !important;
-}
-
-.activity-btn{
-    padding:12px !important;
-    font-size:140% !important;
-    margin-top:10px;
-    width:100%;
-}
-
-.btn-race-info{
-    background:#5BC0DE !important;
-    color:white !important;
-}
-
-.btn-race-warning{
-    background:#F0AD4E !important;
-    color:white !important;
-}
-
-.btn-race-success{
-    background:#5CB85C !important;
-    color:white !important;
-}
-
-.btn-race-danger{
-    background:#D9534F !important;
-    color:white !important;
-}
-
-.btn-race-info,
-.btn-race-warning,
-.btn-race-success,
-.btn-race-danger{
-
-    width:100%;
-    padding:12px;
-    font-size:140%;
-    font-weight:600;
-
-    border:none !important;
-    border-radius:10px !important;
-
-    box-shadow:0 3px 8px rgba(0,0,0,0.10);
-
-    margin-bottom:12px;
-}
-
-.btn{
-    border-radius:10px !important;
-    font-weight:600 !important;
-    border:none !important;
-}
-
-/* =========================================
-MESSAGE PANEL
-========================================= */
-
-.message-panel{
-    background:#F8F9FB;
-    border-radius:14px;
-    padding:20px;
-    min-height:110px;
-    border-left:5px solid #7B9ACC;
-}
-
-.message-text{
-    font-size:20px;
-    font-weight:600;
-    color:#2E3440;
-}
-
-/* =========================================
-CARD BADGES
-========================================= */
-
-.card-badge{
-    display:inline-block;
-    padding:10px 16px;
-    border-radius:12px;
-    background:#E8F4FD;
-    color:#355070;
-    font-weight:700;
-    margin:4px;
-}
-
-.magician-badge{
-    display:inline-block;
-    padding:10px 16px;
-    border-radius:12px;
-    background:#D8F3DC;
-    color:#1B4332;
-    font-weight:700;
-    margin:4px;
-}
-
-/* =========================================
-INFO BOX
-========================================= */
-
-.info-box{
-    background:#F8F9FB;
-    padding:18px;
-    border-radius:14px;
-    line-height:1.7;
-}
-
-"))
-        )
-    ),
-
-    # =====================================================
-    # TAB 1
-    # =====================================================
-
-    nav_panel(
-
-        "🂱 A Card Trick",
+            .btn-race-info,
+            .btn-race-warning,
+            .btn-race-success {
+                width: 100%;
+                padding: 14px;
+                font-size: 16px;
+                font-weight: 700;
+                border-radius: 12px !important;
+                box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+            }
+        "))
+        ),
 
         div(
             class = "main-title",
+            h1("🪄 Activity 5: Statistics is Magic")
+        )
+    ),
 
-            h1("🂱 A Card Trick")
+
+
+
+    # =====================================================
+    # OVERVIEW TAB
+    # =====================================================
+
+
+
+    overview_page(
+        explanation = tagList(
+            p("This activity explores how deterministic rules can generate surprising statistical behaviour."),
+            p("A card-based process appears random but is fully structured.")
         ),
-
-        layout_sidebar(
-
-            sidebar = div(
-
-                class = "card-style",
-
-                h4("Controls"),
-
-                numericInput(
-                    "seed",
-                    "Random seed:",
-                    NULL,
-                    1
-                ),
-
-
-                sliderInput(
-                    "picture_value",
-                    "Picture card value:",
-                    min = 1,
-                    max = 10,
-                    value = 10,
-                    step = 1
-                ),
-
-
-                sliderInput(
-                    "pause_time",
-                    "Pause between cards (seconds):",
-                    0.1,
-                    2,
-                    0.75
-                ),
-
-                actionButton(
-                    "start_trick",
-                    "1: Shuffle and Show Key Card",
-                    class = "btn-race-info"
-                ),
-
-                actionButton(
-                    "shuffle_deal",
-                    "2: Shuffle and Deal Cards",
-                    class = "btn-race-warning"
-                ),
-
-                actionButton(
-                    "reveal",
-                    "3: Magician's Prediction",
-                    class = "btn-race-success"
-                )
-            ),
-
-            div(
-
-                class = "card-style",
-
-                plotOutput(
-                    "card_plot",
-                    height = "420px"
-                ),
-
-                div(
-                    class = "message-panel",
-                    uiOutput("message")
-                )
+        individual = tagList(
+            tags$ol(
+                tags$li("Follow the card trick step-by-step."),
+                tags$li("Observe how predictions evolve."),
+                tags$li("Record success or failure."),
+                tags$li("Reflect on randomness vs structure.")
+            )
+        ),
+        group = tagList(
+            tags$ol(
+                tags$li("Compare results across groups."),
+                tags$li("Run repeated simulations."),
+                tags$li("Investigate parameter effects."),
+                tags$li("Discuss deterministic randomness.")
+            )
+        ),
+        question = tagList(
+            tags$ul(
+                tags$li("Why do paths converge?"),
+                tags$li("How reliable is the trick?"),
+                tags$li("Where does randomness actually enter?"),
+                tags$li("Can deterministic systems appear random?")
             )
         )
     ),
 
     # =====================================================
-    # TAB 2
+    # ACTIVITY TAB (WRAPPER ONLY)
     # =====================================================
 
     nav_panel(
 
-        "📊 Simulation Study",
+        "Activity",
 
-        div(
-            class = "main-title",
+        # IMPORTANT: NO OUTER layout_sidebar HERE
 
-            h1("📊 Simulation Study")
-        ),
+        navset_tab(
 
-        layout_sidebar(
+            # =================================================
+            # TAB 1: CARD TRICK
+            # =================================================
 
-            sidebar = div(
+            nav_panel(
 
-                class = "card-style",
+                "🂱 A Card Trick",
 
-                h4("Simulation Controls"),
+                div(class = "main-title", h1("🂱 A Card Trick")),
 
-                sliderInput(
-                    "sim_nrep",
-                    "Number of simulations:",
-                    min = 100,
-                    max = 5000,
-                    value = 1000,
-                    step = 100
-                ),
+                layout_sidebar(
 
-                sliderInput(
-                    "sim_picture",
-                    "Picture card value:",
-                    min = 1,
-                    max = 10,
-                    value = 10,
-                    step = 1
-                ),
+                    sidebar = div(
 
+                        class = "card-style",
 
-                numericInput(
-                    "sim_seed",
-                    "Random seed:",
-                    NULL,
-                    1
-                ),
+                        h4("Controls"),
 
-                actionButton(
-                    "run_simulation",
-                    "Run Simulation",
-                    class = "btn-race-danger"
-                )
-            ),
+                        numericInput("seed", "Random seed:", NULL, 1),
 
-            div(
+                        sliderInput("picture_value", "Picture card value:",
+                                    min = 1, max = 10, value = 10),
 
-                class = "card-style",
+                        sliderInput("pause_time", "Pause between cards (seconds):",
+                                    0.1, 2, 0.75),
 
-                h3("Simulation Results"),
+                        div(
+                            class = "button-stack",
 
-                div(
-                    class = "message-panel",
-                    uiOutput("simulation_summary")
-                ),
+                            actionButton("start_trick", "1: Shuffle and Show Key Card",
+                                         class = "btn-race-info"),
 
-                hr(),
+                            actionButton("shuffle_deal", "2: Shuffle and Deal Cards",
+                                         class = "btn-race-warning"),
 
-                tableOutput("simulation_table"),
+                            actionButton("reveal", "3: Magician's Prediction",
+                                         class = "btn-race-success")
 
-                fluidRow(
-
-                    column(
-                        6,
-
-                        plotOutput(
-                            "simulation_plot",
-                            height = "350px"
                         )
                     ),
 
-                    column(
-                        6,
-
-                        plotOutput(
-                            "simulation_plot2",
-                            height = "350px"
-                        )
-                    )
-                )
-            )
-        )
-    ),
-
-    # =====================================================
-    # TAB 3
-    # =====================================================
-
-    nav_panel(
-
-        "📘 Summary",
-
-        div(
-            class = "main-title",
-
-            h1("📘 Understanding the Card Trick"),
-
-            p(
-                "Key mathematical ideas behind the magician's prediction."
-            )
-        ),
-
-        fluidRow(
-
-            column(
-                6,
-
-                div(
-                    class = "card-style",
-
-                    h3("🃏 How the Trick Works"),
-
                     div(
-                        class = "info-box",
-
-                        tags$p(
-                            "The trick is based on deterministic counting paths."
-                        ),
-
-                        tags$p(
-                            "Both the player and the magician repeatedly move through the deck according to the numerical value of the current card."
-                        ),
-
-                        tags$p(
-                            "Although the starting cards may differ, the counting paths often merge, causing both players to finish on the same final card."
-                        ),
-
-                        tags$p(
-                            "This creates the illusion of a successful prediction."
-                        )
+                        class = "card-style",
+                        plotOutput("card_plot", height = "420px"),
+                        div(class = "message-panel", uiOutput("message"))
                     )
                 )
             ),
 
-            column(
-                6,
+            # =================================================
+            # TAB 2: SIMULATION
+            # =================================================
 
-                div(
-                    class = "card-style",
+            nav_panel(
 
-                    h3("🎲 Role of Simulation"),
+                "📊 Simulation Study",
 
-                    div(
-                        class = "info-box",
+                div(class = "main-title", h1("📊 Simulation Study")),
 
-                        tags$p(
-                            "Monte Carlo simulation is used to estimate how frequently the trick fails."
-                        ),
+                layout_sidebar(
 
-                        tags$p(
-                            "By repeatedly shuffling the deck and replaying the process thousands of times, we can approximate the probability of success."
-                        ),
+                    sidebar = div(
 
-                        tags$p(
-                            "The simulation helps investigate how changing the picture-card value affects the reliability of the trick."
-                        )
-                    )
-                )
-            )
-        ),
+                        class = "card-style",
 
-        fluidRow(
+                        h4("Simulation Controls"),
 
-            column(
-                6,
+                        sliderInput("sim_nrep", "Number of simulations:",
+                                    min = 100, max = 5000, value = 1000),
 
-                div(
-                    class = "card-style",
+                        sliderInput("sim_picture", "Picture card value:",
+                                    min = 1, max = 10, value = 10),
 
-                    h3("📐 Mathematical Ideas"),
+                        numericInput("sim_seed", "Random seed:", NULL, 1),
+
+                        actionButton("run_simulation", "Run Simulation",
+                                     class = "btn-race-danger")
+                    ),
 
                     div(
-                        class = "info-box",
 
-                        tags$ul(
+                        class = "card-style",
 
-                            tags$li(
-                                "Deterministic processes"
-                            ),
+                        h3("Simulation Results"),
 
-                            tags$li(
-                                "Random shuffling"
-                            ),
+                        div(class = "message-panel", uiOutput("simulation_summary")),
 
-                            tags$li(
-                                "Monte Carlo methods"
-                            ),
+                        hr(),
 
-                            tags$li(
-                                "Probability estimation"
-                            ),
+                        tableOutput("simulation_table"),
 
-                            tags$li(
-                                "Simulation variability"
-                            ),
+                        fluidRow(
 
-                            tags$li(
-                                "Confidence intervals"
-                            )
-                        )
-                    )
-                )
-            ),
-
-            column(
-                6,
-
-                div(
-                    class = "card-style",
-
-                    h3("🔍 Questions to Explore"),
-
-                    div(
-                        class = "info-box",
-
-                        tags$ul(
-
-                            tags$li(
-                                "Why do the counting paths tend to merge?"
-                            ),
-
-                            tags$li(
-                                "Which picture-card value gives the most reliable trick?"
-                            ),
-
-                            tags$li(
-                                "How many simulations are needed for stable estimates?"
-                            ),
-
-                            tags$li(
-                                "How does randomness interact with deterministic rules?"
-                            ),
-
-                            tags$li(
-                                "Can the trick be represented as a graph or network?"
-                            )
-                        )
-                    )
-                )
-            )
-        ),
-
-        fluidRow(
-
-            column(
-                12,
-
-                div(
-                    class = "card-style",
-
-                    h3("🧠 Interpretation"),
-
-                    div(
-                        class = "info-box",
-
-                        tags$p(
-                            "The card trick demonstrates an important statistical idea:"
-                        ),
-
-                        tags$blockquote(
-                            style = "
-                                font-size:22px;
-                                font-weight:700;
-                                color:#7B9ACC;
-                                border-left:5px solid #CDB4DB;
-                                padding-left:18px;
-                                margin-top:20px;
-                            ",
-
-                            "Randomness in the setup can still produce highly predictable outcomes."
-                        ),
-
-                        tags$p(
-                            "This balance between randomness and structure appears throughout probability, statistics, computer science, and machine learning."
+                            column(6, plotOutput("simulation_plot", height = "350px")),
+                            column(6, plotOutput("simulation_plot2", height = "350px"))
                         )
                     )
                 )
@@ -1255,18 +928,13 @@ server <- function(input, output, session){
 
         df <- rv$sim_history
 
-        ggplot(
-            df,
-            aes(
-                picture_value,
-                fail_prob
-            )
-        ) +
+            ggplot(df, aes(picture_value, fail_prob)) +
 
+        {if (nrow(df) > 1)
             geom_line(
                 color = "#7B9ACC",
                 linewidth = 1.2
-            ) +
+            )}+
 
             geom_point(
                 color = "#CDB4DB",
