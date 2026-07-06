@@ -4,12 +4,9 @@
 \alias{overview_page}
 \title{Create a standard Overview tab for an activity app}
 \usage{
-overview_page(title, explanation, individual, group, question)
+overview_page(explanation, individual, group, question)
 }
 \arguments{
-\item{title}{A character string giving the title displayed at the top of
-the overview page.}
-
 \item{explanation}{UI content describing the purpose and statistical
 background of the activity.}
 
@@ -21,6 +18,9 @@ in groups or as a class.}
 
 \item{question}{UI content containing the key question(s) students should
 investigate during the activity.}
+
+\item{title}{A character string giving the title displayed at the top of
+the overview page.}
 }
 \value{
 A \code{bslib::nav_panel()} object that can be supplied as a child of

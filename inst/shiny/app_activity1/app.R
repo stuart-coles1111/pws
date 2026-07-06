@@ -117,22 +117,41 @@ ui <- page_navbar(
         fg = "#2E3440"
     ),
 
-    header = tags$head(
-        tags$style(HTML("
-        .container-fluid {
-            max-width: 100% !important;
-            padding-left: 20px !important;
-            padding-right: 20px !important;
-        }
+    header = tagList(
 
-        .bslib-page-sidebar-main {
-            width: 100% !important;
-        }
+        tags$head(
+            tags$style(HTML("
 
-        .card {
-            width: 100%;
-        }
-    "))
+            .container-fluid {
+                max-width: 100% !important;
+                padding-left: 20px !important;
+                padding-right: 20px !important;
+            }
+
+            .bslib-page-sidebar-main {
+                width: 100% !important;
+            }
+
+            .card {
+                width: 100%;
+            }
+
+            .main-title{
+                background:linear-gradient(90deg,#A8DADC,#CDB4DB);
+                padding:16px;
+                border-radius:12px;
+                margin-bottom:15px;
+                text-align:center;
+            }
+
+        "))
+        ),
+
+        div(
+            class = "main-title",
+            h1("🪙 Activity 1: Picturing Randomness")
+        )
+
     ),
 
     # =====================================================
@@ -140,8 +159,6 @@ ui <- page_navbar(
     # =====================================================
 
     overview_page(
-
-        title = "🪙 Activity 1: Picturing Randomness",
 
         explanation = tagList(
 
@@ -191,16 +208,6 @@ ui <- page_navbar(
     nav_panel(
 
         "Activity",
-
-        div(
-            style = "
-                text-align:center;
-                padding:16px;
-                border-radius:12px;
-                background:linear-gradient(90deg,#A8DADC,#CDB4DB);
-                margin-bottom:15px;",
-            h1("🪙 Activity 1: Picturing Randomness")
-        ),
 
         layout_sidebar(
 

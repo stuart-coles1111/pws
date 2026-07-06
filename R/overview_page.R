@@ -42,7 +42,6 @@
 #' )
 
 overview_page <- function(
-        title,
         explanation,
         individual,
         group,
@@ -52,16 +51,6 @@ overview_page <- function(
     nav_panel(
 
         "Overview",
-
-        div(
-            style = "
-                text-align:center;
-                padding:16px;
-                border-radius:12px;
-                background:linear-gradient(90deg,#A8DADC,#CDB4DB);
-                margin-bottom:20px;",
-            h1(title)
-        ),
 
         card(
             card_header(h3("Activity Explanation")),

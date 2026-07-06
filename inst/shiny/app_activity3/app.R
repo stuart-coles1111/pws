@@ -1,7 +1,7 @@
 suppressPackageStartupMessages({
-library(shiny)
-library(bslib)
-library(ggplot2)
+    library(shiny)
+    library(bslib)
+    library(ggplot2)
 })
 
 # =========================================================
@@ -124,406 +124,303 @@ ui <- page_navbar(
     ),
 
     # =====================================================
-    # MANUAL MODE
+    # OVERVIEW
     # =====================================================
 
-    nav_panel("Manual Mode", layout_sidebar(
-        accordion(accordion_panel(
-            "📜 Rules of Play",
+    overview_page(
 
+        explanation = tagList(
+            p("This activity explores probability, expected value and risk through a betting game."),
+            p("Students compare manual play with simulation to understand randomness and risk.")
+        ),
+
+        individual = tagList(
             tags$ol(
-                tags$li("Choose Heads or Tails on a sequence of coin tosses."),
-
-                tags$li("Your starting bank is $25."),
-
-                tags$li("You may bet any whole-dollar amount up to your current bank."),
-
-                tags$li("Bets and winnings are rounded to the nearest dollar."),
-
-                tags$li("The game ends when:", tags$ul(
-                    tags$li("You reach a hidden winning threshold."),
-                    tags$li("Your bank reaches zero."),
-                    tags$li("30 minutes expires.")
-                ))
-            )
-        ), open = FALSE),
-
-        sidebar = div(
-            class = "card-style",
-
-            checkboxInput("m_random_p", "Simulate probability of tails", FALSE),
-
-            checkboxInput("m_show_p", "Show probability", FALSE),
-
-            hr(),
-
-            radioButtons(
-                "m_ceiling_mode",
-                "Winning Threshold",
-                choices = c(
-                    "Hidden" = "fixed",
-                    "Random" = "random",
-                    "No Ceiling" = "none"
-                ),
-                selected = "fixed"
-            ),
-
-            hr(),
-
-            selectInput("m_bet", "Bet Choice", c("H", "T")),
-
-            numericInput("m_stake_fixed", "Stake ($)", value = 5, min = 1),
-
-            sliderInput(
-                "m_stake_prop",
-                "Percentage of bank to stake",
-                min = 0,
-                max = 100,
-                value = 20,
-                step = 5
-            ),
-
-            div(
-                class = "button-spacing",
-
-                actionButton(
-                    "m_go",
-                    "Place Bet",
-                    class = "btn-start"
-                ),
-
-                actionButton(
-                    "m_reset",
-                    "Reset",
-                    class = "btn-reset"
-                )
+                tags$li("Play the betting game manually."),
+                tags$li("Experiment with different stake sizes."),
+                tags$li("Observe bankroll changes."),
+                tags$li("Compare with simulation.")
             )
         ),
 
-        div(
-            class = "card-style",
-
-            uiOutput("m_p_display"),
-
-            hr(),
-
-            div(class = "big-timer", textOutput("m_timer")),
-
-            hr(),
-
-            div(class = "big-bank", textOutput("m_bank_display")),
-
-            hr(),
-
-            fluidRow(
-                column(
-                    width = 4,
-                    div(
-                        h4("Game Log"),
-                        div(class = "log-box", uiOutput("m_log_ui"))
-                    )
-                ),
-
-                column(
-                    width = 8,
-                    plotOutput("m_plot", height = "300px")
-                )
+        group = tagList(
+            tags$ol(
+                tags$li("Compare strategies across students."),
+                tags$li("Discuss differences in outcomes."),
+                tags$li("Relate to probability and risk.")
             )
-        )
-    )),
+        ),
 
-    # =====================================================
-    # SIMULATION MODE
-    # =====================================================
-
-    nav_panel(
-        "Simulation Mode",
-
-        layout_sidebar(
-
-            accordion(
-                accordion_panel(
-                    "📜 Rules of Play",
-
-                    tags$ol(
-                        tags$li("Choose Heads or Tails on a sequence of coin tosses."),
-                        tags$li("Your initial bank is $25."),
-                        tags$li("Bets and winnings are rounded to the nearest dollar."),
-                        tags$li(
-                            "The game stops if:",
-                            tags$ul(
-                                tags$li("Your bank reaches a hidden threshold."),
-                                tags$li("Your bank reaches zero."),
-                                tags$li("30 minutes expires.")
-                            )
-                        )
-                    )
-                ),
-                open = FALSE
-            ),
-
-            sidebar = div(
-
-                class = "card-style",
-
-                numericInput(
-                    "s_seed",
-                    "Random Seed",
-                    value = sample(1:999, 1),
-                    min = 1,
-                    max = 999
-                ),
-
-                checkboxInput(
-                    "s_random_p",
-                    "Simulate probability of tails",
-                    FALSE
-                ),
-
-                checkboxInput(
-                    "s_show_p",
-                    "Show probability",
-                    FALSE
-                ),
-
-                hr(),
-
-                radioButtons(
-                    "s_ceiling_mode",
-                    "Winning Threshold",
-                    choices = c(
-                        "Hidden" = "fixed",
-                        "Random" = "random",
-                        "No Ceiling" = "none"
-                    ),
-                    selected = "fixed"
-                ),
-
-                hr(),
-
-                selectInput(
-                    "s_bet",
-                    "Bet Choice",
-                    c("H", "T")
-                ),
-
-                sliderInput(
-                    "s_stake_prop",
-                    "Percentage of bank to stake",
-                    min = 0,
-                    max = 100,
-                    value = 20,
-                    step = 5
-                ),
-
-                sliderInput(
-                    "s_interval",
-                    "Time between bets",
-                    min = 0.05,
-                    max = 1,
-                    value = 0.5,
-                    step = 0.05
-                ),
-
-                div(
-                    class = "button-spacing",
-
-                    actionButton(
-                        "s_start",
-                        "Start",
-                        class = "btn-start"
-                    ),
-
-                    actionButton(
-                        "s_stop",
-                        "Stop",
-                        class = "btn-stop"
-                    ),
-
-                    actionButton(
-                        "s_reset",
-                        "Reset",
-                        class = "btn-reset"
-                    )
-                )
-            ),
-
-            div(
-                class = "card-style",
-
-                uiOutput("s_p_display"),
-
-                hr(),
-
-                div(class = "big-timer", textOutput("s_timer")),
-
-                hr(),
-
-                div(class = "big-bank", textOutput("s_bank_display")),
-
-                hr(),
-
-                fluidRow(
-                    column(
-                        width = 4,
-                        div(
-                            h4("Game Log"),
-                            div(class = "log-box", uiOutput("s_log_ui"))
-                        )
-                    ),
-
-                    column(
-                        width = 8,
-                        plotOutput("s_plot", height = "300px")
-                    )
-                )
+        question = tagList(
+            tags$ul(
+                tags$li("How does stake size affect risk?"),
+                tags$li("Why do identical strategies diverge?"),
+                tags$li("Can randomness dominate skill?")
             )
         )
     ),
 
     # =====================================================
-    # SUMMARY TAB
+    # ACTIVITY
     # =====================================================
 
     nav_panel(
-        "📘 Summary",
 
-        div(
-            class = "main-title",
+        "Activity",
 
-            h1("📘 Understanding the Betting Game"),
+        navset_tab(
 
-            p(
-                "Key statistical ideas behind betting strategies, probability, and risk."
-            )
-        ),
+            nav_panel(
 
-        fluidRow(column(6, div(
-            class = "card-style",
+                "Manual Mode",
 
-            h3("🪙 How the Game Works"),
+                layout_sidebar(
 
-            div(
-                class = "info-box",
+                    accordion(
+                        accordion_panel(
+                            "📜 Rules of Play",
 
-                tags$p("The game repeatedly simulates bets on a biased coin."),
+                            tags$ol(
+                                tags$li("Choose Heads or Tails on a sequence of coin tosses."),
+                                tags$li("Your starting bank is $25."),
+                                tags$li("You may bet any whole-dollar amount up to your current bank."),
+                                tags$li("Bets and winnings are rounded to the nearest dollar."),
+                                tags$li("The game ends when:", tags$ul(
+                                    tags$li("You reach a hidden winning threshold."),
+                                    tags$li("Your bank reaches zero."),
+                                    tags$li("30 minutes expires.")
+                                ))
+                            )
+                        ),
+                        open = FALSE
+                    ),
 
-                tags$p(
-                    "Players choose whether to bet on Heads or Tails and decide how much of their bank to risk."
-                ),
+                    sidebar = div(
+                        class = "card-style",
 
-                tags$p(
-                    "Each outcome changes the player's remaining bank, producing a dynamic process over time."
-                ),
+                        checkboxInput("m_random_p", "Simulate probability of tails", FALSE),
+                        checkboxInput("m_show_p", "Show probability", FALSE),
 
-                tags$p(
-                    "Different staking strategies can dramatically affect long-term success."
+                        hr(),
+
+                        radioButtons(
+                            "m_ceiling_mode",
+                            "Winning Threshold",
+                            choices = c(
+                                "Hidden" = "fixed",
+                                "Random" = "random",
+                                "No Ceiling" = "none"
+                            ),
+                            selected = "fixed"
+                        ),
+
+                        hr(),
+
+                        selectInput("m_bet", "Bet Choice", c("H", "T")),
+
+                        numericInput("m_stake_fixed", "Stake ($)", value = 5, min = 1),
+
+                        sliderInput(
+                            "m_stake_prop",
+                            "Percentage of bank to stake",
+                            min = 0,
+                            max = 100,
+                            value = 20,
+                            step = 5
+                        ),
+
+                        div(
+                            class = "button-spacing",
+
+                            actionButton("m_go", "Place Bet", class = "btn-start"),
+                            actionButton("m_reset", "Reset", class = "btn-reset")
+                        )
+                    ),
+
+                    div(
+                        class = "card-style",
+
+                        uiOutput("m_p_display"),
+
+                        hr(),
+                        div(class = "big-timer", textOutput("m_timer")),
+                        hr(),
+                        div(class = "big-bank", textOutput("m_bank_display")),
+                        hr(),
+
+                        fluidRow(
+                            column(
+                                4,
+                                div(
+                                    h4("Game Log"),
+                                    div(class = "log-box", uiOutput("m_log_ui"))
+                                )
+                            ),
+                            column(
+                                8,
+                                plotOutput("m_plot", height = "300px")
+                            )
+                        )
+                    )
+                )
+            ),
+
+            # =====================================================
+            # SIMULATION MODE
+            # =====================================================
+
+            nav_panel(
+                "Simulation Mode",
+
+                layout_sidebar(
+
+                    accordion(
+                        accordion_panel(
+                            "📜 Rules of Play",
+
+                            tags$ol(
+                                tags$li("Choose Heads or Tails on a sequence of coin tosses."),
+                                tags$li("Your initial bank is $25."),
+                                tags$li("Bets and winnings are rounded to the nearest dollar."),
+                                tags$li(
+                                    "The game stops if:",
+                                    tags$ul(
+                                        tags$li("Your bank reaches a hidden threshold."),
+                                        tags$li("Your bank reaches zero."),
+                                        tags$li("30 minutes expires.")
+                                    )
+                                )
+                            )
+                        ),
+                        open = FALSE
+                    ),
+
+                    sidebar = div(
+
+                        class = "card-style",
+
+                        numericInput(
+                            "s_seed",
+                            "Random Seed",
+                            value = sample(1:999, 1),
+                            min = 1,
+                            max = 999
+                        ),
+
+                        checkboxInput(
+                            "s_random_p",
+                            "Simulate probability of tails",
+                            FALSE
+                        ),
+
+                        checkboxInput(
+                            "s_show_p",
+                            "Show probability",
+                            FALSE
+                        ),
+
+                        hr(),
+
+                        radioButtons(
+                            "s_ceiling_mode",
+                            "Winning Threshold",
+                            choices = c(
+                                "Hidden" = "fixed",
+                                "Random" = "random",
+                                "No Ceiling" = "none"
+                            ),
+                            selected = "fixed"
+                        ),
+
+                        hr(),
+
+                        selectInput(
+                            "s_bet",
+                            "Bet Choice",
+                            c("H", "T")
+                        ),
+
+                        sliderInput(
+                            "s_stake_prop",
+                            "Percentage of bank to stake",
+                            min = 0,
+                            max = 100,
+                            value = 20,
+                            step = 5
+                        ),
+
+                        sliderInput(
+                            "s_interval",
+                            "Time between bets",
+                            min = 0.05,
+                            max = 1,
+                            value = 0.5,
+                            step = 0.05
+                        ),
+
+                        div(
+                            class = "button-spacing",
+
+                            actionButton(
+                                "s_start",
+                                "Start",
+                                class = "btn-start"
+                            ),
+
+                            actionButton(
+                                "s_stop",
+                                "Stop",
+                                class = "btn-stop"
+                            ),
+
+                            actionButton(
+                                "s_reset",
+                                "Reset",
+                                class = "btn-reset"
+                            )
+                        )
+                    ),
+
+                    div(
+                        class = "card-style",
+
+                        uiOutput("s_p_display"),
+
+                        hr(),
+
+                        div(class = "big-timer", textOutput("s_timer")),
+
+                        hr(),
+
+                        div(class = "big-bank", textOutput("s_bank_display")),
+
+                        hr(),
+
+                        fluidRow(
+                            column(
+                                width = 4,
+                                div(
+                                    h4("Game Log"),
+                                    div(class = "log-box", uiOutput("s_log_ui"))
+                                )
+                            ),
+
+                            column(
+                                width = 8,
+                                plotOutput("s_plot", height = "300px")
+                            )
+                        )
+                    )
                 )
             )
-        )), column(6, div(
-            class = "card-style",
-
-            h3("📈 Role of Simulation"),
-
-            div(
-                class = "info-box",
-
-                tags$p(
-                    "Simulation allows repeated betting scenarios to be explored quickly."
-                ),
-
-                tags$p(
-                    "The app demonstrates how randomness can produce large variability in outcomes, even when probabilities remain fixed."
-                ),
-
-                tags$p(
-                    "By changing stake sizes and probabilities, users can investigate the balance between growth and risk."
-                )
-            )
-        ))),
-
-        fluidRow(column(6, div(
-            class = "card-style",
-
-            h3("📐 Mathematical Ideas"),
-
-            div(
-                class = "info-box",
-
-                tags$ul(
-                    tags$li("Expected value"),
-
-                    tags$li("Probability distributions"),
-
-                    tags$li("Random processes"),
-
-                    tags$li("Risk versus reward"),
-
-                    tags$li("Bankroll management"),
-
-                    tags$li("Simulation variability"),
-
-                    tags$li("Long-run behaviour")
-                )
-            )
-        )), column(6, div(
-            class = "card-style",
-
-            h3("🔍 Questions to Explore"),
-
-            div(
-                class = "info-box",
-
-                tags$ul(
-                    tags$li("How does stake size affect bankruptcy risk?"),
-
-                    tags$li("Can a favourable probability still lead to losses?"),
-
-                    tags$li("What happens when betting aggressively?"),
-
-                    tags$li("How important is randomness in short runs?"),
-
-                    tags$li("Which strategies produce more stable growth?")
-                )
-            )
-        ))),
-
-        fluidRow(column(12, div(
-            class = "card-style",
-
-            h3("🧠 Interpretation"),
-
-            div(
-                class = "info-box",
-
-                tags$p(
-                    "The betting simulation highlights an important statistical principle:"
-                ),
-
-                tags$blockquote(
-                    style = "
-                                font-size:22px;
-                                font-weight:700;
-                                color:#7B9ACC;
-                                border-left:5px solid #CDB4DB;
-                                padding-left:18px;
-                                margin-top:20px;
-                            ",
-
-                    "Even favourable odds do not guarantee success in the short term."
-                ),
-
-                tags$p(
-                    "Random variation, stake sizing, and repeated exposure to risk all influence long-run outcomes."
-                ),
-
-                tags$p(
-                    "These ideas are central to finance, gambling theory, insurance, and statistical modelling."
-                )
-            )
-        )))
+        )
     )
+
+
 )
+
+
+
 
 # =========================================================
 # SERVER
@@ -962,11 +859,15 @@ server <- function(input, output, session) {
     })
 
     output$m_p_display <- renderUI({
-        if (!input$m_show_p) {
+
+        if (isFALSE(input$m_show_p)) {
             return(NULL)
         }
 
-        div(class = "p-highlight", paste0("P(Tails) = ", round(m$p_t, 3)))
+        div(
+            class = "p-highlight",
+            paste0("P(Tails) = ", round(m$p_t, 3))
+        )
     })
 
     output$s_p_display <- renderUI({

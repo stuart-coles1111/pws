@@ -1,10 +1,10 @@
 suppressPackageStartupMessages({
-library(shiny)
-library(bslib)
-library(ggplot2)
-library(dplyr)
-library(purrr)
-library(scales)
+    library(shiny)
+    library(bslib)
+    library(ggplot2)
+    library(dplyr)
+    library(purrr)
+    library(scales)
 })
 
 # =========================================================
@@ -70,7 +70,6 @@ scale_param <- 18
 # =========================================================
 # UI
 # =========================================================
-
 ui <- page_navbar(
     theme = bs_theme(
         version = 5,
@@ -226,216 +225,68 @@ ui <- page_navbar(
     )),
 
     # =====================================================
-    # INTERACTIVE ACTIVITY
+    # OVERVIEW
     # =====================================================
 
-    nav_panel("Interactive Activity", uiOutput("page_ui")),
+    overview_page(
+
+        explanation = tagList(
+
+            p(
+                "This activity introduces conditional probability and decision making under uncertainty."
+            ),
+
+            p(
+                "Students explore how probabilities change when new information becomes available before extending these ideas to probability distributions, expected utility and behavioural decision making."
+            )
+
+        ),
+
+        individual = tagList(
+
+            tags$ol(
+                tags$li("Work through each stage of the activity independently."),
+                tags$li("Predict probabilities before revealing new information."),
+                tags$li("Interpret how the sample space changes."),
+                tags$li("Explore the decision-making scenarios.")
+            )
+
+        ),
+
+        group = tagList(
+
+            tags$ol(
+                tags$li("Compare probability calculations with classmates."),
+                tags$li("Discuss why conditioning changes probabilities."),
+                tags$li("Compare different attitudes towards risk."),
+                tags$li("Relate the examples to real-world decision making.")
+            )
+
+        ),
+
+        question = tagList(
+
+            tags$ul(
+                tags$li("How does new information change probabilities?"),
+                tags$li("Why does conditioning alter the sample space?"),
+                tags$li("How do people make decisions under uncertainty?"),
+                tags$li("What role does utility play alongside probability?")
+            )
+
+        )
+
+    ),
 
     # =====================================================
-    # SUMMARY TAB
+    # ACTIVITY
     # =====================================================
 
     nav_panel(
-        "📘 Summary",
-
-        div(
-            class = "main-title",
-
-            h1("📘 Understanding Probability and Decision Making"),
-
-            p(
-                "Key ideas behind conditional probability, uncertainty, and decision analysis."
-            )
-        ),
-
-        fluidRow(column(6, div(
-            class = "card-style",
-
-            h3("🎬 The Core Problem"),
-
-            div(
-                class = "info-box",
-
-                tags$p(
-                    "The activity begins with a ranking problem involving movie release dates."
-                ),
-
-                tags$p(
-                    "Initially, all possible movie orderings are treated as equally likely."
-                ),
-
-                tags$p(
-                    "New information eliminates some possibilities and changes the probabilities of the remaining outcomes."
-                ),
-
-                tags$p(
-                    "This demonstrates how evidence updates beliefs in probability models."
-                )
-            )
-        )), column(6, div(
-            class = "card-style",
-
-            h3("📊 Conditional Probability"),
-
-            div(
-                class = "info-box",
-
-                tags$p(
-                    "Conditional probability measures how probabilities change after observing information."
-                ),
-
-                tags$p(
-                    "In the app, learning that Movie C is older than A and B removes many possible orderings."
-                ),
-
-                tags$p(
-                    "As a result, the probability that C is the oldest movie rises from 1/4 to 3/4."
-                ),
-
-                tags$p(
-                    "This illustrates the principle that information changes uncertainty."
-                )
-            )
-        ))),
-
-        fluidRow(column(6, div(
-            class = "card-style",
-
-            h3("📈 Probability Distributions"),
-
-            div(
-                class = "info-box",
-
-                tags$p(
-                    "The app later models movie ages using a continuous probability distribution."
-                ),
-
-                tags$p(
-                    "The shaded region in the graph represents probabilities in the upper tail of the distribution."
-                ),
-
-                tags$p(
-                    "Changing the threshold z changes the probability that a movie is older than z."
-                ),
-
-                tags$p(
-                    "This helps connect graphical intuition with formal probability calculations."
-                )
-            )
-        )), column(6, div(
-            class = "card-style",
-
-            h3("🧮 Mathematical Ideas"),
-
-            div(
-                class = "info-box",
-
-                tags$ul(
-                    tags$li("Conditional probability"),
-
-                    tags$li("Sample spaces and permutations"),
-
-                    tags$li("Probability distributions"),
-
-                    tags$li("Tail probabilities"),
-
-                    tags$li("Expected utility"),
-
-                    tags$li("Decision analysis"),
-
-                    tags$li("Risk and uncertainty")
-                )
-            )
-        ))),
-
-        fluidRow(column(6, div(
-            class = "card-style",
-
-            h3("💡 Decision Analysis"),
-
-            div(
-                class = "info-box",
-
-                tags$p("Probability alone is not enough to make decisions."),
-
-                tags$p(
-                    "People also care about the value or happiness associated with outcomes."
-                ),
-
-                tags$p(
-                    "The app introduces utility functions to model attitudes toward gains and losses."
-                ),
-
-                tags$p(
-                    "Loss aversion means losses may feel more important than equally sized gains."
-                )
-            )
-        )), column(6, div(
-            class = "card-style",
-
-            h3("🔍 Questions to Explore"),
-
-            div(
-                class = "info-box",
-
-                tags$ul(
-                    tags$li("How does information change probabilities?"),
-
-                    tags$li("Why do some outcomes become more likely after conditioning?"),
-
-                    tags$li("How do probability distributions model uncertainty?"),
-
-                    tags$li(
-                        "Why might people reject risky choices even when the odds seem favourable?"
-                    ),
-
-                    tags$li("How does loss aversion affect decision making?")
-                )
-            )
-        ))),
-
-        fluidRow(column(
-            12,
-
-            div(class = "progress-box", "Step 2 of 5 • Conditional probability"),
-
-            div(
-                class = "card-style",
-
-                h3("🧠 Interpretation"),
-
-                div(
-                    class = "info-box",
-
-                    tags$p(
-                        "The activity combines probability theory with behavioural decision making."
-                    ),
-
-                    tags$blockquote(
-                        style = "
-                                font-size:22px;
-                                font-weight:700;
-                                color:#7B9ACC;
-                                border-left:5px solid #CDB4DB;
-                                padding-left:18px;
-                                margin-top:20px;
-                            ",
-
-                        "Good decisions depend not only on probabilities, but also on how people value outcomes."
-                    ),
-
-                    tags$p(
-                        "Conditional probability explains how evidence changes beliefs, while utility theory explains how people respond to risk."
-                    ),
-
-                    tags$p(
-                        "These ideas are widely used in economics, finance, statistics, psychology, and artificial intelligence."
-                    )
-                )
-            )
-        ))
+        "Activity",
+        uiOutput("page_ui")
     )
 )
+
 
 # =========================================================
 # SERVER
