@@ -1,9 +1,9 @@
 suppressPackageStartupMessages({
-library(shiny)
-library(bslib)
-library(ggplot2)
-library(dplyr)
-library(gt)
+    library(shiny)
+    library(bslib)
+    library(ggplot2)
+    library(dplyr)
+    library(gt)
 })
 
 # =========================================================
@@ -144,6 +144,35 @@ ui <- page_navbar(
                 text-align:center;
             }
 
+            /* make ALL Shiny buttons rounded */
+.btn {
+    border-radius: 12px !important;
+}
+
+.btn-random {
+    background: #F4A261 !important;
+    color: white !important;
+    border-radius: 12px !important;
+    font-weight: 700;
+    padding: 10px 14px;
+}
+
+.btn-file {
+    background: #7B9ACC !important;
+    color: white !important;
+    border-radius: 12px !important;
+    font-weight: 700;
+    border: none !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+}
+
+.btn-file:hover {
+    background: #5F89C9 !important;
+    color: white !important;
+}
+
+
+
         "))
         ),
 
@@ -153,6 +182,7 @@ ui <- page_navbar(
         )
 
     ),
+
 
     # =====================================================
     # OVERVIEW
@@ -224,10 +254,9 @@ ui <- page_navbar(
                     height = "120px"
                 ),
 
-                actionButton(
-                    "random_seq",
-                    "Generate random sequence"
-                ),
+                actionButton("random_seq",
+                             "Generate random sequence",
+                             class = "btn-random"),
 
                 actionButton(
                     "submit_seq",
