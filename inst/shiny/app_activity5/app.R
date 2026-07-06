@@ -204,7 +204,22 @@ ui <- page_navbar(
 
     header = tagList(
 
+        useShinyjs(),
+
         tags$head(
+
+            tags$script(
+                src = "https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"
+            ),
+
+            tags$script(HTML("
+Shiny.addCustomMessageHandler('trigger_confetti', function(message) {
+  confetti({ particleCount: 120, spread: 70, origin: { x: 0.2, y: 0.6 }});
+  confetti({ particleCount: 120, spread: 70, origin: { x: 0.8, y: 0.6 }});
+  confetti({ particleCount: 200, spread: 100, origin: { y: 0.5 }});
+});
+")),
+
             tags$style(HTML("
             body{
                 background:#F7F7FB;
@@ -645,7 +660,7 @@ server <- function(input, output, session){
                         paste0(
 
                             "<div class='message-text'>
-                            🔮 Final prediction:
+                            🔮 Final card in sequence:
                             </div><br>",
 
                             badge_text(
