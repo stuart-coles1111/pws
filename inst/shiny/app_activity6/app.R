@@ -1,12 +1,12 @@
 suppressPackageStartupMessages({
-library(shiny)
-library(bslib)
-library(shinyjs)
-library(ggplot2)
-library(dplyr)
-library(reshape2)
-library(gtools)
-library(rhandsontable)
+    library(shiny)
+    library(bslib)
+    library(shinyjs)
+    library(ggplot2)
+    library(dplyr)
+    library(reshape2)
+    library(gtools)
+    library(rhandsontable)
 })
 
 
@@ -282,7 +282,14 @@ main_panel_ui <- function(show_comp_results = FALSE){
 
 ui <- page_navbar(
 
-    title = "🎿 Activity 6:  Breaking records",
+    title = "🎿 Ski Jump Challenge",
+
+    theme = bs_theme(
+        version = 5,
+        bootswatch = "lux",
+        primary = "#7B9ACC",
+        base_font = font_google("Inter")
+    ),
 
     header = tagList(
 
@@ -316,51 +323,6 @@ Shiny.addCustomMessageHandler('trigger_confetti', function(message) {
   });
 
 });
-")),
-
-            tags$script(HTML("
-
-Shiny.addCustomMessageHandler('start_jump', function(message){
-
-  const skier = document.getElementById(message.id);
-
-  if(!skier) return;
-
-  const worldRecord = message.world_record;
-  const jump = message.jump_distance;
-
-  const container = skier.parentElement.offsetWidth;
-
-  const runup = 50;
-  const maxX = container - 50;
-
-  let landingRight =
-    runup + (maxX - runup) * (jump / worldRecord);
-
-  landingRight = Math.min(maxX, landingRight);
-
-  skier.style.transition = 'right 2s linear';
-  skier.style.right = landingRight + 'px';
-
-  setTimeout(() => {
-
-    const marker = document.getElementById(message.marker);
-    const label  = document.getElementById(message.label);
-
-    if(marker){
-      marker.style.right = landingRight + 'px';
-      marker.style.display = 'block';
-    }
-
-    if(label){
-      label.style.right = (landingRight - 25) + 'px';
-      label.innerHTML = jump.toFixed(1) + ' m';
-    }
-
-  }, 2100);
-
-});
-
 ")),
 
             tags$style(HTML("
@@ -457,410 +419,161 @@ body{
   line-height:1.7;
 }
 
-/* ================= SKI JUMP ANIMATION ================= */
-
-.ski-world{
-  position:relative;
-  width:100%;
-  height:140px;
-  background:linear-gradient(
-    to bottom,
-    #BFE7FF 0%,
-    #EAF7FF 45%,
-    #FFFFFF 100%
-  );
-  overflow:hidden;
-  border-radius:12px;
-}
-
-.skier{
-  position:absolute;
-  top:45px;
-  right:0px;
-  font-size:42px;
-  z-index:5;
-  transition:right 2s linear;
-}
-
-.jump-marker{
-  position:absolute;
-  top:70px;
-  width:4px;
-  height:40px;
-  background:#1D3557;
-  display:none;
-}
-
-.wr-marker{
-  position:absolute;
-  top:70px;
-  left:10%;
-  width:4px;
-  height:40px;
-  background:#E63946;
-}
-
-.wr-marker-label{
-  position:absolute;
-  top:40px;
-  left:10%;
-  font-weight:700;
-  color:#E63946;
-}
-
-.jump-label{
-  position:absolute;
-  top:10px;
-  font-weight:700;
-  color:#1D3557;
-}
-
 "))
-        )
-    ),
-
-    theme = bs_theme(
-        version = 5,
-        bootswatch = "lux",
-        primary = "#7B9ACC",
-        base_font = font_google("Inter")
-    ),
-
-    # =======================================================
-    # TRAINING TAB
-    # =======================================================
-
-    nav_panel(
-
-        "🎯 Training Phase",
-
-        div(
-            class = "main-title",
-
-            h1("🎯 Training Phase"),
-
-            p("Explore historical data and optimise your first jump.")
         ),
 
-        layout_sidebar(
-
-            sidebar = div(
-
-                class = "card-style",
-
-                h4("Game Setup"),
-
-                numericInput("seed", "Random seed", 123),
-
-                checkboxInput(
-                    "random_weights",
-                    "Randomise hidden weights",
-                    FALSE
-                ),
-
-                numericInput(
-                    "wr",
-                    "World record distance (m)",
-                    254.5
-                )
-            ),
-
-            main_panel_ui(FALSE)
-        )
-    ),
-
-    # =======================================================
-    # COMPETITION TAB
-    # =======================================================
-
-    nav_panel(
-
-        "🏁 Competition Phase",
-
         div(
             class = "main-title",
 
-            h1("🏁 Competition Phase"),
-
-            p("Use your remaining budget wisely and chase the world record.")
-        ),
-
-        layout_sidebar(
-
-            sidebar = div(
-
-                class = "card-style",
-
-                h4("Competition Rules"),
-
-                p("Maximum spend in any category across both phases is 10 units."),
-
-                p("Each phase has a total budget of 10 units.")
-            ),
-
-            main_panel_ui(TRUE)
+            h1("🎿 Ski Jump Challenge")
         )
     ),
 
-    # =======================================================
-    # SUMMARY TAB
-    # =======================================================
+    # =====================================================
+    # OVERVIEW
+    # =====================================================
 
-    nav_panel(
+    overview_page(
 
-        "📘 Summary",
-
-        div(
-            class = "main-title",
-
-            h1("📘 Understanding Ski Jump Optimisation"),
+        explanation = tagList(
 
             p(
-                "Key ideas behind regression analysis, uncertainty, simulation, and strategic decision making."
+                "In this activity you investigate how information has value when making predictions."
+            ),
+
+            p(
+                "With a limited budget, you decide how much to spend on historical data and training resources before using regression to predict ski jump distances."
             )
         ),
 
-        fluidRow(
+        individual = tagList(
 
-            column(
-                6,
+            tags$ol(
+
+                tags$li("Allocate your training budget."),
+
+                tags$li("Purchase historical data."),
+
+                tags$li("Purchase training resources."),
+
+                tags$li("Fit a regression model."),
+
+                tags$li("Predict and evaluate your jump.")
+            )
+        ),
+
+        group = tagList(
+
+            tags$ol(
+
+                tags$li("Compare different spending strategies."),
+
+                tags$li("Compare prediction accuracy across teams."),
+
+                tags$li("Discuss the value of information."),
+
+                tags$li("Investigate how budgets affect performance.")
+            )
+        ),
+
+        question = tagList(
+
+            tags$ul(
+
+                tags$li("Should you spend more on data or resources?"),
+
+                tags$li("How much does additional information improve prediction?"),
+
+                tags$li("Can different strategies produce equally good results?"),
+
+                tags$li("What is the opportunity cost of each spending decision?")
+            )
+        )
+    ),
+
+    # =====================================================
+    # ACTIVITY
+    # =====================================================
+
+    nav_panel(
+
+        "Activity",
+
+        navset_tab(
+
+            # =======================================================
+            # TRAINING TAB
+            # =======================================================
+
+            nav_panel(
+
+                "🎯 Training Phase",
 
                 div(
-                    class = "card-style",
+                    class = "main-title",
 
-                    h3("🎿 The Core Challenge"),
+                    h1("🎯 Training Phase"),
 
-                    div(
-                        class = "info-box",
+                    p("Explore historical data and optimise your first jump.")
+                ),
 
-                        tags$p(
-                            "The ski jump activity models a decision problem under uncertainty."
+                layout_sidebar(
+
+                    sidebar = div(
+
+                        class = "card-style",
+
+                        h4("Game Setup"),
+
+                        numericInput("seed", "Random seed", 123),
+
+                        checkboxInput(
+                            "random_weights",
+                            "Randomise hidden weights",
+                            FALSE
                         ),
 
-                        tags$p(
-                            "Players must allocate limited resources across training categories to maximise jump distance."
-                        ),
-
-                        tags$p(
-                            "The true importance of Technique, Materials, and Fitness is hidden."
-                        ),
-
-                        tags$p(
-                            "Historical and competition data help reveal which factors matter most."
+                        numericInput(
+                            "wr",
+                            "World record distance (m)",
+                            254.5
                         )
-                    )
+                    ),
+
+                    main_panel_ui(FALSE)
                 )
             ),
 
-            column(
-                6,
+            # =======================================================
+            # COMPETITION TAB
+            # =======================================================
+
+            nav_panel(
+
+                "🏁 Competition Phase",
 
                 div(
-                    class = "card-style",
+                    class = "main-title",
 
-                    h3("📊 Regression Analysis"),
+                    h1("🏁 Competition Phase"),
 
-                    div(
-                        class = "info-box",
+                    p("Use your remaining budget wisely and chase the world record.")
+                ),
 
-                        tags$p(
-                            "Regression analysis estimates relationships between investments and jump performance."
-                        ),
+                layout_sidebar(
 
-                        tags$p(
-                            "Scatterplots reveal how jump distance changes as spending increases."
-                        ),
+                    sidebar = div(
 
-                        tags$p(
-                            "The regression coefficients estimate the marginal impact of each training category."
-                        ),
+                        class = "card-style",
 
-                        tags$p(
-                            "Larger gradients suggest stronger effects on performance."
-                        )
-                    )
-                )
-            )
-        ),
+                        h4("Competition Rules"),
 
-        fluidRow(
+                        p("Maximum spend in any category across both phases is 10 units."),
 
-            column(
-                6,
+                        p("Each phase has a total budget of 10 units.")
+                    ),
 
-                div(
-                    class = "card-style",
-
-                    h3("🎲 Randomness and Simulation"),
-
-                    div(
-                        class = "info-box",
-
-                        tags$p(
-                            "Jump outcomes are not perfectly predictable."
-                        ),
-
-                        tags$p(
-                            "Even with optimal spending, random variation affects final performance."
-                        ),
-
-                        tags$p(
-                            "The simulation includes random noise to model weather, conditions, and chance."
-                        ),
-
-                        tags$p(
-                            "This reflects real-world uncertainty in competitive environments."
-                        )
-                    )
-                )
-            ),
-
-            column(
-                6,
-
-                div(
-                    class = "card-style",
-
-                    h3("🧠 Strategic Resource Allocation"),
-
-                    div(
-                        class = "info-box",
-
-                        tags$p(
-                            "Players face a constrained optimisation problem."
-                        ),
-
-                        tags$p(
-                            "Each phase has a fixed budget of 10 spending units."
-                        ),
-
-                        tags$p(
-                            "Spending heavily in one category limits future flexibility."
-                        ),
-
-                        tags$p(
-                            "Good strategies balance information gathering with performance investment."
-                        )
-                    )
-                )
-            )
-        ),
-
-        fluidRow(
-
-            column(
-                6,
-
-                div(
-                    class = "card-style",
-
-                    h3("📈 Data-Driven Learning"),
-
-                    div(
-                        class = "info-box",
-
-                        tags$ul(
-
-                            tags$li(
-                                "Interpreting regression coefficients"
-                            ),
-
-                            tags$li(
-                                "Understanding correlation and prediction"
-                            ),
-
-                            tags$li(
-                                "Using simulated data for inference"
-                            ),
-
-                            tags$li(
-                                "Learning from noisy observations"
-                            ),
-
-                            tags$li(
-                                "Balancing exploration and exploitation"
-                            )
-                        )
-                    )
-                )
-            ),
-
-            column(
-                6,
-
-                div(
-                    class = "card-style",
-
-                    h3("🔍 Questions to Explore"),
-
-                    div(
-                        class = "info-box",
-
-                        tags$ul(
-
-                            tags$li(
-                                "Which spending category matters most?"
-                            ),
-
-                            tags$li(
-                                "How much data is enough to identify the best strategy?"
-                            ),
-
-                            tags$li(
-                                "Why can random outcomes still occur after good decisions?"
-                            ),
-
-                            tags$li(
-                                "Should more budget be spent on data or performance?"
-                            ),
-
-                            tags$li(
-                                "How does uncertainty affect strategic planning?"
-                            )
-                        )
-                    )
-                )
-            )
-        ),
-
-        fluidRow(
-
-            column(
-                12,
-
-                div(
-                    class = "card-style",
-
-                    h3("🏆 Interpretation"),
-
-                    div(
-                        class = "info-box",
-
-                        tags$p(
-                            "The activity combines statistical modelling with strategic decision making."
-                        ),
-
-                        tags$blockquote(
-                            style = "
-                                font-size:22px;
-                                font-weight:700;
-                                color:#7B9ACC;
-                                border-left:5px solid #CDB4DB;
-                                padding-left:18px;
-                                margin-top:20px;
-                            ",
-
-                            "Better decisions come from combining data, modelling, and strategic resource allocation."
-                        ),
-
-                        tags$p(
-                            "Regression models help estimate hidden relationships, while simulation captures uncertainty and variability."
-                        ),
-
-                        tags$p(
-                            "These ideas are widely used in sports analytics, economics, finance, engineering, machine learning, and operations research."
-                        )
-                    )
+                    main_panel_ui(TRUE)
                 )
             )
         )
