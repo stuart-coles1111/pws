@@ -79,180 +79,172 @@ activity7_neg_log_lik <- function(
 # UI
 # =========================================================
 
-ui <- bslib::page_fluid(
+ui <- page_navbar(
+
+    title = "🎲 Activity 7: A Dice Tournament",
 
     theme = bs_theme(
-        version=5,
-        bootswatch="minty",
-        primary="#7B9ACC",
-        bg="#F7F7FB",
-        fg="#2E3440",
-        base_font=font_google("Inter")
+        version = 5,
+        bootswatch = "minty",
+        primary = "#7B9ACC",
+        bg = "#F7F7FB",
+        fg = "#2E3440",
+        base_font = font_google("Inter")
     ),
 
-    tags$head(
-        tags$style(HTML("
-            .app-header{
-                background:linear-gradient(90deg,#A8DADC,#CDB4DB);
-                padding:18px;
-                border-radius:14px;
-                margin-bottom:20px;
-                text-align:center;
-            }
-            .card-style{
-                background:white;
-                border-radius:14px;
-                padding:20px;
-                margin-bottom:20px;
-                box-shadow:0 3px 10px rgba(0,0,0,0.08);
-            }
-            .btn-primary{
-                background:#89C2D9!important;
-                border-color:#89C2D9!important;
-            }
-            .player-badge{
-                display:inline-block;
-                padding:10px 16px;
-                border-radius:20px;
-                color:white;
-                font-weight:700;
-                margin:4px;
-                min-width:140px;
-                text-align:center;
-            }
-            .badge-blue{background:#6FA8DC;}
-            .badge-red{background:#E5989B;}
-            .badge-green{background:#95D5B2;color:#1B4332;}
-            .badge-yellow{background:#F9E79F;color:#5C4B00;}
-        ")),
+    # =====================================================
+    # GLOBAL CSS + JS
+    # =====================================================
 
-        tags$script(src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"),
+    header = tagList(
 
-        tags$script(HTML("
-        Shiny.addCustomMessageHandler('confetti', function(message) {
-            const duration = 2500;
-            const end = Date.now() + duration;
+        tags$head(
 
-            (function frame() {
-                confetti({ particleCount: 6, spread: 60, origin: { x: 0 } });
-                confetti({ particleCount: 6, spread: 60, origin: { x: 1 } });
+            tags$style(HTML("
+                .app-header{
+                    background:linear-gradient(90deg,#A8DADC,#CDB4DB);
+                    padding:18px;
+                    border-radius:14px;
+                    margin-bottom:20px;
+                    text-align:center;
+                }
 
-                if (Date.now() < end) requestAnimationFrame(frame);
-            })();
-        });
-        "))
+                .card-style{
+                    background:white;
+                    border-radius:14px;
+                    padding:20px;
+                    margin-bottom:20px;
+                    box-shadow:0 3px 10px rgba(0,0,0,0.08);
+                }
+
+                .btn-primary{
+                    background:#89C2D9!important;
+                    border-color:#89C2D9!important;
+                }
+
+                .player-badge{
+                    display:inline-block;
+                    padding:10px 16px;
+                    border-radius:20px;
+                    color:white;
+                    font-weight:700;
+                    margin:4px;
+                    min-width:140px;
+                    text-align:center;
+                }
+
+                .badge-blue{background:#6FA8DC;}
+                .badge-red{background:#E5989B;}
+                .badge-green{background:#95D5B2;color:#1B4332;}
+                .badge-yellow{background:#F9E79F;color:#5C4B00;}
+            ")),
+
+            tags$script(src =
+                            "https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"
+            ),
+
+            tags$script(HTML("
+                Shiny.addCustomMessageHandler('confetti', function(message) {
+                    const duration = 2500;
+                    const end = Date.now() + duration;
+
+                    (function frame() {
+                        confetti({ particleCount: 6, spread: 60, origin: { x: 0 } });
+                        confetti({ particleCount: 6, spread: 60, origin: { x: 1 } });
+
+                        if (Date.now() < end) requestAnimationFrame(frame);
+                    })();
+                });
+            "))
+        ),
+
+        div(
+            class = "app-header",
+            h1("🎲 Activity 7: A Dice Tournament")
+        )
     ),
 
-    # =========================
-    # HEADER (safe now)
-    # =========================
+    # =====================================================
+    # OVERVIEW PAGE
+    # =====================================================
 
-    div(
-        class="app-header",
-        h1("🎲 Activity 7: A Dice Tournament")
-    ),
+    overview_page(
 
-    # =========================
-    # SIMPLE NAV (manual, no validation)
-    # =========================
+        explanation = tagList(
+            p("This activity explores how simple probabilistic rules generate complex tournament behaviour."),
+            p("Players compete in a knockout structure where each match outcome is probabilistic rather than deterministic.")
+        ),
 
-    tabsetPanel(
-
-        tabPanel(
-            "🎲 Activity",
-
-            layout_sidebar(
-
-                sidebar = div(
-                    class="card-style",
-                    radioButtons("mode","Mode",
-                                 c("Human (enter results)"="human",
-                                   "Simulation (auto-play)"="sim",
-                                   "Demo (guided example)"="demo")),
-
-                    numericInput("nrounds","Number of rounds",5,1,8),
-                    numericInput("games","Games per match",5,1,step=2),
-                    numericInput("estimate_round","Estimation round",2,1),
-                    numericInput("nsim","Simulations",1000,100),
-                    numericInput("seed","Seed",999),
-
-                    actionButton("start","Start Tournament",class="btn-primary")
-                ),
-
-                div(class="card-style",
-                    uiOutput("round_section"),
-                    hr(),
-                    uiOutput("prob_section")
-                ),
-
-                div(class="card-style",
-                    uiOutput("action_ui")
-                )
+        individual = tagList(
+            tags$ol(
+                tags$li("Run or simulate tournament rounds."),
+                tags$li("Observe how randomness affects progression."),
+                tags$li("Estimate hidden probabilities from results."),
+                tags$li("Compare strategies across modes.")
             )
         ),
 
-        tabPanel(
-            "📘 Summary",
+        group = tagList(
+            tags$ol(
+                tags$li("Compare tournament outcomes across groups."),
+                tags$li("Investigate variability across simulations."),
+                tags$li("Discuss fairness and randomness in competition structures."),
+                tags$li("Relate results to real sports analytics.")
+            )
+        ),
+
+        question = tagList(
+            tags$ul(
+                tags$li("How predictable are knockout tournaments?"),
+                tags$li("Can we infer skill from limited data?"),
+                tags$li("How does randomness propagate through rounds?"),
+                tags$li("What makes a tournament 'fair'?")
+            )
+        )
+    ),
+
+    # =====================================================
+    # ACTIVITY
+    # =====================================================
+
+    nav_panel(
+
+        "Activity",
+
+        layout_sidebar(
+
+            sidebar = div(
+                class = "card-style",
+
+                radioButtons(
+                    "mode",
+                    "Mode",
+                    c(
+                        "Human (enter results)" = "human",
+                        "Simulation (auto-play)" = "sim",
+                        "Demo (guided example)" = "demo"
+                    )
+                ),
+
+                numericInput("nrounds", "Number of rounds", 5, 1, 8),
+                numericInput("games", "Games per match", 5, 1, step = 2),
+                numericInput("estimate_round", "Estimation round", 2, 1),
+                numericInput("nsim", "Simulations", 1000, 100),
+                numericInput("seed", "Seed", 999),
+
+                actionButton("start", "Start Tournament", class = "btn-primary")
+            ),
 
             div(
-                class="app-header",
-                h1("📘 Understanding the Tournament Model")
+                class = "card-style",
+                uiOutput("round_section"),
+                hr(),
+                uiOutput("prob_section")
             ),
 
-            fluidRow(
-                column(6,
-                       div(class="card-style",
-                           h3("🎲 What is simulated?"),
-                           tags$p("Knockout matches built from probabilistic games."),
-                           tags$p("Winners advance through elimination rounds.")
-                       )
-                ),
-                column(6,
-                       div(class="card-style",
-                           h3("⚙️ What drives outcomes?"),
-                           tags$p("Hidden colour-based probability structure."),
-                           tags$p("Logistic transformation converts differences into win probabilities.")
-                       )
-                )
-            ),
-
-            fluidRow(
-                column(6,
-                       div(class="card-style",
-                           h3("📊 Why estimation matters"),
-                           tags$p("We infer hidden parameters from observed results."),
-                           tags$p("This mirrors real-world sports analytics.")
-                       )
-                ),
-                column(6,
-                       div(class="card-style",
-                           h3("🧠 Key ideas"),
-                           tags$ul(
-                               tags$li("Binomial outcomes"),
-                               tags$li("Latent parameter inference"),
-                               tags$li("Logistic model"),
-                               tags$li("Monte Carlo simulation"),
-                               tags$li("Knockout dynamics")
-                           )
-                       )
-                )
-            ),
-
-            fluidRow(
-                column(12,
-                       div(class="card-style",
-                           h3("🏆 Big idea"),
-                           tags$blockquote(
-                               style="
-                                font-size:22px;
-                                font-weight:700;
-                                color:#7B9ACC;
-                                border-left:5px solid #CDB4DB;
-                                padding-left:18px;",
-                               "Simple probabilistic rules generate complex tournament behaviour."
-                           )
-                       )
-                )
+            div(
+                class = "card-style",
+                uiOutput("action_ui")
             )
         )
     )
