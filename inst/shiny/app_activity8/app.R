@@ -1,11 +1,11 @@
 suppressPackageStartupMessages({
-library(shiny)
-library(shinydashboard)
-library(shinyjs)
-library(DT)
-library(ggplot2)
-library(dplyr)
-library(bslib)
+    library(shiny)
+    library(shinydashboard)
+    library(shinyjs)
+    library(DT)
+    library(ggplot2)
+    library(dplyr)
+    library(bslib)
 })
 
 # =========================================================
@@ -122,33 +122,110 @@ winnings <- data.frame()
 # UI
 # =========================================================
 
-ui <- shinydashboard::dashboardPage(
+ui <- page_navbar(
 
-    skin = "green",
+    title = "🏇 A Day at the Races",
+    header = tagList(
 
-    header = shinydashboard::dashboardHeader(
-        title = "🏇 A day at the races",
-        titleWidth = 300
+        useShinyjs(),
+
+        tags$head(
+
+            tags$style(HTML("
+
+            .main-title{
+                background: linear-gradient(90deg,#A8DADC,#CDB4DB);
+                padding: 28px;
+                border-radius: 18px;
+                margin-bottom: 25px;
+                text-align: center;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            }
+
+            .main-title h1{
+                font-weight: 700;
+                color: #1D3557;
+                font-size: 32px;
+                margin: 0;
+            }
+
+            .main-title p{
+                font-size: 18px;
+                color: #3D405B;
+                margin-top: 6px;
+            }
+
+            body{
+                background:#F7F7FB;
+            }
+
+        "))
+        ),
+
+        div(
+            class = "main-title",
+            h1("🏇 A Day at the Races")
+        )
     ),
 
-    sidebar = shinydashboard::dashboardSidebar(
+    overview_page(
+        explanation = tagList(
+            p("This activity explores betting markets and probabilistic outcomes in horse racing.")
+        ),
+        individual = tagList(
+            tags$ol(
+                tags$li("Place stakes on horses."),
+                tags$li("Observe race outcomes."),
+                tags$li("Track performance over time.")
+            )
+        ),
+        group = tagList(
+            tags$ol(
+                tags$li("Compare strategies across participants."),
+                tags$li("Analyse risk and reward."),
+                tags$li("Discuss randomness in outcomes.")
+            )
+        ),
+        question = tagList(
+            tags$ul(
+                tags$li("Can strategies beat randomness?"),
+                tags$li("What drives long-term winnings?"),
+                tags$li("Is success skill or luck?")
+            )
+        )
+    ),
 
-        width = 300,
+    nav_panel(
+        "Activity",
 
-        shiny::tags$head(
+        # 👇 THIS is where your OLD app goes (next step)
+        ui <- shinydashboard::dashboardPage(
 
-            bslib::bs_theme_dependencies(
+            skin = "green",
 
-                bslib::bs_theme(
-                    version = 5,
-                    bootswatch = "minty",
-                    primary = "#7B9ACC",
-                    bg = "#F7F7FB",
-                    fg = "#2E3440"
-                )
+            header = shinydashboard::dashboardHeader(
+                title = "🏇 A day at the races",
+                titleWidth = 300
             ),
 
-            shiny::tags$style(shiny::HTML("
+            sidebar = shinydashboard::dashboardSidebar(
+
+                width = 300,
+
+                shiny::tags$head(
+
+                    bslib::bs_theme_dependencies(
+
+                        bslib::bs_theme(
+                            version = 5,
+                            bootswatch = "minty",
+                            primary = "#7B9ACC",
+                            bg = "#F7F7FB",
+                            fg = "#2E3440"
+                        )
+                    ),
+
+                    shiny::tags$style(shiny::HTML("
 
         body {
           background-color:#F7F7FB;
@@ -233,276 +310,278 @@ ui <- shinydashboard::dashboardPage(
         }
 
       "))
-        ),
-
-        shiny::br(),
-
-        radioButtons(
-            "game_mode",
-            "Mode",
-            choices = c(
-                "Single Player" = "single",
-                "Multiplayer" = "multi"
-            ),
-            selected = "multi",
-            width = "80%"
-        ),
-
-        shiny::br(),
-
-        shiny::selectInput(
-            "team",
-            "Team",
-            choices = list(
-                "Team 1" = 1,
-                "Team 2" = 2,
-                "Team 3" = 3,
-                "Team 4" = 4,
-                "Team 5" = 5,
-                "Team 6" = 6,
-                "Team 7" = 7,
-                "Team 8" = 8,
-                "Team 9" = 9,
-                "Team 10" = 10
-            ),
-            width = "80%"
-        ),
-
-        shiny::selectInput(
-            "horse",
-            "Horse",
-            choices = list(
-                "1: Red Rum" = 1,
-                "2: Secretariat" = 2,
-                "3: Seabiscuit" = 3,
-                "4: Shergar" = 4,
-                "5: Galileo" = 5,
-                "6: Best Mate" = 6
-            ),
-            width = "80%"
-        ),
-
-        shiny::numericInput(
-            "stake",
-            "Stake ($100's)",
-            1,
-            0,
-            100,
-            1,
-            width = "80%"
-        ),
-
-        shiny::br(),
-
-        shiny::fluidRow(
-
-            shiny::column(
-                5,
-                align = "center",
-
-                dipsaus::actionButtonStyled(
-                    inputId = "stake_enter",
-                    label = "Enter Stake",
-                    type = "info",
-                    class = "btn-sm",
-                    style = "padding:10px; font-size:140%"
-                )
-            ),
-
-            shiny::column(
-                5,
-                align = "center",
-                offset = 1,
-
-                dipsaus::actionButtonStyled(
-                    inputId = "stake_undo",
-                    label = "Undo Stake",
-                    type = "warning",
-                    class = "btn-sm",
-                    style = "padding:10px; font-size:140%"
-                )
-            )
-        ),
-
-        shiny::br(),
-
-        shiny::fluidRow(
-            shiny::column(
-                12,
-                align = "center",
-                shiny::textOutput("timer")
-            )
-        )
-    ),
-
-    body = shinydashboard::dashboardBody(
-
-        shinyjs::useShinyjs(),
-
-        shinydashboard::tabBox(
-            id = "inTabset",
-            width = 12,
-
-            # =====================================================
-            # TAB 1
-            # =====================================================
-
-            shiny::tabPanel(
-
-                "Pool",
-                value = "panel1",
-
-                shiny::h2(
-                    shiny::textOutput("header_text"),
-                    style = "
-          font-weight:700;
-          color:#7B9ACC;
-          margin-bottom:20px;"
                 ),
 
-                shiny::div(id = "race_banner_placeholder"),
+                shiny::br(),
 
-                shinydashboard::box(
-                    width = 12,
-                    title = "Pool Overview",
-                    status = "primary",
-
-                    shiny::fluidRow(
-
-                        shiny::column(
-                            4,
-
-                            DT::DTOutput("pool"),
-
-                            shiny::br(),
-
-                            DT::DTOutput("price")
-                        ),
-
-                        shiny::column(
-                            7,
-                            offset = 1,
-
-                            shiny::plotOutput(
-                                "plot_price",
-                                height = "320px"
-                            )
-                        )
-                    )
+                radioButtons(
+                    "game_mode",
+                    "Mode",
+                    choices = c(
+                        "Single Player" = "single",
+                        "Multiplayer" = "multi"
+                    ),
+                    selected = "multi",
+                    width = "80%"
                 ),
 
-                shinydashboard::box(
-                    width = 12,
-                    title = "Team Bank",
-                    status = "success",
+                shiny::br(),
 
-                    shiny::fluidRow(
-
-                        shiny::column(
-                            4,
-                            DT::DTOutput("bank")
-                        ),
-
-                        shiny::column(
-                            7,
-                            offset = 1,
-
-                            shiny::plotOutput(
-                                "plot_bank",
-                                height = "320px"
-                            )
-                        )
-                    )
+                shiny::selectInput(
+                    "team",
+                    "Team",
+                    choices = list(
+                        "Team 1" = 1,
+                        "Team 2" = 2,
+                        "Team 3" = 3,
+                        "Team 4" = 4,
+                        "Team 5" = 5,
+                        "Team 6" = 6,
+                        "Team 7" = 7,
+                        "Team 8" = 8,
+                        "Team 9" = 9,
+                        "Team 10" = 10
+                    ),
+                    width = "80%"
                 ),
+
+                shiny::selectInput(
+                    "horse",
+                    "Horse",
+                    choices = list(
+                        "1: Red Rum" = 1,
+                        "2: Secretariat" = 2,
+                        "3: Seabiscuit" = 3,
+                        "4: Shergar" = 4,
+                        "5: Galileo" = 5,
+                        "6: Best Mate" = 6
+                    ),
+                    width = "80%"
+                ),
+
+                shiny::numericInput(
+                    "stake",
+                    "Stake ($100's)",
+                    1,
+                    0,
+                    100,
+                    1,
+                    width = "80%"
+                ),
+
+                shiny::br(),
 
                 shiny::fluidRow(
 
                     shiny::column(
-                        3,
-                        offset = 1,
+                        5,
+                        align = "center",
 
                         dipsaus::actionButtonStyled(
-                            inputId = "start_timer",
-                            label = "Open bets",
-                            type = "primary",
+                            inputId = "stake_enter",
+                            label = "Enter Stake",
+                            type = "info",
                             class = "btn-sm",
                             style = "padding:10px; font-size:140%"
                         )
                     ),
 
                     shiny::column(
-                        3,
+                        5,
+                        align = "center",
                         offset = 1,
 
                         dipsaus::actionButtonStyled(
-                            inputId = "run_race",
-                            label = "Run Race",
-                            type = "success",
-                            class = "btn-sm",
-                            style = "padding:10px; font-size:140%"
-                        )
-                    ),
-
-                    shiny::column(
-                        3,
-                        offset = 1,
-
-                        dipsaus::actionButtonStyled(
-                            inputId = "next_race",
-                            label = "Next Race",
-                            type = "danger",
+                            inputId = "stake_undo",
+                            label = "Undo Stake",
+                            type = "warning",
                             class = "btn-sm",
                             style = "padding:10px; font-size:140%"
                         )
                     )
+                ),
+
+                shiny::br(),
+
+                shiny::fluidRow(
+                    shiny::column(
+                        12,
+                        align = "center",
+                        shiny::textOutput("timer")
+                    )
                 )
             ),
 
-            # =====================================================
-            # TAB 2
-            # =====================================================
+            body = shinydashboard::dashboardBody(
 
-            shiny::tabPanel(
+                shinyjs::useShinyjs(),
 
-                "Race",
-                value = "panel2",
-
-                shinydashboard::box(
+                shinydashboard::tabBox(
+                    id = "inTabset",
                     width = 12,
-                    title = "Race Result",
-                    status = "warning",
 
-                    shiny::fluidRow(
+                    # =====================================================
+                    # TAB 1
+                    # =====================================================
 
-                        shiny::column(
-                            5,
+                    shiny::tabPanel(
 
-                            shiny::h2(
-                                shiny::textOutput("text_win"),
-                                style = "
-                color:#7B9ACC;
-                font-weight:700;
-                margin-top:20px;"
+                        "Pool",
+                        value = "panel1",
+
+                        shiny::h2(
+                            shiny::textOutput("header_text"),
+                            style = "
+          font-weight:700;
+          color:#7B9ACC;
+          margin-bottom:20px;"
+                        ),
+
+                        shiny::div(id = "race_banner_placeholder"),
+
+                        shinydashboard::box(
+                            width = 12,
+                            title = "Pool Overview",
+                            status = "primary",
+
+                            shiny::fluidRow(
+
+                                shiny::column(
+                                    4,
+
+                                    DT::DTOutput("pool"),
+
+                                    shiny::br(),
+
+                                    DT::DTOutput("price")
+                                ),
+
+                                shiny::column(
+                                    7,
+                                    offset = 1,
+
+                                    shiny::plotOutput(
+                                        "plot_price",
+                                        height = "320px"
+                                    )
+                                )
                             )
                         ),
 
-                        shiny::column(
-                            5,
-                            offset = 1,
-                            shiny::imageOutput("image")
+                        shinydashboard::box(
+                            width = 12,
+                            title = "Team Bank",
+                            status = "success",
+
+                            shiny::fluidRow(
+
+                                shiny::column(
+                                    4,
+                                    DT::DTOutput("bank")
+                                ),
+
+                                shiny::column(
+                                    7,
+                                    offset = 1,
+
+                                    shiny::plotOutput(
+                                        "plot_bank",
+                                        height = "320px"
+                                    )
+                                )
+                            )
+                        ),
+
+                        shiny::fluidRow(
+
+                            shiny::column(
+                                3,
+                                offset = 1,
+
+                                dipsaus::actionButtonStyled(
+                                    inputId = "start_timer",
+                                    label = "Open bets",
+                                    type = "primary",
+                                    class = "btn-sm",
+                                    style = "padding:10px; font-size:140%"
+                                )
+                            ),
+
+                            shiny::column(
+                                3,
+                                offset = 1,
+
+                                dipsaus::actionButtonStyled(
+                                    inputId = "run_race",
+                                    label = "Run Race",
+                                    type = "success",
+                                    class = "btn-sm",
+                                    style = "padding:10px; font-size:140%"
+                                )
+                            ),
+
+                            shiny::column(
+                                3,
+                                offset = 1,
+
+                                dipsaus::actionButtonStyled(
+                                    inputId = "next_race",
+                                    label = "Next Race",
+                                    type = "danger",
+                                    class = "btn-sm",
+                                    style = "padding:10px; font-size:140%"
+                                )
+                            )
                         )
                     ),
 
-                    shiny::br(),
+                    # =====================================================
+                    # TAB 2
+                    # =====================================================
 
-                    shiny::fluidRow(
-                        shiny::column(
-                            10,
-                            offset = 1,
+                    shiny::tabPanel(
 
-                            shiny::plotOutput(
-                                "plot_winnings",
-                                height = "300px"
+                        "Race",
+                        value = "panel2",
+
+                        shinydashboard::box(
+                            width = 12,
+                            title = "Race Result",
+                            status = "warning",
+
+                            shiny::fluidRow(
+
+                                shiny::column(
+                                    5,
+
+                                    shiny::h2(
+                                        shiny::textOutput("text_win"),
+                                        style = "
+                color:#7B9ACC;
+                font-weight:700;
+                margin-top:20px;"
+                                    )
+                                ),
+
+                                shiny::column(
+                                    5,
+                                    offset = 1,
+                                    shiny::imageOutput("image")
+                                )
+                            ),
+
+                            shiny::br(),
+
+                            shiny::fluidRow(
+                                shiny::column(
+                                    10,
+                                    offset = 1,
+
+                                    shiny::plotOutput(
+                                        "plot_winnings",
+                                        height = "300px"
+                                    )
+                                )
                             )
                         )
                     )
@@ -511,6 +590,10 @@ ui <- shinydashboard::dashboardPage(
         )
     )
 )
+
+
+
+
 
 # =========================================================
 # SERVER
@@ -854,9 +937,6 @@ server <- function(input, output, session) {
 
     })
 
-    # =======================================================
-    # REACTIVE TABLE DATA
-    # =======================================================
     # =======================================================
     # REACTIVE TABLE DATA
     # =======================================================
