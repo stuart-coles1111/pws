@@ -1,0 +1,77 @@
+/* =====================================================
+    GLOBAL LAYOUT FIXES
+===================================================== */
+
+    .container-fluid {
+        max-width: 100% !important;
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+    }
+
+.bslib-page-sidebar-main {
+    width: 100% !important;
+}
+
+.card {
+    width: 100%;
+}
+
+/* =====================================================
+    MAIN TITLE BANNER
+===================================================== */
+
+    .main-title {
+        background: linear-gradient(90deg, #A8DADC, #CDB4DB);
+                                    padding: 16px;
+                                    border-radius: 12px;
+                                    margin-bottom: 15px;
+                                    text-align: center;
+    }
+
+/* =====================================================
+    GLOBAL BUTTON BASE STYLE
+(THIS FIXES "SQUARE BUTTONS")
+===================================================== */
+
+    .btn {
+        border-radius: 12px !important;
+    }
+
+/* =====================================================
+    SPECIAL BUTTON TYPES (Activity 1 baseline)
+===================================================== */
+
+    /* orange "generate random sequence" */
+    .btn-random {
+        background: #F4A261 !important;
+            color: white !important;
+        font-weight: 700;
+        padding: 10px 14px;
+        border: none !important;
+    }
+
+/* primary action */
+    .btn-primary {
+        font-weight: 700;
+    }
+
+/* success / info / warning (keep Bootstrap semantics but nicer look) */
+    .btn-success {
+        font-weight: 700;
+    }
+
+.btn-info {
+    font-weight: 700;
+}
+
+.btn-warning {
+    font-weight: 700;
+}
+
+button.btn {
+    border-radius: 12px !important;
+}
+
+body {
+    outline: 5px solid red !important;
+}

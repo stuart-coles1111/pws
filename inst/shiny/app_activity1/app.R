@@ -120,6 +120,13 @@ ui <- page_navbar(
     header = tagList(
 
         tags$head(
+
+            tags$link(
+                rel = "stylesheet",
+                type = "text/css",
+                href = "shared.css"
+            ),
+
             tags$style(HTML("
 
             .container-fluid {
@@ -137,41 +144,12 @@ ui <- page_navbar(
             }
 
             .main-title{
-                background:linear-gradient(90deg,#A8DADC,#CDB4DB);
-                padding:16px;
-                border-radius:12px;
-                margin-bottom:15px;
-                text-align:center;
+                background: linear-gradient(90deg,#A8DADC,#CDB4DB);
+                padding: 16px;
+                border-radius: 12px;
+                margin-bottom: 15px;
+                text-align: center;
             }
-
-            /* make ALL Shiny buttons rounded */
-.btn {
-    border-radius: 12px !important;
-}
-
-.btn-random {
-    background: #F4A261 !important;
-    color: white !important;
-    border-radius: 12px !important;
-    font-weight: 700;
-    padding: 10px 14px;
-}
-
-.btn-file {
-    background: #7B9ACC !important;
-    color: white !important;
-    border-radius: 12px !important;
-    font-weight: 700;
-    border: none !important;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-}
-
-.btn-file:hover {
-    background: #5F89C9 !important;
-    color: white !important;
-}
-
-
 
         "))
         ),
