@@ -42,47 +42,82 @@
 #' )
 
 overview_page <- function(
-        explanation,
-        individual,
-        group,
-        question
+    title = "Overview",
+    explanation,
+    individual,
+    group,
+    question
 ) {
 
     nav_panel(
 
-        "Overview",
+        title,
 
-        card(
-            card_header(h3("Activity Explanation")),
-            explanation
+        # =====================================================
+        # EXPLANATION
+        # =====================================================
+
+        div(
+            class = "card-style",
+
+            h3("📌 Activity Overview"),
+
+            div(
+                class = "info-box",
+                explanation
+            )
         ),
 
-        br(),
+        # =====================================================
+        # INDIVIDUAL + GROUP (SIDE BY SIDE)
+        # =====================================================
 
         fluidRow(
 
             column(
-                6,
-                card(
-                    card_header(h3("Individual Execution")),
-                    individual
+                width = 6,
+
+                div(
+                    class = "card-style",
+
+                    h3("🧑 Individual"),
+
+                    div(
+                        class = "info-box",
+                        individual
+                    )
                 )
             ),
 
             column(
-                6,
-                card(
-                    card_header(h3("Group Execution")),
-                    group
+                width = 6,
+
+                div(
+                    class = "card-style",
+
+                    h3("👥 Group"),
+
+                    div(
+                        class = "info-box",
+                        group
+                    )
                 )
             )
         ),
 
-        br(),
+        # =====================================================
+        # QUESTION
+        # =====================================================
 
-        card(
-            card_header(h3("Question to Explore")),
-            question
+        div(
+            class = "card-style",
+
+            h3("❓ Things to explore"),
+
+            div(
+                class = "info-box",
+                question
+            )
         )
     )
 }

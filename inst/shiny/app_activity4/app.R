@@ -200,7 +200,10 @@ distribution_plot <- function(G,
 # UI
 # =========================================================
 
-ui <- page_fluid(
+
+ui <- page_navbar(
+
+    title = "🎯 Activity 4: Quiz Time",
 
     theme = bs_theme(
         version = 5,
@@ -272,407 +275,138 @@ ui <- page_fluid(
         p("Estimate the true value and quantify your uncertainty.")
     ),
 
-    layout_sidebar(
+    # =========================
+    # OVERVIEW
+    # =========================
 
-        sidebar = div(
+    overview_page(
 
-            class = "card-style",
+        title = "Overview",
 
-            fileInput(
-                "upload_questions",
-                "Upload Question Set (optional)"
-            ),
+        explanation = tagList(
 
-            hr(),
+            p("This activity explores forecasting under uncertainty."),
 
-            h4("Template Generator"),
-
-            numericInput(
-                "num_teams",
-                "Number of teams for template",
-                value = 10,
-                min = 1,
-                max = 100
-            ),
-
-            downloadButton(
-                "download_template",
-                "Download CSV Template"
-            ),
-
-            hr(),
-
-            fileInput(
-                "upload_csv",
-                "Upload Team CSV"
-            ),
-
-            hr(),
-
-            h4("Manual Entry"),
-
-            textInput(
-                "team_name",
-                "Team name",
-                value = "Team 1"
-            ),
-
-            actionButton(
-                "save_team",
-                "Save Team",
-                class = "btn-primary"
-            )
-
+            p("Participants provide a best estimate and uncertainty range, which are evaluated using a scoring rule.")
         ),
 
-        navset_tab(
+        individual = tagList(
 
-            # =====================================================
-            # FORECAST ENTRY
-            # =====================================================
+            tags$ol(
+                tags$li("Review each forecasting question."),
+                tags$li("Enter a best estimate (G)."),
+                tags$li("Enter uncertainty (S)."),
+                tags$li("Submit forecasts in the Activity tab.")
+            )
+        ),
 
-            nav_panel(
-                "Forecast Entry",
-                uiOutput("question_ui")
+        group = tagList(
+
+            tags$ol(
+                tags$li("Compare forecasts across teams."),
+                tags$li("Discuss differences in uncertainty."),
+                tags$li("Identify over/underconfidence."),
+                tags$li("Link behaviour to real forecasting practice.")
+            )
+        ),
+
+        question = tagList(
+
+            tags$ul(
+                tags$li("What happens when forecasts are too confident?"),
+                tags$li("Why are some forecasts heavily penalised?"),
+                tags$li("How should uncertainty be communicated?"),
+                tags$li("Can wider uncertainty sometimes help?")
+            )
+        )
+    ),
+
+    # =========================
+    # ACTIVITY
+    # =========================
+
+    nav_panel(
+
+        "Activity",
+
+        layout_sidebar(
+
+            sidebar = div(
+                class = "card-style",
+                fileInput("upload_questions", "Upload Question Set (optional)"),
+                hr(),
+                h4("Template Generator"),
+                numericInput("num_teams", "Number of teams", 10, 1, 100),
+                downloadButton("download_template", "Download CSV Template"),
+                hr(),
+                fileInput("upload_csv", "Upload Team CSV"),
+                hr(),
+                h4("Manual Entry"),
+                textInput("team_name", "Team name", "Team 1"),
+                actionButton("save_team", "Save Team", class = "btn-primary")
             ),
 
-            # =====================================================
-            # SCORE EXPLORER
-            # =====================================================
+            navset_tab(
 
-            nav_panel(
+                nav_panel("Forecast Entry", uiOutput("question_ui")),
 
-                "Score Explorer",
+                nav_panel(
 
-                div(
-                    class = "card-style",
+                    "Score Explorer",
 
-                    selectInput(
-                        "explore_team",
-                        "Select team",
-                        choices = NULL
-                    ),
+                    div(
+                        class = "card-style",
 
-                    uiOutput("question_selector"),
+                        selectInput("explore_team", "Select team", choices = NULL),
+                        uiOutput("question_selector"),
 
-                    numericInput(
-                        "explore_G",
-                        "Best estimate (G)",
-                        value = NA
-                    ),
+                        numericInput("explore_G", "Best estimate (G)", value = NA),
 
-                    numericInput(
-                        "explore_S",
-                        "Uncertainty width (S)",
-                        value = NA,
-                        min = 0.01
+                        numericInput("explore_S", "Uncertainty width (S)", value = NA, min = 0.01),
+
+                        div(class = "answer-box", textOutput("true_answer"))
                     ),
 
                     div(
-                        class = "answer-box",
-                        textOutput("true_answer")
-                    )
-                ),
+                        class = "card-style",
 
-                div(
-                    class = "card-style",
-
-                    h4(textOutput("explore_title")),
-
-                    plotOutput(
-                        "explore_plot",
-                        height = "650px"
-                    )
-                ),
-
-                div(
-                    class = "card-style",
+                        h4(textOutput("explore_title")),
+                        plotOutput("explore_plot", height = "650px")
+                    ),
 
                     div(
-                        class = "score-big",
-                        textOutput("explore_score")
+                        class = "card-style",
+
+                        div(class = "score-big", textOutput("explore_score")),
+
+                        p(
+                            class = "small-note",
+                            "The red point shows the log score assigned to the team's forecast."
+                        )
+                    )
+                ),
+
+                nav_panel(
+
+                    "Team Results",
+
+                    div(
+                        class = "card-style",
+                        h4("Scores by Team and Question"),
+                        DTOutput("score_table")
                     ),
 
-                    p(
-                        class = "small-note",
-                        "The red point shows the log score assigned to the team's forecast."
-                    )
-                )
-            ),
-
-            # =====================================================
-            # TEAM RESULTS
-            # =====================================================
-
-            nav_panel(
-
-                "Team Results",
-
-                div(
-                    class = "card-style",
-
-                    h4("Scores by Team and Question"),
-
-                    DTOutput("score_table")
-                ),
-
-                div(
-                    class = "card-style",
-
-                    h4("Overall Team Comparison"),
-
-                    plotOutput(
-                        "team_compare_plot",
-                        height = "500px"
-                    )
-                )
-            ),
-
-            # =====================================================
-            # SUMMARY PAGE
-            # =====================================================
-
-            nav_panel(
-
-                "📘 Summary",
-
-                div(
-                    class = "main-title",
-
-                    h1("📘 Forecasting, Uncertainty, and Calibration"),
-
-                    p(
-                        "Understanding prediction accuracy, uncertainty, and probabilistic thinking."
-                    )
-                ),
-
-                fluidRow(
-
-                    column(
-                        6,
-
-                        div(
-                            class = "card-style",
-
-                            h3("🎯 Purpose of the Activity"),
-
-                            div(
-                                class = "info-box",
-
-                                tags$p(
-                                    "The activity asks participants to make numerical forecasts about real-world quantities."
-                                ),
-
-                                tags$p(
-                                    "For each question, teams provide:"
-                                ),
-
-                                tags$ul(
-
-                                    tags$li(
-                                        "A best estimate (G)"
-                                    ),
-
-                                    tags$li(
-                                        "An uncertainty width (S)"
-                                    )
-                                ),
-
-                                tags$p(
-                                    "The aim is not only to predict accurately, but also to express uncertainty realistically."
-                                ),
-
-                                tags$p(
-                                    "Good forecasts balance precision with honest uncertainty."
-                                )
-                            )
-                        )
-                    ),
-
-                    column(
-                        6,
-
-                        div(
-                            class = "card-style",
-
-                            h3("📊 Forecast Distributions"),
-
-                            div(
-                                class = "info-box",
-
-                                tags$p(
-                                    "Each team's prediction is interpreted as a probability distribution."
-                                ),
-
-                                tags$p(
-                                    "The uncertainty width determines the spread of the distribution:"
-                                ),
-
-                                tags$ul(
-
-                                    tags$li(
-                                        "Small uncertainty implies high confidence"
-                                    ),
-
-                                    tags$li(
-                                        "Large uncertainty implies lower confidence"
-                                    )
-                                ),
-
-                                tags$p(
-                                    "The app visualises these distributions and evaluates how much probability was assigned to the true outcome."
-                                )
-                            )
-                        )
-                    )
-                ),
-
-                fluidRow(
-
-                    column(
-                        6,
-
-                        div(
-                            class = "card-style",
-
-                            h3("📐 Statistical Ideas"),
-
-                            div(
-                                class = "info-box",
-
-                                tags$ul(
-
-                                    tags$li(
-                                        "Probability distributions"
-                                    ),
-
-                                    tags$li(
-                                        "Forecast uncertainty"
-                                    ),
-
-                                    tags$li(
-                                        "Calibration"
-                                    ),
-
-                                    tags$li(
-                                        "Likelihood and density"
-                                    ),
-
-                                    tags$li(
-                                        "Logarithmic scoring rules"
-                                    ),
-
-                                    tags$li(
-                                        "Overconfidence versus underconfidence"
-                                    ),
-
-                                    tags$li(
-                                        "Model evaluation"
-                                    ),
-
-                                    tags$li(
-                                        "Decision-making under uncertainty"
-                                    )
-                                )
-                            )
-                        )
-                    ),
-
-                    column(
-                        6,
-
-                        div(
-                            class = "card-style",
-
-                            h3("🔍 Questions to Explore"),
-
-                            div(
-                                class = "info-box",
-
-                                tags$ul(
-
-                                    tags$li(
-                                        "What happens when forecasts are too confident?"
-                                    ),
-
-                                    tags$li(
-                                        "Why can inaccurate certainty be penalised heavily?"
-                                    ),
-
-                                    tags$li(
-                                        "How does uncertainty affect scoring?"
-                                    ),
-
-                                    tags$li(
-                                        "Can wider uncertainty sometimes improve performance?"
-                                    ),
-
-                                    tags$li(
-                                        "Which teams appear best calibrated?"
-                                    ),
-
-                                    tags$li(
-                                        "How should uncertainty be communicated?"
-                                    )
-                                )
-                            )
-                        )
-                    )
-                ),
-
-                fluidRow(
-
-                    column(
-                        12,
-
-                        div(
-                            class = "card-style",
-
-                            h3("🧠 Interpretation"),
-
-                            div(
-                                class = "info-box",
-
-                                tags$p(
-                                    "Forecasting is not only about producing accurate point estimates."
-                                ),
-
-                                tags$p(
-                                    "It is also about expressing uncertainty appropriately."
-                                ),
-
-                                tags$blockquote(
-                                    style = "
-                                        font-size:22px;
-                                        font-weight:700;
-                                        color:#7B9ACC;
-                                        border-left:5px solid #CDB4DB;
-                                        padding-left:18px;
-                                        margin-top:20px;
-                                    ",
-
-                                    "A good forecast assigns high probability to what actually happens."
-                                ),
-
-                                tags$p(
-                                    "The logarithmic scoring rule rewards forecasts that place substantial probability near the true value."
-                                ),
-
-                                tags$p(
-                                    "Overconfident forecasts can perform very poorly if reality differs from expectations, while excessively vague forecasts may fail to provide useful information."
-                                ),
-
-                                tags$p(
-                                    "These ideas are central to statistics, economics, forecasting, machine learning, meteorology, and risk analysis."
-                                )
-                            )
-                        )
+                    div(
+                        class = "card-style",
+                        h4("Overall Team Comparison"),
+                        plotOutput("team_compare_plot", height = "500px")
                     )
                 )
             )
         )
     )
 )
+
 
 # =========================================================
 # SERVER
