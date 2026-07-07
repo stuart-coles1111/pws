@@ -1133,6 +1133,42 @@ server <- function(input, output, session) {
                         )
                     ),
 
+                    br(),
+
+                    div(
+                        class = "info-box",
+
+                        HTML(
+                            "
+        <p>
+        The happiness function measures changes relative to Balder's current
+        position: walking away with <b>500,000 kroner</b>.
+        </p>
+
+        <p>
+        For a chosen happiness function, we can calculate how Balder's happiness
+        changes if he answers the final question and is either correct or incorrect.
+        These changes are shown in the happiness plot.
+        </p>
+
+        <p>
+        By combining these possible changes with the probability of answering
+        correctly, we can calculate Balder's expected change in happiness from
+        choosing to answer.
+        </p>
+
+        <p>
+        If this expected change is positive, answering the question increases
+        Balder's expected happiness, so answering is the optimal choice.
+        If it is negative, Balder should walk away.
+        </p>
+        "
+                        )
+
+                    ),
+
+                    br(),
+
                     h4("Happiness function"),
 
                     plotOutput("utility_plot", height = "300px"),
