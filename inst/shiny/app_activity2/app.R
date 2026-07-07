@@ -218,6 +218,152 @@ ui <- page_navbar(
                 .btn-primary:hover{
                     background:#1D3557;
                 }
+
+                .millionaire-panel {
+    background:
+        radial-gradient(circle at top, #243b7a 0%, #090f2c 70%);
+    border-radius:20px;
+    padding:35px;
+    color:white;
+    text-align:center;
+    box-shadow:
+        0 10px 30px rgba(0,0,0,0.4),
+        inset 0 0 30px rgba(255,215,0,0.15);
+    margin-bottom:25px;
+}
+
+.question-number {
+    color:#FFD700;
+    font-size:22px;
+    font-weight:700;
+    letter-spacing:2px;
+}
+
+.prize {
+    color:#FFD700;
+    font-size:44px;
+    font-weight:800;
+    text-shadow:0 0 10px rgba(255,215,0,0.5);
+    margin:15px;
+}
+
+.millionaire-question {
+    background:
+        linear-gradient(90deg,#10194a,#1d3275);
+
+    border:3px solid #66D9FF;
+
+    padding:25px 45px;
+
+    margin:25px auto;
+
+    max-width:850px;
+
+    font-size:26px;
+    font-weight:700;
+
+    color:white;
+
+    text-align:center;
+
+    clip-path:polygon(
+        4% 0%,
+        96% 0%,
+        100% 50%,
+        96% 100%,
+        4% 100%,
+        0% 50%
+    );
+
+    box-shadow:
+        0 0 15px rgba(102,217,255,0.5);
+}
+
+
+.answer-choice {
+
+    background:
+        linear-gradient(90deg,#10194a,#263c8f);
+
+    border:3px solid #66D9FF;
+
+    color:white;
+
+    padding:15px 35px;
+
+    height:70px;
+
+    display:flex;
+
+    align-items:center;
+
+    font-size:20px;
+
+    font-weight:600;
+
+
+    clip-path:polygon(
+        8% 0%,
+        92% 0%,
+        100% 50%,
+        92% 100%,
+        8% 100%,
+        0% 50%
+    );
+
+    transition:0.2s;
+
+}
+
+
+.answer-choice:hover {
+
+    background:#C9A227;
+
+    color:#10194a;
+
+}
+.answer-choice:hover {
+    background:#C9A227;
+    color:#10194a;
+}
+
+.naive-choice {
+
+    background:
+        linear-gradient(135deg,#15245c,#273d8f);
+
+    border:3px solid #66D9FF;
+
+    color:white;
+
+    padding:25px;
+
+    margin:15px;
+
+    text-align:center;
+
+    border-radius:15px;
+
+    font-size:24px;
+
+    font-weight:700;
+
+    box-shadow:
+        0 0 15px rgba(102,217,255,0.35);
+
+}
+
+
+.naive-percent {
+
+    color:#FFD700;
+
+    font-size:40px;
+
+    margin-top:10px;
+
+}
             "
         )
     )), div(
@@ -233,11 +379,13 @@ ui <- page_navbar(
         explanation = tagList(
 
             p(
-                "This activity introduces conditional probability and decision making under uncertainty."
+                "The probability of an event depends on the information available. This activity uses a simple example to illustrate how probability calculations can vary
+                dramatically depending on the way information is interpreted."
             ),
 
             p(
-                "Students explore how probabilities change when new information becomes available before extending these ideas to probability distributions, expected utility and behavioural decision making."
+                "THe example is taken from the Danish version of the TV quiz programme Who Wants to be a Millionaire? The contestant, Balder Kringelbach  had reached the final question, and had the opportunity to win
+                one million Kroner by answering correctly. If he answered incorrectly, he would leave the show with "
             )
 
         ),
@@ -297,23 +445,52 @@ server <- function(input, output, session) {
 
     observeEvent(input$next1, {
         rv$page <- 2
+    })
+
+    observeEvent(input$next2, {
+        rv$page <- 3
         rv$reveal <- FALSE
     })
 
-    observeEvent(input$next2, rv$page <- 3)
-    observeEvent(input$next3, rv$page <- 5)
+    observeEvent(input$reveal_btn, {
+        rv$reveal <- TRUE
+    })
 
-    observeEvent(input$back1, rv$page <- 1)
-    observeEvent(input$back2, rv$page <- 2)
-    observeEvent(input$back3, rv$page <- 4)
+    observeEvent(input$next3, {
+        rv$page <- 4
+    })
 
-    observeEvent(input$reveal_btn, rv$reveal <- TRUE)
+    observeEvent(input$why_formula, {
+        rv$page <- 5
+    })
 
-    observeEvent(input$why_formula, rv$page <- 4)
+    observeEvent(input$next4, {
+        rv$page <- 6
+    })
 
-    observeEvent(input$next4, rv$page <- 5)
+    observeEvent(input$back1, {
+        rv$page <- 1
+    })
 
-    observeEvent(input$back4, rv$page <- 3)
+    observeEvent(input$back2, {
+        rv$page <- 2
+    })
+
+    observeEvent(input$back3, {
+        rv$page <- 3
+    })
+
+    observeEvent(input$back4, {
+        rv$page <- 4
+    })
+
+    observeEvent(input$back5, {
+        rv$page <- 5
+    })
+
+    observeEvent(input$next5, {
+        rv$page <- 6
+    })
 
     observeEvent(input$reset, {
         rv$page <- 1
@@ -334,24 +511,58 @@ server <- function(input, output, session) {
                 12,
 
                 div(
-                    class = "hero-card",
+                    class = "millionaire-panel",
 
-                    h2("🎬 Question Number 15"),
+                    div(
+                        class = "question-number",
+                        "QUESTION 15"
+                    ),
 
-                    div(class = "money-display", "For 1,000,000 kr"),
+                    div(
+                        class = "prize",
+                        "1,000,000 kr"
+                    ),
 
-                    h3("Which Danish comedy movie premiered first?"),
+                    div(
+                        class = "millionaire-question",
+                        "Which Danish comedy movie premiered first?"
+                    ),
 
-                    br(),
+                    fluidRow(
 
-                    div(class = "movie-option", "A) Sover Dolly på Ryggen"),
+                        column(
+                            6,
+                            div(
+                                class = "answer-choice",
+                                "A) Sover Dolly på Ryggen"
+                            )
+                        ),
 
-                    div(class = "movie-option", "B) Klassefesten"),
+                        column(
+                            6,
+                            div(
+                                class = "answer-choice",
+                                "B) Klassefesten"
+                            )
+                        ),
 
-                    div(class = "movie-option", "C) Blå Mænd"),
+                        column(
+                            6,
+                            div(
+                                class = "answer-choice",
+                                "C) Blå Mænd"
+                            )
+                        ),
 
-                    div(class = "movie-option", "D) Superclasico")
+                        column(
+                            6,
+                            div(
+                                class = "answer-choice",
+                                "D) Superclasico"
+                            )
+                        )
 
+                    )
                 ),
 
                 div(
@@ -359,28 +570,68 @@ server <- function(input, output, session) {
 
                     h3("🧩 What does Balder know?"),
 
-                    tags$ul(
-                        tags$li("Movie C is older than A and B."),
+                    div(
+                        class = "info-box",
 
-                        tags$li("He does not know whether C or D is older.")
+                        div(
+                            style = "font-size:20px; line-height:1.8;",
+
+                            HTML(
+                                "<b>Fact 1.</b><br>
+            Movie <b>C</b> is older than Movies <b>A</b> and <b>B</b>."
+                            )
+                        )
                     ),
+
+                    br(),
+
+                    div(
+                        class = "info-box",
+
+                        div(
+                            style = "font-size:20px; line-height:1.8;",
+
+                            HTML(
+                                "<b>Fact 2.</b><br>
+            Balder does <b>not</b> know whether Movie <b>C</b> or Movie <b>D</b> is older."
+                            )
+                        )
+                    ),
+
+                    br(),
 
                     div(
                         class = "dilemma-box",
 
                         HTML(
                             "
-                            <b>The decision:</b><br><br>
+            <b>The decision:</b>
 
-                               Balder must decide whether the probability of winning
-                               <b>1,000,000 kroner</b> is worth the risk of losing the chance
-                               to increase his winnings and falling back to his guaranteed
-<b>50,000 kroner safety net</b>.
+            <br><br>
 
-<br><br>
+            Balder has two choices:
 
-Should Balder answer the question or walk away and keep 50,000 Kroner??
-"
+            <ul>
+
+                <li><b>Walk away</b> and keep <b>500,000 kroner</b>.</li>
+
+                <li><b>Answer the question</b>, which has two possible outcomes:
+
+                    <ul>
+
+                        <li>Correct → <b>1,000,000 kroner</b>.</li>
+
+                        <li>Incorrect → <b>50,000 kroner</b>.</li>
+
+                    </ul>
+
+                </li>
+
+            </ul>
+
+            Should Balder answer the question or walk away?
+
+            "
                         )
 
                     ),
@@ -390,11 +641,168 @@ Should Balder answer the question or walk away and keep 50,000 Kroner??
                     actionButton("next1", "Explore arguments →")
 
                 )
-
             ))
         }
 
         else if (rv$page == 2) {
+
+            fluidRow(
+
+                column(
+                    12,
+
+                    div(
+                        class = "card-style",
+
+                        h2("A tempting argument: 50–50."),
+
+                        div(
+                            class = "explain",
+
+                            tags$ol(
+
+                                tags$li(
+                                    strong("Balder's information: "),
+                                    "Movie C is older than Movies A and B."
+                                ),
+
+                                tags$li(
+                                    strong("The simplified argument: "),
+                                    "The oldest movie must therefore be either C or D."
+                                ),
+
+                                tags$li(
+                                    strong("The conclusion: "),
+                                    "Since there are two possibilities, each should have probability 1/2."
+                                )
+
+                            )
+
+                        ),
+
+                        br(),
+
+                        fluidRow(
+
+                            column(
+                                6,
+
+                                div(
+                                    class = "answer-choice",
+
+                                    style = "
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+            ",
+
+                                    span("C) Blå Mænd"),
+
+                                    span(
+                                        style = "
+                    color:#FFD700;
+                    font-size:28px;
+                    font-weight:700;
+                ",
+                                        "50%"
+                                    )
+                                )
+
+                            ),
+
+                            column(
+                                6,
+
+                                div(
+                                    class = "answer-choice",
+
+                                    style = "
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+            ",
+
+                                    span("D) Superclasico"),
+
+                                    span(
+                                        style = "
+                    color:#FFD700;
+                    font-size:28px;
+                    font-weight:700;
+                ",
+                                        "50%"
+                                    )
+                                )
+
+                            )
+
+                        ),
+
+                        br(),
+
+                        div(
+                            class = "card-style",
+
+                            style = "
+                        text-align:center;
+                        background:#F4F8FC;
+                    ",
+
+                            HTML(
+                                "
+                        <div style='font-size:24px;font-weight:600;'>
+
+                        Therefore:
+
+                        <br><br>
+
+                        <span style='font-size:32px;font-weight:700;color:#457B9D;'>
+                        P(C is oldest | information) = 1/2 ?
+                        </span>
+
+                        </div>
+                        "
+                            )
+
+                        ),
+
+                        br(),
+
+                        div(
+                            class = "dilemma-box",
+
+                            HTML(
+                                "
+
+                        <div style='font-size:24px; font-weight:700;'>
+Reflection
+</div>           <br>
+
+                        <b>Is this an over-simplificiation?</b>
+
+                        <br><br>
+
+                        Have we correctly used Balder's information?
+
+                        <br><br>
+
+                        Or have we thrown away some important details?
+                        "
+                            )
+
+                        ),
+
+                        br(),
+
+                        actionButton("back1", "← Back"),
+                        actionButton("next2", "Look more carefully →")
+
+                    )
+                )
+            )
+        }
+
+        else if (rv$page == 3) {
             fluidRow(column(
                 12,
 
@@ -430,8 +838,9 @@ Should Balder answer the question or walk away and keep 50,000 Kroner??
 
                     br(),
 
-                    if (!rv$reveal)
-                        actionButton("reveal_btn", "Apply information"),
+                    if (!rv$reveal) {
+                        actionButton("reveal_btn", "Apply information")
+                    },
 
                     div(class = "perm-grid", lapply(1:nrow(
                         perm_df
@@ -461,10 +870,14 @@ Should Balder answer the question or walk away and keep 50,000 Kroner??
                                     line-height:1.7;
                                 ",
 
+
                             HTML(
                                 "
-                                    <b>Reflection.</b><br>
-                                    We assumed all remaining orderings are equally likely.<br><br>
+<div style='font-size:24px; font-weight:700;'>
+Reflection
+</div>           <br>
+
+We assumed all remaining orderings are equally likely.<br><br>
 
                                     But is that reasonable?
                                     Could some still be more likely than others?
@@ -475,13 +888,13 @@ Should Balder answer the question or walk away and keep 50,000 Kroner??
 
                     br(),
 
-                    actionButton("back1", "← Back"),
-                    actionButton("next2", "Next →")
+                    actionButton("back2", "← Back"),
+                    actionButton("next3", "Next →")
                 )
             ))
         }
 
-        else if (rv$page == 3) {
+        else if (rv$page == 4) {
             fluidRow(column(
                 4,
 
@@ -508,8 +921,8 @@ Should Balder answer the question or walk away and keep 50,000 Kroner??
                         class = "explain"
                     ),
 
-                    actionButton("back2", "← Back"),
-                    actionButton("next3", "Next →")
+                    actionButton("back3", "← Back"),
+                    actionButton("next4", "Next →")
                 )
             ), column(
                 8,
@@ -543,7 +956,7 @@ Should Balder answer the question or walk away and keep 50,000 Kroner??
             ))
         }
 
-        else if (rv$page == 4) {
+        else if (rv$page == 5) {
             fluidRow(column(
                 12,
 
@@ -642,12 +1055,12 @@ Should Balder answer the question or walk away and keep 50,000 Kroner??
                     br(),
 
                     actionButton("back4", "← Back"),
-                    actionButton("next4", "Next →")
+                    actionButton("next5", "Next →")
                 )
             ))
         }
 
-        else if (rv$page == 5) {
+        else if (rv$page == 6) {
             fluidRow(column(
                 4,
 
@@ -661,7 +1074,7 @@ Should Balder answer the question or walk away and keep 50,000 Kroner??
 
                     hr(),
 
-                    actionButton("back3", "← Back"),
+                    actionButton("back5", "← Back"),
                     actionButton("reset", "Restart")
                 )
             ), column(
@@ -683,9 +1096,8 @@ Should Balder answer the question or walk away and keep 50,000 Kroner??
 
                         HTML(
                             "
-                                Whatever Balder’s calculation for the probabilities of the various movies being oldest,
-                                he must also consider what he stands to gain or lose from answering the question,
-                                and how much those outcomes matter to him.<br><br>
+                                Even if Balder knows the probability of winning, probability alone does not determine the decision.
+                                He must also consider what each outcome is worth to him.<br><br>
 
                                 This can be analysed formally using <b>decision analysis</b>,
                                 which combines probabilities with the happiness (or utility)
@@ -856,8 +1268,13 @@ Should Balder answer the question or walk away and keep 50,000 Kroner??
         u <- function(x)
             utility_function(x, lambda)
 
-        df <- data.frame(outcome = c("Win", "Lose"),
-                         contrib = c(p * u(1), (1 - p) * u(0.064)))
+        df <- data.frame(
+            outcome = c("Win Q15", "Lose Q15"),
+            contrib = c(
+                p * u(1),
+                (1 - p) * u(0.05)
+            )
+        )
 
         ggplot(df, aes(outcome, contrib, fill = outcome)) +
 
@@ -877,27 +1294,29 @@ Should Balder answer the question or walk away and keep 50,000 Kroner??
     })
 
     output$decision_text <- renderUI({
+
         lambda <- input$lambda
         p <- input$p
 
         u <- function(x)
             utility_function(x, lambda)
 
-        EU_play <- p * u(1) + (1 - p) * u(0.064)
+        EU_play <- p * u(1) + (1 - p) * u(0.05)
+
         EU_quit <- u(0.5)
 
         decision <- if (EU_play > EU_quit) {
             "Optimal strategy is Play"
         } else {
-            "Optimal strategy is Quit"
+            "Optimal strategy is Walk Away"
         }
 
         HTML(
             paste0(
-                "<b>If Play:</b> ",
+                "<b>Expected happiness if Play:</b> ",
                 round(EU_play, 3),
                 "<br>",
-                "<b>If Quit:</b> ",
+                "<b>Expected happiness if Walk Away:</b> ",
                 round(EU_quit, 3),
                 "<br><br>",
                 "<center style='font-size:22px;font-weight:bold;'>",
@@ -906,7 +1325,7 @@ Should Balder answer the question or walk away and keep 50,000 Kroner??
             )
         )
     })
-}
+    }
 
 # =========================================================
 # RUN APP
