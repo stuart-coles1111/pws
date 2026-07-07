@@ -578,7 +578,7 @@ server <- function(input, output, session) {
 
                             HTML(
                                 "<b>Fact 1.</b><br>
-                Movie <b>C</b> is older than Movies <b>A</b> and <b>B</b>."
+                Balder knows that Movie <b>C</b> is older than Movies <b>A</b> and <b>B</b>."
                             )
                         )
                     ),
@@ -593,7 +593,7 @@ server <- function(input, output, session) {
 
                             HTML(
                                 "<b>Fact 2.</b><br>
-                Balder does <b>not</b> know which of Movies <b>C</b> or <b>D</b> is the older."
+                Balder does not know whether Movie C or Movie D is older."
                             )
                         )
                     ),
@@ -999,7 +999,10 @@ server <- function(input, output, session) {
                                 class = "explain"
                             ),
 
-                            div(style = 'font-size:28px;font-weight:700;text-align:center;', "Probability of success = 1")
+                            div(
+                                style = 'font-size:28px;font-weight:700;text-align:center;',
+                                HTML("P(C &gt; D) = 1")
+                            )
                         )
                     ), column(
                         6,
@@ -1025,8 +1028,11 @@ server <- function(input, output, session) {
                                 class = "explain"
                             ),
 
-                            div(style = 'font-size:28px;font-weight:700;text-align:center;', "Probability of success = 1/2")
-                        )
+                            div(
+                                style = 'font-size:28px;font-weight:700;text-align:center;',
+                                HTML("P(C &gt; D) = 1/2")
+                            )
+                            )
                     )),
 
                     br(),
@@ -1043,7 +1049,7 @@ server <- function(input, output, session) {
 
                         HTML(
                             "
-    Conditional probability
+    Putting things together:
 
     <br><br>
 
