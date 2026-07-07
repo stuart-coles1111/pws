@@ -175,36 +175,44 @@ ui <- page_navbar(
             ),
 
             p(
-                "Students create an imaginary sequence of 50 coin tosses and compare it with genuinely random sequences. By examining features such as the number of heads and the longest run, students discover that random processes often produce more structure than intuition suggests."
+                "The investigation is based on imaginary sequences of random coin tosses, generated individually or collectively in the case of a group exercise. Two simple statistics
+                are used to summarise each sequence - the number of Heads obtained, and the longest run of Heads or Tails. By comparing the statistics of imaginary sequences against
+                the average values we'd expect to obtain when tossing geuninely random coins, we can identify any anomalies in our 'intuition' about what randomness looks like."
             )
         ),
 
         individual = tagList(
-
+           "Mentally generate a sequence of 50 random coin tosses (H/T). Use the options provided in the 'activity' page to:",
             tags$ol(
-                tags$li("Enter a sequence of 50 imaginary coin tosses."),
-                tags$li("Analyse the sequence using the app."),
-                tags$li("Compare your results with theoretical random sequences."),
-                tags$li("Reflect on whether your sequence appears truly random.")
+                tags$li("Examine the sequence visually."),
+                tags$li("Calculate the Number of Heads and Longest run (H or T) for your sequence."),
+                tags$li("Compare your results against expected values and those provided by Smartodds employees."),
+                tags$li("Repeat these steps for a number of computer simulated sequences."),
+                tags$li("Compare the histograms of statistics for Smartodds employees with expected frequencies")
             )
         ),
 
         group = tagList(
-
+            "Prior to a group meeting, invite all partcipants to provide a sequence of 50  mentally generated random coin tosses (H/T). Store these results in a CSV file (one row per individual).
+            Invite each participant to examine their own sequence following the guidance for individuals. Subsequently, at the group meeting, use the options provided in the activity page to:",
             tags$ol(
-                tags$li("Each student generates a sequence independently."),
-                tags$li("Upload the combined class data."),
-                tags$li("Compare the class results with theoretical randomness and the Smartodds dataset."),
-                tags$li("Discuss any systematic differences between human and random sequences.")
+                tags$li("Upload the CSV file containing results for all participants."),
+                tags$li("Compare histograms of group with those of Smartodds employees and expected frequencies based on genuinely random coin tosses."),
+                tags$li("Similarly, compare group statistics against expected values under genuinely rnadom coin tossing."),
+                tags$li("Use these results, and the description of Activity 1 in Chapter 1 of Playing With Statistics, to support a discussion of: graphical and statistical summaries of data;
+                        the expected values of statistics under randommess; anomalies in individual and group perceptions of randomness.")
             )
         ),
 
         question = tagList(
 
             tags$ul(
-                tags$li("What features make a sequence appear random?"),
-                tags$li("Do humans generate random sequences in the same way as a fair coin?"),
-                tags$li("Why are long runs more common than most people expect?")
+                tags$li("As an individual, were your results unusual in any way, compared to what would be expected for a random sequence?"),
+                tags$li("As a group, were your results collectively different from what would be expected for genuinely random coin tosses? Were your group results more consistent with genuinely random
+                        coin tosses than those of Smartodds employees?"),
+                tags$li("What do the results suggest about our understanding - either individual or collective - of what randomness looks like?"),
+                tags$li("Can you suggest alternative statistics to explore these questions? Or alternative ways of summarising statistics?")
+
             )
         )
     ),

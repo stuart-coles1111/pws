@@ -42,11 +42,11 @@
 #' )
 
 overview_page <- function(
-    title = "Overview",
-    explanation,
-    individual,
-    group,
-    question
+        title = "Overview",
+        explanation,
+        individual,
+        group,
+        question
 ) {
 
     nav_panel(
@@ -57,19 +57,23 @@ overview_page <- function(
         # EXPLANATION
         # =====================================================
 
-        div(
-            class = "card-style",
+        bslib::card(
+            full_screen = FALSE,
+            class = "overview-card",
 
-            h3("📌 Activity Overview"),
+            bslib::card_header(
+                h3("📌 Activity Overview")
+            ),
 
-            div(
-                class = "info-box",
+            bslib::card_body(
                 explanation
             )
         ),
 
+        br(),
+
         # =====================================================
-        # INDIVIDUAL + GROUP (SIDE BY SIDE)
+        # INDIVIDUAL + GROUP
         # =====================================================
 
         fluidRow(
@@ -77,13 +81,14 @@ overview_page <- function(
             column(
                 width = 6,
 
-                div(
-                    class = "card-style",
+                bslib::card(
+                    class = "overview-card",
 
-                    h3("🧑 Individual"),
+                    bslib::card_header(
+                        h3("🧑 Individual")
+                    ),
 
-                    div(
-                        class = "info-box",
+                    bslib::card_body(
                         individual
                     )
                 )
@@ -92,30 +97,34 @@ overview_page <- function(
             column(
                 width = 6,
 
-                div(
-                    class = "card-style",
+                bslib::card(
+                    class = "overview-card",
 
-                    h3("👥 Group"),
+                    bslib::card_header(
+                        h3("👥 Group")
+                    ),
 
-                    div(
-                        class = "info-box",
+                    bslib::card_body(
                         group
                     )
                 )
             )
         ),
 
+        br(),
+
         # =====================================================
         # QUESTION
         # =====================================================
 
-        div(
-            class = "card-style",
+        bslib::card(
+            class = "overview-card question-card",
 
-            h3("❓ Things to explore"),
+            bslib::card_header(
+                h3("❓ Questions to consider"),
+            ),
 
-            div(
-                class = "info-box",
+            bslib::card_body(
                 question
             )
         )
