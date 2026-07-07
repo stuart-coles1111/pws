@@ -1101,89 +1101,88 @@ server <- function(input, output, session) {
                 div(
                     class = "card-style",
 
-                    div(
-                        style = "
-                                margin-bottom:22px;
-                                padding:18px;
-                                background:#F4F8FC;
-                                border-left:6px solid #7B9ACC;
-                                border-radius:10px;
-                                font-size:18px;
-                                line-height:1.8;
-                            ",
+                    fluidRow(
 
-                        HTML(
-                            "
-                                Whatever Balder’s calculation for the probabilities of the various movies being oldest,
-                                he must also consider what he stands to gain or lose from answering the question,
-                                and how much those outcomes matter to him.<br><br>
+                        column(
+                            5,
 
-                                This can be analysed formally using <b>decision analysis</b>,
-                                which combines probabilities with the happiness (or utility)
-                                associated with different outcomes.<br><br>
+                            h4("Happiness function"),
 
-                                The goal is to compare Balder’s <b>expected happiness</b>
-                                under the different actions available to him.
+                            div(
+                                class = "info-box",
 
-                                Experiment by changing either or both of the win probability for the final question
-                                and λ which detewrmines Balder's relative change in happiness when winning and losing money.
+                                HTML(
+                                    "
+                        <p>
+                        The happiness function measures changes relative to
+                        Balder's current position: walking away with
+                        <b>500,000 kroner</b>.
+                        </p>
 
-                                (The exact role of λ can be seen in the Happiness Function plot).
-                            "
-                        )
-                    ),
+                        <p>
+                        For a chosen happiness function, we can calculate how
+                        Balder's happiness changes if he answers the final
+                        question and is either correct or incorrect.
+                        </p>
+                        "
+                                )
+                            )
+                        ),
 
-                    br(),
+                        column(
+                            7,
 
-                    div(
-                        class = "info-box",
+                            plotOutput("utility_plot", height = "350px")
 
-                        HTML(
-                            "
-        <p>
-        The happiness function measures changes relative to Balder's current
-        position: walking away with <b>500,000 kroner</b>.
-        </p>
-
-        <p>
-        For a chosen happiness function, we can calculate how Balder's happiness
-        changes if he answers the final question and is either correct or incorrect.
-        These changes are shown in the happiness plot.
-        </p>
-
-        <p>
-        By combining these possible changes with the probability of answering
-        correctly, we can calculate Balder's expected change in happiness from
-        choosing to answer.
-        </p>
-
-        <p>
-        If this expected change is positive, answering the question increases
-        Balder's expected happiness, so answering is the optimal choice.
-        If it is negative, Balder should walk away.
-        </p>
-        "
                         )
 
                     ),
-
-                    br(),
-
-                    h4("Happiness function"),
-
-                    plotOutput("utility_plot", height = "300px"),
 
                     hr(),
 
-                    h4("Expected happiness"),
+                    fluidRow(
 
-                    plotOutput("eu_plot", height = "300px"),
+                        column(
+                            5,
+
+                            h4("Expected happiness"),
+
+                            div(
+                                class = "info-box",
+
+                                HTML(
+                                    "
+                        <p>
+                        By combining the possible changes in happiness with
+                        the probability of answering correctly, we calculate
+                        Balder's expected change in happiness from answering.
+                        </p>
+
+                        <p>
+                        If this expected change is positive, answering increases
+                        Balder's expected happiness. Otherwise, he should walk away.
+                        </p>
+                        "
+                                )
+                            )
+                        ),
+
+                        column(
+                            7,
+
+                            plotOutput("eu_plot", height = "350px")
+
+                        )
+
+                    ),
 
                     hr(),
 
                     uiOutput("decision_text")
+
                 )
-            ))
+            )
+            )
         }
     })
 
