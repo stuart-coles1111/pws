@@ -379,13 +379,11 @@ ui <- page_navbar(
         explanation = tagList(
 
             p(
-                "The probability of an event depends on the information available. This activity uses a simple example to illustrate how probability calculations can vary
-                dramatically depending on the way information is interpreted."
+                "This activity introduces conditional probability and decision making under uncertainty."
             ),
 
             p(
-                "THe example is taken from the Danish version of the TV quiz programme Who Wants to be a Millionaire? The contestant, Balder Kringelbach  had reached the final question, and had the opportunity to win
-                one million Kroner by answering correctly. If he answered incorrectly, he would leave the show with "
+                "Students explore how probabilities change when new information becomes available before extending these ideas to probability distributions, expected utility and behavioural decision making."
             )
 
         ),
@@ -415,10 +413,12 @@ ui <- page_navbar(
         question = tagList(
 
             tags$ul(
-                tags$li("How does new information change probabilities?"),
-                tags$li("Why does conditioning alter the sample space?"),
-                tags$li("How do people make decisions under uncertainty?"),
-                tags$li("What role does utility play alongside probability?")
+                tags$li("Naively it seems Balder has a 50-50 choice for the final answer. Why might that reasoning be too simplistic?"),
+                tags$li("What is the correct way to interpret Balder's knowledge, and how does it affect the probability of the final answer outcomes?"),
+                tags$li("Even if the final answer outcomes are 50-50, can an argument be made that Balder should have answered the question anyway?"),
+                tags$li("What additional factors does this depend on?"),
+                tags$li("Taking everything into account, do you think Balder made the right choice?"),
+
             )
 
         )
@@ -578,7 +578,7 @@ server <- function(input, output, session) {
 
                             HTML(
                                 "<b>Fact 1.</b><br>
-            Movie <b>C</b> is older than Movies <b>A</b> and <b>B</b>."
+                Movie <b>C</b> is older than Movies <b>A</b> and <b>B</b>."
                             )
                         )
                     ),
@@ -593,7 +593,7 @@ server <- function(input, output, session) {
 
                             HTML(
                                 "<b>Fact 2.</b><br>
-            Balder does <b>not</b> know whether Movie <b>C</b> or Movie <b>D</b> is older."
+                Balder does <b>not</b> know which of Movies <b>C</b> or <b>D</b> is the older."
                             )
                         )
                     ),
@@ -605,23 +605,28 @@ server <- function(input, output, session) {
 
                         HTML(
                             "
-            <b>The decision:</b>
+            <div style='font-size:24px;font-weight:700;margin-bottom:12px;'>
+            The decision
+            </div>
 
-            <br><br>
+            <div style='font-size:20px;line-height:1.8;'>
 
             Balder has two choices:
 
             <ul>
 
-                <li><b>Walk away</b> and keep <b>500,000 kroner</b>.</li>
+                <li>
+                <b>Walk away</b> and keep <b>500,000 kroner</b>.
+                </li>
 
-                <li><b>Answer the question</b>, which has two possible outcomes:
+                <li>
+                <b>Answer the question</b>, which has two possible outcomes:
 
                     <ul>
 
-                        <li>Correct → <b>1,000,000 kroner</b>.</li>
+                        <li>Correct &rarr; <b>1,000,000 kroner</b>.</li>
 
-                        <li>Incorrect → <b>50,000 kroner</b>.</li>
+                        <li>Incorrect &rarr; <b>50,000 kroner</b>.</li>
 
                     </ul>
 
@@ -629,8 +634,9 @@ server <- function(input, output, session) {
 
             </ul>
 
-            Should Balder answer the question or walk away?
+            Should Balder answer the question or decline and keep the 500,000 kroner?
 
+            </div>
             "
                         )
 
@@ -641,6 +647,7 @@ server <- function(input, output, session) {
                     actionButton("next1", "Explore arguments →")
 
                 )
+
             ))
         }
 
@@ -654,33 +661,26 @@ server <- function(input, output, session) {
                     div(
                         class = "card-style",
 
-                        h2("A tempting argument: 50–50."),
+                        h2("A tempting argument"),
 
                         div(
                             class = "explain",
 
-                            tags$ol(
+                            p("Balder knows:"),
 
-                                tags$li(
-                                    strong("Balder's information: "),
-                                    "Movie C is older than Movies A and B."
-                                ),
+                            tags$ul(
+                                tags$li("Movie C is older than Movie A."),
+                                tags$li("Movie C is older than Movie B.")
+                            ),
 
-                                tags$li(
-                                    strong("The simplified argument: "),
-                                    "The oldest movie must therefore be either C or D."
-                                ),
+                            p(
+                                "Therefore, the oldest movie must be either C or D."
+                            ),
 
-                                tags$li(
-                                    strong("The conclusion: "),
-                                    "Since there are two possibilities, each should have probability 1/2."
-                                )
-
+                            p(
+                                "A natural conclusion is that C and D are now equally likely to be the oldest movie."
                             )
-
                         ),
-
-                        br(),
 
                         fluidRow(
 
@@ -688,22 +688,12 @@ server <- function(input, output, session) {
                                 6,
 
                                 div(
-                                    class = "answer-choice",
+                                    class = "naive-choice",
 
-                                    style = "
-                display:flex;
-                justify-content:space-between;
-                align-items:center;
-            ",
+                                    "Movie C",
 
-                                    span("C) Blå Mænd"),
-
-                                    span(
-                                        style = "
-                    color:#FFD700;
-                    font-size:28px;
-                    font-weight:700;
-                ",
+                                    div(
+                                        class = "naive-percent",
                                         "50%"
                                     )
                                 )
@@ -714,22 +704,12 @@ server <- function(input, output, session) {
                                 6,
 
                                 div(
-                                    class = "answer-choice",
+                                    class = "naive-choice",
 
-                                    style = "
-                display:flex;
-                justify-content:space-between;
-                align-items:center;
-            ",
+                                    "Movie D",
 
-                                    span("D) Superclasico"),
-
-                                    span(
-                                        style = "
-                    color:#FFD700;
-                    font-size:28px;
-                    font-weight:700;
-                ",
+                                    div(
+                                        class = "naive-percent",
                                         "50%"
                                     )
                                 )
@@ -738,32 +718,26 @@ server <- function(input, output, session) {
 
                         ),
 
-                        br(),
-
                         div(
-                            class = "card-style",
+                            class = "dilemma-box",
 
-                            style = "
-                        text-align:center;
-                        background:#F4F8FC;
-                    ",
+                            HTML("
+    <b>But there is a hidden assumption.</b>
 
-                            HTML(
-                                "
-                        <div style='font-size:24px;font-weight:600;'>
+    <br><br>
 
-                        Therefore:
+    We have treated Balder's information as if it only tells us:
 
-                        <br><br>
+    <br><br>
 
-                        <span style='font-size:32px;font-weight:700;color:#457B9D;'>
-                        P(C is oldest | information) = 1/2 ?
-                        </span>
+    <center>
+    <b>The oldest movie is either C or D.</b>
+    </center>
 
-                        </div>
-                        "
-                            )
+    <br>
 
+    What if the details of the information matter?
+    ")
                         ),
 
                         br(),
@@ -771,31 +745,20 @@ server <- function(input, output, session) {
                         div(
                             class = "dilemma-box",
 
-                            HTML(
-                                "
+                            HTML("
+                    <b>Reflection.</b><br><br>
 
-                        <div style='font-size:24px; font-weight:700;'>
-Reflection
-</div>           <br>
+                    This argument sounds very reasonable.
 
-                        <b>Is this an over-simplificiation?</b>
-
-                        <br><br>
-
-                        Have we correctly used Balder's information?
-
-                        <br><br>
-
-                        Or have we thrown away some important details?
-                        "
-                            )
-
+                    But have we really used all of Balder's information?
+                    ")
                         ),
 
                         br(),
 
-                        actionButton("back1", "← Back"),
-                        actionButton("next2", "Look more carefully →")
+
+                        actionButton("back1","← Back"),
+                        actionButton("next2","Look more carefully →")
 
                     )
                 )
@@ -870,14 +833,10 @@ Reflection
                                     line-height:1.7;
                                 ",
 
-
                             HTML(
                                 "
-<div style='font-size:24px; font-weight:700;'>
-Reflection
-</div>           <br>
-
-We assumed all remaining orderings are equally likely.<br><br>
+                                    <b>Reflection.</b><br>
+                                    We assumed all remaining orderings are equally likely.<br><br>
 
                                     But is that reasonable?
                                     Could some still be more likely than others?
@@ -895,47 +854,94 @@ We assumed all remaining orderings are equally likely.<br><br>
         }
 
         else if (rv$page == 4) {
-            fluidRow(column(
-                4,
+
+            tagList(
 
                 div(
                     class = "card-style",
 
-                    h3("Probability model"),
-
-                    sliderInput(
-                        "z",
-                        "Threshold z",
-                        min = 0,
-                        max = 50,
-                        value = 18,
-                        step = 0.5
-                    ),
-
-                    div(class = "formula-box", uiOutput("tail_probability")),
-
-                    br(),
-
-                    p(
-                        "As z increases, fewer movies are older than z, so P(C > z) becomes smaller.",
-                        class = "explain"
-                    ),
-
-                    actionButton("back3", "← Back"),
-                    actionButton("next4", "Next →")
-                )
-            ), column(
-                8,
-
-                div(
-                    class = "card-style",
-
-                    h4("Conditional reasoning"),
-
-                    plotOutput("dist_plot", height = "450px"),
+                    h3("Formulating Balder's information as a probability model"),
 
                     div(
-                        style = "
+                        class = "info-box",
+
+                        HTML(
+                            "
+                    <p>
+                    Since Balder knows nothing about the relative ages of Movies
+                    <b>C</b> and <b>D</b>, it is reasonable to model their ages as
+                    independent random variables drawn from the same unknown
+                    distribution with cumulative distribution function
+                    <b>F(z)</b>.
+                    </p>
+
+                    <p>
+                    Balder also knows that Movie <b>C</b> is older than Movies
+                    <b>A</b> and <b>B</b>. We represent this information by
+                    conditioning on the event
+                    <b>C &gt; z</b>, where <b>z</b> denotes the age of the older
+                    of Movies <b>A</b> and <b>B</b>.
+                    </p>
+
+                    <p style='text-align:center;font-size:28px;font-weight:700;'>
+                    P(C &gt; D &nbsp;|&nbsp; C &gt; z)
+                    </p>
+
+                    <p>
+                    This probability depends on the unknown distribution
+                    <b>F</b>. To illustrate the effect of Balder's information,
+                    we use the example probability density function below.
+                    </p>
+                    "
+                        )
+
+                    )
+
+                ),
+
+                fluidRow(
+
+                    column(
+                        4,
+
+                        div(
+                            class = "card-style",
+
+                            h3("Probability model"),
+
+                            sliderInput(
+                                "z",
+                                "Threshold z",
+                                min = 0,
+                                max = 50,
+                                value = 18,
+                                step = 0.5
+                            ),
+
+                            div(class = "formula-box", uiOutput("tail_probability")),
+
+                            br(),
+
+                            p(
+                                "As z increases, fewer movies are older than z, so P(C > z) becomes smaller.",
+                                class = "explain"
+                            ),
+
+                            actionButton("back3", "← Back"),
+                            actionButton("next4", "Next →")
+                        )
+                    ), column(
+                        8,
+
+                        div(
+                            class = "card-style",
+
+                            h4("Probability density function of age of Movies C and D"),
+
+                            plotOutput("dist_plot", height = "450px"),
+
+                            div(
+                                style = "
                                 margin-top:20px;
                                 padding:18px;
                                 background:#F4F8FC;
@@ -946,14 +952,15 @@ We assumed all remaining orderings are equally likely.<br><br>
                                 text-align:center;
                             ",
 
-                        uiOutput("p_cd_panel")
-                    ),
+                                uiOutput("p_cd_panel")
+                            ),
 
-                    br(),
+                            br(),
 
-                    actionButton("why_formula", "Why does this formula work?")
-                )
-            ))
+                            actionButton("why_formula", "Why does this formula work?")
+                        )
+                    ))
+            )
         }
 
         else if (rv$page == 5) {
@@ -982,7 +989,7 @@ We assumed all remaining orderings are equally likely.<br><br>
                                         min-height:260px;
                                     ",
 
-                            h4("Case 1: D is younger than z"),
+                            h4("Case 1: Movie D is less than z years old"),
 
                             p("This happens with probability F(z).", class =
                                   "explain"),
@@ -1005,7 +1012,7 @@ We assumed all remaining orderings are equally likely.<br><br>
                                         min-height:260px;
                                     ",
 
-                            h4("Case 2: D is older than z"),
+                            h4("Case 2: Movie D is more than z years old"),
 
                             p("This happens with probability 1 − F(z).", class =
                                   "explain"),
@@ -1014,7 +1021,7 @@ We assumed all remaining orderings are equally likely.<br><br>
                                   "explain"),
 
                             p(
-                                "Neither movie has an advantage, so each is equally likely to be older.",
+                                "By symmetry, each movie is equally likely to be older than the other.",
                                 class = "explain"
                             ),
 
@@ -1036,19 +1043,24 @@ We assumed all remaining orderings are equally likely.<br><br>
 
                         HTML(
                             "
-                                Overall probability
-                                <br><br>
+    Conditional probability
 
-                                P(C > D)
-                                =
-                                F(z) × 1
-                                +
-                                (1 - F(z)) × 1/2
-                                <br><br>
+    <br><br>
 
-                                =
-                                (1 + F(z))/2
-                            "
+    <span style='font-size:24px;'>
+
+    P(C &gt; D &nbsp;|&nbsp; C &gt; z)
+
+    <br>
+
+    = F(z) &times; 1 + (1 - F(z)) &times; 1/2
+
+    <br>
+
+    = (1 + F(z))/2
+
+    </span>
+    "
                         )
                     ),
 
@@ -1074,7 +1086,7 @@ We assumed all remaining orderings are equally likely.<br><br>
 
                     hr(),
 
-                    actionButton("back5", "← Back"),
+                    actionButton("back4", "← Back"),
                     actionButton("reset", "Restart")
                 )
             ), column(
@@ -1096,8 +1108,9 @@ We assumed all remaining orderings are equally likely.<br><br>
 
                         HTML(
                             "
-                                Even if Balder knows the probability of winning, probability alone does not determine the decision.
-                                He must also consider what each outcome is worth to him.<br><br>
+                                Whatever Balder’s calculation for the probabilities of the various movies being oldest,
+                                he must also consider what he stands to gain or lose from answering the question,
+                                and how much those outcomes matter to him.<br><br>
 
                                 This can be analysed formally using <b>decision analysis</b>,
                                 which combines probabilities with the happiness (or utility)
@@ -1105,6 +1118,11 @@ We assumed all remaining orderings are equally likely.<br><br>
 
                                 The goal is to compare Balder’s <b>expected happiness</b>
                                 under the different actions available to him.
+
+                                Experiment by changing either or both of the win probability for the final question
+                                and λ which detewrmines Balder's relative change in happiness when winning and losing money.
+
+                                (The exact role of λ can be seen in the Happiness Function plot).
                             "
                         )
                     ),
@@ -1166,26 +1184,26 @@ We assumed all remaining orderings are equally likely.<br><br>
         HTML(
             paste0(
                 "
-            <div style='font-size:20px; line-height:1.7;'>
+            <div style='font-size:20px; line-height:1.8;'>
 
-            It is straightforward to show that
+            Under this model,
 
             <br><br>
 
             <span style='font-size:28px;font-weight:600;'>
-            P(C &gt; D) = (1 + F(z))/2
-            </span>
 
-            <br><br>
+            P(C &gt; D &nbsp;|&nbsp; C &gt; z)
 
-            Therefore,
+            <br>
 
-            <br><br>
+            = (1 + F(z))/2
 
-            <span style='font-size:38px;font-weight:700; color:#4A6FA5;'>
-            ",
+            <br>
+
+            = <span style='font-size:38px;font-weight:700;color:#4A6FA5;'>",
                 round(vals$p_cd, 3),
-                "
+                "</span>
+
             </span>
 
             </div>
@@ -1268,13 +1286,8 @@ We assumed all remaining orderings are equally likely.<br><br>
         u <- function(x)
             utility_function(x, lambda)
 
-        df <- data.frame(
-            outcome = c("Win Q15", "Lose Q15"),
-            contrib = c(
-                p * u(1),
-                (1 - p) * u(0.05)
-            )
-        )
+        df <- data.frame(outcome = c("Win", "Lose"),
+                         contrib = c(p * u(1), (1 - p) * u(0.064)))
 
         ggplot(df, aes(outcome, contrib, fill = outcome)) +
 
@@ -1294,29 +1307,27 @@ We assumed all remaining orderings are equally likely.<br><br>
     })
 
     output$decision_text <- renderUI({
-
         lambda <- input$lambda
         p <- input$p
 
         u <- function(x)
             utility_function(x, lambda)
 
-        EU_play <- p * u(1) + (1 - p) * u(0.05)
-
+        EU_play <- p * u(1) + (1 - p) * u(0.064)
         EU_quit <- u(0.5)
 
         decision <- if (EU_play > EU_quit) {
             "Optimal strategy is Play"
         } else {
-            "Optimal strategy is Walk Away"
+            "Optimal strategy is Quit"
         }
 
         HTML(
             paste0(
-                "<b>Expected happiness if Play:</b> ",
+                "<b>If Play:</b> ",
                 round(EU_play, 3),
                 "<br>",
-                "<b>Expected happiness if Walk Away:</b> ",
+                "<b>If Quit:</b> ",
                 round(EU_quit, 3),
                 "<br><br>",
                 "<center style='font-size:22px;font-weight:bold;'>",
@@ -1325,7 +1336,7 @@ We assumed all remaining orderings are equally likely.<br><br>
             )
         )
     })
-    }
+}
 
 # =========================================================
 # RUN APP

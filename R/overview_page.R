@@ -85,7 +85,7 @@ overview_page <- function(
                     class = "overview-card",
 
                     bslib::card_header(
-                        h3("🧑 Individual")
+                        h3("🧑 Individual implementation")
                     ),
 
                     bslib::card_body(
@@ -101,7 +101,7 @@ overview_page <- function(
                     class = "overview-card",
 
                     bslib::card_header(
-                        h3("👥 Group")
+                        h3("👥 Group implementation")
                     ),
 
                     bslib::card_body(
