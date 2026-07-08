@@ -130,32 +130,60 @@ ui <- page_navbar(
     overview_page(
 
         explanation = tagList(
-            p("This activity explores probability, expected value and risk through a betting game."),
-            p("Students compare manual play with simulation to understand randomness and risk.")
+            p("This activity replicates and extends a published experiment on betting strategy. The original study examined how closely people's betting decisions approach the mathematically optimal strategy.
+              Here, the experiment is extended to explore the relationships between probability, expectation, and decision-making discussed in Playing With Statistics."),
+
+            p("The app simulates a sequence of coin tosses and allows participants to bet on each event."),
+
+            p("The rules of play are:"),
+
+            tags$ol(
+                tags$li("Choose Heads or Tails on a sequence of coin tosses."),
+                tags$li("Your starting bank is $25."),
+                tags$li("You may bet any whole-dollar amount up to your current bank."),
+                tags$li("Bets and winnings are rounded to the nearest dollar."),
+                tags$li("The game ends when:", tags$ul(
+                    tags$li("You reach a hidden winning threshold."),
+                    tags$li("Your bank reaches zero."),
+                    tags$li("30 minutes expires.")
+                ))
+            ),
+
+            p("Additionally:"),
+
+            tags$ul(
+                tags$li("The probability of Tails on each coin toss is 0.4 by default, but this value can be randomised to either a shown or hidden value."),
+                tags$li("The ceiling at which the game stops can also be randomised to a different value or removed completely."),
+                tags$li("Bet sizes can either be entered manually for each bet, or chosen to be a specified proportion of current bank value."),
+                tags$li("The game can also be run automatically using a fixed proportion of the current bank as the stake on every bet. In this auto mode, bets can be placed faster by
+                        reducing the time between automatic bet placements.")
+            )
         ),
 
         individual = tagList(
-            tags$ol(
-                tags$li("Play the betting game manually."),
-                tags$li("Experiment with different stake sizes."),
-                tags$li("Observe bankroll changes."),
-                tags$li("Compare with simulation.")
-            )
+              p("Play the game in both Manual and Auto modes. Explore different staking strategies to determine what appears to work well and what does not.
+                In Auto Mode, also experiment with simulated values of the probability of tails, and investigate how changing or removing the bank ceiling affects the outcome."),
+
+              p("Subsequently, read Section ?.? of Playing With Statistics in which the notion of optimal staking is discussed."),
+
+              p("Optionally, play the game again in light of this additional information."),
+
         ),
 
         group = tagList(
-            tags$ol(
-                tags$li("Compare strategies across students."),
-                tags$li("Discuss differences in outcomes."),
-                tags$li("Relate to probability and risk.")
-            )
+             p("The activity is intended to be completed individually before a group meeting. Participants should explore the game in both Manual and Auto modes,
+             as described in the Individual Implementation panel. During the meeting, discussion should focus on comparing strategies,
+               explaining different outcomes, and connecting these observations to the theoretical results presented in Section ?.? of Playing With Statistics."),
+
         ),
 
         question = tagList(
             tags$ul(
-                tags$li("How does stake size affect risk?"),
-                tags$li("Why do identical strategies diverge?"),
-                tags$li("Can randomness dominate skill?")
+                tags$li("Should you always bet on Heads, always bet on Tails, or use some combination of the two?"),
+                tags$li("What is the effect of stake sizes that are too small or too large?"),
+                tags$li("s there a staking proportion that appears to be optimal? Does it depend on the probability of tails?"),
+                tags$li("What additional challenges arise when the probability of tails is unknown? How might these be addressed?"),
+                tags$li("What effect does the bank ceiling have on the optimal strategy?")
             )
         )
     ),
@@ -207,7 +235,7 @@ ui <- page_navbar(
                             "m_ceiling_mode",
                             "Winning Threshold",
                             choices = c(
-                                "Hidden" = "fixed",
+                                "Fixed" = "fixed",
                                 "Random" = "random",
                                 "No Ceiling" = "none"
                             ),
@@ -222,7 +250,7 @@ ui <- page_navbar(
 
                         sliderInput(
                             "m_stake_prop",
-                            "Percentage of bank to stake",
+                            "Proportion of bank to stake (%)",
                             min = 0,
                             max = 100,
                             value = 20,
@@ -270,7 +298,7 @@ ui <- page_navbar(
             # =====================================================
 
             nav_panel(
-                "Simulation Mode",
+                "Auto Mode",
 
                 layout_sidebar(
 
@@ -342,7 +370,7 @@ ui <- page_navbar(
 
                         sliderInput(
                             "s_stake_prop",
-                            "Percentage of bank to stake",
+                            "Proportion of bank to stake (%)",
                             min = 0,
                             max = 100,
                             value = 20,
@@ -351,7 +379,7 @@ ui <- page_navbar(
 
                         sliderInput(
                             "s_interval",
-                            "Time between bets",
+                            "Time between bets (s)",
                             min = 0.05,
                             max = 1,
                             value = 0.5,
@@ -884,6 +912,7 @@ server <- function(input, output, session) {
         ggplot(m$history, aes(step, bank, group = 1)) +
             geom_line(color = "#7B9ACC", linewidth = 1.2) +
             geom_point(color = "#CDB4DB", size = 3) +
+            xlab("Number of Bets") + ylab("Bank (dollars)") +
             theme_minimal()
     })
 
@@ -893,6 +922,7 @@ server <- function(input, output, session) {
         ggplot(s$history, aes(step, bank, group = 1)) +
             geom_line(color = "#7B9ACC", linewidth = 1.2) +
             geom_point(color = "#CDB4DB", size = 3) +
+            xlab("Number of Bets") + ylab("Bank (dollars)") +
             theme_minimal()
     })
 }
