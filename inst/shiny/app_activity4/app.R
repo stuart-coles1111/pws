@@ -1,12 +1,12 @@
 suppressPackageStartupMessages({
-library(shiny)
-library(bslib)
-library(ggplot2)
-library(dplyr)
-library(tidyr)
-library(DT)
-library(patchwork)
-library(readr)
+    library(shiny)
+    library(bslib)
+    library(ggplot2)
+    library(dplyr)
+    library(tidyr)
+    library(DT)
+    library(patchwork)
+    library(readr)
 })
 
 
@@ -75,17 +75,17 @@ distribution_plot <- function(G,
             linewidth = 1.2
         ) +
 
-    geom_vline(
-        xintercept = G,
-        colour = "#555555",
-        linewidth = 1
-    ) +
+        geom_vline(
+            xintercept = G,
+            colour = "#555555",
+            linewidth = 1
+        ) +
 
-    geom_vline(
-        xintercept = Theta,
-        colour = "#E76F51",
-        linewidth = 1.3
-    )+
+        geom_vline(
+            xintercept = Theta,
+            colour = "#E76F51",
+            linewidth = 1.3
+        )+
 
         theme_minimal(base_size = 12) +
 
@@ -129,12 +129,12 @@ distribution_plot <- function(G,
             linewidth = 1.3
         ) +
 
-            geom_hline(
-                yintercept = theta_score,
-                linetype = "dashed",
-                colour = "#555555",
-                linewidth = 0.9
-            ) +
+        geom_hline(
+            yintercept = theta_score,
+            linetype = "dashed",
+            colour = "#555555",
+            linewidth = 0.9
+        ) +
 
         annotate(
             "point",
@@ -256,7 +256,23 @@ ui <- page_navbar(
         ),
 
         individual = tagList(
+            p("The app is designed for easy individual entry of quiz answers (G) and accuracy estimates (S)."),
+            tags$ol(
+                tags$li("Complete the sports quiz by entering your values of G and S for each question directly into the app interface."),
+                tags$li("Examine your score for each question in the Score Explorer"),
+                tags$li("Upload the answers provided by Smartodds employees. How do your scores compare to theirs?")
+            ),
 
+            p("The activity is ideally suited to a group meeting with particpants answering questions individually or in teams."),
+
+            p("By default, the front page of the app shows questions with a sports theme. These can be substituted with questions with a 'countries' theme, which
+              are also provided, or with a set of self-written questions and answers."),
+
+            p("Though team answers can be entered manually from the front page, it is more efficient to save team answers in a csv file which can be uploaded directly into the app."),
+
+            p("A template for entering team scores in a csv file can be downloaded directly from the app"),
+
+            p("Once the csv file containing team answers has been uploaded, the app can be used as follow"),
             tags$ol(
                 tags$li("Review each forecasting question."),
                 tags$li("Enter a best estimate (G)."),
@@ -318,6 +334,12 @@ ui <- page_navbar(
 
                 conditionalPanel(
                     condition = "input.question_set == 'upload'",
+
+                    downloadButton(
+                        "download_question_template",
+                        "Download question template"
+                    ),
+
                     fileInput(
                         "upload_questions",
                         "Upload question CSV"
@@ -824,6 +846,41 @@ server <- function(input, output, session){
         )
 
     })
+
+    # =======================================================
+    # QUESTION CSV TEMPLATE
+    # =======================================================
+
+
+    output$download_question_template <- downloadHandler(
+
+        filename = function() {
+            "question_template.csv"
+        },
+
+        content = function(file) {
+
+            template <- tibble::tibble(
+
+                question_id = 1:10,
+                category = rep("", 10),
+                label = rep("", 10),
+                icon = rep("", 10),
+                text = rep("", 10),
+                answer = rep("", 10),
+                units = rep("", 10)
+
+            )
+
+            write.csv(
+                template,
+                file,
+                row.names = FALSE
+            )
+
+        }
+
+    )
 
     # =======================================================
     # UPDATE TEAM SELECTOR
