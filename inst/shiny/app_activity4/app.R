@@ -463,7 +463,7 @@ ui <- page_navbar(
 
                         p(
                             class = "small-note",
-                            "The red point shows the log score assigned to the team's forecast."
+                            "The dashed horizontal line shows the log score assigned to the team's answer."
                         )
                     )
                 ),
@@ -1037,6 +1037,7 @@ server <- function(input, output, session){
             )
         ) +
 
+
             geom_col(width = 0.7) +
 
             coord_flip() +
@@ -1045,8 +1046,8 @@ server <- function(input, output, session){
 
             labs(
                 title = "Overall Team Scores",
-                x = NULL,
-                y = "Total log score"
+                x = "Team",
+                y = "Total score"
             ) +
 
             theme(
