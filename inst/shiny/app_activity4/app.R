@@ -9,51 +9,7 @@ library(patchwork)
 library(readr)
 })
 
-# =========================================================
-# DEFAULT QUESTIONS
-# =========================================================
 
-default_questions <- tibble::tibble(
-    question = 1:10,
-
-    category = c(
-        "Sports","Sports","Sports","Sports","Sports",
-        "Sports","Sports","Sports","Sports","Sports"
-    ),
-
-    label = c(
-        "Tennis","Basketball","Baseball","Marathon","Cycling",
-        "American football","Ice hockey","Football","Athletics","Cricket"
-    ),
-
-    icon = c(
-        "🎾","🏀","⚾","🏃","🚴",
-        "🏈","🏒","⚽","🏃","🏏"
-    ),
-
-    text = c(
-        "Fastest serve (mph) at the 2022 US Open?",
-        "Lowest points scored by an NBA team in 2022-23?",
-        "Average MLB attendance in 2022 (thousands)?",
-        "NY Marathon finishers in 2022 (thousands)?",
-        "Highest speed in 2022 Giro d'Italia (kph)?",
-        "Highest NFL salary in 2022 (millions USD)?",
-        "Highest NHL team goals in 2022-23?",
-        "Highest goalkeeper saves in EPL 2022-23?",
-        "Longest long jump in 2022 (metres)?",
-        "Highest batting average in 2022 T20 World Cup?"
-    ),
-
-    answer = c(
-        141, 80, 26.808, 47.839, 74.7,
-        50.3, 325, 154, 8.52, 98.66
-    ),
-
-    units = c(
-        "mph","points","thousands","thousands","kph",
-        "millions USD","goals","saves","metres","average"
-    )
-)
 
 # =========================================================
 # FUNCTIONS
@@ -115,26 +71,26 @@ distribution_plot <- function(G,
     p1 <- ggplot(d, aes(x, density)) +
 
         geom_line(
-            linewidth = 1.2,
-            colour = "#7B9ACC"
-        ) +
-
-        geom_vline(
-            xintercept = G,
             colour = "#7B9ACC",
-            linewidth = 1
+            linewidth = 1.2
         ) +
 
-        geom_vline(
-            xintercept = Theta,
-            colour = "#E76F51",
-            linewidth = 1.3
-        ) +
+    geom_vline(
+        xintercept = G,
+        colour = "#555555",
+        linewidth = 1
+    ) +
+
+    geom_vline(
+        xintercept = Theta,
+        colour = "#E76F51",
+        linewidth = 1.3
+    )+
 
         theme_minimal(base_size = 12) +
 
         labs(
-            title = "Forecast distribution",
+            title = "Normal Scoring Rule",
             x = NULL,
             y = "Density"
         ) +
@@ -157,8 +113,8 @@ distribution_plot <- function(G,
     p2 <- ggplot(d, aes(x, log_density)) +
 
         geom_line(
-            linewidth = 1.2,
-            colour = "#6D597A"
+            colour = "#7B9ACC",
+            linewidth = 1.2
         ) +
 
         geom_vline(
@@ -173,6 +129,13 @@ distribution_plot <- function(G,
             linewidth = 1.3
         ) +
 
+            geom_hline(
+                yintercept = theta_score,
+                linetype = "dashed",
+                colour = "#555555",
+                linewidth = 0.9
+            ) +
+
         annotate(
             "point",
             x = G,
@@ -184,7 +147,7 @@ distribution_plot <- function(G,
         theme_minimal(base_size = 12) +
 
         labs(
-            title = "Log-density scoring scale",
+            title = "Final Score",
             x = NULL,
             y = "Log density"
         ) +
@@ -194,6 +157,19 @@ distribution_plot <- function(G,
         )
 
     p1 / p2
+}
+
+load_question_set <- function(name) {
+
+    readr::read_csv(
+        system.file(
+            "extdata",
+            paste0(name, ".csv"),
+            package = "pws"
+        ),
+        show_col_types = FALSE
+    ) |>
+        dplyr::rename(question = question_id)
 }
 
 # =========================================================
@@ -241,6 +217,10 @@ ui <- page_navbar(
                 text-align:center;
             }
 
+            .sidebar .btn{
+                width:100%;
+            }
+
         "))
         ),
 
@@ -261,9 +241,18 @@ ui <- page_navbar(
 
         explanation = tagList(
 
-            p("This activity explores forecasting under uncertainty."),
+            p("This activity explores the importance of both accuracy and the quantification of uncertainty in estimation."),
 
-            p("Participants provide a best estimate and uncertainty range, which are evaluated using a scoring rule.")
+            p("The activity comprises a 10-question quiz. When answering each question, participants must give a best guess (G) for the answer, as well as
+              a measure of accuracy (S) for their best guess. Accuracy of estimates can be defined in different ways: here, it is defined so that if T is the true
+              answer to a question, P(G - S < T < G + S) = 0.5. In other words, particpants choose S such that they believe there to be a 50% chance that the true value
+              lies within a distance S of their best guess."),
+
+            p("By default, the questions in the quiz are sports-based. They can, however, be replaced by country-related questions, or with a user-supplied set of questions
+              and answers. See the discussion in Section ?.? of Playing With Statistics for details."),
+
+            p("The score for each question will depend both on how precise the estimate was, and how accurate the participant believed their estimate to be. Again, full details
+            are given in Section ?.? of Playing With Statistics. A partcipant's overall score is the sum of the scores per question.")
         ),
 
         individual = tagList(
@@ -308,45 +297,162 @@ ui <- page_navbar(
         layout_sidebar(
 
             sidebar = div(
+
                 class = "card-style",
-                fileInput("upload_questions", "Upload Question Set (optional)"),
-                hr(),
-                h4("Template Generator"),
-                numericInput("num_teams", "Number of teams", 10, 1, 100),
-                downloadButton("download_template", "Download CSV Template"),
-                hr(),
-                fileInput("upload_csv", "Upload Team CSV"),
-                hr(),
-                h4("Manual Entry"),
-                textInput("team_name", "Team name", "Team 1"),
-                actionButton("save_team", "Save Team", class = "btn-primary")
+
+                div(
+                    style = "font-weight:600; margin-bottom:8px;",
+                    "Question set"
+                ),
+
+                selectInput(
+                    "question_set",
+                    NULL,
+                    choices = c(
+                        "Sports" = "sports",
+                        "Countries" = "countries",
+                        "Upload my own..." = "upload"
+                    ),
+                    selected = "sports"
+                ),
+
+                conditionalPanel(
+                    condition = "input.question_set == 'upload'",
+                    fileInput(
+                        "upload_questions",
+                        "Upload question CSV"
+                    )
+                ),
+
+                div(style = "margin-top:20px;"),
+
+                div(
+                    style = "font-weight:600; margin-bottom:8px;",
+                    "Participant data"
+                ),
+
+                selectInput(
+                    "participant_data",
+                    NULL,
+                    choices = c(
+                        "None" = "none",
+                        "Smartodds sample" = "smartodds",
+                        "Upload my own..." = "upload"
+                    ),
+                    selected = "none"
+                ),
+
+                conditionalPanel(
+                    condition = "input.participant_data == 'upload'",
+                    fileInput(
+                        "upload_csv",
+                        "Upload participant CSV"
+                    )
+                ),
+
+                div(style = "margin-top:20px;"),
+
+                div(
+                    style = "font-weight:600; margin-bottom:8px;",
+                    "CSV template"
+                ),
+
+                numericInput(
+                    "num_teams",
+                    "Number of teams",
+                    10,
+                    1,
+                    100
+                ),
+
+                downloadButton(
+                    "download_template",
+                    "Download template"
+                ),
+
+                div(style = "margin-top:20px;"),
+
+                div(
+                    style = "font-weight:600; margin-bottom:8px;",
+                    "Save forecasts"
+                ),
+
+                textInput(
+                    "team_name",
+                    "Team name",
+                    "Team 1"
+                ),
+
+                actionButton(
+                    "save_team",
+                    "Save team",
+                    class = "btn-primary"
+                )
             ),
 
             navset_tab(
 
-                nav_panel("Forecast Entry", uiOutput("question_ui")),
+                nav_panel("Q and A", uiOutput("question_ui")),
 
                 nav_panel(
 
-                    "Score Explorer",
+                    "⚠️ Score Explorer (reveals answers)",
 
                     div(
                         class = "card-style",
 
-                        selectInput("explore_team", "Select team", choices = NULL),
-                        uiOutput("question_selector"),
+                        fluidRow(
 
-                        numericInput("explore_G", "Best estimate (G)", value = NA),
+                            column(
+                                6,
+                                selectInput(
+                                    "explore_team",
+                                    "Team",
+                                    choices = NULL
+                                )
+                            ),
 
-                        numericInput("explore_S", "Uncertainty width (S)", value = NA, min = 0.01),
+                            column(
+                                6,
+                                uiOutput("question_selector")
+                            )
 
-                        div(class = "answer-box", textOutput("true_answer"))
+                        ),
+
+                        h4(textOutput("explore_title")),
+
+                        fluidRow(
+
+                            column(
+                                6,
+                                numericInput(
+                                    "explore_G",
+                                    "Best estimate (G)",
+                                    value = NA
+                                )
+                            ),
+
+                            column(
+                                6,
+                                numericInput(
+                                    "explore_S",
+                                    "Uncertainty width (S)",
+                                    value = NA,
+                                    min = 0.01
+                                )
+                            )
+
+                        ),
+
+                        div(
+                            class = "answer-box",
+                            textOutput("true_answer")
+                        )
                     ),
 
                     div(
                         class = "card-style",
 
-                        h4(textOutput("explore_title")),
                         plotOutput("explore_plot", height = "650px")
                     ),
 
@@ -390,11 +496,28 @@ ui <- page_navbar(
 
 server <- function(input, output, session){
 
+
     # =======================================================
     # QUESTIONS DATABASE
     # =======================================================
 
-    questions <- reactiveVal(default_questions)
+    questions <- reactiveVal(
+        load_question_set("sports")
+    )
+
+    observeEvent(input$question_set, {
+
+        req(input$question_set)
+
+        if (input$question_set == "upload")
+            return()
+
+        questions(
+            load_question_set(input$question_set)
+        )
+
+    }, ignoreInit = TRUE)
+
 
     # =======================================================
     # OPTIONAL QUESTION UPLOAD
@@ -514,7 +637,7 @@ server <- function(input, output, session){
 
         selectInput(
             "explore_question",
-            "Select question",
+            "Question",
             choices = q$question,
             selected = q$question[1]
         )
@@ -568,13 +691,10 @@ server <- function(input, output, session){
     # TEAM CSV UPLOAD (WIDE FORMAT)
     # =======================================================
 
-    observeEvent(input$upload_csv, {
-
-        req(input$upload_csv)
-
+    load_team_data <- function(path) {
 
         d <- read_csv(
-            input$upload_csv$datapath,
+            path,
             show_col_types = FALSE
         )
 
@@ -649,6 +769,58 @@ server <- function(input, output, session){
         showNotification(
             "Teams uploaded successfully.",
             type = "message"
+        )
+
+    }
+
+    observeEvent(input$upload_csv, {
+
+        req(input$upload_csv)
+
+        load_team_data(
+            input$upload_csv$datapath
+        )
+
+    })
+
+    observeEvent(input$participant_data, {
+
+        req(input$participant_data == "smartodds")
+
+        load_team_data(
+            system.file(
+                "extdata",
+                "smartodds_sports_quiz.csv",
+                package = "pws"
+            )
+        )
+
+    })
+
+    observe({
+
+        if (input$question_set == "sports") {
+
+            choices <- c(
+                "None" = "none",
+                "Smartodds sample" = "smartodds",
+                "Upload my own..." = "upload"
+            )
+
+        } else {
+
+            choices <- c(
+                "None" = "none",
+                "Upload my own..." = "upload"
+            )
+
+        }
+
+        updateSelectInput(
+            session,
+            "participant_data",
+            choices = choices,
+            selected = "none"
         )
 
     })
