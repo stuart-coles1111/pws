@@ -2,8 +2,8 @@
 #'
 #' Creates a Shiny `nav_panel()` containing the standard overview layout
 #' used throughout the activity apps. The overview consists of four
-#' sections: *Activity Explanation*, *Individual Execution*,
-#' *Group Execution*, and *Question to Explore*.
+#' sections: Activity Explanation, Individual Execution,
+#' Group Execution, and Question to Explore.
 #'
 #' @param title A character string giving the title displayed at the top of
 #'   the overview page.
@@ -20,26 +20,6 @@
 #'   `bslib::page_navbar()`.
 #'
 #' @export
-#'
-#' @examples
-#' overview_page(
-#'   title = "Activity 1: Picturing Randomness",
-#'   explanation = tagList(
-#'     p("Students investigate how random sequences behave.")
-#'   ),
-#'   individual = tagList(
-#'     tags$ol(
-#'       tags$li("Complete the activity individually."),
-#'       tags$li("Compare your results with theory.")
-#'     )
-#'   ),
-#'   group = tagList(
-#'     p("Pool class results and discuss any differences.")
-#'   ),
-#'   question = tagList(
-#'     p("Do humans generate truly random sequences?")
-#'   )
-#' )
 
 overview_page <- function(
         title = "Overview",
@@ -53,79 +33,175 @@ overview_page <- function(
 
         title,
 
-        # =====================================================
-        # EXPLANATION
-        # =====================================================
+        div(
 
-        bslib::card(
-            full_screen = FALSE,
-            class = "overview-card",
+            style = "
+                height: calc(100vh - 170px);
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+            ",
 
-            bslib::card_header(
-                h3("📌 Activity Overview")
+
+            # =====================================================
+            # EXPLANATION (35%)
+            # =====================================================
+
+            bslib::card(
+
+                class = "overview-card",
+
+                style = "
+                    flex: 0 0 35%;
+                    overflow: hidden;
+                ",
+
+                bslib::card_header(
+                    h3("📌 Activity Overview")
+                ),
+
+                bslib::card_body(
+
+                    style = "
+                        overflow-y: auto;
+                    ",
+
+                    explanation
+                )
             ),
 
-            bslib::card_body(
-                explanation
-            )
-        ),
 
-        br(),
+            # =====================================================
+            # INDIVIDUAL + GROUP (45%)
+            # =====================================================
 
-        # =====================================================
-        # INDIVIDUAL + GROUP
-        # =====================================================
+            div(
 
-        fluidRow(
+                style = "
+        flex: 0 0 45%;
+        min-height:0;
+        display:flex;
+        gap:15px;
+    ",
 
-            column(
-                width = 6,
 
-                bslib::card(
-                    class = "overview-card",
+                # -----------------------------
+                # Individual
+                # -----------------------------
 
-                    bslib::card_header(
-                        h3("🧑 Individual implementation")
-                    ),
+                div(
 
-                    bslib::card_body(
-                        individual
+                    style = "
+            flex:1;
+            min-width:0;
+            min-height:0;
+        ",
+
+
+                    bslib::card(
+
+                        class = "overview-card",
+
+                        style = "
+                height:100%;
+                display:flex;
+                flex-direction:column;
+                overflow:hidden;
+            ",
+
+
+                        bslib::card_header(
+                            h3("🧑 Individual implementation")
+                        ),
+
+
+                        bslib::card_body(
+
+                            style = "
+                    flex:1;
+                    min-height:0;
+                    overflow-y:auto;
+                ",
+
+                            individual
+                        )
+                    )
+                ),
+
+
+                # -----------------------------
+                # Group
+                # -----------------------------
+
+                div(
+
+                    style = "
+            flex:1;
+            min-width:0;
+            min-height:0;
+        ",
+
+
+                    bslib::card(
+
+                        class = "overview-card",
+
+                        style = "
+                height:100%;
+                display:flex;
+                flex-direction:column;
+                overflow:hidden;
+            ",
+
+
+                        bslib::card_header(
+                            h3("👥 Group implementation")
+                        ),
+
+
+                        bslib::card_body(
+
+                            style = "
+                    flex:1;
+                    min-height:0;
+                    overflow-y:auto;
+                ",
+
+                            group
+                        )
                     )
                 )
             ),
 
-            column(
-                width = 6,
+            # =====================================================
+            # QUESTIONS (20%)
+            # =====================================================
 
-                bslib::card(
-                    class = "overview-card",
+            bslib::card(
 
-                    bslib::card_header(
-                        h3("👥 Group implementation")
-                    ),
+                class = "overview-card question-card",
 
-                    bslib::card_body(
-                        group
-                    )
+                style = "
+                    flex: 0 0 20%;
+                    overflow:hidden;
+                ",
+
+
+                bslib::card_header(
+
+                    h3("❓ Questions to consider")
+
+                ),
+
+
+                bslib::card_body(
+
+                    style = "
+                        overflow-y:auto;
+                    ",
+
+                    question
                 )
-            )
-        ),
-
-        br(),
-
-        # =====================================================
-        # QUESTION
-        # =====================================================
-
-        bslib::card(
-            class = "overview-card question-card",
-
-            bslib::card_header(
-                h3("❓ Questions to consider"),
-            ),
-
-            bslib::card_body(
-                question
             )
         )
     )

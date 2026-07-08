@@ -29,26 +29,6 @@ A \code{bslib::nav_panel()} object that can be supplied as a child of
 \description{
 Creates a Shiny \code{nav_panel()} containing the standard overview layout
 used throughout the activity apps. The overview consists of four
-sections: \emph{Activity Explanation}, \emph{Individual Execution},
-\emph{Group Execution}, and \emph{Question to Explore}.
-}
-\examples{
-overview_page(
-  title = "Activity 1: Picturing Randomness",
-  explanation = tagList(
-    p("Students investigate how random sequences behave.")
-  ),
-  individual = tagList(
-    tags$ol(
-      tags$li("Complete the activity individually."),
-      tags$li("Compare your results with theory.")
-    )
-  ),
-  group = tagList(
-    p("Pool class results and discuss any differences.")
-  ),
-  question = tagList(
-    p("Do humans generate truly random sequences?")
-  )
-)
+sections: Activity Explanation, Individual Execution,
+Group Execution, and Question to Explore.
 }
