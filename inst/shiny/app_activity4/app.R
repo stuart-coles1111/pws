@@ -263,6 +263,10 @@ ui <- page_navbar(
                 tags$li("Upload the answers provided by Smartodds employees. How do your scores compare to theirs?")
             ),
 
+        ),
+
+        group = tagList(
+
             p("The activity is ideally suited to a group meeting with particpants answering questions individually or in teams."),
 
             p("By default, the front page of the app shows questions with a sports theme. These can be substituted with questions with a 'countries' theme, which
@@ -272,22 +276,13 @@ ui <- page_navbar(
 
             p("A template for entering team scores in a csv file can be downloaded directly from the app"),
 
-            p("Once the csv file containing team answers has been uploaded, the app can be used as follow"),
+            p("Once the csv file containing team answers has been uploaded, the app can be used to:"),
+
             tags$ol(
-                tags$li("Review each forecasting question."),
+                tags$li("Compare resul"),
                 tags$li("Enter a best estimate (G)."),
                 tags$li("Enter uncertainty (S)."),
                 tags$li("Submit forecasts in the Activity tab.")
-            )
-        ),
-
-        group = tagList(
-
-            tags$ol(
-                tags$li("Compare forecasts across teams."),
-                tags$li("Discuss differences in uncertainty."),
-                tags$li("Identify over/underconfidence."),
-                tags$li("Link behaviour to real forecasting practice.")
             )
         ),
 
