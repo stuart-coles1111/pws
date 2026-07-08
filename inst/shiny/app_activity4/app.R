@@ -364,32 +364,33 @@ ui <- page_navbar(
                     selected = "none"
                 ),
 
+                div(style = "margin-top:20px;"),
+
                 conditionalPanel(
                     condition = "input.participant_data == 'upload'",
+
+                    div(
+                        style = "font-weight:600; margin-bottom:8px;",
+                        "CSV template"
+                    ),
+
+                    numericInput(
+                        "num_teams",
+                        "Number of teams",
+                        10,
+                        1,
+                        100
+                    ),
+
+                    downloadButton(
+                        "download_template",
+                        "Download team template"
+                    ),
+
                     fileInput(
                         "upload_csv",
                         "Upload participant CSV"
                     )
-                ),
-
-                div(style = "margin-top:20px;"),
-
-                div(
-                    style = "font-weight:600; margin-bottom:8px;",
-                    "CSV template"
-                ),
-
-                numericInput(
-                    "num_teams",
-                    "Number of teams",
-                    10,
-                    1,
-                    100
-                ),
-
-                downloadButton(
-                    "download_template",
-                    "Download template"
                 ),
 
                 div(style = "margin-top:20px;"),
@@ -826,14 +827,14 @@ server <- function(input, output, session){
             choices <- c(
                 "None" = "none",
                 "Smartodds sample" = "smartodds",
-                "Upload my own..." = "upload"
+                "Upload team answers..." = "upload"
             )
 
         } else {
 
             choices <- c(
                 "None" = "none",
-                "Upload my own..." = "upload"
+                "Upload team answers..." = "upload"
             )
 
         }
