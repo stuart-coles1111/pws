@@ -302,7 +302,7 @@ ui <- page_navbar(
 
                 div(
                     style = "font-weight:600; margin-bottom:8px;",
-                    "Question set"
+                    "Question theme"
                 ),
 
                 selectInput(
@@ -328,7 +328,7 @@ ui <- page_navbar(
 
                 div(
                     style = "font-weight:600; margin-bottom:8px;",
-                    "Participant data"
+                    "Team data"
                 ),
 
                 selectInput(
@@ -374,7 +374,7 @@ ui <- page_navbar(
 
                 div(
                     style = "font-weight:600; margin-bottom:8px;",
-                    "Save forecasts"
+                    "Manual entry"
                 ),
 
                 textInput(
@@ -385,7 +385,7 @@ ui <- page_navbar(
 
                 actionButton(
                     "save_team",
-                    "Save team",
+                    "Save team answers",
                     class = "btn-primary"
                 )
             ),
