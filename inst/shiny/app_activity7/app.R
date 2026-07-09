@@ -214,6 +214,7 @@ ui <- page_navbar(
         layout_sidebar(
 
             sidebar = div(
+
                 class = "card-style",
 
                 radioButtons(
@@ -232,7 +233,21 @@ ui <- page_navbar(
                 numericInput("nsim", "Simulations", 1000, 100),
                 numericInput("seed", "Seed", 999),
 
-                actionButton("start", "Start Tournament", class = "btn-primary")
+                actionButton(
+                    "start",
+                    "Start Tournament",
+                    class = "btn-primary"
+                ),
+
+                hr(),
+
+                div(
+                    class = "card-style",
+
+                    h5("Tournament Controls"),
+
+                    uiOutput("action_ui")
+                )
             ),
 
             div(
@@ -240,11 +255,6 @@ ui <- page_navbar(
                 uiOutput("round_section"),
                 hr(),
                 uiOutput("prob_section")
-            ),
-
-            div(
-                class = "card-style",
-                uiOutput("action_ui")
             )
         )
     )
@@ -348,7 +358,21 @@ server <- function(input, output, session){
                 "sim" = if(!is.null(rv$sim_preview)) rv$sim_preview else simulate_round_only(rv$current_players),
 
                 "human" = {
-                    res <- sapply(1:nrow(df), function(i) input[[paste0("match_",i)]])
+                    res <- sapply(1:nrow(df), function(i) {
+
+                        home_score <- input[[paste0("match_",i)]]
+                        away_score <- input[[paste0("match_",i,"_away")]]
+
+                        if(is.na(home_score) || is.na(away_score)){
+                            return(NA)
+                        }
+
+                        if(home_score + away_score != input$games){
+                            return(NA)
+                        }
+
+                        home_score
+                    })
                     res <- as.numeric(res)
 
                     if(any(is.na(res) | res < 0 | res > input$games)) {
@@ -452,65 +476,97 @@ server <- function(input, output, session){
         if(length(rv$current_players) < 2){
             return(div(
                 h2("🏆 Champion"),
-                player_badge(rv$current_players, rv$player_colours[rv$current_players])
+                player_badge(
+                    rv$current_players,
+                    rv$player_colours[rv$current_players]
+                )
             ))
         }
 
         df <- fixtures_df()
 
         tagList(
-            h3(paste("Round",rv$round)),
 
-            if(input$mode=="sim" && !is.null(rv$sim_preview)){
-                lapply(seq_along(rv$sim_preview$results), function(i){
+            h3(paste("Round", rv$round)),
+
+            lapply(1:nrow(df), function(i){
+
+                div(
+                    class = "card-style",
+
                     div(
-                        player_badge(df$Home[i],df$HomeColour[i]),
+
+                        player_badge(
+                            df$Home[i],
+                            df$HomeColour[i]
+                        ),
+
                         " vs ",
-                        player_badge(df$Away[i],df$AwayColour[i]),
-                        tags$span(
-                            style="margin-left:10px;padding:4px 8px;background:#EEF2FF;border-radius:8px;",
-                            paste0("Home wins: ",rv$sim_preview$results[i])
+
+                        player_badge(
+                            df$Away[i],
+                            df$AwayColour[i]
                         )
-                    )
-                })
-            } else {
-                lapply(1:nrow(df), function(i){
-                    div(
-                        player_badge(df$Home[i],df$HomeColour[i]),
-                        " vs ",
-                        player_badge(df$Away[i],df$AwayColour[i])
-                    )
-                })
-            }
-        )
-    })
+                    ),
 
-    output$result_inputs <- renderUI({
+                    if(input$mode %in% c("human","demo")){
 
-        req(input$mode %in% c("human","demo"))
-        df <- fixtures_df()
-        req(!is.null(df))
+                        div(
+                            style="
+                        display:flex;
+                        gap:15px;
+                        margin-top:15px;
+                        ",
 
-        tagList(
-            h3("Home Scores"),
+                            numericInput(
+                                paste0("match_",i),
+                                paste("Player", df$Home[i], "score"),
+                                value =
+                                    if(input$mode=="demo")
+                                        demo_scores[[rv$round]][i]
+                                else
+                                    0,
+                                min=0,
+                                max=input$games,
+                                width="150px"
+                            ),
 
-            div(
-                style="display:grid;grid-template-columns:repeat(8,1fr);gap:10px;",
+                            numericInput(
+                                paste0("match_",i,"_away"),
+                                paste("Player", df$Away[i], "score"),
+                                value =
+                                    if(input$mode=="demo")
+                                        input$games - demo_scores[[rv$round]][i]
+                                else
+                                    0,
+                                min=0,
+                                max=input$games,
+                                width="150px"
+                            )
+                        )
 
-                lapply(1:nrow(df), function(i){
+                    } else if(input$mode=="sim" && !is.null(rv$sim_preview)){
 
-                    default_value <- if(input$mode=="demo") demo_scores[[rv$round]][i] else 0
-
-                    numericInput(
-                        paste0("match_",i),
-                        paste("Match",i),
-                        value=default_value,
-                        min=0,
-                        max=input$games,
-                        width="100%"
-                    )
-                })
-            )
+                        tags$span(
+                            style="
+                        display:inline-block;
+                        margin-top:10px;
+                        padding:5px 10px;
+                        background:#EEF2FF;
+                        border-radius:8px;
+                        ",
+                            paste0(
+                                "Player ",
+                                df$Home[i],
+                                " wins ",
+                                rv$sim_preview$results[i],
+                                "-",
+                                input$games - rv$sim_preview$results[i]
+                            )
+                        )
+                    }
+                )
+            })
         )
     })
 
@@ -521,33 +577,89 @@ server <- function(input, output, session){
         if(length(rv$current_players)==1) return(NULL)
 
         if(input$mode=="human"){
-            tagList(uiOutput("result_inputs"),
-                    actionButton("submit_results","Submit",class="btn-primary"))
+
+            tagList(
+
+                p(
+                    style="
+                font-size:14px;
+                color:#555;
+                margin-bottom:15px;
+                ",
+                    "Enter results before moving to the next round."
+                ),
+
+                uiOutput("result_inputs"),
+
+                actionButton(
+                    "submit_results",
+                    "Submit Results",
+                    class="btn-primary"
+                )
+            )
 
         } else if(input$mode=="demo"){
-            tagList(uiOutput("result_inputs"),
-                    actionButton("demo_next","Next",class="btn-primary"))
+
+            tagList(
+
+                uiOutput("result_inputs"),
+
+                actionButton(
+                    "demo_next",
+                    "Next Round",
+                    class="btn-primary"
+                )
+            )
 
         } else {
+
             tagList(
-                actionButton("simulate_results","Simulate",class="btn-primary"),
-                actionButton("next_round","Next",class="btn-primary")
+
+                actionButton(
+                    "simulate_results",
+                    "Simulate Results",
+                    class="btn-primary"
+                ),
+
+                actionButton(
+                    "next_round",
+                    "Next Round",
+                    class="btn-primary"
+                )
             )
         }
     })
-
     output$prob_section <- renderUI({
 
         req(rv$pars_df)
 
-        tagList(
-            h3("Parameter Estimates"),
-            tableOutput("pars_table"),
-            h3("Win Probabilities"),
-            tableOutput("win_probs")
+        fluidRow(
+
+            column(
+                width = 6,
+
+                div(
+                    class = "card-style",
+
+                    h3("Parameter Estimates"),
+
+                    tableOutput("pars_table")
+                )
+            ),
+
+            column(
+                width = 6,
+
+                div(
+                    class = "card-style",
+
+                    h3("Win Probabilities"),
+
+                    tableOutput("win_probs")
+                )
+            )
         )
     })
-
     output$pars_table <- renderTable({
         req(rv$pars_df)
         rv$pars_df
