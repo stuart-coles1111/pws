@@ -276,13 +276,67 @@ main_panel_ui <- function(show_comp_results = FALSE){
     )
 }
 
+rules_accordion <- function(id){
+
+    bslib::accordion(
+
+        id = id,
+
+        open = FALSE,
+
+        bslib::accordion_panel(
+
+            title = "📖 Rules of play",
+
+            tags$ol(
+
+                tags$li(
+                    "There are two phases: a training phase and a competition phase."
+                ),
+
+                tags$li(
+                    "In each phase you have a budget of $10,000 to spend among three categories: Technique, Materials and Fitness."
+                ),
+
+                tags$li(
+                    "Your total spending on each category across both phases cannot exceed $10,000."
+                ),
+
+                tags$li(
+                    "Budget cannot be carried over from the training phase to the competition phase."
+                ),
+
+                tags$li(
+                    "You make a jump after spending in each phase. The length of your jump depends partly on your spending choices."
+                ),
+
+                tags$li(
+                    "You can buy historical ski jump data to help decide how to allocate your budget. Each $1,000 spent buys data from 10 historical jumps."
+                ),
+
+                tags$li(
+                    "Historical data contain the spending allocation and jump outcome for the selected number of jumps. In these historical jumps, competitors could spend up to $10,000 on each category, but faced no other spending restrictions."
+                ),
+
+                tags$li(
+                    "Data purchased during the training phase are retained and combined with any additional data purchased during the competition phase."
+                ),
+
+                tags$li(
+                    "Your aim is to beat the world record."
+                )
+
+            )
+        )
+    )
+}
 # =========================================================
 # UI
 # =========================================================
 
 ui <- page_navbar(
 
-    title = "🎿 Ski Jump Challenge",
+    title = "🎿 Activity 6: Breaking Records",
 
     theme = bs_theme(
         version = 5,
@@ -323,6 +377,51 @@ Shiny.addCustomMessageHandler('trigger_confetti', function(message) {
   });
 
 });
+")),
+
+            tags$script(HTML("
+
+Shiny.addCustomMessageHandler('start_jump', function(message){
+
+  const skier = document.getElementById(message.id);
+
+  if(!skier) return;
+
+  const worldRecord = message.world_record;
+  const jump = message.jump_distance;
+
+  const container = skier.parentElement.offsetWidth;
+
+  const runup = 50;
+  const maxX = container - 50;
+
+  let landingRight =
+    runup + (maxX - runup) * (jump / worldRecord);
+
+  landingRight = Math.min(maxX, landingRight);
+
+  skier.style.transition = 'right 2s linear';
+  skier.style.right = landingRight + 'px';
+
+  setTimeout(() => {
+
+    const marker = document.getElementById(message.marker);
+    const label  = document.getElementById(message.label);
+
+    if(marker){
+      marker.style.right = landingRight + 'px';
+      marker.style.display = 'block';
+    }
+
+    if(label){
+      label.style.right = (landingRight - 25) + 'px';
+      label.innerHTML = jump.toFixed(1) + ' m';
+    }
+
+  }, 2100);
+
+});
+
 ")),
 
             tags$style(HTML("
@@ -419,13 +518,65 @@ body{
   line-height:1.7;
 }
 
+/* ================= SKI JUMP ANIMATION ================= */
+
+.ski-world{
+  position:relative;
+  width:100%;
+  height:140px;
+  background:linear-gradient(
+    to bottom,
+    #BFE7FF 0%,
+    #EAF7FF 45%,
+    #FFFFFF 100%
+  );
+  overflow:hidden;
+  border-radius:12px;
+}
+
+.skier{
+  position:absolute;
+  top:45px;
+  right:0px;
+  font-size:42px;
+  z-index:5;
+  transition:right 2s linear;
+}
+
+.jump-marker{
+  position:absolute;
+  top:70px;
+  width:4px;
+  height:40px;
+  background:#1D3557;
+  display:none;
+}
+
+.wr-marker{
+  position:absolute;
+  top:70px;
+  left:10%;
+  width:4px;
+  height:40px;
+  background:#E63946;
+}
+
+.wr-marker-label{
+  position:absolute;
+  top:40px;
+  left:10%;
+  font-weight:700;
+  color:#E63946;
+}
+
+.jump-label{
+  position:absolute;
+  top:10px;
+  font-weight:700;
+  color:#1D3557;
+}
+
 "))
-        ),
-
-        div(
-            class = "main-title",
-
-            h1("🎿 Ski Jump Challenge")
         )
     ),
 
@@ -507,14 +658,15 @@ body{
 
             nav_panel(
 
-                "🎯 Training Phase",
+                "Training Phase",
+
+                rules_accordion("training_rules"),
 
                 div(
                     class = "main-title",
 
-                    h1("🎯 Training Phase"),
+                    h1("Training Phase")
 
-                    p("Explore historical data and optimise your first jump.")
                 ),
 
                 layout_sidebar(
@@ -524,8 +676,6 @@ body{
                         class = "card-style",
 
                         h4("Game Setup"),
-
-                        numericInput("seed", "Random seed", 123),
 
                         checkboxInput(
                             "random_weights",
@@ -537,7 +687,10 @@ body{
                             "wr",
                             "World record distance (m)",
                             254.5
-                        )
+                        ),
+
+                        numericInput("seed", "Random seed", 123)
+
                     ),
 
                     main_panel_ui(FALSE)
@@ -550,14 +703,15 @@ body{
 
             nav_panel(
 
-                "🏁 Competition Phase",
+                "Competition Phase",
+
+                rules_accordion("competition_rules"),
 
                 div(
                     class = "main-title",
 
-                    h1("🏁 Competition Phase"),
+                    h1("Competition Phase")
 
-                    p("Use your remaining budget wisely and chase the world record.")
                 ),
 
                 layout_sidebar(
@@ -566,11 +720,10 @@ body{
 
                         class = "card-style",
 
-                        h4("Competition Rules"),
+                        h4("Competition Budget"),
 
-                        p("Maximum spend in any category across both phases is 10 units."),
+                        uiOutput("competition_budget")
 
-                        p("Each phase has a total budget of 10 units.")
                     ),
 
                     main_panel_ui(TRUE)
@@ -603,6 +756,75 @@ server <- function(input, output, session){
         resources_purchased = FALSE,
         comp_resources_purchased = FALSE
     )
+
+    output$competition_status <- renderUI({
+
+        tagList(
+
+            p("Training data available: 40 jumps"),
+
+            p("Competition budget remaining: $10,000"),
+
+            p("Previous training decisions retained.")
+        )
+
+    })
+
+    output$competition_budget <- renderUI({
+
+        req(input$spend_table_train)
+
+        train_df <- hot_to_r(input$spend_table_train)
+
+        vals <- as.numeric(train_df[2, 2:4])
+        vals[is.na(vals)] <- 0
+
+        categories <- c(
+            "Technique",
+            "Materials",
+            "Fitness"
+        )
+
+        tagList(
+
+            lapply(seq_along(categories), function(i){
+
+                value <- vals[i]
+
+                div(
+
+                    style = "margin-bottom:18px;",
+
+                    div(
+                        style = "font-weight:600; margin-bottom:5px;",
+                        categories[i]
+                    ),
+
+                    div(
+                        style = "
+                        background:#E9ECEF;
+                        height:18px;
+                        border-radius:10px;
+                        overflow:hidden;
+                    ",
+
+                        div(
+                            style = paste0(
+                                "background:#89C2D9;
+                             width:", value * 10, "%;
+                             height:100%;"
+                            )
+                        )
+                    ),
+
+                    div(
+                        style = "font-size:13px;color:#666;margin-top:3px;",
+                        paste0(value, " / 10 used")
+                    )
+                )
+            })
+        )
+    })
 
     # =======================================================
     # TRAINING TABLE
