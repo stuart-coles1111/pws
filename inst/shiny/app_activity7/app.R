@@ -155,7 +155,59 @@ ui <- page_navbar(
                         if (Date.now() < end) requestAnimationFrame(frame);
                     })();
                 });
-            "))
+            ")),
+
+            tags$script(HTML("
+
+$(document).on('change', 'input[id^=\"match_\"]', function(){
+
+    let id = this.id;
+
+    // only act on home score boxes
+    if(id.endsWith('_away')) return;
+
+    let match = id.replace('match_','');
+
+    let home = Number($(this).val());
+
+    if(isNaN(home)) return;
+
+    let games = 5;
+
+    let away = games - home;
+
+    let away_id = '#match_' + match + '_away';
+
+    $(away_id).val(away);
+
+    $(away_id).trigger('change');
+
+});
+
+
+$(document).on('change', 'input[id$=\"_away\"]', function(){
+
+    let id = this.id;
+
+    let match = id.replace('match_','').replace('_away','');
+
+    let away = Number($(this).val());
+
+    if(isNaN(away)) return;
+
+    let games = 5;
+
+    let home = games - away;
+
+    let home_id = '#match_' + match;
+
+    $(home_id).val(home);
+
+    $(home_id).trigger('change');
+
+});
+
+"))
         ),
 
         div(
@@ -474,13 +526,17 @@ server <- function(input, output, session){
         req(rv$current_players)
 
         if(length(rv$current_players) < 2){
-            return(div(
-                h2("🏆 Champion"),
-                player_badge(
-                    rv$current_players,
-                    rv$player_colours[rv$current_players]
+
+            return(
+                div(
+                    h2("🏆 Champion"),
+
+                    player_badge(
+                        rv$current_players,
+                        rv$player_colours[rv$current_players]
+                    )
                 )
-            ))
+            )
         }
 
         df <- fixtures_df()
@@ -494,82 +550,122 @@ server <- function(input, output, session){
                 div(
                     class = "card-style",
 
-                    div(
+                    fluidRow(
 
-                        player_badge(
-                            df$Home[i],
-                            df$HomeColour[i]
-                        ),
+                        # =========================
+                        # FIXTURE
+                        # =========================
 
-                        " vs ",
+                        column(
+                            width = 7,
 
-                        player_badge(
-                            df$Away[i],
-                            df$AwayColour[i]
-                        )
-                    ),
-
-                    if(input$mode %in% c("human","demo")){
-
-                        div(
-                            style="
-                        display:flex;
-                        gap:15px;
-                        margin-top:15px;
-                        ",
-
-                            numericInput(
-                                paste0("match_",i),
-                                paste("Player", df$Home[i], "score"),
-                                value =
-                                    if(input$mode=="demo")
-                                        demo_scores[[rv$round]][i]
-                                else
-                                    0,
-                                min=0,
-                                max=input$games,
-                                width="150px"
+                            player_badge(
+                                df$Home[i],
+                                df$HomeColour[i]
                             ),
 
-                            numericInput(
-                                paste0("match_",i,"_away"),
-                                paste("Player", df$Away[i], "score"),
-                                value =
-                                    if(input$mode=="demo")
-                                        input$games - demo_scores[[rv$round]][i]
-                                else
-                                    0,
-                                min=0,
-                                max=input$games,
-                                width="150px"
-                            )
-                        )
+                            " vs ",
 
-                    } else if(input$mode=="sim" && !is.null(rv$sim_preview)){
-
-                        tags$span(
-                            style="
-                        display:inline-block;
-                        margin-top:10px;
-                        padding:5px 10px;
-                        background:#EEF2FF;
-                        border-radius:8px;
-                        ",
-                            paste0(
-                                "Player ",
-                                df$Home[i],
-                                " wins ",
-                                rv$sim_preview$results[i],
-                                "-",
-                                input$games - rv$sim_preview$results[i]
+                            player_badge(
+                                df$Away[i],
+                                df$AwayColour[i]
                             )
-                        )
-                    }
+                        ),
+
+
+                        # =========================
+                        # SCORES
+                        # =========================
+
+                        if(input$mode %in% c("human","demo")){
+
+                            column(
+                                width = 5,
+
+                                fluidRow(
+
+                                    column(
+                                        width = 6,
+
+                                        numericInput(
+                                            paste0("match_",i),
+
+                                            paste(
+                                                "Player",
+                                                df$Home[i]
+                                            ),
+
+                                            value =
+                                                if(input$mode=="demo")
+                                                    demo_scores[[rv$round]][i]
+                                            else
+                                                NULL,
+
+                                            min = 0,
+                                            max = input$games,
+                                            width = "100%"
+                                        )
+                                    ),
+
+
+                                    column(
+                                        width = 6,
+
+                                        numericInput(
+                                            paste0(
+                                                "match_",
+                                                i,
+                                                "_away"
+                                            ),
+
+                                            paste(
+                                                "Player",
+                                                df$Away[i]
+                                            ),
+
+                                            value =
+                                                if(input$mode=="demo")
+                                                    input$games - demo_scores[[rv$round]][i]
+                                            else
+                                                NULL,
+
+                                            min = 0,
+                                            max = input$games,
+                                            width = "100%"
+                                        )
+                                    )
+                                )
+                            )
+
+                        } else if(input$mode=="sim" && !is.null(rv$sim_preview)){
+
+                            column(
+                                width = 5,
+
+                                tags$span(
+                                    style="
+                                display:inline-block;
+                                margin-top:15px;
+                                padding:6px 12px;
+                                background:#EEF2FF;
+                                border-radius:8px;
+                                ",
+
+                                    paste0(
+                                        "Result: ",
+                                        rv$sim_preview$results[i],
+                                        " - ",
+                                        input$games -
+                                            rv$sim_preview$results[i]
+                                    )
+                                )
+                            )
+                        }
+                    )
                 )
             })
         )
     })
-
     output$action_ui <- renderUI({
 
         req(rv$current_players)
