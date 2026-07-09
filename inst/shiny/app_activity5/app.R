@@ -315,42 +315,43 @@ Shiny.addCustomMessageHandler('trigger_confetti', function(message) {
     overview_page(
         explanation = tagList(
 
-            p("This activity explores how deterministic rules can create outcomes that appear random or surprising."),
+            p("This activity is based on a card trick that has surprising connections to probability and statistics."),
 
-            p("A magician appears able to predict a player's final card after a sequence of dealing operations. The trick does not rely on magic, but on the mathematical structure hidden within the process."),
+            p("You choose a card at random, hidden from the magician, and then follow a simple rule to generate a sequence of cards as the magician turns the deck over."),
 
-            p("The activity investigates how probability and simulation can be used to understand apparently unlikely events.")
+            p("Once all the cards have been revealed, the magician attempts to predict the final card in your sequence.")
         ),
 
         individual = tagList(
 
             tags$ol(
                 tags$li("Follow the card trick and observe the magician's prediction."),
+                tags$li("Try to work out how the trick works, and why it sometimes fails."),
                 tags$li("Repeat the experiment with different picture card values."),
-                tags$li("Consider whether the result appears random or predictable.")
+                tags$li("Use the simulation mode to explore how the probability of failure depends on the picture card value.")
             )
-
         ),
 
         group = tagList(
 
+            p("The activity can be adapted in several ways for group discussion:"),
+
             tags$ol(
-                tags$li("Run simulations to estimate how often the trick succeeds."),
-                tags$li("Investigate how changing the rules affects the probability of success."),
-                tags$li("Discuss why deterministic processes can appear random."),
-                tags$li("Compare experimental results with theoretical expectations.")
+                tags$li("Participants could follow the individual instructions, followed by a group discussion of their observations."),
+
+                tags$li("Using physical cards instead of the app simulation, participants could be divided into magicians and players. Only the magicians are told how the trick works. The trick is then performed in pairs, followed by group discussion."),
+
+                tags$li("The group could observe a single magician-player pair performing the trick, followed by discussion of how and why it works.")
             )
 
         ),
         question = tagList(
 
-            p("The activity illustrates how simple deterministic rules can produce surprising outcomes. Consider:"),
-
             tags$ul(
-                tags$li("Why does the trick appear magical even though every step follows a fixed rule?"),
-                tags$li("How can simulation help us understand events that seem unlikely?"),
-                tags$li("What is the difference between something being unpredictable and something being random?"),
-                tags$li("Can a process be deterministic but still be difficult to predict?")
+                tags$li("How does the trick work?"),
+                tags$li("Why does the trick failure probability depend on the value assigned to picture cards?"),
+                tags$li("What does simulation reveal that a single performance of the trick cannot?"),
+                tags$li("How does the number of simulations affect the reliability of the estimated failure probability?")
             )
         )
     ),
@@ -373,9 +374,9 @@ Shiny.addCustomMessageHandler('trigger_confetti', function(message) {
 
             nav_panel(
 
-                "The Trick",
+                "A Card Trick",
 
-                div(class = "main-title", h1("The Trick")),
+                div(class = "main-title", h1("A Card Trick")),
 
                 layout_sidebar(
 
@@ -383,43 +384,131 @@ Shiny.addCustomMessageHandler('trigger_confetti', function(message) {
 
                         class = "card-style",
 
-                        numericInput("seed", "Random seed:", NULL, 1),
+                        h4("Controls"),
 
-                        sliderInput("picture_value", "Picture card value:",
-                                    min = 1, max = 10, value = 10),
+                        numericInput(
+                            "seed",
+                            "Random seed:",
+                            NULL,
+                            1
+                        ),
+
+                        sliderInput(
+                            "picture_value",
+                            "Picture card value:",
+                            min = 1,
+                            max = 10,
+                            value = 10
+                        ),
 
                         sliderInput(
                             "pause_time",
                             "Pause between cards (seconds):",
-                            min = 0.1,
-                            max = 2,
-                            value = 0.75,
-                            step = 0.05,
-                            ticks = FALSE
+                            0.1,
+                            2,
+                            0.75
                         ),
 
                         div(
                             class = "button-stack",
 
-                            actionButton("start_trick", "1: Choose the hidden card",
-                                         class = "btn-race-info"),
+                            actionButton(
+                                "start_trick",
+                                "1: Choose the hidden card",
+                                class = "btn-race-info"
+                            ),
 
-                            actionButton("shuffle_deal", "2: Run the trick",
-                                         class = "btn-race-warning"),
+                            actionButton(
+                                "shuffle_deal",
+                                "2: Run the trick",
+                                class = "btn-race-warning"
+                            ),
 
-                            actionButton("check_card", "3: Check Your Card",
-                                         class = "btn-race-info"),
+                            actionButton(
+                                "check_card",
+                                "3: Check your card",
+                                class = "btn-race-info"
+                            ),
 
-                            actionButton("reveal", "4: Reveal Magician's Prediction",
-                                         class = "btn-race-success")
-
+                            actionButton(
+                                "reveal",
+                                "4: Reveal magician's prediction",
+                                class = "btn-race-success"
+                            )
                         )
                     ),
 
+
                     div(
+
                         class = "card-style",
-                        plotOutput("card_plot", height = "420px"),
-                        div(class = "message-panel", uiOutput("message"))
+
+                        bslib::accordion(
+
+                            open = "Rules for the trick",
+
+                            bslib::accordion_panel(
+
+                                "Rules for the trick",
+
+                                p(
+                                    "This activity involves two participants: a Magician and a Player.
+                        The Player selects a hidden card, and the Magician attempts to
+                        predict a final card determined by a simple counting rule."
+                                ),
+
+                                tags$ol(
+
+                                    tags$li(
+                                        "The Player selects a card at random and remembers it.
+                            The card is then returned to the deck and the Magician shuffles."
+                                    ),
+
+                                    tags$li(
+                                        "The Magician reveals the cards one at a time.
+                            The Player uses their original card to determine a sequence
+                            of cards within the deck."
+                                    ),
+
+                                    tags$li(
+                                        "For example, if the Player's hidden card is the 4 of Diamonds,
+                            they note the 4th card revealed. If this card is the 8 of Diamonds,
+                            they then count forward 8 cards to find the next card."
+                                    ),
+
+                                    tags$li(
+                                        "The process continues using the value of each selected card.
+                            Picture cards (J, Q, K) have value 10."
+                                    ),
+
+                                    tags$li(
+                                        "The final card reached before the deck runs out is the Player's
+                            Magic Card."
+                                    )
+                                ),
+
+                                p(
+                                    "The Magician's challenge is to predict this Magic Card without
+                        knowing the Player's original card."
+                                )
+                            )
+                        )
+                    ),
+
+
+                    div(
+
+                        class = "card-style",
+
+                        plotOutput(
+                            "card_plot",
+                            height = "420px"
+                        ),
+
+                        div(
+                            class = "message-panel",
+                            uiOutput("message")
+                        )
                     )
                 )
             ),
@@ -440,22 +529,71 @@ Shiny.addCustomMessageHandler('trigger_confetti', function(message) {
 
                         class = "card-style",
 
+                        h4("Simulation Controls"),
+
                         sliderInput(
                             "sim_nrep",
                             "Number of simulations:",
-                            min = 500,
+                            min = 100,
                             max = 5000,
                             value = 1000,
-                            step = 500
+                            step = 100
                         ),
 
-                        sliderInput("sim_picture", "Picture card value:",
-                                    min = 1, max = 10, value = 10),
+                        sliderInput(
+                            "sim_picture",
+                            "Picture card value:",
+                            min = 1,
+                            max = 10,
+                            value = 10
+                        ),
 
-                        numericInput("sim_seed", "Random seed:", NULL, 1),
+                        numericInput(
+                            "sim_seed",
+                            "Random seed:",
+                            NULL,
+                            1
+                        ),
 
-                        actionButton("run_simulation", "Run Simulation",
-                                     class = "btn-race-danger")
+                        actionButton(
+                            "run_simulation",
+                            "Run Simulation",
+                            class = "btn-race-danger"
+                        )
+
+                    ),
+
+                    div(
+
+                        class = "card-style",
+
+                        bslib::accordion(
+
+                            open = "About the simulation",
+
+                            bslib::accordion_panel(
+
+                                "About the simulation",
+
+                                p(
+                                    "In this simulation study, the card trick is repeated many times,
+                        with the value assigned to picture cards specified in the sidebar."
+                                ),
+
+                                p(
+                                    "The simulations are used to estimate the probability that the trick
+                        fails, together with a 95% confidence interval for this probability."
+                                ),
+
+                                p(
+                                    "By repeating the simulations for different picture card values and
+                        plotting the estimated failure probabilities with their confidence
+                        intervals, we can explore the relationship between the rules of the
+                        trick and its reliability."
+                                )
+                            )
+                        )
+
                     ),
 
                     div(
@@ -464,7 +602,10 @@ Shiny.addCustomMessageHandler('trigger_confetti', function(message) {
 
                         h3("Simulation Results"),
 
-                        div(class = "message-panel", uiOutput("simulation_summary")),
+                        div(
+                            class = "message-panel",
+                            uiOutput("simulation_summary")
+                        ),
 
                         hr(),
 
@@ -472,8 +613,21 @@ Shiny.addCustomMessageHandler('trigger_confetti', function(message) {
 
                         fluidRow(
 
-                            column(6, plotOutput("simulation_plot", height = "350px")),
-                            column(6, plotOutput("simulation_plot2", height = "350px"))
+                            column(
+                                6,
+                                plotOutput(
+                                    "simulation_plot",
+                                    height = "350px"
+                                )
+                            ),
+
+                            column(
+                                6,
+                                plotOutput(
+                                    "simulation_plot2",
+                                    height = "350px"
+                                )
+                            )
                         )
                     )
                 )
@@ -918,7 +1072,7 @@ server <- function(input, output, session){
                 paste0(
 
                     "<div class='message-text'>
-                    🎲 Simulation Added
+                    Simulation Added
                     </div><br>",
 
                     "Picture value:
