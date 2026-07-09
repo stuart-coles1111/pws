@@ -72,6 +72,8 @@ validate_spend <- function(vals, max_vals, phase_name){
     return(NULL)
 }
 
+
+
 # =========================================================
 # UI Helper
 # =========================================================
@@ -89,46 +91,7 @@ main_panel_ui <- function(show_comp_results = FALSE){
             column(
                 width = 6,
 
-                # =========================
-                # ANIMATION (TOP LEFT)
-                # =========================
-                div(
-                    class = "card-style",
 
-                    h3("Ski Jump Simulation"),
-
-                    div(
-                        class = "ski-world",
-
-                        div(class = "wr-marker-label", "WR"),
-                        div(class = "wr-marker"),
-
-                        div(
-                            id = if(show_comp_results)
-                                "skier-comp"
-                            else
-                                "skier",
-                            class = "skier",
-                            "⛷️"
-                        ),
-
-                        div(
-                            id = if(show_comp_results)
-                                "jump-marker-comp"
-                            else
-                                "jump-marker",
-                            class = "jump-marker"
-                        ),
-
-                        div(
-                            id = if(show_comp_results)
-                                "jump-label-comp"
-                            else
-                                "jump-label",
-                            class = "jump-label"
-                        )
-                    )
-                ),
 
                 # =========================
                 # SPENDING TABLE + BUTTONS
@@ -143,75 +106,131 @@ main_panel_ui <- function(show_comp_results = FALSE){
                             "Training Spending"
                     ),
 
-                    if(show_comp_results){
-
-                        div(
-                            class = "step-panel",
-                            HTML("
-                            <b>Step 1:</b> Choose competition data.<br>
-                            <b>Step 2:</b> Buy Competition Data.<br>
-                            <b>Step 3:</b> Choose resources.<br>
-                            <b>Step 4:</b> Buy Competition Resources.<br>
-                            <b>Step 5:</b> Competition Jump.
-                            ")
-                        )
-
-                    } else {
-
-                        div(
-                            class = "step-panel",
-                            HTML("
-                            <b>Step 1:</b> Choose historical data.<br>
-                            <b>Step 2:</b> Buy Historical Data.<br>
-                            <b>Step 3:</b> Choose training resources.<br>
-                            <b>Step 4:</b> Buy Training Resources.<br>
-                            <b>Step 5:</b> Run Training Jump.
-                            ")
-                        )
-                    },
-
                     br(),
 
-                    rHandsontableOutput(
-                        if(show_comp_results)
-                            "spend_table_comp"
-                        else
-                            "spend_table_train"
+                    div(
+                        class = "card-style",
+
+                        h4("📊 Historical Data"),
+
+                        sliderInput(
+                            if(show_comp_results)
+                                "comp_data_rows"
+                            else
+                                "train_data_rows",
+
+                            "Historical data purchased (jumps)",
+
+                            min = 0,
+                            max = 100,
+                            value = 0,
+                            step = 10
+                        ),
+
+                        uiOutput(
+                            if(show_comp_results)
+                                "comp_data_summary"
+                            else
+                                "train_data_summary"
+                        ),
+
+                        br(),
+
+                        actionButton(
+                            if(show_comp_results)
+                                "buy_comp_data"
+                            else
+                                "buy_train_data",
+
+                            if(show_comp_results)
+                                "1: Buy Competition Data"
+                            else
+                                "1: Buy Historical Data",
+
+                            class="btn-primary"
+                        )
                     ),
 
                     br(),
 
-                    if(show_comp_results){
-
-                        tagList(
-                            actionButton("buy_comp_data","1: Buy Competition Data", class="btn-primary"),
-                            actionButton("buy_comp_resources","2: Buy Competition Resources", class="btn-primary"),
-                            actionButton("run_competition","3: Competition Jump", class="btn-primary")
-                        )
-
-                    } else {
-
-                        tagList(
-                            actionButton("buy_train_data","1: Buy Historical Data", class="btn-primary"),
-                            actionButton("buy_train_resources","2: Buy Training Resources", class="btn-primary"),
-                            actionButton("run_training","3: Run Training Jump", class="btn-primary")
-                        )
-                    }
                 ),
 
-                # =========================
-                # STATUS MESSAGE
-                # =========================
+                br(),
+
                 div(
                     class = "card-style",
-                    div(
-                        class = "message-panel",
-                        uiOutput(
-                            if(show_comp_results)
-                                "status_message_comp"
-                            else
-                                "status_message"
-                        )
+
+                    h4("🛠 Resources"),
+
+                    sliderInput(
+                        if(show_comp_results)
+                            "comp_technique"
+                        else
+                            "train_technique",
+
+                        "Technique budget",
+
+                        min = 0,
+                        max = 10000,
+                        value = 0,
+                        step = 1000
+                    ),
+
+                    sliderInput(
+                        if(show_comp_results)
+                            "comp_materials"
+                        else
+                            "train_materials",
+
+                        "Materials budget",
+
+                        min = 0,
+                        max = 10000,
+                        value = 0,
+                        step = 1000
+                    ),
+
+                    sliderInput(
+                        if(show_comp_results)
+                            "comp_fitness"
+                        else
+                            "train_fitness",
+
+                        "Fitness budget",
+
+                        min = 0,
+                        max = 10000,
+                        value = 0,
+                        step = 1000
+                    ),
+
+                    uiOutput(
+                        if(show_comp_results)
+                            "comp_resource_summary"
+                        else
+                            "train_resource_summary"
+                    ),
+
+                    br(),
+
+                    tagList(
+
+                        if(show_comp_results){
+
+                            actionButton(
+                                "buy_comp_resources",
+                                "2: Buy Competition Resources",
+                                class="btn-primary"
+                            )
+
+                        } else {
+
+                            actionButton(
+                                "buy_train_resources",
+                                "2: Buy Training Resources",
+                                class="btn-primary"
+                            )
+                        }
                     )
                 )
             ),
@@ -254,6 +273,66 @@ main_panel_ui <- function(show_comp_results = FALSE){
                         else
                             "coef_table"
                     )
+                ),
+
+                # =========================
+                # ANIMATION (TOP LEFT)
+                # =========================
+                div(
+                    class = "card-style",
+
+                    h3("Ski Jump Simulation"),
+
+                    div(
+                        class = "ski-world",
+
+                        div(class = "wr-marker-label", "WR"),
+                        div(class = "wr-marker"),
+
+                        div(
+                            id = if(show_comp_results)
+                                "skier-comp"
+                            else
+                                "skier",
+                            class = "skier",
+                            "⛷️"
+                        ),
+
+                        div(
+                            id = if(show_comp_results)
+                                "jump-marker-comp"
+                            else
+                                "jump-marker",
+                            class = "jump-marker"
+                        ),
+
+                        div(
+                            id = if(show_comp_results)
+                                "jump-label-comp"
+                            else
+                                "jump-label",
+                            class = "jump-label"
+                        )
+                    ),
+
+                    br(),
+
+                    if(show_comp_results){
+
+                        actionButton(
+                            "run_competition",
+                            "3: Competition Jump",
+                            class="btn-primary"
+                        )
+
+                    } else {
+
+                        actionButton(
+                            "run_training",
+                            "3: Run Training Jump",
+                            class="btn-primary"
+                        )
+                    }
                 ),
 
                 # =========================
@@ -739,6 +818,38 @@ body{
 
 server <- function(input, output, session){
 
+    get_train_resource_spend <- function(){
+
+        c(
+            input$train_technique / 1000,
+            input$train_materials / 1000,
+            input$train_fitness / 1000
+        )
+
+    }
+
+    get_training_spend <- function(){
+
+        c(
+            input$train_data_rows / 10,
+            input$train_technique / 1000,
+            input$train_materials / 1000,
+            input$train_fitness / 1000
+        )
+    }
+
+    format_money <- function(x){
+
+        paste0(
+            "$",
+            format(
+                x,
+                big.mark=",",
+                scientific=FALSE
+            )
+        )
+    }
+
     rv <- reactiveValues(
 
         weight = NULL,
@@ -756,6 +867,46 @@ server <- function(input, output, session){
         resources_purchased = FALSE,
         comp_resources_purchased = FALSE
     )
+
+    output$train_data_summary <- renderUI({
+
+        req(input$train_data_rows)
+
+        rows <- input$train_data_rows
+
+        div(
+            class = "info-box",
+
+            paste0(
+                "You will purchase ",
+                rows,
+                " historical jumps for ",
+                format_money(rows * 100),
+                "."
+            )
+        )
+    })
+
+
+
+    output$train_resource_summary <- renderUI({
+
+        total <-
+            input$train_technique +
+            input$train_materials +
+            input$train_fitness
+
+        div(
+            class="info-box",
+
+            paste0(
+                "Total resources allocated: ",
+                total,
+                " / 30"
+            )
+        )
+    })
+
 
     output$competition_status <- renderUI({
 
@@ -776,7 +927,7 @@ server <- function(input, output, session){
 
         train_df <- hot_to_r(input$spend_table_train)
 
-        vals <- as.numeric(train_df[2, 2:4])
+        vals <- get_training_spend()
         vals[is.na(vals)] <- 0
 
         categories <- c(
@@ -826,131 +977,6 @@ server <- function(input, output, session){
         )
     })
 
-    # =======================================================
-    # TRAINING TABLE
-    # =======================================================
-
-    output$spend_table_train <- renderRHandsontable({
-
-        vals <- c(0,0,0,0)
-
-        if(!is.null(input$spend_table_train)){
-
-            tmp <- hot_to_r(input$spend_table_train)
-
-            vals <- as.numeric(tmp[2,1:4])
-
-            vals[is.na(vals)] <- 0
-        }
-
-        df <- data.frame(
-
-            Data      = c(10, vals[1]),
-            Technique = c(10, vals[2]),
-            Materials = c(10, vals[3]),
-            Fitness   = c(10, vals[4]),
-            Total     = c(10, sum(vals)),
-
-            row.names = c(
-                "Maximum spend available",
-                "Actual spend"
-            )
-        )
-
-        rhandsontable(
-            df,
-            rowHeaders = c(
-                "Maximum available spend",
-                "Actual spend"
-            ),
-            rowHeaderWidth = 220,
-            stretchH = "all",
-            width = 650,
-            height = 140
-        ) %>%
-
-            hot_col(
-                col = c("Data","Technique","Materials","Fitness"),
-                type = "numeric",
-                format = "0"
-            ) %>%
-
-            hot_row(1, readOnly = TRUE) %>%
-
-            hot_col("Total", readOnly = TRUE)
-    })
-
-    # =======================================================
-    # COMP TABLE
-    # =======================================================
-
-    output$spend_table_comp <- renderRHandsontable({
-
-        train_vals <- c(0,0,0,0)
-
-        if(!is.null(input$spend_table_train)){
-
-            train_df <- hot_to_r(input$spend_table_train)
-
-            train_vals <- as.numeric(train_df[2,1:4])
-
-            train_vals[is.na(train_vals)] <- 0
-        }
-
-        max_vals <- c(
-            10,
-            10 - train_vals[2],
-            10 - train_vals[3],
-            10 - train_vals[4]
-        )
-
-        comp_vals <- c(0,0,0,0)
-
-        if(!is.null(input$spend_table_comp)){
-
-            comp_df <- hot_to_r(input$spend_table_comp)
-
-            comp_vals <- as.numeric(comp_df[2,1:4])
-
-            comp_vals[is.na(comp_vals)] <- 0
-        }
-
-        df <- data.frame(
-
-            Data      = c(max_vals[1], comp_vals[1]),
-            Technique = c(max_vals[2], comp_vals[2]),
-            Materials = c(max_vals[3], comp_vals[3]),
-            Fitness   = c(max_vals[4], comp_vals[4]),
-            Total     = c(10, sum(comp_vals)),
-
-            row.names = c(
-                "Maximum spend available",
-                "Actual spend"
-            )
-        )
-
-        rhandsontable(
-            df,
-            rowHeaders = c(
-                "Maximum available spend",
-                "Actual spend"
-            ),
-            rowHeaderWidth = 220,
-            stretchH = "all",
-            width = 650,
-            height = 140
-        ) %>%
-
-            hot_col(
-                col = c("Data","Technique","Materials","Fitness"),
-                type = "numeric",
-                format = "0"
-            ) %>%
-
-            hot_row(1, readOnly = TRUE) %>%
-
-            hot_col("Total", readOnly = TRUE)
-    })
 
     # =======================================================
     # BUY TRAINING DATA
@@ -965,7 +991,7 @@ server <- function(input, output, session){
         if(input$random_weights){
 
             rv$weight <- as.numeric(
-                rdirichlet(1, rep(10, 3)) * 9
+                rdirichlet(1, rep(10,3)) * 9
             )
 
             rv$sd <- exp(rnorm(1, log(10), 0.25))
@@ -976,28 +1002,9 @@ server <- function(input, output, session){
             rv$sd <- 10
         }
 
-        req(input$spend_table_train)
 
-        train_df <- hot_to_r(input$spend_table_train)
+        ndata <- input$train_data_rows
 
-        vals <- as.numeric(train_df[2,1:4])
-        vals[is.na(vals)] <- 0
-
-        msg <- validate_spend(
-            vals,
-            rep(10,4),
-            "Training phase"
-        )
-
-        if(!is.null(msg)){
-
-            showNotification(msg, type = "error")
-            return()
-        }
-
-        spend <- vals[1]
-
-        ndata <- spend * 10
 
         if(ndata > 0){
 
@@ -1013,18 +1020,20 @@ server <- function(input, output, session){
             rv$all_data <- rv$d1
         }
 
+
         msg <- HTML(paste0(
             "<div class='message-text'>
-            📊 Historical training data purchased:
-            <b>", ndata,
+        📊 Historical training data purchased:
+        <b>",
+            ndata,
             "</b> jumps.
-            </div>"
+        </div>"
         ))
 
         output$status_message <- renderUI(msg)
         output$status_message_comp <- renderUI(msg)
-    })
 
+    })
     # =======================================================
     # BUY TRAINING RESOURCES
     # =======================================================
@@ -1033,10 +1042,12 @@ server <- function(input, output, session){
 
         req(rv$weight)
 
-        train_df <- hot_to_r(input$spend_table_train)
-
-        vals <- as.numeric(train_df[2,1:4])
-        vals[is.na(vals)] <- 0
+        vals <- c(
+            input$train_data_rows / 10,
+            input$train_technique / 1000,
+            input$train_materials / 1000,
+            input$train_fitness / 1000
+        )
 
         msg <- validate_spend(
             vals,
@@ -1046,11 +1057,13 @@ server <- function(input, output, session){
 
         if(!is.null(msg)){
 
-            showNotification(msg, type = "error")
+            showNotification(
+                msg,
+                type = "error"
+            )
+
             return()
         }
-
-        resource_spend <- vals[2:4]
 
         rv$resources_purchased <- TRUE
 
@@ -1058,15 +1071,16 @@ server <- function(input, output, session){
 
             HTML(paste0(
                 "<div class='message-text'>
-                🛠️ Training resources purchased:
-                <b>",
-                sum(resource_spend),
+            🛠️ Training resources purchased:
+            <b>",
+                sum(vals[2:4]),
                 "</b> total units allocated.
-                </div>"
+            </div>"
             ))
-        })
-    })
 
+        })
+
+    })
     # =======================================================
     # RUN TRAINING
     # =======================================================
@@ -1078,7 +1092,7 @@ server <- function(input, output, session){
 
         train_df <- hot_to_r(input$spend_table_train)
 
-        vals <- as.numeric(train_df[2,1:4])
+        vals <- get_training_spend()
         vals[is.na(vals)] <- 0
 
         msg <- validate_spend(
@@ -1140,7 +1154,7 @@ server <- function(input, output, session){
 
         comp_df <- hot_to_r(input$spend_table_comp)
 
-        vals <- as.numeric(comp_df[2,1:4])
+        vals <- get_training_spend()
         vals[is.na(vals)] <- 0
 
         max_vals <- c(
@@ -1203,13 +1217,19 @@ server <- function(input, output, session){
 
         req(rv$train_complete)
 
-        comp_df <- hot_to_r(input$spend_table_comp)
+        vals <- c(
+            input$comp_data_rows / 10,
+            input$comp_technique / 1000,
+            input$comp_materials / 1000,
+            input$comp_fitness / 1000
+        )
 
-        vals <- as.numeric(comp_df[2,1:4])
-
-        vals[is.na(vals)] <- 0
-
-        max_vals <- as.numeric(comp_df[1,1:4])
+        max_vals <- c(
+            10,
+            10,
+            10,
+            10
+        )
 
         msg <- validate_spend(
             vals,
@@ -1219,7 +1239,11 @@ server <- function(input, output, session){
 
         if(!is.null(msg)){
 
-            showNotification(msg, type = "error")
+            showNotification(
+                msg,
+                type = "error"
+            )
+
             return()
         }
 
@@ -1229,15 +1253,16 @@ server <- function(input, output, session){
 
             HTML(paste0(
                 "<div class='message-text'>
-                🛠️ Competition resources purchased:
-                <b>",
+            🛠️ Competition resources purchased:
+            <b>",
                 sum(vals[2:4]),
                 "</b> total units allocated.
-                </div>"
+            </div>"
             ))
-        })
-    })
 
+        })
+
+    })
     # =======================================================
     # RUN COMPETITION
     # =======================================================
@@ -1247,33 +1272,29 @@ server <- function(input, output, session){
         req(rv$train_complete)
         req(rv$comp_resources_purchased)
 
-        train_df <- hot_to_r(input$spend_table_train)
-        comp_df  <- hot_to_r(input$spend_table_comp)
-
-        vals <- as.numeric(comp_df[2,1:4])
-        vals[is.na(vals)] <- 0
-
-        max_vals <- as.numeric(comp_df[1,1:4])
-
-        msg <- validate_spend(
-            vals,
-            max_vals,
-            "Competition phase"
+        train_vals <- c(
+            input$train_technique / 1000,
+            input$train_materials / 1000,
+            input$train_fitness / 1000
         )
 
-        if(!is.null(msg)){
-
-            showNotification(msg, type = "error")
-            return()
-        }
-
-        train_vals <- as.numeric(train_df[2,2:4])
-        comp_vals  <- as.numeric(comp_df[2,2:4])
-
-        train_vals[is.na(train_vals)] <- 0
-        comp_vals[is.na(comp_vals)] <- 0
+        comp_vals <- c(
+            input$comp_technique / 1000,
+            input$comp_materials / 1000,
+            input$comp_fitness / 1000
+        )
 
         total_spend <- train_vals + comp_vals
+
+        if(any(total_spend > 10)){
+
+            showNotification(
+                "Total spending in a category cannot exceed $10,000 across both phases.",
+                type = "error"
+            )
+
+            return()
+        }
 
         rv$competition_jump <- round(
             ski_jump(
@@ -1297,11 +1318,13 @@ server <- function(input, output, session){
 
             HTML(paste0(
                 "<div class='message-text'>
-                🏁 Competition jump:
-                <b>", rv$competition_jump,
+            🏁 Competition jump:
+            <b>",
+                rv$competition_jump,
                 " metres</b>
-                </div>"
+            </div>"
             ))
+
         })
 
         session$sendCustomMessage(
@@ -1314,8 +1337,8 @@ server <- function(input, output, session){
                 world_record = input$wr
             )
         )
-    })
 
+    })
     # =======================================================
     # SHARED OUTPUTS
     # =======================================================
