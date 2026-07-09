@@ -4,7 +4,7 @@ question_id,category,label,icon,text,answer,units
 3,Sports,Baseball,⚾,"What was the average MLB attendance in 2022 (thousands)?",26.808,thousands
 4,Sports,Marathon,🏃,"How many finishers were there in the 2022 New York Marathon (thousands)?",47.839,thousands
 5,Sports,Cycling,🚴,"What was the highest recorded official speed in the 2022 Giro d'Italia (kph)?",74.7,kph
-6,Sports,American Football,🏈,"What was the highest NFL salary in 2022 (millions USD)?",50.3,million USD
+6,Sports,American football,🏈,"What was the highest NFL salary in 2022 (millions USD)?",50.3,million USD
 7,Sports,Ice Hockey,🏒,"What were the most goals scored by any NHL team in 2022-23?",325,goals
 8,Sports,Football,⚽,"What were the most saves by any goalkeeper in the 2022-23 Premier League season?",154,saves
 9,Sports,Athletics,🏃,"What was the longest long jump recorded in 2022 (metres)?",8.52,metres

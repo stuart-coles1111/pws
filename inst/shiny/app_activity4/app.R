@@ -217,9 +217,29 @@ ui <- page_navbar(
                 text-align:center;
             }
 
-            .sidebar .btn{
+            .btn{
                 width:100%;
             }
+
+            .sidebar-section{
+    background:#FAFBFC;
+    border:1px solid #E3E8EF;
+    border-radius:10px;
+    padding:12px;
+    margin-bottom:28px;
+}
+
+.sidebar-title{
+    font-size:16px;
+    font-weight:700;
+    color:#7B9ACC;
+}
+
+.sidebar-subtitle{
+    font-size:0.85rem;
+    color:#6C757D;
+    margin-bottom:12px;
+}
 
         "))
         ),
@@ -244,9 +264,8 @@ ui <- page_navbar(
             p("This activity explores the importance of both accuracy and the quantification of uncertainty in estimation."),
 
             p("The activity comprises a 10-question quiz. When answering each question, participants must give a best guess (G) for the answer, as well as
-              a measure of accuracy (S) for their best guess. Accuracy of estimates can be defined in different ways: here, it is defined so that if T is the true
-              answer to a question, P(G - S < T < G + S) = 0.5. In other words, particpants choose S such that they believe there to be a 50% chance that the true value
-              lies within a distance S of their best guess."),
+              a measure of accuracy (S) for their best guess. Participants also specify an uncertainty measure (S) for each estimate. In this activity, S is defined so that if T denotes the true answer,
+              then P(G−S<T<G+S)=0.5. In other words, participants choose S so that they believe there is a 50% probability that the true answer lies within S units of their best estimate."),
 
             p("By default, the questions in the quiz are sports-based. They can, however, be replaced by country-related questions, or with a user-supplied set of questions
               and answers. See the discussion in Section ?.? of Playing With Statistics for details."),
@@ -256,34 +275,31 @@ ui <- page_navbar(
         ),
 
         individual = tagList(
-            p("The app is designed for easy individual entry of quiz answers (G) and accuracy estimates (S)."),
-            tags$ol(
-                tags$li("Complete the sports quiz by entering your values of G and S for each question directly into the app interface."),
-                tags$li("Examine your score for each question in the Score Explorer"),
-                tags$li("Upload the answers provided by Smartodds employees. How do your scores compare to theirs?")
-            ),
+            p("The individual activity uses the default sports quiz and is designed to allow participants to compare their results with those obtained from Smartodds employees."),
 
+            tags$ol(
+                tags$li("Complete the quiz by entering your values of G and S for each question directly into the app interface."),
+                tags$li("Examine your score for each question in the Score Explorer."),
+                tags$li("Compare your results with the answers provided by Smartodds employees.")
+            )
         ),
 
         group = tagList(
 
-            p("The activity is ideally suited to a group meeting with particpants answering questions individually or in teams."),
+            p("The activity is ideally suited to a group meeting, with participants answering questions individually or working in teams."),
 
-            p("By default, the front page of the app shows questions with a sports theme. These can be substituted with questions with a 'countries' theme, which
-              are also provided, or with a set of self-written questions and answers."),
+            p("By default, the app uses a sports-themed quiz. This can be replaced by a countries-themed quiz or by a user-supplied set of questions and answers."),
 
-            p("Though team answers can be entered manually from the front page, it is more efficient to save team answers in a csv file which can be uploaded directly into the app."),
+            p("Participant responses can be entered manually or uploaded from a CSV file. Templates for entering question sets and participant responses can be created directly from the app."),
 
-            p("A template for entering team scores in a csv file can be downloaded directly from the app"),
-
-            p("Once the csv file containing team answers has been uploaded, the app can be used to:"),
+            p("Once participant responses have been entered, the app can be used to:"),
 
             tags$ol(
-                tags$li("Compare resul"),
-                tags$li("Enter a best estimate (G)."),
-                tags$li("Enter uncertainty (S)."),
-                tags$li("Submit forecasts in the Activity tab.")
-            )
+                tags$li("Examine scores for each question."),
+                tags$li("Compare total scores across teams.")
+            ),
+
+            p("The results provide a natural opportunity to discuss the importance of making the best possible estimate (G) while also giving an honest assessment of the associated uncertainty (S).")
         ),
 
         question = tagList(
@@ -311,110 +327,139 @@ ui <- page_navbar(
 
                 class = "card-style",
 
-                div(
-                    style = "font-weight:600; margin-bottom:8px;",
-                    "Question theme"
-                ),
-
-                selectInput(
-                    "question_set",
-                    NULL,
-                    choices = c(
-                        "Sports" = "sports",
-                        "Countries" = "countries",
-                        "Upload my own..." = "upload"
-                    ),
-                    selected = "sports"
-                ),
-
-                conditionalPanel(
-                    condition = "input.question_set == 'upload'",
-
-                    downloadButton(
-                        "download_question_template",
-                        "Download question template"
-                    ),
-
-                    fileInput(
-                        "upload_questions",
-                        "Upload question CSV"
-                    )
-                ),
-
-                div(style = "margin-top:20px;"),
+                # =====================================================
+                # QUESTION SET
+                # =====================================================
 
                 div(
-                    style = "font-weight:600; margin-bottom:8px;",
-                    "Team data"
-                ),
 
-                selectInput(
-                    "participant_data",
-                    NULL,
-                    choices = c(
-                        "None" = "none",
-                        "Smartodds sample" = "smartodds",
-                        "Upload my own..." = "upload"
-                    ),
-                    selected = "none"
-                ),
+                    class = "sidebar-section",
 
-                div(style = "margin-top:20px;"),
-
-                conditionalPanel(
-                    condition = "input.participant_data == 'upload'",
+                    div(class = "sidebar-title", "📋 Question set"),
 
                     div(
-                        style = "font-weight:600; margin-bottom:8px;",
-                        "CSV template"
+                        class = "sidebar-subtitle",
+                        "Choose a built-in quiz or upload your own."
                     ),
 
-                    numericInput(
-                        "num_teams",
-                        "Number of teams",
-                        10,
-                        1,
-                        100
+                    selectInput(
+                        "question_set",
+                        NULL,
+                        choices = c(
+                            "Sports" = "sports",
+                            "Countries" = "countries",
+                            "Upload my own..." = "upload"
+                        ),
+                        selected = "sports"
                     ),
 
-                    downloadButton(
-                        "download_template",
-                        "Download team template"
-                    ),
+                    conditionalPanel(
 
-                    fileInput(
-                        "upload_csv",
-                        "Upload participant CSV"
+                        condition = "input.question_set == 'upload'",
+
+                        downloadButton(
+                            "download_question_template",
+                            "Create question template",
+                            class = "btn-outline-primary"
+                        ),
+
+                        br(), br(),
+
+                        fileInput(
+                            "upload_questions",
+                            "Upload question CSV"
+                        )
                     )
                 ),
 
-                div(style = "margin-top:20px;"),
+                # =====================================================
+                # PARTICIPANT DATA
+                # =====================================================
 
                 div(
-                    style = "font-weight:600; margin-bottom:8px;",
-                    "Manual entry"
+
+                    class = "sidebar-section",
+
+                    div(class = "sidebar-title", "👥 Participant data"),
+
+                    div(
+                        class = "sidebar-subtitle",
+                        "Load saved responses or enter them manually."
+                    ),
+
+                    selectInput(
+                        "participant_data",
+                        NULL,
+                        choices = c(
+                            "None" = "none",
+                            "Smartodds sample" = "smartodds",
+                            "Upload my own..." = "upload"
+                        ),
+                        selected = "none"
+                    ),
+
+                    conditionalPanel(
+
+                        condition = "input.participant_data == 'upload'",
+
+                        numericInput(
+                            "num_teams",
+                            "Number of teams",
+                            10,
+                            1,
+                            100
+                        ),
+
+                        downloadButton(
+                            "download_template",
+                            "Create participant template",
+                            class = "btn-outline-primary"
+                        ),
+
+                        br(), br(),
+
+                        fileInput(
+                            "upload_csv",
+                            "Upload participant CSV"
+                        )
+                    )
                 ),
 
-                textInput(
-                    "team_name",
-                    "Team name",
-                    "Team 1"
-                ),
+                # =====================================================
+                # MANUAL ENTRY
+                # =====================================================
 
-                actionButton(
-                    "save_team",
-                    "Save team answers",
-                    class = "btn-primary"
+                div(
+
+                    class = "sidebar-section",
+
+                    div(class = "sidebar-title", "✍ Manual entry"),
+
+                    div(
+                        class = "sidebar-subtitle",
+                        "Enter one team's responses directly."
+                    ),
+
+                    textInput(
+                        "team_name",
+                        "Team name",
+                        "Team 1"
+                    ),
+
+                    actionButton(
+                        "save_team",
+                        "Save team answers",
+                        class = "btn-primary"
+                    )
                 )
             ),
-
             navset_tab(
 
                 nav_panel("Q and A", uiOutput("question_ui")),
 
                 nav_panel(
 
-                    "⚠️ Score Explorer (reveals answers)",
+                    "Score Explorer (⚠️ reveals answers)",
 
                     div(
                         class = "card-style",
