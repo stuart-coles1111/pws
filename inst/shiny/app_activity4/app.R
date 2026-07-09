@@ -303,12 +303,13 @@ ui <- page_navbar(
         ),
 
         question = tagList(
-
+            p("TThe activity demonstrates the importance of making estimates that are as accurate as possible, while also providing an honest assessment of the uncertainty associated with those estimates.
+              With this in mind:"),
             tags$ul(
-                tags$li("What happens when forecasts are too confident?"),
-                tags$li("Why are some forecasts heavily penalised?"),
-                tags$li("How should uncertainty be communicated?"),
-                tags$li("Can wider uncertainty sometimes help?")
+                tags$li("What methods can be used for determining uncertainty in an estimate?"),
+                tags$li("What approaches can be used when members of a team have different estimates or different views about uncertainty?"),
+                tags$li("With limited resources, is it better to improve the estimate itself or the assessment of its uncertainty?"),
+                tags$li("Does the answer depend on the scoring rule being used?")
             )
         )
     ),
