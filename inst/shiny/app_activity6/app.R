@@ -232,49 +232,7 @@ main_panel_ui <- function(show_comp_results = FALSE){
                             )
                         }
                     )
-                )
-            ),
-
-            # ===================================================
-            # RIGHT COLUMN
-            # ===================================================
-
-            column(
-                width = 6,
-
-                # =========================
-                # REGRESSION PLOT (TOP RIGHT)
-                # =========================
-                div(
-                    class = "card-style",
-
-                    h3("Regression Analysis"),
-
-                    plotOutput(
-                        if(show_comp_results)
-                            "regression_plot_comp"
-                        else
-                            "regression_plot",
-                        height = "420px"
-                    )
                 ),
-
-                # =========================
-                # COEFFICIENTS (UNDER PLOT)
-                # =========================
-                div(
-                    class = "card-style",
-
-                    h3("Regression Coefficients"),
-
-                    tableOutput(
-                        if(show_comp_results)
-                            "coef_table_comp"
-                        else
-                            "coef_table"
-                    )
-                ),
-
                 # =========================
                 # ANIMATION (TOP LEFT)
                 # =========================
@@ -333,6 +291,47 @@ main_panel_ui <- function(show_comp_results = FALSE){
                             class="btn-primary"
                         )
                     }
+                )
+            ),
+
+            # ===================================================
+            # RIGHT COLUMN
+            # ===================================================
+
+            column(
+                width = 6,
+
+                # =========================
+                # REGRESSION PLOT (TOP RIGHT)
+                # =========================
+                div(
+                    class = "card-style",
+
+                    h3("Regression Analysis"),
+
+                    plotOutput(
+                        if(show_comp_results)
+                            "regression_plot_comp"
+                        else
+                            "regression_plot",
+                        height = "420px"
+                    )
+                ),
+
+                # =========================
+                # COEFFICIENTS (UNDER PLOT)
+                # =========================
+                div(
+                    class = "card-style",
+
+                    h3("Regression Coefficients"),
+
+                    tableOutput(
+                        if(show_comp_results)
+                            "coef_table_comp"
+                        else
+                            "coef_table"
+                    )
                 ),
 
                 # =========================
@@ -509,24 +508,50 @@ body{
   background:#F6F8FC;
 }
 
+
+/* =========================
+   GLOBAL ACTIVITY HEADER
+   ========================= */
+
 .main-title{
   background:linear-gradient(90deg,#A8DADC,#CDB4DB);
-  padding:28px;
+  padding:24px;
   border-radius:18px;
-  margin-bottom:25px;
+  margin-bottom:20px;
   text-align:center;
   box-shadow:0 4px 12px rgba(0,0,0,0.08);
 }
 
 .main-title h1{
+  margin:0;
   font-weight:700;
   color:#1D3557;
 }
 
-.main-title p{
-  font-size:18px;
-  color:#3D405B;
+
+/* =========================
+   PHASE HEADERS
+   ========================= */
+
+.phase-header{
+  background:linear-gradient(90deg,#A8DADC,#CDB4DB);
+  padding:14px 22px;
+  border-radius:14px;
+  margin-bottom:18px;
+  text-align:center;
+  box-shadow:0 3px 8px rgba(0,0,0,0.06);
 }
+
+.phase-header h2{
+  margin:0;
+  font-weight:650;
+  color:#1D3557;
+}
+
+
+/* =========================
+   CARDS
+   ========================= */
 
 .card-style{
   background:white;
@@ -535,6 +560,11 @@ body{
   margin-bottom:20px;
   box-shadow:0 4px 14px rgba(0,0,0,0.08);
 }
+
+
+/* =========================
+   BUTTONS
+   ========================= */
 
 .btn-primary{
   background:#89C2D9!important;
@@ -546,6 +576,11 @@ body{
   margin-top:10px;
   width:100%;
 }
+
+
+/* =========================
+   MESSAGES
+   ========================= */
 
 .message-panel{
   background:linear-gradient(135deg,#FFFFFF,#F8FBFF);
@@ -560,44 +595,10 @@ body{
   color:#2E4057;
 }
 
-.success-panel{
-  background:#D8F3DC;
-  color:#1B4332;
-  padding:20px;
-  border-radius:16px;
-  font-size:24px;
-  font-weight:700;
-  text-align:center;
-}
 
-.fail-panel{
-  background:#FDE2E4;
-  color:#9D0208;
-  padding:20px;
-  border-radius:16px;
-  font-size:24px;
-  font-weight:700;
-  text-align:center;
-}
-
-.step-panel{
-  background:#EEF6FB;
-  border-left:5px solid #89C2D9;
-  padding:14px 18px;
-  border-radius:12px;
-  font-size:15px;
-  color:#1D3557;
-  line-height:1.7;
-}
-
-.info-box{
-  background:#F8F9FB;
-  padding:18px;
-  border-radius:14px;
-  line-height:1.7;
-}
-
-/* ================= SKI JUMP ANIMATION ================= */
+/* =========================
+   SKI JUMP
+   ========================= */
 
 .ski-world{
   position:relative;
@@ -655,7 +656,24 @@ body{
   color:#1D3557;
 }
 
+.success-panel{
+  background:#D8F3DC;
+  color:#1B4332;
+  padding:18px;
+  border-radius:16px;
+  border-left:6px solid #52B788;
+}
+
+body {
+    zoom: 0.9;
+}
+
 "))
+        ),
+
+        div(
+            class = "main-title",
+            h1("🎿 Activity 6: Breaking Records")
         )
     ),
 
@@ -742,10 +760,9 @@ body{
                 rules_accordion("training_rules"),
 
                 div(
-                    class = "main-title",
+                    class = "phase-header",
 
-                    h1("Training Phase")
-
+                    h2("Training Phase")
                 ),
 
                 layout_sidebar(
@@ -753,8 +770,6 @@ body{
                     sidebar = div(
 
                         class = "card-style",
-
-                        h4("Game Setup"),
 
                         checkboxInput(
                             "random_weights",
@@ -768,7 +783,13 @@ body{
                             254.5
                         ),
 
-                        numericInput("seed", "Random seed", 123)
+                        numericInput(
+                            "seed",
+                            "Random seed",
+                            123
+                        ),
+
+                        uiOutput("training_complete_message")
 
                     ),
 
@@ -787,10 +808,9 @@ body{
                 rules_accordion("competition_rules"),
 
                 div(
-                    class = "main-title",
+                    class = "phase-header",
 
-                    h1("Competition Phase")
-
+                    h2("Competition Phase")
                 ),
 
                 layout_sidebar(
@@ -800,6 +820,8 @@ body{
                         class = "card-style",
 
                         h4("Competition Budget"),
+
+                        hr(),
 
                         uiOutput("competition_budget")
 
@@ -865,8 +887,33 @@ server <- function(input, output, session){
 
         train_complete = FALSE,
         resources_purchased = FALSE,
-        comp_resources_purchased = FALSE
+        comp_resources_purchased = FALSE,
+
+        training_animation_complete = FALSE,
+        competition_animation_complete = FALSE
     )
+
+    output$training_complete_message <- renderUI({
+
+        if(rv$training_animation_complete){
+
+            div(
+                class = "success-panel",
+
+                HTML(
+                    "
+                <div class='message-text'>
+                ✅ Training phase complete!<br><br>
+                Your training jump has been recorded.<br><br>
+                Please move to the <b>Competition Phase</b> tab to continue.
+                </div>
+                "
+                )
+            )
+
+        }
+
+    })
 
     output$train_data_summary <- renderUI({
 
@@ -891,18 +938,23 @@ server <- function(input, output, session){
 
     output$train_resource_summary <- renderUI({
 
-        total <-
+        resource_total <-
             input$train_technique +
             input$train_materials +
             input$train_fitness
+
+        data_cost <- input$train_data_rows * 100
+
+        remaining_budget <- 10000 - data_cost
 
         div(
             class="info-box",
 
             paste0(
-                "Total resources allocated: ",
-                total,
-                " / 30"
+                "Resources allocated: ",
+                format_money(resource_total),
+                " / ",
+                format_money(remaining_budget)
             )
         )
     })
@@ -923,60 +975,89 @@ server <- function(input, output, session){
 
     output$competition_budget <- renderUI({
 
-        req(input$spend_table_train)
-
-        train_df <- hot_to_r(input$spend_table_train)
-
-        vals <- get_training_spend()
-        vals[is.na(vals)] <- 0
-
-        categories <- c(
-            "Technique",
-            "Materials",
-            "Fitness"
+        train <- c(
+            Technique = input$train_technique / 1000,
+            Materials = input$train_materials / 1000,
+            Fitness   = input$train_fitness / 1000
         )
+
+        remaining <- 10 - train
+
+        comp_budget_used <-
+            input$comp_data_rows * 100 +
+            input$comp_technique +
+            input$comp_materials +
+            input$comp_fitness
+
+        comp_budget_left <- 10000 - comp_budget_used
 
         tagList(
 
-            lapply(seq_along(categories), function(i){
+            strong("Total competition resources:"),
 
-                value <- vals[i]
+            hr(),
 
-                div(
+            p(
+                paste(
+                    "Spent:",
+                    format_money(comp_budget_used)
+                )
+            ),
 
-                    style = "margin-bottom:18px;",
+            p(
+                paste(
+                    "Remaining:",
+                    format_money(comp_budget_left)
+                )
+            ),
 
-                    div(
-                        style = "font-weight:600; margin-bottom:5px;",
-                        categories[i]
-                    ),
+            hr(),
 
-                    div(
-                        style = "
-                        background:#E9ECEF;
-                        height:18px;
-                        border-radius:10px;
-                        overflow:hidden;
-                    ",
+            h5("Training spending"),
 
-                        div(
-                            style = paste0(
-                                "background:#89C2D9;
-                             width:", value * 10, "%;
-                             height:100%;"
+            tags$table(
+                class = "table table-sm",
+                tags$tbody(
+
+                    lapply(names(train), function(x){
+
+                        tags$tr(
+                            tags$td(strong(x)),
+                            tags$td(
+                                paste0(train[x], " / 10")
                             )
                         )
-                    ),
 
-                    div(
-                        style = "font-size:13px;color:#666;margin-top:3px;",
-                        paste0(value, " / 10 used")
-                    )
+                    })
+
                 )
-            })
-        )
-    })
+            ),
 
+            hr(),
+
+            h5("Available for competition"),
+
+            tags$table(
+                class = "table table-sm",
+                tags$tbody(
+
+                    lapply(names(remaining), function(x){
+
+                        tags$tr(
+                            tags$td(strong(x)),
+                            tags$td(remaining[x])
+                        )
+
+                    })
+
+                )
+            )
+
+
+
+        )
+
+    })
 
     # =======================================================
     # BUY TRAINING DATA
@@ -1018,6 +1099,12 @@ server <- function(input, output, session){
             rv$d1$Phase <- "Training"
 
             rv$all_data <- rv$d1
+
+        } else {
+
+            rv$d1 <- NULL
+            rv$all_data <- NULL
+
         }
 
 
@@ -1032,6 +1119,14 @@ server <- function(input, output, session){
 
         output$status_message <- renderUI(msg)
         output$status_message_comp <- renderUI(msg)
+
+        updateActionButton(
+            session,
+            "buy_train_data",
+            label = "✓ Historical Data Purchased"
+        )
+
+        shinyjs::disable("buy_train_data")
 
     })
     # =======================================================
@@ -1067,6 +1162,14 @@ server <- function(input, output, session){
 
         rv$resources_purchased <- TRUE
 
+        updateActionButton(
+            session,
+            "buy_train_resources",
+            label = "\u2713 Resources Purchased"
+        )
+
+        shinyjs::disable("buy_train_resources")
+
         output$status_message <- renderUI({
 
             HTML(paste0(
@@ -1089,8 +1192,6 @@ server <- function(input, output, session){
 
         req(rv$weight)
         req(rv$resources_purchased)
-
-        train_df <- hot_to_r(input$spend_table_train)
 
         vals <- get_training_spend()
         vals[is.na(vals)] <- 0
@@ -1119,18 +1220,23 @@ server <- function(input, output, session){
             2
         )
 
+        # reset animation status
+        rv$training_animation_complete <- FALSE
+
         rv$train_complete <- TRUE
 
-        msg <- HTML(paste0(
-            "<div class='message-text'>
-            🎿 Training jump completed:
-            <b>", rv$training_jump,
-            " metres</b>
-            </div>"
-        ))
+        updateActionButton(
+            session,
+            "run_training",
+            label = "✓ Training Jump Completed"
+        )
 
-        output$status_message <- renderUI(msg)
-        output$status_message_comp <- renderUI(msg)
+        shinyjs::disable("run_training")
+
+
+        # store value before delayed function
+        jump_value <- rv$training_jump
+
 
         session$sendCustomMessage(
             "start_jump",
@@ -1138,10 +1244,32 @@ server <- function(input, output, session){
                 id = "skier",
                 marker = "jump-marker",
                 label = "jump-label",
-                jump_distance = rv$training_jump,
+                jump_distance = jump_value,
                 world_record = input$wr
             )
         )
+
+
+        # wait until animation has finished
+
+        later::later(function(){
+
+            rv$training_animation_complete <- TRUE
+
+            msg <- HTML(paste0(
+                "<div class='message-text'>
+            🎿 Training jump completed:
+            <b>",
+                jump_value,
+                " metres</b>
+            </div>"
+            ))
+
+            output$status_message <- renderUI(msg)
+            output$status_message_comp <- renderUI(msg)
+
+        }, delay = 2.3)
+
     })
 
     # =======================================================
@@ -1152,33 +1280,17 @@ server <- function(input, output, session){
 
         req(rv$train_complete)
 
-        comp_df <- hot_to_r(input$spend_table_comp)
+        vals <- c(
+            input$comp_data_rows / 10,
+            input$comp_technique / 1000,
+            input$comp_materials / 1000,
+            input$comp_fitness / 1000
+        )
 
-        vals <- get_training_spend()
         vals[is.na(vals)] <- 0
 
-        max_vals <- c(
-            10,
-            as.numeric(comp_df[1,2]),
-            as.numeric(comp_df[1,3]),
-            as.numeric(comp_df[1,4])
-        )
+        ndata <- input$comp_data_rows
 
-        msg <- validate_spend(
-            vals,
-            max_vals,
-            "Competition phase"
-        )
-
-        if(!is.null(msg)){
-
-            showNotification(msg, type = "error")
-            return()
-        }
-
-        spend <- vals[1]
-
-        ndata <- spend * 10
 
         if(ndata > 0){
 
@@ -1191,24 +1303,44 @@ server <- function(input, output, session){
 
             rv$d2$Phase <- "Competition"
 
-            rv$all_data <- rbind(
-                rv$all_data,
-                rv$d2
-            )
+
+            if(is.null(rv$all_data)){
+
+                rv$all_data <- rv$d2
+
+            } else {
+
+                rv$all_data <- rbind(
+                    rv$all_data,
+                    rv$d2
+                )
+
+            }
+
         }
+
 
         output$status_message_comp <- renderUI({
 
             HTML(paste0(
                 "<div class='message-text'>
-                📈 Competition data added:
-                <b>", nrow(rv$all_data),
+        📈 Competition data added:
+        <b>", nrow(rv$all_data),
                 "</b> total jumps.
-                </div>"
+        </div>"
             ))
-        })
-    })
 
+        })
+
+        updateActionButton(
+            session,
+            "buy_comp_data",
+            label = "✓ Competition Data Purchased"
+        )
+
+        shinyjs::disable("buy_comp_data")
+
+    })
     # =======================================================
     # BUY COMP RESOURCES
     # =======================================================
@@ -1249,20 +1381,16 @@ server <- function(input, output, session){
 
         rv$comp_resources_purchased <- TRUE
 
-        output$status_message_comp <- renderUI({
+        updateActionButton(
+            session,
+            "buy_comp_resources",
+            label = "✓ Resources Purchased"
+        )
 
-            HTML(paste0(
-                "<div class='message-text'>
-            🛠️ Competition resources purchased:
-            <b>",
-                sum(vals[2:4]),
-                "</b> total units allocated.
-            </div>"
-            ))
-
-        })
+        shinyjs::disable("buy_comp_resources")
 
     })
+
     # =======================================================
     # RUN COMPETITION
     # =======================================================
@@ -1305,6 +1433,15 @@ server <- function(input, output, session){
             ),
             2
         )
+        rv$competition_animation_complete <- FALSE
+
+        updateActionButton(
+            session,
+            "run_competition",
+            label = "✓ Competition Completed"
+        )
+
+        shinyjs::disable("run_competition")
 
         if(rv$competition_jump >= input$wr){
 
@@ -1337,6 +1474,12 @@ server <- function(input, output, session){
                 world_record = input$wr
             )
         )
+
+        later::later(function(){
+
+            rv$competition_animation_complete <- TRUE
+
+        }, delay = 2.3)
 
     })
     # =======================================================
@@ -1440,7 +1583,7 @@ server <- function(input, output, session){
 
     output$jump_results <- renderUI({
 
-        req(rv$training_jump)
+        req(rv$training_animation_complete)
 
         div(
             class = "message-panel",
@@ -1459,6 +1602,10 @@ server <- function(input, output, session){
     output$jump_results_comp <- renderUI({
 
         req(rv$training_jump)
+
+        if(!is.null(rv$competition_jump)){
+            req(rv$competition_animation_complete)
+        }
 
         tagList(
 
