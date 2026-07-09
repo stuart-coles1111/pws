@@ -288,6 +288,11 @@ Shiny.addCustomMessageHandler('trigger_confetti', function(message) {
                 font-weight: 700;
                 border-radius: 12px !important;
                 box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+
+                button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
             }
         "))
         ),
@@ -309,31 +314,43 @@ Shiny.addCustomMessageHandler('trigger_confetti', function(message) {
 
     overview_page(
         explanation = tagList(
-            p("This activity explores how deterministic rules can generate surprising statistical behaviour."),
-            p("A card-based process appears random but is fully structured.")
+
+            p("This activity explores how deterministic rules can create outcomes that appear random or surprising."),
+
+            p("A magician appears able to predict a player's final card after a sequence of dealing operations. The trick does not rely on magic, but on the mathematical structure hidden within the process."),
+
+            p("The activity investigates how probability and simulation can be used to understand apparently unlikely events.")
         ),
+
         individual = tagList(
+
             tags$ol(
-                tags$li("Follow the card trick step-by-step."),
-                tags$li("Observe how predictions evolve."),
-                tags$li("Record success or failure."),
-                tags$li("Reflect on randomness vs structure.")
+                tags$li("Follow the card trick and observe the magician's prediction."),
+                tags$li("Repeat the experiment with different picture card values."),
+                tags$li("Consider whether the result appears random or predictable.")
             )
+
         ),
+
         group = tagList(
+
             tags$ol(
-                tags$li("Compare results across groups."),
-                tags$li("Run repeated simulations."),
-                tags$li("Investigate parameter effects."),
-                tags$li("Discuss deterministic randomness.")
+                tags$li("Run simulations to estimate how often the trick succeeds."),
+                tags$li("Investigate how changing the rules affects the probability of success."),
+                tags$li("Discuss why deterministic processes can appear random."),
+                tags$li("Compare experimental results with theoretical expectations.")
             )
+
         ),
         question = tagList(
+
+            p("The activity illustrates how simple deterministic rules can produce surprising outcomes. Consider:"),
+
             tags$ul(
-                tags$li("Why do paths converge?"),
-                tags$li("How reliable is the trick?"),
-                tags$li("Where does randomness actually enter?"),
-                tags$li("Can deterministic systems appear random?")
+                tags$li("Why does the trick appear magical even though every step follows a fixed rule?"),
+                tags$li("How can simulation help us understand events that seem unlikely?"),
+                tags$li("What is the difference between something being unpredictable and something being random?"),
+                tags$li("Can a process be deterministic but still be difficult to predict?")
             )
         )
     ),
@@ -356,9 +373,9 @@ Shiny.addCustomMessageHandler('trigger_confetti', function(message) {
 
             nav_panel(
 
-                "🂱 A Card Trick",
+                "The Trick",
 
-                div(class = "main-title", h1("🂱 A Card Trick")),
+                div(class = "main-title", h1("The Trick")),
 
                 layout_sidebar(
 
@@ -366,26 +383,34 @@ Shiny.addCustomMessageHandler('trigger_confetti', function(message) {
 
                         class = "card-style",
 
-                        h4("Controls"),
-
                         numericInput("seed", "Random seed:", NULL, 1),
 
                         sliderInput("picture_value", "Picture card value:",
                                     min = 1, max = 10, value = 10),
 
-                        sliderInput("pause_time", "Pause between cards (seconds):",
-                                    0.1, 2, 0.75),
+                        sliderInput(
+                            "pause_time",
+                            "Pause between cards (seconds):",
+                            min = 0.1,
+                            max = 2,
+                            value = 0.75,
+                            step = 0.05,
+                            ticks = FALSE
+                        ),
 
                         div(
                             class = "button-stack",
 
-                            actionButton("start_trick", "1: Shuffle and Show Key Card",
+                            actionButton("start_trick", "1: Choose the hidden card",
                                          class = "btn-race-info"),
 
-                            actionButton("shuffle_deal", "2: Shuffle and Deal Cards",
+                            actionButton("shuffle_deal", "2: Run the trick",
                                          class = "btn-race-warning"),
 
-                            actionButton("reveal", "3: Magician's Prediction",
+                            actionButton("check_card", "3: Check Your Card",
+                                         class = "btn-race-info"),
+
+                            actionButton("reveal", "4: Reveal Magician's Prediction",
                                          class = "btn-race-success")
 
                         )
@@ -405,9 +430,9 @@ Shiny.addCustomMessageHandler('trigger_confetti', function(message) {
 
             nav_panel(
 
-                "📊 Simulation Study",
+                "Simulation Study",
 
-                div(class = "main-title", h1("📊 Simulation Study")),
+                div(class = "main-title", h1("Simulation Study")),
 
                 layout_sidebar(
 
@@ -415,10 +440,14 @@ Shiny.addCustomMessageHandler('trigger_confetti', function(message) {
 
                         class = "card-style",
 
-                        h4("Simulation Controls"),
-
-                        sliderInput("sim_nrep", "Number of simulations:",
-                                    min = 100, max = 5000, value = 1000),
+                        sliderInput(
+                            "sim_nrep",
+                            "Number of simulations:",
+                            min = 500,
+                            max = 5000,
+                            value = 1000,
+                            step = 500
+                        ),
 
                         sliderInput("sim_picture", "Picture card value:",
                                     min = 1, max = 10, value = 10),
@@ -459,6 +488,9 @@ Shiny.addCustomMessageHandler('trigger_confetti', function(message) {
 
 server <- function(input, output, session){
 
+    disable("check_card")
+    disable("reveal")
+
     observe({
 
         updateNumericInput(
@@ -479,6 +511,8 @@ server <- function(input, output, session){
         cards_shuffled = NULL,
         player_card = NULL,
         dealer_card = NULL,
+
+        player_checked = FALSE,
 
         final_player_card = NULL,
         final_dealer_card = NULL,
@@ -523,6 +557,11 @@ server <- function(input, output, session){
     # =====================================================
 
     observeEvent(input$start_trick, {
+
+        rv$player_checked <- FALSE
+
+        disable("check_card")
+        disable("reveal")
 
         set.seed(input$seed)
 
@@ -654,32 +693,62 @@ server <- function(input, output, session){
 
                 rv$dealing <- FALSE
 
+                enable("check_card")
+
                 output$message <- renderUI({
 
-                    HTML(
-                        paste0(
+                    HTML("
+        <div class='message-text'>
+        ✨ The dealing sequence is complete.<br>
+        Check your final card in hidden sequence when ready.
+        </div>
+        ")
 
-                            "<div class='message-text'>
-                            🔮 Final card in sequence:
-                            </div><br>",
-
-                            badge_text(
-                                rv$final_dealer_card,
-                                "magician"
-                            )
-                        )
-                    )
                 })
 
-                output$card_plot <- renderPlot({
-
-                    show_card_plot(
-                        rv$final_dealer_card$number,
-                        rv$final_dealer_card$suite
-                    )
-                })
             }
         })
+    })
+
+    # =====================================================
+    # CHECK PLAYER CARD
+    # =====================================================
+
+    observeEvent(input$check_card, {
+
+        req(rv$final_player_card)
+
+        rv$player_checked <- TRUE
+
+        enable("reveal")
+
+        output$message <- renderUI({
+
+            HTML(
+                paste0(
+
+                    "<div class='message-text'>
+                🃏 Your final card is:
+                </div><br>",
+
+                    badge_text(
+                        rv$final_player_card,
+                        "player"
+                    )
+                )
+            )
+
+        })
+
+        output$card_plot <- renderPlot({
+
+            show_card_plot(
+                rv$final_player_card$number,
+                rv$final_player_card$suite
+            )
+
+        })
+
     })
 
     # =====================================================
@@ -687,6 +756,8 @@ server <- function(input, output, session){
     # =====================================================
 
     observeEvent(input$reveal, {
+
+        req(rv$player_checked)
 
         req(
             rv$final_player_card,
