@@ -445,7 +445,7 @@ Shiny.addCustomMessageHandler('trigger_confetti', function(message) {
 
                         bslib::accordion(
 
-                            open = "Rules for the trick",
+                            open = "📖 Rules for the trick",
 
                             bslib::accordion_panel(
 

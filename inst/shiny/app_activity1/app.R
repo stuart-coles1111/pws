@@ -231,6 +231,8 @@ ui <- page_navbar(
 
             sidebar = card(
 
+                hr(),
+
                 h4("Data Entry"),
 
                 textAreaInput(
@@ -240,9 +242,11 @@ ui <- page_navbar(
                     height = "120px"
                 ),
 
-                actionButton("random_seq",
-                             "Generate random sequence",
-                             class = "btn-random"),
+                actionButton(
+                    "random_seq",
+                    "Generate random sequence",
+                    class = "btn-random"
+                ),
 
                 actionButton(
                     "submit_seq",
@@ -303,6 +307,51 @@ ui <- page_navbar(
 
             div(
                 style = "width:100%;",
+
+                accordion(
+
+                    open = FALSE,
+
+                    accordion_panel(
+
+                        title = "📖 Rules for imaginary coin tossing",
+
+                        p(
+                            "Imagine tossing a fair coin 50 times and recording the results in the order they occur. For example:"
+                        ),
+
+                        div(
+                            style = "
+                    font-family: monospace;
+                    font-size: 1rem;
+                    background: #F8F9FA;
+                    padding: 10px;
+                    border-radius: 6px;
+                    margin-bottom: 12px;
+                    line-height: 1.6;
+                ",
+
+                            HTML(
+                                "H T H H T T H H T T H T H H T H H T T T H H T H T<br>
+                     T T H T H H T H T H H T T T H T H H T T T H T H T"
+                            )
+                        ),
+
+                        tags$ol(
+                            tags$li(
+                                "The coin is fair, so Heads and Tails are equally likely on every toss."
+                            ),
+                            tags$li(
+                                "Record the sequence in the order the tosses are imagined."
+                            ),
+                            tags$li(
+                                "Do not use a real coin or a computer simulation. Computer-generated sequences can be explored separately using the ",
+                                strong("Generate random sequence"),
+                                " button."
+                            )
+                        )
+                    )
+                ),
 
                 card(
                     h4("Your sequence"),

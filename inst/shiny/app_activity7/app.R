@@ -1,6 +1,6 @@
 suppressPackageStartupMessages({
-library(shiny)
-library(bslib)
+    library(shiny)
+    library(bslib)
 })
 
 # =========================================================
@@ -30,7 +30,7 @@ activity7_round_sim <- function(
         home_score <- sample(1:6, n_games_per_match, TRUE, home_probs)
         away_score <- sample(1:6, n_games_per_match, TRUE, away_probs)
 
-        total_home_wins[i] <- sum(home_score - away_score >= 0)
+        total_home_wins[i] <- sum(home_score >= away_score)
     }
 
     total_home_wins
@@ -98,64 +98,80 @@ ui <- page_navbar(
 
     header = tagList(
 
+        useShinyjs(),
+
         tags$head(
 
             tags$style(HTML("
-                .app-header{
-                    background:linear-gradient(90deg,#A8DADC,#CDB4DB);
-                    padding:18px;
-                    border-radius:14px;
-                    margin-bottom:20px;
-                    text-align:center;
-                }
+            .app-header{
+                background:linear-gradient(90deg,#A8DADC,#CDB4DB);
+                padding:18px;
+                border-radius:14px;
+                margin-bottom:20px;
+                text-align:center;
+            }
 
-                .card-style{
-                    background:white;
-                    border-radius:14px;
-                    padding:20px;
-                    margin-bottom:20px;
-                    box-shadow:0 3px 10px rgba(0,0,0,0.08);
-                }
+            .card-style{
+                background:white;
+                border-radius:14px;
+                padding:20px;
+                margin-bottom:20px;
+                box-shadow:0 3px 10px rgba(0,0,0,0.08);
+            }
 
-                .btn-primary{
-                    background:#89C2D9!important;
-                    border-color:#89C2D9!important;
-                }
+            .btn-primary{
+                background:#89C2D9!important;
+                border-color:#89C2D9!important;
+            }
 
-                .player-badge{
-                    display:inline-block;
-                    padding:10px 16px;
-                    border-radius:20px;
-                    color:white;
-                    font-weight:700;
-                    margin:4px;
-                    min-width:140px;
-                    text-align:center;
-                }
+            .player-badge{
+                display:inline-block;
+                padding:10px 16px;
+                border-radius:20px;
+                color:white;
+                font-weight:700;
+                margin:4px;
+                min-width:140px;
+                text-align:center;
+            }
 
-                .badge-blue{background:#6FA8DC;}
-                .badge-red{background:#E5989B;}
-                .badge-green{background:#95D5B2;color:#1B4332;}
-                .badge-yellow{background:#F9E79F;color:#5C4B00;}
-            ")),
+            .badge-blue{background:#6FA8DC;}
+            .badge-red{background:#E5989B;}
+            .badge-green{background:#95D5B2;color:#1B4332;}
+            .badge-yellow{background:#F9E79F;color:#5C4B00;}
+        ")),
 
             tags$script(src =
                             "https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"
             ),
 
             tags$script(HTML("
-                Shiny.addCustomMessageHandler('confetti', function(message) {
-                    const duration = 2500;
-                    const end = Date.now() + duration;
+            Shiny.addCustomMessageHandler('confetti', function(message) {
 
-                    (function frame() {
-                        confetti({ particleCount: 6, spread: 60, origin: { x: 0 } });
-                        confetti({ particleCount: 6, spread: 60, origin: { x: 1 } });
+                const duration = 2500;
+                const end = Date.now() + duration;
 
-                        if (Date.now() < end) requestAnimationFrame(frame);
-                    })();
-                });
-            ")),
+                (function frame(){
+
+                    confetti({
+                        particleCount: 6,
+                        spread: 60,
+                        origin: { x: 0 }
+                    });
+
+                    confetti({
+                        particleCount: 6,
+                        spread: 60,
+                        origin: { x: 1 }
+                    });
+
+                    if(Date.now() < end)
+                        requestAnimationFrame(frame);
+
+                })();
+
+            });
+        ")),
 
             tags$script(HTML("
 
@@ -163,25 +179,29 @@ $(document).on('change', 'input[id^=\"match_\"]', function(){
 
     let id = this.id;
 
-    // only act on home score boxes
-    if(id.endsWith('_away')) return;
+    if(id.endsWith('_away'))
+        return;
 
-    let match = id.replace('match_','');
+    let parts = id.split('_');
+
+    let round = parts[1];
+    let match = parts[2];
 
     let home = Number($(this).val());
 
-    if(isNaN(home)) return;
+    let games = Number($('#games').val());
 
-    let games = 5;
+    if(isNaN(home) || isNaN(games))
+        return;
+
+    if(home < 0 || home > games)
+        return;
 
     let away = games - home;
 
-    let away_id = '#match_' + match + '_away';
+    let away_id = '#match_' + round + '_' + match + '_away';
 
-    $(away_id).val(away);
-
-    $(away_id).trigger('change');
-
+$(away_id).val(away).change();
 });
 
 
@@ -189,25 +209,31 @@ $(document).on('change', 'input[id$=\"_away\"]', function(){
 
     let id = this.id;
 
-    let match = id.replace('match_','').replace('_away','');
+    let parts = id.split('_');
+
+    let round = parts[1];
+    let match = parts[2];
 
     let away = Number($(this).val());
 
-    if(isNaN(away)) return;
+    let games = Number($('#games').val());
 
-    let games = 5;
+    if(isNaN(away) || isNaN(games))
+        return;
+
+    if(away < 0 || away > games)
+        return;
 
     let home = games - away;
 
-    let home_id = '#match_' + match;
+    let home_id = '#match_' + round + '_' + match;
 
-    $(home_id).val(home);
-
-    $(home_id).trigger('change');
+$(home_id).val(home).change();
 
 });
 
-"))
+        "))
+
         ),
 
         div(
@@ -269,21 +295,76 @@ $(document).on('change', 'input[id$=\"_away\"]', function(){
 
                 class = "card-style",
 
-                radioButtons(
-                    "mode",
-                    "Mode",
-                    c(
-                        "Human (enter results)" = "human",
-                        "Simulation (auto-play)" = "sim",
-                        "Demo (guided example)" = "demo"
+                accordion(
+
+                    open = TRUE,
+
+                    accordion_panel(
+
+                        title = "⚙️ Tournament Setup",
+
+                        radioButtons(
+                            "mode",
+                            "Mode",
+                            c(
+                                "Live (enter results)" = "human",
+                                "Simulation (auto-play)" = "sim",
+                                "Demo (guided example)" = "demo"
+                            )
+                        ),
+
+                        conditionalPanel(
+
+                            condition = "input.mode == 'human'",
+
+                            hr(),
+
+                            h5("Player List"),
+
+                            helpText(
+                                "Optional. Upload a CSV containing one player name per row. The names will be assigned randomly to tournament positions."
+                            ),
+
+                            fileInput(
+                                "player_file",
+                                "Upload player names",
+                                accept = ".csv"
+                            )
+                        ),
+
+                        numericInput(
+                            "nrounds",
+                            "Number of rounds",
+                            5,
+                            1,
+                            8
+                        ),
+
+                        numericInput(
+                            "games",
+                            "Games per match",
+                            5,
+                            min = 1,
+                            max = 9,
+                            step = 2
+                        ),
+
+                        numericInput(
+                            "estimate_round",
+                            "Estimation round",
+                            2,
+                            min = 1
+                        ),
+
+                        numericInput(
+                            "seed",
+                            "Seed",
+                            value = sample(1:999,1)
+                        )
                     )
                 ),
 
-                numericInput("nrounds", "Number of rounds", 5, 1, 8),
-                numericInput("games", "Games per match", 5, 1, step = 2),
-                numericInput("estimate_round", "Estimation round", 2, 1),
-                numericInput("nsim", "Simulations", 1000, 100),
-                numericInput("seed", "Seed", 999),
+                br(),
 
                 actionButton(
                     "start",
@@ -291,21 +372,76 @@ $(document).on('change', 'input[id$=\"_away\"]', function(){
                     class = "btn-primary"
                 ),
 
-                hr(),
+                br(),
+                br(),
 
-                div(
-                    class = "card-style",
+                accordion(
 
-                    h5("Tournament Controls"),
+                    open = TRUE,
 
-                    uiOutput("action_ui")
+                    accordion_panel(
+
+                        title = "🎮 Tournament Controls",
+
+                        uiOutput("action_ui")
+                    )
+                )
+            ),
+
+            accordion(
+
+                open = FALSE,
+
+                accordion_panel(
+
+                    title = "📖 Rules of Play",
+
+                    tags$ol(
+
+                        tags$li(
+                            "Players are randomised at the start of the tournament draw."
+                        ),
+
+                        tags$li(
+                            "Each player is randomly assigned a colour — Blue, Red, Green, or Yellow — and given a pair of dice of that colour. This assignment remains fixed for the duration of the tournament."
+                        ),
+
+                        tags$li(
+                            "In the first round, players are paired according to the tournament draw. Winners progress to the next round."
+                        ),
+
+                        tags$li(
+                            "By default, each match consists of five games. In each game, both players roll their dice and obtain scores according to the rules specified below. The player with the higher score wins the game. The match winner is the player who wins the most games. All games are played, even if the match result is already decided."
+                        ),
+
+                        tags$li(
+                            "At the end of each round, winners are identified and the draw for the next round is generated."
+                        ),
+
+                        tags$li(
+                            "After the selected estimation round has been completed, the tournament is paused to allow model development. This produces estimates of win probabilities for matches between players with dice of any colour, and subsequently probabilities for the overall tournament winner."
+                        ),
+
+                        tags$li(
+                            "The tournament is then completed through to the final, and the overall winner is identified."
+                        ),
+
+                        tags$li(
+                            "Default settings can be changed at the start of the tournament, including the number of rounds, games per match, and the estimation round."
+                        )
+                    )
                 )
             ),
 
             div(
                 class = "card-style",
+
+                h3("Tournament Bracket"),
+
                 uiOutput("round_section"),
+
                 hr(),
+
                 uiOutput("prob_section")
             )
         )
@@ -320,6 +456,8 @@ server <- function(input, output, session){
 
     colours <- c("blue","red","green","yellow")
 
+    nsim <- 10000
+
     demo_scores <- list(
         c(3,4,2,2,3,5,1,2,0,3,4,1,2,4,4,5),
         c(4,4,2,3,1,0,5,3),
@@ -332,30 +470,90 @@ server <- function(input, output, session){
         round=1,
         player_colours=NULL,
         current_players=NULL,
+        display_names=NULL,
         estimation_df=NULL,
         winner_probs=NULL,
         pars_df=NULL,
         estimated=FALSE,
         sim_preview=NULL,
-        confetti=FALSE
+        sim_ready = FALSE,
+        confetti=FALSE,
+        started = FALSE
     )
 
-    player_badge <- function(id,col)
-        div(class=paste("player-badge",paste0("badge-",col)),paste("Player",id))
+    player_badge <- function(id, col){
 
-    observeEvent(input$start,{
+        div(
+            class = paste("player-badge", paste0("badge-", col)),
+            rv$display_names[id]
+        )
+    }
+
+
+    player_names <- reactive({
+
+        if (is.null(input$player_file))
+            return(NULL)
+
+        dat <- read.csv(
+            input$player_file$datapath,
+            stringsAsFactors = FALSE
+        )
+
+        trimws(dat[[1]])
+    })
+
+    start_tournament <- function(){
+
+        rv$sim_ready <- FALSE
+        rv$sim_preview <- NULL
+        rv$winner_probs <- NULL
+        rv$pars_df <- NULL
+        rv$estimation_df <- data.frame()
+        rv$estimated <- FALSE
+
         set.seed(input$seed)
 
         nplayers <- 2^input$nrounds
 
-        rv$player_colours <- sample(rep(colours,length.out=nplayers))
-        rv$current_players <- 1:nplayers
+        nm <- player_names()
+
+        if (input$mode == "human" && !is.null(nm)) {
+
+            nm <- trimws(nm)
+            nm <- nm[nm != ""]
+
+            if (length(nm) < nplayers) {
+
+                nm <- c(
+                    nm,
+                    paste("Player", (length(nm) + 1):nplayers)
+                )
+
+            }
+
+            nm <- sample(nm)[1:nplayers]
+
+        } else {
+
+            nm <- paste("Player", 1:nplayers)
+
+        }
+
+        rv$display_names <- nm
+
+        rv$player_colours <- setNames(
+            sample(rep(colours, length.out = nplayers)),
+            1:nplayers
+        )
+
+        rv$current_players <- sample(1:nplayers)
         rv$round <- 1
-        rv$estimation_df <- data.frame()
-        rv$sim_preview <- NULL
-        rv$estimated <- FALSE
         rv$confetti <- FALSE
-    })
+        rv$started <- TRUE
+
+    }
+
 
     fixtures_df <- reactive({
         req(rv$current_players)
@@ -365,8 +563,13 @@ server <- function(input, output, session){
         data.frame(
             Home = rv$current_players[seq(1, length(rv$current_players), 2)],
             Away = rv$current_players[seq(2, length(rv$current_players), 2)],
-            HomeColour = rv$player_colours[seq(1, length(rv$current_players), 2)],
-            AwayColour = rv$player_colours[seq(2, length(rv$current_players), 2)]
+            HomeColour = rv$player_colours[
+                rv$current_players[seq(1, length(rv$current_players), 2)]
+            ],
+
+            AwayColour = rv$player_colours[
+                rv$current_players[seq(2, length(rv$current_players), 2)]
+            ]
         )
     })
 
@@ -375,9 +578,11 @@ server <- function(input, output, session){
         home <- players[seq(1,length(players),2)]
         away <- players[seq(2,length(players),2)]
 
+        stopifnot(length(players) %% 2 == 0)
+
         results <- activity7_round_sim(
-            rv$player_colours[home],
-            rv$player_colours[away],
+            rv$player_colours[as.character(home)],
+            rv$player_colours[as.character(away)],
             input$games
         )
 
@@ -386,16 +591,80 @@ server <- function(input, output, session){
         list(home=home,away=away,results=results,winners=winners)
     }
 
-    observeEvent(input$simulate_results,{
+    observeEvent(input$simulate_results, {
+
         req(rv$current_players)
+
         rv$sim_preview <- simulate_round_only(rv$current_players)
+
+        rv$sim_ready <- TRUE
+
+    })
+
+    observeEvent(input$nrounds, {
+
+        updateNumericInput(
+            session,
+            "estimate_round",
+            max = input$nrounds - 1,
+            value = min(input$estimate_round, input$nrounds - 1)
+        )
+
+    })
+
+    observeEvent(input$start, {
+
+        if(rv$started){
+
+            showModal(
+                modalDialog(
+
+                    title = "Restart tournament?",
+
+                    p(
+                        "Starting a new tournament will erase the current draw, results, and estimates."
+                    ),
+
+                    footer = tagList(
+
+                        modalButton("Cancel"),
+
+                        actionButton(
+                            "confirm_restart",
+                            "Restart Tournament",
+                            class="btn-danger"
+                        )
+                    )
+                )
+            )
+
+            return()
+
+        }
+
+        start_tournament()
+
+    })
+
+    observeEvent(input$confirm_restart, {
+
+        removeModal()
+
+        start_tournament()
+
     })
 
     observeEvent(
         {
-            if(input$mode=="sim") input$next_round
-            else if(input$mode=="demo") input$demo_next
-            else input$submit_results
+            req(input$mode)
+
+            switch(
+                input$mode,
+                sim = input$next_round,
+                demo = input$demo_next,
+                human = input$submit_results
+            )
+
         },
         {
 
@@ -410,29 +679,57 @@ server <- function(input, output, session){
                 "sim" = if(!is.null(rv$sim_preview)) rv$sim_preview else simulate_round_only(rv$current_players),
 
                 "human" = {
+
                     res <- sapply(1:nrow(df), function(i) {
 
-                        home_score <- input[[paste0("match_",i)]]
-                        away_score <- input[[paste0("match_",i,"_away")]]
 
-                        if(is.na(home_score) || is.na(away_score)){
+                        home_score <- input[[paste0("match_", rv$round, "_", i)]]
+
+                        away_score <- input[[paste0(
+                            "match_",
+                            rv$round,
+                            "_",
+                            i,
+                            "_away"
+                        )]]
+
+
+                        if(is.na(home_score) || is.na(away_score)) {
                             return(NA)
                         }
 
+                        # check individual score ranges first
+                        if(home_score < 0 ||
+                           away_score < 0 ||
+                           home_score > input$games ||
+                           away_score > input$games) {
+                            return(NA)
+                        }
+
+                        # check total games
                         if(home_score + away_score != input$games){
                             return(NA)
                         }
 
                         home_score
                     })
+
                     res <- as.numeric(res)
 
-                    if(any(is.na(res) | res < 0 | res > input$games)) {
+                    if(any(is.na(res))) {
+
                         showNotification(
-                            paste0("All values must be between 0 and ", input$games),
+                            paste0(
+                                "Each match must have scores between 0 and ",
+                                input$games,
+                                " and the two scores must sum to ",
+                                input$games,
+                                "."
+                            ),
                             type = "warning",
                             duration = 5
                         )
+
                         return(NULL)
                     }
 
@@ -440,7 +737,11 @@ server <- function(input, output, session){
                         home = df$Home,
                         away = df$Away,
                         results = res,
-                        winners = ifelse(res >= (input$games + 1)/2, df$Home, df$Away)
+                        winners = ifelse(
+                            res >= (input$games + 1)/2,
+                            df$Home,
+                            df$Away
+                        )
                     )
                 },
 
@@ -455,12 +756,16 @@ server <- function(input, output, session){
                 }
             )
 
+            if(is.null(sim)){
+                return()
+            }
+
             rv$estimation_df <- dplyr::bind_rows(
                 rv$estimation_df,
                 data.frame(
                     round=rv$round,
-                    home_colours=rv$player_colours[sim$home],
-                    away_colours=rv$player_colours[sim$away],
+                    home_colours=rv$player_colours[as.character(sim$home)],
+                    away_colours=rv$player_colours[as.character(sim$away)],
                     results=sim$results
                 )
             )
@@ -488,7 +793,7 @@ server <- function(input, output, session){
                     value = sprintf("%.3f", c(0, fit$par))
                 )
 
-                winner_vec <- replicate(input$nsim, {
+                winner_vec <- replicate(nsim, {
 
                     players <- rv$current_players
 
@@ -513,7 +818,7 @@ server <- function(input, output, session){
                 })
 
                 all_players <- as.character(rv$current_players)
-                tab <- table(factor(winner_vec, levels = all_players)) / input$nsim
+                tab <- table(factor(winner_vec, levels = all_players)) / nsim
 
                 rv$winner_probs <- tab
                 rv$estimated <- TRUE
@@ -521,19 +826,87 @@ server <- function(input, output, session){
         }
     )
 
+    observeEvent(input$mode, {
+
+        if(input$mode == "demo"){
+
+            updateNumericInput(
+                session,
+                "nrounds",
+                value = 5
+            )
+
+            updateNumericInput(
+                session,
+                "games",
+                value = 5
+            )
+
+            updateNumericInput(
+                session,
+                "estimate_round",
+                value = 2
+            )
+
+            shinyjs::disable("nrounds")
+            shinyjs::disable("games")
+            shinyjs::disable("estimate_round")
+
+        } else {
+
+            shinyjs::enable("nrounds")
+            shinyjs::enable("games")
+            shinyjs::enable("estimate_round")
+
+        }
+
+    }, ignoreInit = FALSE)
+
+    observeEvent(input$next_round, {
+
+        rv$sim_preview <- NULL
+
+        rv$sim_ready <- FALSE
+
+    })
+
     output$round_section <- renderUI({
 
-        req(rv$current_players)
+        if(is.null(rv$current_players)){
+
+            return(
+                div(
+
+                    style = "
+                    text-align:center;
+                    padding:40px;
+                    color:#6C757D;
+                ",
+
+                    h4("Tournament not started"),
+
+                    p(
+                        "Choose your settings and press ",
+                        tags$strong("Start Tournament"),
+                        " to generate the draw."
+                    ),
+
+                    p(
+                        "Players will then be randomly assigned positions and dice colours before the first round begins."
+                    )
+                )
+            )
+        }
 
         if(length(rv$current_players) < 2){
 
             return(
                 div(
-                    h2("🏆 Champion"),
+                    h2("🏆 Tournament Winner"),
 
                     player_badge(
-                        rv$current_players,
-                        rv$player_colours[rv$current_players]
+                        rv$current_players[1],
+                        rv$player_colours[rv$current_players[1]]
                     )
                 )
             )
@@ -588,12 +961,9 @@ server <- function(input, output, session){
                                         width = 6,
 
                                         numericInput(
-                                            paste0("match_",i),
+                                            paste0("match_", rv$round, "_", i),
 
-                                            paste(
-                                                "Player",
-                                                df$Home[i]
-                                            ),
+                                            rv$display_names[df$Home[i]],
 
                                             value =
                                                 if(input$mode=="demo")
@@ -614,14 +984,13 @@ server <- function(input, output, session){
                                         numericInput(
                                             paste0(
                                                 "match_",
+                                                rv$round,
+                                                "_",
                                                 i,
                                                 "_away"
                                             ),
 
-                                            paste(
-                                                "Player",
-                                                df$Away[i]
-                                            ),
+                                            rv$display_names[df$Away[i]],
 
                                             value =
                                                 if(input$mode=="demo")
@@ -666,9 +1035,12 @@ server <- function(input, output, session){
             })
         )
     })
+
+
+
     output$action_ui <- renderUI({
 
-        req(rv$current_players)
+        req(rv$current_players, input$mode)
 
         if(length(rv$current_players)==1) return(NULL)
 
@@ -711,61 +1083,95 @@ server <- function(input, output, session){
 
             tagList(
 
-                actionButton(
-                    "simulate_results",
-                    "Simulate Results",
-                    class="btn-primary"
+                if(rv$sim_ready){
+
+                    shinyjs::disabled(
+                        actionButton(
+                            "simulate_results",
+                            "Simulate Results",
+                            class="btn-primary"
+                        )
+                    )
+
+                } else {
+
+                    actionButton(
+                        "simulate_results",
+                        "Simulate Results",
+                        class="btn-primary"
+                    )
+
+                },
+
+                tags$div(
+                    style="height:10px;"
                 ),
 
-                actionButton(
-                    "next_round",
-                    "Next Round",
-                    class="btn-primary"
-                )
+                if(!rv$sim_ready){
+
+                    shinyjs::disabled(
+                        actionButton(
+                            "next_round",
+                            "Next Round",
+                            class="btn-primary"
+                        )
+                    )
+
+                } else {
+
+                    actionButton(
+                        "next_round",
+                        "Next Round",
+                        class="btn-primary"
+                    )
+
+                }
+
             )
         }
     })
+
+
     output$prob_section <- renderUI({
 
-        req(rv$pars_df)
+        if(is.null(rv$pars_df) || is.null(rv$winner_probs)){
+            return(NULL)
+        }
 
         fluidRow(
 
             column(
                 width = 6,
 
-                div(
-                    class = "card-style",
+                h4("Estimated Parameters"),
 
-                    h3("Parameter Estimates"),
-
-                    tableOutput("pars_table")
-                )
+                tableOutput("pars_table")
             ),
 
             column(
                 width = 6,
 
-                div(
-                    class = "card-style",
+                h4("Tournament Winner Probabilities"),
 
-                    h3("Win Probabilities"),
-
-                    tableOutput("win_probs")
-                )
+                tableOutput("win_probs")
             )
         )
+
     })
+
     output$pars_table <- renderTable({
         req(rv$pars_df)
         rv$pars_df
     })
 
     output$win_probs <- renderTable({
+
         req(rv$winner_probs)
 
+        ids <- as.numeric(names(rv$winner_probs))
+
         data.frame(
-            Player = names(rv$winner_probs),
+            Player = rv$display_names[ids],
             Probability = sprintf("%.3f", as.numeric(rv$winner_probs))
         )
     })

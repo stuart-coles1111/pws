@@ -454,6 +454,68 @@ ui <- page_navbar(
                     )
                 )
             ),
+
+            accordion(
+
+                open = FALSE,
+
+                accordion_panel(
+
+                    title = "📖 Scoring Rules",
+
+                    p(
+                        "For each question you should provide a best guess (",
+                        tags$strong("G"),
+                        ") and an accuracy measure (",
+                        tags$strong("S"),
+                        ")."
+                    ),
+
+                    p(
+                        "Assuming the true answer is ",
+                        tags$em("T"),
+                        ", choose ",
+                        tags$strong("S"),
+                        " so that, according to your beliefs,"
+                    ),
+
+                    div(
+                        style = "
+                text-align:center;
+                font-size:1.15rem;
+                margin:12px 0 18px 0;
+                font-family:'Times New Roman', serif;
+            ",
+                        HTML("P(G &minus; S &le; T &le; G + S) = 95%")
+                    ),
+
+                    p(
+                        "The score for that question is"
+                    ),
+
+                    div(
+                        style = "
+                text-align:center;
+                font-size:1.15rem;
+                margin:12px 0 18px 0;
+                font-family:'Times New Roman', serif;
+            ",
+                        HTML("Score = log&nbsp;f(T)")
+                    ),
+
+                    p(
+                        "where ",
+                        tags$em("f"),
+                        " is the probability density function of a random variable with mean ",
+                        tags$strong("G"),
+                        " and standard deviation determined by ",
+                        tags$strong("S"),
+                        ", as described in Chapter 4 of ",
+                        tags$em("Playing With Statistics"),
+                        "."
+                    )
+                )
+            ),
             navset_tab(
 
                 nav_panel("Q and A", uiOutput("question_ui")),
