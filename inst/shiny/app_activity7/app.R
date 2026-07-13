@@ -366,15 +366,6 @@ $(home_id).val(home).change();
 
                 br(),
 
-                actionButton(
-                    "start",
-                    "Start Tournament",
-                    class = "btn-primary"
-                ),
-
-                br(),
-                br(),
-
                 accordion(
 
                     open = FALSE,
@@ -385,12 +376,18 @@ $(home_id).val(home).change();
 
                         uiOutput("action_ui")
                     )
-                )
+                ),
+
+                br(),
+
+                actionButton(
+                    "start",
+                    "Start Tournament",
+                    class = "btn-primary"
+                ),
             ),
 
             accordion(
-
-                open = FALSE,
 
                 accordion_panel(
 
@@ -411,7 +408,7 @@ $(home_id).val(home).change();
                         ),
 
                         tags$li(
-                            "By default, each match consists of five games. In each game, both players roll their dice and obtain scores according to the rules specified below. The player with the higher score wins the game. The match winner is the player who wins the most games. All games are played, even if the match result is already decided."
+                            "By default, each match consists of five games. In each game, both players roll their dice and obtain scores according to the rules specified below. The player with the higher score wins the game. The match winner is the player who wins the most games. All games are played, even if the match result has already been decided."
                         ),
 
                         tags$li(
@@ -429,8 +426,105 @@ $(home_id).val(home).change();
                         tags$li(
                             "Default settings can be changed at the start of the tournament, including the number of rounds, games per match, and the estimation round."
                         )
+
                     )
+
+                ),
+
+                accordion_panel(
+
+                    title = "🎲 Dice Scoring Rules",
+
+                    p(
+                        "Each player keeps the same coloured pair of dice throughout the tournament. In every game, both dice are rolled and the player's score is calculated according to the colour of their dice."
+                    ),
+
+                    tags$table(
+
+                        class = "table table-sm table-striped",
+
+                        tags$thead(
+
+                            tags$tr(
+
+                                tags$th("Colour"),
+                                tags$th("Scoring rule"),
+                                tags$th("Example")
+
+                            )
+
+                        ),
+
+                        tags$tbody(
+
+                            tags$tr(
+
+                                tags$td("🔵 Blue"),
+
+                                tags$td(
+                                    "Take the larger of the two dice, subtract 2, and record a score of 1 if the result is zero or negative."
+                                ),
+
+                                tags$td(
+                                    "Roll 3 and 6 → score = 4"
+                                )
+
+                            ),
+
+                            tags$tr(
+
+                                tags$td("🔴 Red"),
+
+                                tags$td(
+                                    "Take the smaller of the two dice, add 1, and record a score of 6 if the result is 7."
+                                ),
+
+                                tags$td(
+                                    "Roll 2 and 5 → score = 3"
+                                )
+
+                            ),
+
+                            tags$tr(
+
+                                tags$td("🟢 Green"),
+
+                                tags$td(
+                                    "Add the two dice, divide by 2, and round down to the nearest whole number."
+                                ),
+
+                                tags$td(
+                                    "Roll 3 and 6 → score = 4"
+                                )
+
+                            ),
+
+                            tags$tr(
+
+                                tags$td("🟡 Yellow"),
+
+                                tags$td(
+                                    "Take the absolute difference between the two dice. If the difference is 0, record a score of 6."
+                                ),
+
+                                tags$td(
+                                    "Roll 4 and 4 → score = 6"
+                                )
+
+                            )
+
+                        )
+
+                    ),
+
+                    hr(),
+
+                    p(
+                        HTML("<b>Home advantage:</b> In every game, the home player receives an additional <b>0.5 points</b>.")
+                    )
+
                 )
+
             ),
 
             div(
