@@ -297,6 +297,8 @@ $(home_id).val(home).change();
 
                 accordion(
 
+                    open = FALSE,
+
                     accordion_panel(
 
                         title = "⚙️ Tournament Setup",
@@ -553,7 +555,7 @@ server <- function(input, output, session){
 
     colours <- c("blue","red","green","yellow")
 
-    nsim <- 10000
+    nsim <- 1000
 
     demo_scores <- list(
         c(3,4,2,2,3,5,1,2,0,3,4,1,2,4,4,5),
