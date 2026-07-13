@@ -686,27 +686,45 @@ body {
         explanation = tagList(
 
             p(
-                "In this activity you investigate how information has value when making predictions."
+                "Your objective in this activity is to beat the World Record for ski jumping."
             ),
 
             p(
-                "With a limited budget, you decide how much to spend on historical data and training resources before using regression to predict ski jump distances."
-            )
+                "There are 2 phases: a training phase and a competition phase. In each phase you have a budget of $10,000 which
+                you can spend on any of 3 training categories: Technique, Materials and Fitness."),
+
+            p("You are limited to an overall spend of $10,000 on each of hte training categories across the two phases."),
+
+            p("There is no limit to your data spending, other than the $10,000 spending limit in each phase."),
+
+            p(
+                "You will make a jump at the end of each phase, and the distances you jump will depend partly on your spending choices"),
+
+            p("To help you make your choices, you may spend part of your budget in each phase on data, which comprise the spending choices and
+            distances achieved historically  by other atheletes. Every $1000 you spend on data will buy 10 historical data sets. This money is subtracted from your spending budget."),
+
+            p("The app provides tools to help you analyse the historical data."),
+
+            p("The challenge is to find a reasonable budget comprmise between data and training spending, and to use the information from
+            the data wisely when determining spending of remaining budget in each phase.")
         ),
 
         individual = tagList(
 
             tags$ol(
 
-                tags$li("Allocate your training budget."),
+                tags$li("Try to break the World Record."),
 
-                tags$li("Purchase historical data."),
+                tags$li("Think carefully about how to use the regression information from historical data."),
 
-                tags$li("Purchase training resources."),
+                tags$li("If you fail, try again, perhaps purchasing either more data, or less."),
 
-                tags$li("Fit a regression model."),
+                tags$li("Once you are successful, try randomising the hidden weights before trying to beat the World Record again."),
 
-                tags$li("Predict and evaluate your jump.")
+                tags$li("Does the optimal choice to spend on data seem the same, even though the hidden weights have changed?"),
+
+                tags$li("Why might that be so?"),
+
             )
         ),
 
