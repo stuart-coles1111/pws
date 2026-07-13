@@ -246,39 +246,109 @@ $(home_id).val(home).change();
     # OVERVIEW PAGE
     # =====================================================
 
+
     overview_page(
 
         explanation = tagList(
-            p("This activity explores how simple probabilistic rules generate complex tournament behaviour."),
-            p("Players compete in a knockout structure where each match outcome is probabilistic rather than deterministic.")
+
+            p(
+                "This activity explores how statistical models can be developed from competitive data. Players compete in a knockout tournament, but their performances are determined by hidden probabilistic scoring rules rather than fixed abilities."
+            ),
+
+            p(
+                "The tournament is paused after a selected round, leaving only partial information about the players and their performances. Your challenge is to use these data to estimate the probabilities of future match outcomes."
+            ),
+
+            p(
+                "Using the results observed so far, you will estimate the probabilities that players with different coloured dice defeat one another, and then use these estimates to predict each player's probability of winning the tournament."
+            ),
+
+            p(
+                "Finally, the remainder of the tournament is completed so that your predictions can be compared with the actual outcome."
+            )
+
         ),
 
         individual = tagList(
+
             tags$ol(
-                tags$li("Run or simulate tournament rounds."),
-                tags$li("Observe how randomness affects progression."),
-                tags$li("Estimate hidden probabilities from results."),
-                tags$li("Compare strategies across modes.")
+
+                tags$li(
+                    "Run a tournament until it pauses after the selected estimation round."
+                ),
+
+                tags$li(
+                    "Use the available match results to estimate win probabilities between players with different coloured dice."
+                ),
+
+                tags$li(
+                    "Predict each remaining player's probability of winning the tournament."
+                ),
+
+                tags$li(
+                    "Complete the tournament and compare the predictions with the observed winner."
+                )
+
             )
+
         ),
 
         group = tagList(
+
+            p(
+                "Participants should complete the activity individually before discussing the different modelling approaches and predictions."
+            ),
+
             tags$ol(
-                tags$li("Compare tournament outcomes across groups."),
-                tags$li("Investigate variability across simulations."),
-                tags$li("Discuss fairness and randomness in competition structures."),
-                tags$li("Relate results to real sports analytics.")
+
+                tags$li(
+                    "Compare estimated win probabilities across groups."
+                ),
+
+                tags$li(
+                    "Discuss why different groups may obtain different predictions from the same tournament."
+                ),
+
+                tags$li(
+                    "Investigate how the amount of information available affects prediction accuracy."
+                ),
+
+                tags$li(
+                    "Consider how similar methods are used in sports analytics and tournament forecasting."
+                )
+
             )
+
         ),
 
         question = tagList(
+
             tags$ul(
-                tags$li("How predictable are knockout tournaments?"),
-                tags$li("Can we infer skill from limited data?"),
-                tags$li("How does randomness propagate through rounds?"),
-                tags$li("What makes a tournament 'fair'?")
+
+                tags$li(
+                    "How accurately can future match outcomes be predicted from partial tournament results?"
+                ),
+
+                tags$li(
+                    "How much information is needed before reliable predictions can be made?"
+                ),
+
+                tags$li(
+                    "How does uncertainty accumulate as players progress through the tournament?"
+                ),
+
+                tags$li(
+                    "How can estimated match probabilities be converted into probabilities of winning the entire tournament?"
+                ),
+
+                tags$li(
+                    "How might the predictions change if additional tournament data became available?"
+                )
+
             )
+
         )
+
     ),
 
     # =====================================================
