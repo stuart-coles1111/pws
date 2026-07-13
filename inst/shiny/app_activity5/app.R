@@ -41,6 +41,36 @@ card_filename <- function(number, suite, card_path = NULL){
     )
 }
 
+back_filename <- function(card_path = NULL){
+
+    if(is.null(card_path)){
+        card_path <- "~/pws/inst/extdata/cards"
+    }
+
+    file.path(
+        path.expand(card_path),
+        "back.svg"
+    )
+}
+
+back_image <- function(){
+
+    svg <- paste(
+        readLines(
+            back_filename(),
+            warn = FALSE
+        ),
+        collapse = "\n"
+    )
+
+    paste0(
+        "data:image/svg+xml;base64,",
+        openssl::base64_encode(
+            charToRaw(svg)
+        )
+    )
+}
+
 show_card_plot <- function(
         number,
         suite,
@@ -213,11 +243,41 @@ ui <- page_navbar(
             ),
 
             tags$script(HTML("
+
 Shiny.addCustomMessageHandler('trigger_confetti', function(message) {
   confetti({ particleCount: 120, spread: 70, origin: { x: 0.2, y: 0.6 }});
   confetti({ particleCount: 120, spread: 70, origin: { x: 0.8, y: 0.6 }});
   confetti({ particleCount: 200, spread: 100, origin: { y: 0.5 }});
 });
+
+
+$(document).on('click','.select-card',function(){
+
+    $('.select-card').removeClass('selected');
+
+    $(this).addClass('selected');
+
+    Shiny.setInputValue(
+        'selected_card',
+        $(this).data('card'),
+        {priority:'event'}
+    );
+
+});
+
+
+$(document).on('shiny:connected', function(){
+
+    $('.accordion .accordion-collapse')
+        .removeClass('show');
+
+    $('.accordion .accordion-button')
+        .addClass('collapsed')
+        .attr('aria-expanded','false');
+
+});
+
+
 ")),
 
             tags$style(HTML("
@@ -294,6 +354,54 @@ Shiny.addCustomMessageHandler('trigger_confetti', function(message) {
     cursor: not-allowed;
 }
             }
+
+            .card-selection-container {
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:8px;
+    padding:20px;
+}
+
+.select-card {
+
+    width:55px;
+    height:80px;
+
+    border-radius:8px;
+    overflow:hidden;
+
+    border:2px solid white;
+
+    box-shadow:0 3px 6px rgba(0,0,0,0.25);
+
+    cursor:pointer;
+
+    transition:all 0.25s ease;
+}
+
+
+.card-back {
+
+    width:55px;
+    height:80px;
+
+    display:block;
+
+}
+
+.select-card:hover {
+    transform:translateY(-10px) scale(1.08);
+    box-shadow:0 8px 12px rgba(0,0,0,0.3);
+}
+
+.select-card.selected {
+    transform:translateY(-12px) scale(1.12);
+    border:3px solid #E76F51;
+}
+
+
+
         "))
         ),
 
@@ -414,7 +522,7 @@ Shiny.addCustomMessageHandler('trigger_confetti', function(message) {
 
                             actionButton(
                                 "start_trick",
-                                "1: Choose the hidden card",
+                                "1: Choose your initial sequence card",
                                 class = "btn-race-info"
                             ),
 
@@ -426,7 +534,7 @@ Shiny.addCustomMessageHandler('trigger_confetti', function(message) {
 
                             actionButton(
                                 "check_card",
-                                "3: Check your card",
+                                "3: Check your final sequence card",
                                 class = "btn-race-info"
                             ),
 
@@ -434,6 +542,12 @@ Shiny.addCustomMessageHandler('trigger_confetti', function(message) {
                                 "reveal",
                                 "4: Reveal magician's prediction",
                                 class = "btn-race-success"
+                            ),
+
+                            actionButton(
+                                "repeat_trick",
+                                "Repeat trick",
+                                class = "btn-race-warning"
                             )
                         )
                     ),
@@ -445,11 +559,12 @@ Shiny.addCustomMessageHandler('trigger_confetti', function(message) {
 
                         bslib::accordion(
 
-                            open = "📖 Rules for the trick",
-
                             bslib::accordion_panel(
 
-                                "Rules for the trick",
+                                id = "trick_rules",
+                                open = NULL,
+
+                                "📖 Instructions for the trick",
 
                                 p(
                                     "This activity involves two participants: a Magician and a Player.
@@ -499,6 +614,8 @@ Shiny.addCustomMessageHandler('trigger_confetti', function(message) {
                     div(
 
                         class = "card-style",
+
+                        uiOutput("card_selector"),
 
                         plotOutput(
                             "card_plot",
@@ -569,11 +686,11 @@ Shiny.addCustomMessageHandler('trigger_confetti', function(message) {
 
                         bslib::accordion(
 
-                            open = "About the simulation",
+                            open = "📖 About the simulation",
 
                             bslib::accordion_panel(
 
-                                "About the simulation",
+                                "📖 About the simulation",
 
                                 p(
                                     "In this simulation study, the card trick is repeated many times,
@@ -642,8 +759,10 @@ Shiny.addCustomMessageHandler('trigger_confetti', function(message) {
 
 server <- function(input, output, session){
 
+    disable("shuffle_deal")
     disable("check_card")
     disable("reveal")
+    disable("repeat_trick")
 
     observe({
 
@@ -666,7 +785,11 @@ server <- function(input, output, session){
         player_card = NULL,
         dealer_card = NULL,
 
+        selected_index = NULL,
+
         player_checked = FALSE,
+        show_selector = TRUE,
+        selecting_card = FALSE,
 
         final_player_card = NULL,
         final_dealer_card = NULL,
@@ -706,6 +829,32 @@ server <- function(input, output, session){
         )
     }
 
+    output$card_selector <- renderUI({
+
+        req(rv$selecting_card)
+
+        if(!rv$show_selector){
+            return(NULL)
+        }
+
+        div(
+            class = "card-selection-container",
+
+            lapply(1:52, function(i){
+
+                tags$div(
+                    class = "select-card",
+                    `data-card` = i,
+
+                    tags$img(
+                        src = back_image(),
+                        class = "card-back"
+                    )
+                )
+
+            })
+        )
+    })
     # =====================================================
     # START TRICK
     # =====================================================
@@ -713,6 +862,8 @@ server <- function(input, output, session){
     observeEvent(input$start_trick, {
 
         rv$player_checked <- FALSE
+        rv$show_selector <- TRUE
+        rv$selecting_card <- TRUE
 
         disable("check_card")
         disable("reveal")
@@ -749,9 +900,7 @@ server <- function(input, output, session){
             sample(1:52),
         ]
 
-        rv$player_card <- rv$cards_shuffled[
-            sample(1:52,1),
-        ]
+        rv$player_card <- NULL
 
         output$message <- renderUI({
 
@@ -764,10 +913,17 @@ server <- function(input, output, session){
 
         output$card_plot <- renderPlot({
 
-            show_card_plot(
-                rv$player_card$number,
-                rv$player_card$suite
+            grid.newpage()
+
+            grid.text(
+                "Choose a card from the deck above",
+                gp = gpar(
+                    fontsize = 22,
+                    fontface = "bold",
+                    col = "#2E3440"
+                )
             )
+
         })
     })
 
@@ -778,6 +934,8 @@ server <- function(input, output, session){
     observeEvent(input$shuffle_deal, {
 
         req(rv$cards_shuffled)
+
+        disable("shuffle_deal")
 
         rv$dealing <- TRUE
 
@@ -847,6 +1005,7 @@ server <- function(input, output, session){
 
                 rv$dealing <- FALSE
 
+                disable("shuffle_deal")
                 enable("check_card")
 
                 output$message <- renderUI({
@@ -875,6 +1034,7 @@ server <- function(input, output, session){
         rv$player_checked <- TRUE
 
         enable("reveal")
+        disable("check_card")
 
         output$message <- renderUI({
 
@@ -931,58 +1091,27 @@ server <- function(input, output, session){
             )
         }
 
+
         output$message <- renderUI({
 
             if(is_match){
 
-                HTML(
-                    paste0(
-
-                        "<div class='message-text'>
-                        🎉 The cards match!
-                        </div><br>",
-
-                        "Player:<br>",
-
-                        badge_text(
-                            rv$final_player_card,
-                            "player"
-                        ),
-
-                        "<br><br>Magician:<br>",
-
-                        badge_text(
-                            rv$final_dealer_card,
-                            "magician"
-                        )
-                    )
-                )
+                HTML("
+        <div class='message-text'>
+        🎉 The cards match!
+        </div>
+        ")
 
             } else {
 
-                HTML(
-                    paste0(
+                HTML("
+        <div class='message-text'>
+        No match this time.
+        </div>
+        ")
 
-                        "<div class='message-text'>
-                        No match this time.
-                        </div><br>",
-
-                        "Player:<br>",
-
-                        badge_text(
-                            rv$final_player_card,
-                            "player"
-                        ),
-
-                        "<br><br>Magician:<br>",
-
-                        badge_text(
-                            rv$final_dealer_card,
-                            "magician"
-                        )
-                    )
-                )
             }
+
         })
 
         output$card_plot <- renderPlot({
@@ -991,12 +1120,34 @@ server <- function(input, output, session){
 
             pushViewport(
                 viewport(
-                    layout = grid.layout(1,2)
+                    layout = grid.layout(
+                        2,
+                        2,
+                        heights = unit(
+                            c(0.15,0.85),
+                            "npc"
+                        )
+                    )
                 )
             )
 
             pushViewport(
-                viewport(layout.pos.col = 1)
+                viewport(layout.pos.row = 1, layout.pos.col = 1)
+            )
+
+            grid.text(
+                "Your card",
+                gp=gpar(
+                    fontsize=18,
+                    fontface="bold"
+                )
+            )
+
+            upViewport()
+
+
+            pushViewport(
+                viewport(layout.pos.row = 2, layout.pos.col = 1)
             )
 
             show_card_plot(
@@ -1008,7 +1159,22 @@ server <- function(input, output, session){
             upViewport()
 
             pushViewport(
-                viewport(layout.pos.col = 2)
+                viewport(layout.pos.row = 1, layout.pos.col = 2)
+            )
+
+            grid.text(
+                "Magician's prediction",
+                gp=gpar(
+                    fontsize=18,
+                    fontface="bold"
+                )
+            )
+
+            upViewport()
+
+
+            pushViewport(
+                viewport(layout.pos.row = 2, layout.pos.col = 2)
             )
 
             show_card_plot(
@@ -1025,6 +1191,101 @@ server <- function(input, output, session){
             "seed",
             value = sample(1:999,1)
         )
+
+        disable("reveal")
+        enable("repeat_trick")
+    })
+
+
+    observeEvent(input$selected_card, {
+
+        req(rv$cards_shuffled)
+
+        rv$selected_index <- as.numeric(input$selected_card)
+
+        rv$player_card <- rv$cards_shuffled[
+            rv$selected_index,
+        ]
+
+        disable("start_trick")
+        enable("shuffle_deal")
+
+        rv$show_selector <- FALSE
+        rv$selecting_card <- FALSE
+
+        output$card_plot <- renderPlot({
+
+            show_card_plot(
+                rv$player_card$number,
+                rv$player_card$suite
+            )
+
+        })
+
+        output$message <- renderUI({
+
+            HTML("
+        <div class='message-text'>
+        🃏 Your initial sequence card has been selected.<br>
+        This card is hidden from the magician.
+        </div>
+        ")
+
+        })
+
+        enable("shuffle_deal")
+
+    })
+
+    observeEvent(input$repeat_trick, {
+
+        rv$cards_shuffled <- NULL
+        rv$player_card <- NULL
+        rv$dealer_card <- NULL
+
+        rv$final_player_card <- NULL
+        rv$final_dealer_card <- NULL
+
+        rv$player_checked <- FALSE
+        rv$selecting_card <- FALSE
+
+        rv$count <- 0
+        rv$dealer_count <- -1
+        rv$i <- 0
+        rv$dealing <- FALSE
+
+        disable("shuffle_deal")
+        disable("check_card")
+        disable("reveal")
+
+        enable("start_trick")
+        disable("repeat_trick")
+
+
+        output$message <- renderUI({
+
+            HTML("
+        <div class='message-text'>
+        Ready for a new trick.
+        </div>
+        ")
+
+        })
+
+        output$card_plot <- renderPlot({
+
+            grid.newpage()
+
+            grid.text(
+                "Click 'Choose the hidden card' to begin",
+                gp=gpar(
+                    fontsize=22,
+                    fontface="bold"
+                )
+            )
+
+        })
+
     })
 
     # =====================================================

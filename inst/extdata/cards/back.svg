@@ -1,0 +1,80 @@
+<svg width="200" height="300" viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- shadow -->
+  <rect x="8" y="10" width="184" height="280" rx="22" fill="#000000" opacity="0.15"></rect>
+
+  <!-- outer card -->
+  <rect x="5" y="5" width="190" height="290" rx="22" fill="#F7F7FB" stroke="#FFFFFF" stroke-width="8"></rect>
+
+  <!-- blue background -->
+  <rect x="18" y="18" width="164" height="264" rx="16" fill="#4C78A8"></rect>
+
+  <!-- inner border -->
+  <rect x="28" y="28" width="144" height="244" rx="12" fill="none" stroke="#A8DADC" stroke-width="4"></rect>
+
+  <!-- diamond pattern -->
+  <g opacity="0.35" fill="#CDB4DB">
+
+    <path d="
+      M100 45
+      L120 65
+      L100 85
+      L80 65 Z"></path>
+
+    <path d="
+      M60 105
+      L80 125
+      L60 145
+      L40 125 Z"></path>
+
+    <path d="
+      M140 105
+      L160 125
+      L140 145
+      L120 125 Z"></path>
+
+    <path d="
+      M100 165
+      L120 185
+      L100 205
+      L80 185 Z"></path>
+
+    <path d="
+      M60 225
+      L80 245
+      L60 265
+      L40 245 Z"></path>
+
+    <path d="
+      M140 225
+      L160 245
+      L140 265
+      L120 245 Z"></path>
+
+  </g>
+
+  <!-- central magic symbol -->
+  <circle cx="100" cy="150" r="35" fill="#F7F7FB" opacity="0.95"></circle>
+
+  <path d="
+      M100 118
+      L107 140
+      L130 140
+      L111 154
+      L118 177
+      L100 163
+      L82 177
+      L89 154
+      L70 140
+      L93 140 Z" fill="#F58518"></path>
+
+  <!-- small corner decorations -->
+  <circle cx="45" cy="55" r="5" fill="#F7F7FB"></circle>
+
+  <circle cx="155" cy="55" r="5" fill="#F7F7FB"></circle>
+
+  <circle cx="45" cy="245" r="5" fill="#F7F7FB"></circle>
+
+  <circle cx="155" cy="245" r="5" fill="#F7F7FB"></circle>
+
+</svg>

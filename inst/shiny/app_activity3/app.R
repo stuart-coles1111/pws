@@ -304,7 +304,7 @@ ui <- page_navbar(
 
                     accordion(
                         accordion_panel(
-                            "📜 Rules of Play",
+                            "📖 Rules of Play",
 
                             tags$ol(
                                 tags$li("Choose Heads or Tails on a sequence of coin tosses."),
