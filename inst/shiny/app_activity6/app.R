@@ -686,73 +686,85 @@ body {
         explanation = tagList(
 
             p(
-                "Your objective in this activity is to beat the World Record for ski jumping."
+                "Your goal is to beat the World Record for ski jumping by deciding how best to invest your training budget."
             ),
 
             p(
-                "There are 2 phases: a training phase and a competition phase. In each phase you have a budget of $10,000 which
-                you can spend on any of 3 training categories: Technique, Materials and Fitness."),
-
-            p("You are limited to an overall spend of $10,000 on each of hte training categories across the two phases."),
-
-            p("There is no limit to your data spending, other than the $10,000 spending limit in each phase."),
+                "The activity consists of two phases: a Training phase and a Competition phase. In each phase you are given a budget of $10,000."
+            ),
 
             p(
-                "You will make a jump at the end of each phase, and the distances you jump will depend partly on your spending choices"),
+                "In each phase, your budget can be allocated between four options: Technique, Materials, Fitness, and Historical Data."
+            ),
 
-            p("To help you make your choices, you may spend part of your budget in each phase on data, which comprise the spending choices and
-            distances achieved historically  by other atheletes. Every $1000 you spend on data will buy 10 historical data sets. This money is subtracted from your spending budget."),
+            p(
+                "Across both phases combined, you may spend at most $10,000 on each of the three training categories (Technique, Materials and Fitness). There is no overall limit on spending on Historical Data other than the $10,000 budget available in each phase."
+            ),
 
-            p("The app provides tools to help you analyse the historical data."),
+            p(
+                "The relationship between training expenditure and jump distance is unknown. Your challenge is to learn about this relationship from historical data while deciding how much of your budget to devote to training."
+            ),
 
-            p("The challenge is to find a reasonable budget comprmise between data and training spending, and to use the information from
-            the data wisely when determining spending of remaining budget in each phase.")
+            p(
+                "Every $1,000 spent on Historical Data purchases 10 previous observations, each containing the spending decisions and jump distance achieved by another athlete. Money spent on data is deducted from the budget available for training."
+            ),
+
+            p(
+                "The app provides graphical and regression tools to help you analyse the historical data before deciding how to allocate the remainder of your budget."
+            ),
+
+            p(
+                "At the end of each phase you will make a jump. Your jump distance depends partly on your spending decisions. The challenge is to find an effective balance between investing in information and investing in training."
+            )
         ),
 
         individual = tagList(
 
             tags$ol(
 
-                tags$li("Try to break the World Record."),
+                tags$li("Try to beat the World Record."),
 
-                tags$li("Think carefully about how to use the regression information from historical data."),
+                tags$li("Decide how the regression analysis should influence your spending decisions."),
 
-                tags$li("If you fail, try again, perhaps purchasing either more data, or less."),
+                tags$li("If you do not succeed, try again using a different balance between spending on training and spending on data."),
 
-                tags$li("Once you are successful, try randomising the hidden weights before trying to beat the World Record again."),
-
-                tags$li("Does the optimal choice to spend on data seem the same, even though the hidden weights have changed?"),
-
-                tags$li("Why might that be so?"),
+                tags$li("Once you have broken the World Record, randomise the hidden weights and see how your strategy changes.")
 
             )
         ),
 
         group = tagList(
 
-            tags$ol(
+            p(
+                "Although the activity is completed individually, it is intended to stimulate discussion about statistical decision-making."
+            ),
 
-                tags$li("Compare different spending strategies."),
+            p(
+                "Participants should complete the activity before the group session and compare the different strategies they adopted."
+            ),
 
-                tags$li("Compare prediction accuracy across teams."),
-
-                tags$li("Discuss the value of information."),
-
-                tags$li("Investigate how budgets affect performance.")
+            p(
+                "Discussion should focus on how historical data were used, how budgets were allocated, and how these decisions influenced performance."
             )
+
         ),
 
         question = tagList(
 
             tags$ul(
 
-                tags$li("Should you spend more on data or resources?"),
+                tags$li("How should the budget be allocated in each phase?"),
 
-                tags$li("How much does additional information improve prediction?"),
+                tags$li("How can the regression analysis be used to guide spending decisions?"),
 
-                tags$li("Can different strategies produce equally good results?"),
+                tags$li("How would your strategy change if the relationships appeared to be non-linear?"),
 
-                tags$li("What is the opportunity cost of each spending decision?")
+                tags$li("How should information gained in the first phase influence decisions in the second phase?"),
+
+                tags$li("When the hidden weights are changed, do the optimal spending decisions also change?"),
+
+                tags$li("Why might different underlying relationships lead to different strategies?")
+
             )
         )
     ),
