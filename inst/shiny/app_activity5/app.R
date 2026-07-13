@@ -242,6 +242,7 @@ ui <- page_navbar(
                 src = "https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"
             ),
 
+
             tags$script(HTML("
 
 Shiny.addCustomMessageHandler('trigger_confetti', function(message) {
@@ -280,95 +281,196 @@ $(document).on('shiny:connected', function(){
 
 ")),
 
+
             tags$style(HTML("
-            body{
-                background:#F7F7FB;
-            }
 
-            .main-title{
-                background:linear-gradient(90deg,#A8DADC,#CDB4DB);
-                padding:20px;
-                border-radius:16px;
-                text-align:center;
-                margin-bottom:20px;
-            }
-
-            .main-title h1{
-                font-weight:800;
-                color:#2E3440;
-                margin-bottom:8px;
-            }
-
-            .main-title p{
-                font-size:17px;
-                color:#4C566A;
-                margin:0;
-            }
-
-            .card-style{
-                background:white;
-                border-radius:16px;
-                padding:22px;
-                margin-bottom:18px;
-                box-shadow:0 3px 12px rgba(0,0,0,0.08);
-            }
-
-            .button-stack {
-                display: flex;
-                flex-direction: column;
-                gap: 12px;
-            }
-
-            .btn-race-info{
-                background:#4C78A8 !important;
-                color:white !important;
-            }
-
-            .btn-race-warning{
-                background:#F58518 !important;
-                color:white !important;
-            }
-
-            .btn-race-success{
-                background:#54A24B !important;
-                color:white !important;
-            }
-
-            .btn-race-danger{
-                background:#E45756 !important;
-                color:white !important;
-            }
-
-            .btn-race-info,
-            .btn-race-warning,
-            .btn-race-success {
-                width: 100%;
-                padding: 14px;
-                font-size: 16px;
-                font-weight: 700;
-                border-radius: 12px !important;
-                box-shadow: 0 3px 8px rgba(0,0,0,0.12);
-
-                button:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
+body{
+    background:#F7F7FB;
 }
-            }
 
-            .card-selection-container {
-    display:flex;
-    flex-wrap:wrap;
-    justify-content:center;
-    gap:8px;
+
+.main-title{
+
+    background:linear-gradient(90deg,#A8DADC,#CDB4DB);
+
     padding:20px;
+
+    border-radius:16px;
+
+    text-align:center;
+
+    margin-bottom:20px;
+
 }
+
+
+.main-title h1{
+
+    font-weight:800;
+
+    color:#2E3440;
+
+    margin-bottom:8px;
+
+}
+
+
+.main-title p{
+
+    font-size:17px;
+
+    color:#4C566A;
+
+    margin:0;
+
+}
+
+
+.card-style{
+
+    background:white;
+
+    border-radius:16px;
+
+    padding:22px;
+
+    margin-bottom:18px;
+
+    box-shadow:0 3px 12px rgba(0,0,0,0.08);
+
+}
+
+
+.message-text{
+
+    background:linear-gradient(
+        90deg,
+        #F8F9FA,
+        #EEF2FF
+    );
+
+    border-left:6px solid #7B9ACC;
+
+    border-radius:12px;
+
+    padding:16px 20px;
+
+    margin-top:15px;
+
+font-family:'Inter', sans-serif;
+
+    font-size:18px;
+
+    font-weight:500;
+
+    color:#2E3440;
+
+    line-height:1.5;
+
+    box-shadow:0 3px 10px rgba(0,0,0,0.08);
+
+}
+
+
+.button-stack {
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:12px;
+
+}
+
+
+.btn-race-info{
+
+    background:#4C78A8 !important;
+
+    color:white !important;
+
+}
+
+
+.btn-race-warning{
+
+    background:#F58518 !important;
+
+    color:white !important;
+
+}
+
+
+.btn-race-success{
+
+    background:#54A24B !important;
+
+    color:white !important;
+
+}
+
+
+.btn-race-danger{
+
+    background:#E45756 !important;
+
+    color:white !important;
+
+}
+
+
+.btn-race-info,
+.btn-race-warning,
+.btn-race-success,
+.btn-race-danger {
+
+    width:100%;
+
+    padding:14px;
+
+    font-size:16px;
+
+    font-weight:700;
+
+    border-radius:12px !important;
+
+    box-shadow:0 3px 8px rgba(0,0,0,0.12);
+
+}
+
+
+button:disabled {
+
+    opacity:0.45;
+
+    cursor:not-allowed;
+
+}
+
+
+.card-selection-container {
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    justify-content:center;
+
+    gap:8px;
+
+    padding:20px;
+
+}
+
 
 .select-card {
 
     width:55px;
+
     height:80px;
 
     border-radius:8px;
+
     overflow:hidden;
 
     border:2px solid white;
@@ -378,37 +480,49 @@ $(document).on('shiny:connected', function(){
     cursor:pointer;
 
     transition:all 0.25s ease;
+
 }
 
 
 .card-back {
 
     width:55px;
+
     height:80px;
 
     display:block;
 
 }
 
+
 .select-card:hover {
+
     transform:translateY(-10px) scale(1.08);
+
     box-shadow:0 8px 12px rgba(0,0,0,0.3);
+
 }
+
 
 .select-card.selected {
-    transform:translateY(-12px) scale(1.12);
-    border:3px solid #E76F51;
-}
 
+    transform:translateY(-12px) scale(1.12);
+
+    border:3px solid #E76F51;
+
+}
 
 
         "))
+
         ),
+
 
         div(
             class = "main-title",
             h1("🪄 Activity 5: Statistics is Magic")
         )
+
     ),
 
 
