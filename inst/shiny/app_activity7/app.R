@@ -297,7 +297,7 @@ $(home_id).val(home).change();
 
                 accordion(
 
-                    open = TRUE,
+                    open = FALSE,
 
                     accordion_panel(
 
@@ -377,7 +377,7 @@ $(home_id).val(home).change();
 
                 accordion(
 
-                    open = TRUE,
+                    open = FALSE,
 
                     accordion_panel(
 
