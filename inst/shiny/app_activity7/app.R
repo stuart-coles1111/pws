@@ -297,8 +297,6 @@ $(home_id).val(home).change();
 
                 accordion(
 
-                    open = FALSE,
-
                     accordion_panel(
 
                         title = "⚙️ Tournament Setup",
@@ -389,7 +387,12 @@ $(home_id).val(home).change();
 
             accordion(
 
+                id = "rules_accordion2",
+                open = FALSE,
+
                 accordion_panel(
+
+
 
                     title = "📖 Rules of Play",
 
