@@ -563,12 +563,15 @@ button:disabled {
             p("The activity can be adapted in several ways for group discussion:"),
 
             tags$ol(
-                tags$li("Participants could follow the individual instructions, followed by a group discussion of their observations."),
+                tags$li("Prior to group discussion, participants could follow the instructions for individuals.
+                        "),
 
                 tags$li("Using physical cards instead of the app simulation, participants could be divided into magicians and players. Only the magicians are told how the trick works. The trick is then performed in pairs, followed by group discussion."),
 
-                tags$li("The group could observe a single magician-player pair performing the trick, followed by discussion of how and why it works.")
-            )
+                tags$li("The group could observe a single magician-player pair performing the trick.")
+            ),
+            p("In each case, the group discussion would then focus on the underlying statistics that enable the trick to work, and also on the statistics behind the investigation of the
+            relationship between trick success and picture card value.")
 
         ),
         question = tagList(
