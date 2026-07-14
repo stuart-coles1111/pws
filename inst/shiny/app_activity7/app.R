@@ -252,43 +252,43 @@ $(home_id).val(home).change();
         explanation = tagList(
 
             p(
-                "This activity explores how statistical models can be developed from competitive data. Players compete in a knockout tournament, but their performances are determined by hidden probabilistic scoring rules rather than fixed abilities."
+                "This activity uses a dice tournament to illustrate the role of statistical modelling for prediction in games."
             ),
 
             p(
-                "The tournament is paused after a selected round, leaving only partial information about the players and their performances. Your challenge is to use these data to estimate the probabilities of future match outcomes."
+                "The tournament is paused after a selected round, providing limited  information about the players and their performances. The challenge is to use these data to estimate the probabilities of future match outcomes and the eventual tournament winner."
             ),
 
             p(
-                "Using the results observed so far, you will estimate the probabilities that players with different coloured dice defeat one another, and then use these estimates to predict each player's probability of winning the tournament."
+                "This will require a statistical model for the relationship between match outcome probabilities and the dice colours of the two players involved in a match."
             ),
 
             p(
-                "Finally, the remainder of the tournament is completed so that your predictions can be compared with the actual outcome."
+                "The discussion in Section ?.? of Playing With Statstics serves as a guide to model selection, while the app itself includes functionality for model estimation based on the generated data."),
+
+            p(
+                "Once the model is estimated and tournament winner probabilities calculated,  the remainder of the tournament is complete enabling a comparsion of predictions and actual outcome."
             )
 
         ),
 
         individual = tagList(
 
+            p("The activity is designed for group participation and discussion. Nonetheless, functionality has been built into the app to enable its use at an individual level also."),
+
             tags$ol(
 
                 tags$li(
-                    "Run a tournament until it pauses after the selected estimation round."
+                    "Run the demo and/or simulation modes of the app a few times to get a general sense of what the app does."
                 ),
 
                 tags$li(
-                    "Use the available match results to estimate win probabilities between players with different coloured dice."
+                    "Before reading Section ?.? of Playing With Statistics, think about how you might build a statistical model for the match outcome between players with dice of any of the four colours."
                 ),
 
                 tags$li(
-                    "Predict each remaining player's probability of winning the tournament."
-                ),
-
-                tags$li(
-                    "Complete the tournament and compare the predictions with the observed winner."
+                    "Read Section ?.? of Playing With Statistics, and in light of that discussion run either demo or simulation modes of the app again. Given data from early rounds,  do the estimated parameters from the fitted model seem sensible? Over several runs of the app, does the model do well at predicting likely winners?"
                 )
-
             )
 
         ),
@@ -296,8 +296,12 @@ $(home_id).val(home).change();
         group = tagList(
 
             p(
-                "Participants should complete the activity individually before discussing the different modelling approaches and predictions."
+               "The activity was designed to be played as an actual tournament with coloured dice as part of a group meeting. Genuine particpant names can be entered in a csv file and
+               uploaded. If physical dice are unavailable, the tournament can still be run using uploaded player names for competitiors in the simulation mode. "
             ),
+
+
+            p("Whether the tournament is run using physical dice, or by simulation, the idea is that after a couple of rounds the tournament is paused"),
 
             tags$ol(
 
@@ -385,7 +389,7 @@ $(home_id).val(home).change();
 
                         conditionalPanel(
 
-                            condition = "input.mode == 'human'",
+                            condition = "input.mode == 'human' || input.mode == 'sim'",
 
                             hr(),
 
@@ -445,6 +449,35 @@ $(home_id).val(home).change();
                         title = "🎮 Tournament Controls",
 
                         uiOutput("action_ui")
+                    )
+                ),
+
+                br(),
+
+                accordion(
+
+                    open = FALSE,
+
+                    accordion_panel(
+
+                        title = "📊 Statistical Analysis",
+
+                        textOutput("analysis_status"),
+
+                        br(),
+
+                        actionButton(
+                            "estimate_model",
+                            "Estimate Model"
+                        ),
+
+                        br(),
+                        br(),
+
+                        actionButton(
+                            "calc_probs",
+                            "Calculate Winner Probabilities"
+                        )
                     )
                 ),
 
@@ -647,7 +680,11 @@ server <- function(input, output, session){
         sim_preview=NULL,
         sim_ready = FALSE,
         confetti=FALSE,
-        started = FALSE
+        started = FALSE,
+        model_estimated = FALSE,
+        probabilities_calculated = FALSE,
+        analysis_ready = FALSE,
+        fit = NULL
     )
 
     player_badge <- function(id, col){
@@ -680,6 +717,13 @@ server <- function(input, output, session){
         rv$pars_df <- NULL
         rv$estimation_df <- data.frame()
         rv$estimated <- FALSE
+        rv$model_estimated <- FALSE
+        rv$probabilities_calculated <- FALSE
+        rv$analysis_ready <- FALSE
+        rv$fit <- NULL
+
+        disable("estimate_model")
+        disable("calc_probs")
 
         set.seed(input$seed)
 
@@ -687,7 +731,7 @@ server <- function(input, output, session){
 
         nm <- player_names()
 
-        if (input$mode == "human" && !is.null(nm)) {
+        if (input$mode %in% c("human", "sim") && !is.null(nm)) {
 
             nm <- trimws(nm)
             nm <- nm[nm != ""]
@@ -835,7 +879,17 @@ server <- function(input, output, session){
             )
 
         },
-        {
+        {          if(rv$analysis_ready &&
+                      !rv$probabilities_calculated){
+
+            showNotification(
+                "Complete the statistical analysis before continuing.",
+                type = "warning",
+                duration = 4
+            )
+
+            return()
+        }
 
             req(rv$current_players)
 
@@ -943,55 +997,28 @@ server <- function(input, output, session){
             rv$round <- rv$round + 1
             rv$sim_preview <- NULL
 
+            if(!rv$model_estimated &&
+               rv$round == input$estimate_round + 1){
+
+                rv$analysis_ready <- TRUE
+
+                enable("estimate_model")
+                disable("calc_probs")
+
+                showNotification(
+                    "Tournament paused. Use the Statistical Analysis panel.",
+                    type = "message",
+                    duration = 6
+                )
+
+                return()
+            }
+
             if(length(sim$winners) == 1){
                 rv$confetti <- TRUE
                 session$sendCustomMessage("confetti", list())
             }
 
-            if(!rv$estimated && rv$round > input$estimate_round && nrow(rv$estimation_df)>0){
-
-                fit <- optim(
-                    c(0,0,0,0),
-                    activity7_neg_log_lik,
-                    dice_history=rv$estimation_df,
-                    n_games_per_match=input$games
-                )
-
-                rv$pars_df <- data.frame(
-                    parameter = c("blue","red","green","yellow","home advantage"),
-                    value = sprintf("%.3f", c(0, fit$par))
-                )
-
-                winner_vec <- replicate(nsim, {
-
-                    players <- rv$current_players
-
-                    repeat {
-                        n <- length(players)
-                        if (n == 1) break
-
-                        h <- players[seq(1, n, 2)]
-                        a <- players[seq(2, n, 2)]
-
-                        res <- activity7_round_sim_using_fits(
-                            fit$par,
-                            rv$player_colours[h],
-                            rv$player_colours[a],
-                            input$games
-                        )
-
-                        players <- ifelse(res >= (input$games + 1) / 2, h, a)
-                    }
-
-                    players
-                })
-
-                all_players <- as.character(rv$current_players)
-                tab <- table(factor(winner_vec, levels = all_players)) / nsim
-
-                rv$winner_probs <- tab
-                rv$estimated <- TRUE
-            }
         }
     )
 
@@ -1037,6 +1064,120 @@ server <- function(input, output, session){
 
         rv$sim_ready <- FALSE
 
+    })
+
+    observeEvent(input$estimate_model, {
+
+        req(rv$analysis_ready)
+        req(!rv$model_estimated)
+
+        fit <- optim(
+            c(0,0,0,0),
+            activity7_neg_log_lik,
+            dice_history = rv$estimation_df,
+            n_games_per_match = input$games
+        )
+
+        rv$fit <- fit
+
+        rv$pars_df <- data.frame(
+            parameter = c(
+                "blue",
+                "red",
+                "green",
+                "yellow",
+                "home advantage"
+            ),
+            value = sprintf("%.3f", c(0, fit$par))
+        )
+
+        rv$model_estimated <- TRUE
+
+        disable("estimate_model")
+        enable("calc_probs")
+
+    })
+
+    observeEvent(input$calc_probs, {
+
+        req(rv$fit)
+        req(rv$analysis_ready)
+        req(rv$model_estimated)
+        req(!rv$probabilities_calculated)
+
+        winner_vec <- replicate(nsim, {
+
+            players <- rv$current_players
+
+            repeat {
+
+                n <- length(players)
+
+                if(n == 1)
+                    break
+
+                h <- players[seq(1,n,2)]
+                a <- players[seq(2,n,2)]
+
+                res <- activity7_round_sim_using_fits(
+                    rv$fit$par,
+                    rv$player_colours[h],
+                    rv$player_colours[a],
+                    input$games
+                )
+
+                players <- ifelse(
+                    res >= (input$games+1)/2,
+                    h,
+                    a
+                )
+            }
+
+            players
+        })
+
+        all_players <- as.character(rv$current_players)
+
+        tab <- table(
+            factor(
+                winner_vec,
+                levels = all_players
+            )
+        ) / nsim
+
+        rv$winner_probs <- tab
+
+        rv$probabilities_calculated <- TRUE
+
+        rv$analysis_ready <- FALSE
+
+        disable("calc_probs")
+
+    })
+
+    observe({
+
+        if(!rv$analysis_ready){
+
+            disable("estimate_model")
+            disable("calc_probs")
+
+        } else if(!rv$model_estimated){
+
+            enable("estimate_model")
+            disable("calc_probs")
+
+        } else if(!rv$probabilities_calculated){
+
+            disable("estimate_model")
+            enable("calc_probs")
+
+        } else {
+
+            disable("estimate_model")
+            disable("calc_probs")
+
+        }
     })
 
     output$round_section <- renderUI({
@@ -1211,17 +1352,42 @@ server <- function(input, output, session){
 
         req(rv$current_players, input$mode)
 
-        if(length(rv$current_players)==1) return(NULL)
+        if(length(rv$current_players) == 1)
+            return(NULL)
 
-        if(input$mode=="human"){
+        # --------------------------------------------------
+        # Tournament paused for statistical analysis
+        # --------------------------------------------------
+
+        if(rv$analysis_ready &&
+           !rv$probabilities_calculated){
+
+            return(
+                div(
+                    class = "alert alert-warning",
+
+                    strong("Tournament paused."),
+
+                    p(
+                        "Complete the Statistical Analysis step before continuing."
+                    )
+                )
+            )
+        }
+
+        # --------------------------------------------------
+        # Human mode
+        # --------------------------------------------------
+
+        if(input$mode == "human"){
 
             tagList(
 
                 p(
                     style="
-                font-size:14px;
-                color:#555;
-                margin-bottom:15px;
+                    font-size:14px;
+                    color:#555;
+                    margin-bottom:15px;
                 ",
                     "Enter results before moving to the next round."
                 ),
@@ -1231,11 +1397,15 @@ server <- function(input, output, session){
                 actionButton(
                     "submit_results",
                     "Submit Results",
-                    class="btn-primary"
+                    class = "btn-primary"
                 )
             )
 
-        } else if(input$mode=="demo"){
+            # --------------------------------------------------
+            # Demo mode
+            # --------------------------------------------------
+
+        } else if(input$mode == "demo"){
 
             tagList(
 
@@ -1244,9 +1414,13 @@ server <- function(input, output, session){
                 actionButton(
                     "demo_next",
                     "Next Round",
-                    class="btn-primary"
+                    class = "btn-primary"
                 )
             )
+
+            # --------------------------------------------------
+            # Simulation mode
+            # --------------------------------------------------
 
         } else {
 
@@ -1258,7 +1432,7 @@ server <- function(input, output, session){
                         actionButton(
                             "simulate_results",
                             "Simulate Results",
-                            class="btn-primary"
+                            class = "btn-primary"
                         )
                     )
 
@@ -1267,13 +1441,13 @@ server <- function(input, output, session){
                     actionButton(
                         "simulate_results",
                         "Simulate Results",
-                        class="btn-primary"
+                        class = "btn-primary"
                     )
 
                 },
 
                 tags$div(
-                    style="height:10px;"
+                    style = "height:10px;"
                 ),
 
                 if(!rv$sim_ready){
@@ -1282,7 +1456,7 @@ server <- function(input, output, session){
                         actionButton(
                             "next_round",
                             "Next Round",
-                            class="btn-primary"
+                            class = "btn-primary"
                         )
                     )
 
@@ -1291,7 +1465,7 @@ server <- function(input, output, session){
                     actionButton(
                         "next_round",
                         "Next Round",
-                        class="btn-primary"
+                        class = "btn-primary"
                     )
 
                 }
@@ -1300,34 +1474,32 @@ server <- function(input, output, session){
         }
     })
 
-
     output$prob_section <- renderUI({
 
-        if(is.null(rv$pars_df) || is.null(rv$winner_probs)){
+        if(!rv$model_estimated)
             return(NULL)
-        }
 
-        fluidRow(
+        accordion(
 
-            column(
-                width = 6,
+            open = FALSE,
 
-                h4("Estimated Parameters"),
+            accordion_panel(
+
+                title = "Estimated Parameters",
 
                 tableOutput("pars_table")
             ),
 
-            column(
-                width = 6,
+            if(rv$probabilities_calculated)
 
-                h4("Tournament Winner Probabilities"),
+                accordion_panel(
 
-                tableOutput("win_probs")
-            )
+                    title = "Tournament Winner Probabilities",
+
+                    tableOutput("win_probs")
+                )
         )
-
     })
-
     output$pars_table <- renderTable({
         req(rv$pars_df)
         rv$pars_df
@@ -1343,6 +1515,20 @@ server <- function(input, output, session){
             Player = rv$display_names[ids],
             Probability = sprintf("%.3f", as.numeric(rv$winner_probs))
         )
+    })
+
+    output$analysis_status <- renderText({
+
+        if(!rv$analysis_ready)
+            return("Waiting for estimation round.")
+
+        if(!rv$model_estimated)
+            return("Ready to estimate the model.")
+
+        if(!rv$probabilities_calculated)
+            return("Ready to calculate winner probabilities.")
+
+        "Analysis complete."
     })
 
     observe({

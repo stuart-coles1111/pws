@@ -68,13 +68,6 @@
       L70 140
       L93 140 Z" fill="#F58518"></path>
 
-
-  <!-- PWS acronym -->
-  <text x="100" y="150" text-anchor="middle" dominant-baseline="middle"
-        font-family="Georgia, serif" font-size="18" font-weight="bold"
-        fill="#4C78A8">PWS</text>
-
-
   <!-- small corner decorations -->
   <circle cx="45" cy="55" r="5" fill="#F7F7FB"></circle>
 
