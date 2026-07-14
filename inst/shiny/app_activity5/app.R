@@ -545,7 +545,7 @@ button:disabled {
 
             p("The activity has a 'trick' and a 'simulation' mode. In trick mode, the computer acts as the magician, turning the card over one at a time, and predicting the final card
               in your sequence. In simulation mode, the trick is simulated many times, enabling an estimate of the trick's failure probability. This enables an investigation of
-              the relationship between the chosen value of picture cards and the probability of the trick failing.")
+              the relationship between the reliability of the trick's success and the chosen value of picture cards.")
         ),
 
         individual = tagList(
