@@ -684,7 +684,8 @@ server <- function(input, output, session){
         model_estimated = FALSE,
         probabilities_calculated = FALSE,
         analysis_ready = FALSE,
-        fit = NULL
+        fit = NULL,
+        demo_data_ready = FALSE
     )
 
     player_badge <- function(id, col){
@@ -721,6 +722,7 @@ server <- function(input, output, session){
         rv$probabilities_calculated <- FALSE
         rv$analysis_ready <- FALSE
         rv$fit <- NULL
+        rv$demo_data_ready <- FALSE
 
         disable("estimate_model")
         disable("calc_probs")
@@ -995,6 +997,13 @@ server <- function(input, output, session){
 
             rv$current_players <- sim$winners
             rv$round <- rv$round + 1
+
+            if(input$mode == "demo"){
+
+                rv$demo_data_ready <- FALSE
+
+            }
+
             rv$sim_preview <- NULL
 
             if(!rv$model_estimated &&
@@ -1155,6 +1164,33 @@ server <- function(input, output, session){
 
     })
 
+    observeEvent(input$show_data, {
+
+        rv$demo_data_ready <- TRUE
+
+    })
+
+    observe({
+
+        req(input$mode)
+
+        if(input$mode != "demo")
+            return()
+
+        if(rv$demo_data_ready){
+
+            disable("show_data")
+            enable("demo_next")
+
+        } else {
+
+            enable("show_data")
+            disable("demo_next")
+
+        }
+
+    })
+
     observe({
 
         if(!rv$analysis_ready){
@@ -1178,6 +1214,27 @@ server <- function(input, output, session){
             disable("calc_probs")
 
         }
+    })
+
+    observe({
+
+        req(input$mode)
+
+        if(input$mode != "demo")
+            return()
+
+        if(rv$demo_data_ready){
+
+            disable("show_data")
+            enable("demo_next")
+
+        } else {
+
+            enable("show_data")
+            disable("demo_next")
+
+        }
+
     })
 
     output$round_section <- renderUI({
@@ -1260,7 +1317,8 @@ server <- function(input, output, session){
                         # SCORES
                         # =========================
 
-                        if(input$mode %in% c("human","demo")){
+                        if(input$mode == "human" ||
+                           (input$mode == "demo" && rv$demo_data_ready)){
 
                             column(
                                 width = 5,
@@ -1405,24 +1463,53 @@ server <- function(input, output, session){
             # Demo mode
             # --------------------------------------------------
 
-        } else if(input$mode == "demo"){
+        } else if(input$mode=="demo"){
 
             tagList(
 
-                uiOutput("result_inputs"),
+                if(rv$demo_data_ready){
 
-                actionButton(
-                    "demo_next",
-                    "Next Round",
-                    class = "btn-primary"
-                )
+                    shinyjs::disabled(
+                        actionButton(
+                            "show_data",
+                            "Show Data",
+                            class = "btn-primary"
+                        )
+                    )
+
+                } else {
+
+                    actionButton(
+                        "show_data",
+                        "Show Data",
+                        class = "btn-primary"
+                    )
+
+                },
+
+                tags$div(style = "height:10px;"),
+
+                if(!rv$demo_data_ready){
+
+                    shinyjs::disabled(
+                        actionButton(
+                            "demo_next",
+                            "Next Round",
+                            class = "btn-primary"
+                        )
+                    )
+
+                } else {
+
+                    actionButton(
+                        "demo_next",
+                        "Next Round",
+                        class = "btn-primary"
+                    )
+
+                }
             )
-
-            # --------------------------------------------------
-            # Simulation mode
-            # --------------------------------------------------
-
-        } else {
+        }else {
 
             tagList(
 
@@ -1487,7 +1574,18 @@ server <- function(input, output, session){
 
                 title = "Estimated Parameters",
 
-                tableOutput("pars_table")
+                fluidRow(
+
+                    column(
+                        width = 6,
+                        tableOutput("pars_table")
+                    ),
+
+                    column(
+                        width = 6,
+                        plotOutput("pars_plot")
+                    )
+                )
             ),
 
             if(rv$probabilities_calculated)
@@ -1496,15 +1594,70 @@ server <- function(input, output, session){
 
                     title = "Tournament Winner Probabilities",
 
-                    tableOutput("win_probs")
+                    fluidRow(
+
+                        column(
+                            width = 6,
+                            tableOutput("win_probs")
+                        ),
+
+                        column(
+                            width = 6,
+                            plotOutput("win_prob_plot")
+                        )
+                    )
                 )
         )
     })
+
     output$pars_table <- renderTable({
         req(rv$pars_df)
         rv$pars_df
     })
 
+    output$pars_plot <- renderPlot({
+
+        req(rv$pars_df)
+
+        df <- rv$pars_df
+
+        df$value <- as.numeric(df$value)
+
+        ggplot(
+            df,
+            aes(
+                x = reorder(parameter, value),
+                y = value,
+                fill = parameter
+            )
+        ) +
+            geom_col() +
+            geom_hline(
+                yintercept = 0,
+                linewidth = 0.5,
+                colour = "grey50"
+            ) +
+            coord_flip() +
+            scale_fill_manual(
+                values = c(
+                    blue = "#4F81BD",
+                    red = "#C0504D",
+                    green = "#9BBB59",
+                    yellow = "#F2C811",
+                    "home advantage" = "#7F7F7F"
+                )
+            ) +
+            labs(
+                title = "Estimated Parameters",
+                x = NULL,
+                y = "Estimate"
+            ) +
+            theme_minimal(base_size = 13) +
+            theme(
+                legend.position = "none"
+            )
+
+    })
     output$win_probs <- renderTable({
 
         req(rv$winner_probs)
@@ -1517,6 +1670,36 @@ server <- function(input, output, session){
         )
     })
 
+    output$win_prob_plot <- renderPlot({
+
+        req(rv$winner_probs)
+
+        ids <- as.numeric(names(rv$winner_probs))
+
+        df <- data.frame(
+            Player = rv$display_names[ids],
+            Probability = as.numeric(rv$winner_probs)
+        )
+
+        df <- df[order(df$Probability, decreasing = TRUE), ]
+
+        ggplot(
+            df,
+            aes(
+                x = reorder(Player, Probability),
+                y = Probability
+            )
+        ) +
+            geom_col(fill = "#4472C4") +
+            coord_flip() +
+            labs(
+                title = "Tournament Winner Probabilities",
+                x = NULL,
+                y = "Probability"
+            ) +
+            theme_minimal(base_size = 13)
+
+    })
     output$analysis_status <- renderText({
 
         if(!rv$analysis_ready)
