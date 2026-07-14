@@ -256,39 +256,43 @@ $(home_id).val(home).change();
             ),
 
             p(
-                "The tournament is paused after a selected round, providing limited  information about the players and their performances. The challenge is to use these data to estimate the probabilities of future match outcomes and the eventual tournament winner."
+                "The tournament is paused after a selected number of rounds, leaving only partial information about the players and their performances. The challenge is to use these data to estimate the probabilities of future match outcomes and the probability that each player will eventually win the tournament."
             ),
 
             p(
-                "This will require a statistical model for the relationship between match outcome probabilities and the dice colours of the two players involved in a match."
+                "This requires a statistical model relating match outcome probabilities to the dice colours of the two players involved in each match."
             ),
 
             p(
-                "The discussion in Section ?.? of Playing With Statstics serves as a guide to model selection, while the app itself includes functionality for model estimation based on the generated data."),
+                "The discussion in Section ?.? of Playing With Statistics provides guidance on model selection, while the app itself includes functionality for model estimation using the generated data."
+            ),
 
             p(
-                "Once the model is estimated and tournament winner probabilities calculated,  the remainder of the tournament is complete enabling a comparsion of predictions and actual outcome."
+                "Once the model has been estimated and tournament winner probabilities calculated, the remainder of the tournament can be completed, enabling a comparison between model predictions and the actual outcome."
             )
 
         ),
 
         individual = tagList(
 
-            p("The activity is designed for group participation and discussion. Nonetheless, functionality has been built into the app to enable its use at an individual level also."),
+            p(
+                "The activity is designed for group participation and discussion. However, functionality has also been built into the app to enable its use at an individual level."
+            ),
 
             tags$ol(
 
                 tags$li(
-                    "Run the demo and/or simulation modes of the app a few times to get a general sense of what the app does."
+                    "Run the demo and/or simulation modes of the app a few times to gain a general understanding of what the app does."
                 ),
 
                 tags$li(
-                    "Before reading Section ?.? of Playing With Statistics, think about how you might build a statistical model for the match outcome between players with dice of any of the four colours."
+                    "Before reading Section ?.? of Playing With Statistics, consider how you might build a statistical model for the outcome of a match between players using dice of any of the four colours."
                 ),
 
                 tags$li(
-                    "Read Section ?.? of Playing With Statistics, and in light of that discussion run either demo or simulation modes of the app again. Given data from early rounds,  do the estimated parameters from the fitted model seem sensible? Over several runs of the app, does the model do well at predicting likely winners?"
+                    "Read Section ?.? of Playing With Statistics. In light of that discussion, run either the demo or simulation mode of the app again. Given data from early rounds, do the estimated parameters from the fitted model seem sensible? Over several runs of the app, does the model provide accurate predictions of likely winners?"
                 )
+
             )
 
         ),
@@ -296,20 +300,21 @@ $(home_id).val(home).change();
         group = tagList(
 
             p(
-               "The activity was designed to be played as an actual tournament with coloured dice as part of a group meeting. Genuine particpant names can be entered in a csv file and
-               uploaded. If physical dice are unavailable, the tournament can still be run using uploaded player names for competitiors in the simulation mode. "
+                "The activity was designed to be played as an actual tournament using coloured dice in a group setting. Genuine participant names can be entered in a CSV file and uploaded. If physical dice are unavailable, the tournament can still be run using uploaded player names and the simulation mode of the app."
             ),
 
+            p(
+                "Whether the tournament is run using physical dice or simulation, the key idea is that play is paused after a chosen number of rounds. At that point, discussion can focus on how best to formulate a model for match outcomes using the available data. Section ?.? of Playing With Statistics is likely to be helpful in guiding this discussion."
+            ),
 
-            p("Whether the tournament is run using physical dice, or by simulation, the idea is that after a chosen number of rounds the tournament is paused. At that point
-              discussion can be led into how best to forumalate a model for match outcomes usingthe available data. Section ?.? of Playing With Statistics is likely to be helpful
-              in guiding that discussion. "),
+            p(
+                "Model estimation and prediction are handled within the app, but the underlying mechanisms for these processes also provide useful areas for group discussion."
+            ),
 
-            p("Model estimation and prediction is handled within the app, but the mechanisms for those aspects are also relevant areas for group discussion."),
+            p(
+                "Completing the tournament and comparing the actual tournament outcome with the model predictions provides another opportunity to discuss the reliability and accuracy of statistical estimates."
+            )
 
-
-            p("Completing the tournament and compariong actual tournament outcome against model predictions provides another discussion topic focused on the reliability
-            and accuracy of statistical estimates.")
         ),
 
         question = tagList(
@@ -321,15 +326,15 @@ $(home_id).val(home).change();
                 ),
 
                 tags$li(
-                    "How can it be estimated? How can it be used to predict the tournament winner?"
+                    "How can this model be estimated, and how can it be used to predict tournament winner probabilities?"
                 ),
 
                 tags$li(
-                    "What are the pros and cons of estimating the model after fewer rounds have been completed?"
+                    "What are the advantages and disadvantages of estimating the model after fewer rounds have been completed?"
                 ),
 
                 tags$li(
-                    "How accurate is the model used in the app and described in Chapter 7 of Playing With Statistics when compared against the true match win probabilities?"
+                    "How accurate is the model used in the app and described in Chapter 7 of Playing With Statistics when compared with the true match win probabilities?"
                 ),
 
                 tags$li(
