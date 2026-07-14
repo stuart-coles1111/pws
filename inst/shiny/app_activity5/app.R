@@ -541,7 +541,11 @@ button:disabled {
 
             p("You choose a card at random, hidden from the magician, and then follow a simple rule to generate a sequence of cards as the magician turns the deck over."),
 
-            p("Once all the cards have been revealed, the magician attempts to predict the final card in your sequence.")
+            p("Once all the cards have been revealed, the magician attempts to predict the final card in your sequence."),
+
+            p("The activity has a 'trick' and a 'simulation' mode. In trick mode, the computer acts as the magician, turning the card over one at a time, and predicting the final card
+              in your sequence. In simulation mode, the trick is simulated many times, enabling an estimate of the trick's failure probability. This enables an investigation of
+              the relationship between the chosen value of picture cards and the probability of the trick failing.")
         ),
 
         individual = tagList(
@@ -572,8 +576,8 @@ button:disabled {
             tags$ul(
                 tags$li("How does the trick work?"),
                 tags$li("Why does the trick failure probability depend on the value assigned to picture cards?"),
-                tags$li("What does simulation reveal that a single performance of the trick cannot?"),
-                tags$li("How does the number of simulations affect the reliability of the estimated failure probability?")
+                tags$li("Is the relationship between trick failure probability and picture card value linear?"),
+                tags$li("What are the pros and cons of increasing the number of simulations for confidence interval calculation?")
             )
         )
     ),
