@@ -301,28 +301,15 @@ $(home_id).val(home).change();
             ),
 
 
-            p("Whether the tournament is run using physical dice, or by simulation, the idea is that after a couple of rounds the tournament is paused"),
+            p("Whether the tournament is run using physical dice, or by simulation, the idea is that after a chosen number of rounds the tournament is paused. At that point
+              discussion can be led into how best to forumalate a model for match outcomes usingthe available data. Section ?.? of Playing With Statistics is likely to be helpful
+              in guiding that discussion. "),
 
-            tags$ol(
+            p("Model estimation and prediction is handled within the app, but the mechanisms for those aspects are also relevant areas for group discussion."),
 
-                tags$li(
-                    "Compare estimated win probabilities across groups."
-                ),
 
-                tags$li(
-                    "Discuss why different groups may obtain different predictions from the same tournament."
-                ),
-
-                tags$li(
-                    "Investigate how the amount of information available affects prediction accuracy."
-                ),
-
-                tags$li(
-                    "Consider how similar methods are used in sports analytics and tournament forecasting."
-                )
-
-            )
-
+            p("Completing the tournament and compariong actual tournament outcome against model predictions provides another discussion topic focused on the reliability
+            and accuracy of statistical estimates.")
         ),
 
         question = tagList(
@@ -330,23 +317,23 @@ $(home_id).val(home).change();
             tags$ul(
 
                 tags$li(
-                    "How accurately can future match outcomes be predicted from partial tournament results?"
+                    "What is an appropriate model for a single match in the dice tournament?"
                 ),
 
                 tags$li(
-                    "How much information is needed before reliable predictions can be made?"
+                    "How can it be estimated? How can it be used to predict the tournament winner?"
                 ),
 
                 tags$li(
-                    "How does uncertainty accumulate as players progress through the tournament?"
+                    "What are the pros and cons of estimating the model after fewer rounds have been completed?"
                 ),
 
                 tags$li(
-                    "How can estimated match probabilities be converted into probabilities of winning the entire tournament?"
+                    "How accurate is the model used in the app and described in Chapter 7 of Playing With Statistics when compared against the true match win probabilities?"
                 ),
 
                 tags$li(
-                    "How might the predictions change if additional tournament data became available?"
+                    "The bracket structure in this tournament is fixed at the outset. What would be the effect of making a fresh draw before each round?"
                 )
 
             )
