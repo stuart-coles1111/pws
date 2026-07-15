@@ -203,10 +203,8 @@ ui <- page_navbar(
         # 👇 THIS is where your OLD app goes (next step)
         ui <- shinydashboard::dashboardPage(
 
-            skin = "green",
-
             header = shinydashboard::dashboardHeader(
-                title = "Settings",
+                title = "",
                 titleWidth = 200
             ),
 
@@ -1350,11 +1348,19 @@ server <- function(input, output, session) {
             conditionalPanel(
                 condition = "input.selected_stake == 'Custom'",
 
-                numericInput(
-                    "custom_stake",
-                    NULL,
-                    value = 1,
-                    min = 1
+                div(
+                    style = "
+            width: 200px;
+            margin: 10px auto;
+        ",
+
+                    numericInput(
+                        "custom_stake",
+                        "Custom amount",
+                        value = 1,
+                        min = 1,
+                        width = "200px"
+                    )
                 )
             ),
 
