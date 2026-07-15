@@ -15,7 +15,8 @@ suppressPackageStartupMessages({
 
 horse_pics <- paste0("horse", 1:6, ".jpg")
 
-commission_max <- 0.2
+#commission_max <- 0.2
+commission_max <- 0
 allowed_time <- 30
 
 bet_rate <- 5
@@ -205,7 +206,7 @@ ui <- page_navbar(
             skin = "green",
 
             header = shinydashboard::dashboardHeader(
-                title = "🏇 A day at the races",
+                title = "Settings",
                 titleWidth = 200
             ),
 
@@ -309,20 +310,73 @@ table.dataTable {
 }
 
 
-.box-body {
-    padding-bottom: 25px !important;
-}
 
 .box {
     overflow: visible !important;
 }
 
 .box-body {
-    min-height: 350px;
+    padding-bottom: 15px !important;
+}
+
+.box-header .box-title {
+    font-weight: 700 !important;
+    font-size: 16px;
 }
 
 .shiny-plot-output {
     height: auto !important;
+}
+
+/* Coloured betting checkboxes */
+
+input[type=checkbox] {
+    accent-color: #7B9ACC;
+    width: 18px;
+    height: 18px;
+}
+
+.checkbox label {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2E3440;
+}
+
+.checkbox input {
+    margin-right: 8px;
+}
+
+/* Betting radio button groups */
+
+.btn-group .btn {
+    background-color: white !important;
+    color: #2E3440 !important;
+    border: 2px solid #7B9ACC !important;
+    font-weight: 600 !important;
+}
+
+.btn-group .btn:hover {
+    background-color: #A8DADC !important;
+    color: #2E3440 !important;
+}
+
+.btn-group .btn.active,
+.btn-group .btn.active:hover {
+    background-color: #7B9ACC !important;
+    color: white !important;
+    border-color: #7B9ACC !important;
+}
+
+/* Betting panel headings */
+
+h4 {
+    color: #2E3440;
+    font-weight: 700;
+}
+
+.btn-group .btn {
+    margin-right: 4px;
+    border-radius: 8px !important;
 }
 
 "))
@@ -342,6 +396,26 @@ table.dataTable {
                 ),
 
                 br(),
+
+                sliderInput(
+                    "commission_max",
+                    "Maximum Commission",
+                    min = 0,
+                    max = 0.5,
+                    value = 0.2,
+                    step = 0.05,
+                    width = "90%"
+                ),
+
+                sliderInput(
+                    "allowed_time",
+                    "Allowed Time (seconds)",
+                    min = 30,
+                    max = 300,
+                    value = 180,
+                    step = 30,
+                    width = "90%"
+                ),
 
                 div(
                     style = "text-align:center;",
@@ -475,31 +549,11 @@ server <- function(input, output, session) {
 
     race_run <- shiny::reactiveVal(value = 0)
 
-    observe({
-
-        cat(
-            "betting_open = ",
-            betting_open(),
-            " race_run = ",
-            race_run(),
-            "\n"
-        )
-
-    })
-
-    # =======================================================
-    # HEADER
-    # =======================================================
-
-    output$header_text <- shiny::renderText({
-        paste("Race number", counter_race())
-    })
-
     # =======================================================
     # TIMER
     # =======================================================
 
-    remaining_time <- shiny::reactiveVal(allowed_time)
+    remaining_time <- shiny::reactiveVal(300)
 
     timer_active <- shiny::reactiveVal(FALSE)
 
@@ -552,77 +606,81 @@ server <- function(input, output, session) {
 
     shiny::observeEvent(input$start_timer, {
 
+        # Open betting
         betting_open(TRUE)
         betting_closed(FALSE)
         timer_active(TRUE)
 
-        remaining_time(allowed_time)
+        remaining_time(input$allowed_time)
 
         shinyjs::disable("run_race")
-    })
+        shinyjs::disable("game_mode")
 
-    observeEvent(input$start_timer, {
 
-        req(input$game_mode == "single")
+        # Generate automated bets in single player mode
+        if (input$game_mode == "single") {
 
-        nbets <- rpois(1, bet_rate) + nteams - 1
+            nbets <- rpois(1, bet_rate) + nteams - 1
 
-        bet_times <- sample(
-            1:(allowed_time - 1),
-            nbets,
-            replace = TRUE
-        )
+            bet_times <- sample(
+                1:(input$allowed_time - 1),
+                nbets,
+                replace = TRUE
+            )
 
-        bet_team_ind <- sample(
-            1:nbets,
-            nteams - 1,
-            replace = FALSE
-        )
+            bet_team_ind <- sample(
+                1:nbets,
+                nteams - 1,
+                replace = FALSE
+            )
 
-        bet_team <- rep(NA, nbets)
+            bet_team <- rep(NA, nbets)
 
-        bet_team[bet_team_ind] <- 2:nteams
+            # Automated teams are 2:n
+            bet_team[bet_team_ind] <- 2:nteams
 
-        rem_ind <- setdiff(
-            1:nbets,
-            bet_team_ind
-        )
+            rem_ind <- setdiff(
+                1:nbets,
+                bet_team_ind
+            )
 
-        rem_team <- sample(
-            2:nteams,
-            length(rem_ind),
-            replace = TRUE
-        )
+            rem_team <- sample(
+                2:nteams,
+                length(rem_ind),
+                replace = TRUE
+            )
 
-        bet_team[rem_ind] <- rem_team
+            bet_team[rem_ind] <- rem_team
 
-        bet_horse <- sample(
-            1:6,
-            nbets,
-            replace = TRUE
-        )
+            bet_horse <- sample(
+                1:6,
+                nbets,
+                replace = TRUE
+            )
 
-        bets_df <- data.frame(
-            bet_times = bet_times,
-            bet_team = bet_team,
-            bet_horse = bet_horse
-        )
+            bets_df <- data.frame(
+                bet_times = bet_times,
+                bet_team = bet_team,
+                bet_horse = bet_horse
+            )
 
-        bets_df <- dplyr::arrange(
-            bets_df,
-            bet_times
-        )
+            bets_df <- dplyr::arrange(
+                bets_df,
+                bet_times
+            )
 
-        bets_df$proportions <-
-            runif(
+            bets_df$proportions <- runif(
                 nbets,
                 0,
                 bet_proportion
             )
 
-        values$bets_df <- bets_df
+            values$bets_df <- bets_df
+
+        }
 
     })
+
 
     observe({
 
@@ -638,7 +696,7 @@ server <- function(input, output, session) {
         )
 
         bet_times_remaining <-
-            allowed_time - bet_times
+            input$allowed_time - bet_times
 
         if (any(
             bet_times_remaining ==
@@ -706,13 +764,13 @@ server <- function(input, output, session) {
             commission <-
 
                 (
-                    allowed_time -
+                    input$allowed_time -
                         remaining_time()
                 ) /
 
-                allowed_time *
+                input$allowed_time *
 
-                commission_max
+                input$commission_max
 
             values$current_pool_adj[horse] <-
 
@@ -800,45 +858,6 @@ server <- function(input, output, session) {
         bets_df = data.frame()
     )
 
-    # =======================================================
-    # SINGLE / MULTI PLAYER MODE
-    # =======================================================
-
-    # observe({
-    #
-    #     if (input$game_mode == "single") {
-    #
-    #         updateSelectInput(
-    #             session,
-    #             "team",
-    #             choices = list(
-    #                 "Team 1" = 1
-    #             ),
-    #             selected = 1
-    #         )
-    #
-    #     } else {
-    #
-    #         updateSelectInput(
-    #             session,
-    #             "team",
-    #             choices = list(
-    #                 "Team 1" = 1,
-    #                 "Team 2" = 2,
-    #                 "Team 3" = 3,
-    #                 "Team 4" = 4,
-    #                 "Team 5" = 5,
-    #                 "Team 6" = 6,
-    #                 "Team 7" = 7,
-    #                 "Team 8" = 8,
-    #                 "Team 9" = 9,
-    #                 "Team 10" = 10
-    #             )
-    #         )
-    #
-    #     }
-    #
-    # })
 
     # =======================================================
     # REACTIVE TABLE DATA
@@ -964,9 +983,13 @@ server <- function(input, output, session) {
                 )
 
             commission <-
+
                 (
-                    allowed_time - remaining_time()
-                ) / allowed_time * commission_max
+                    input$allowed_time -
+                        remaining_time()
+                ) /
+                input$allowed_time *
+                input$commission_max
 
             values$commission_entry <- commission
 
@@ -1036,132 +1059,189 @@ server <- function(input, output, session) {
 
             h2(
                 paste("Race number", counter_race()),
-                style="
-            font-weight:700;
-            color:#7B9ACC;
-            margin-bottom:20px;"
+                style = "
+                font-weight:700;
+                color:#7B9ACC;
+                margin-bottom:20px;"
             ),
 
             div(id = "race_banner_placeholder"),
 
             if (!betting_open()) {
 
-                # ==================================================
-                # NORMAL VIEW
-                # ==================================================
+                tagList(
+
+                    # ==================================================
+                    # TOP ROW: PLOTS (always visible)
+                    # ==================================================
 
                     fluidRow(
 
                         column(
+                            4,
 
+                            box(
+                                width = 12,
+                                plotOutput("plot_pool", height = "320px")
+                            )
+                        ),
+
+                        column(
+                            4,
+
+                            box(
+                                width = 12,
+                                plotOutput("plot_price", height = "320px")
+                            )
+                        ),
+
+                        column(
+                            4,
+
+                            box(
+                                width = 12,
+                                plotOutput("plot_bank", height = "320px")
+                            )
+                        )
+                    ),
+
+                    # ==================================================
+                    # BOTTOM ROW: TABLES
+                    # ==================================================
+
+                    fluidRow(
+
+                        column(
                             4,
 
                             box(
                                 width = 12,
                                 title = "Pool",
                                 DTOutput("pool")
-                            ),
+                            )
+                        ),
+
+                        column(
+                            4,
 
                             box(
                                 width = 12,
                                 title = "Prices",
                                 DTOutput("price")
-                            ),
+                            )
+                        ),
+
+                        column(
+                            4,
 
                             box(
                                 width = 12,
                                 title = "Bank",
                                 DTOutput("bank")
                             )
-                        ),
-
-                        column(
-
-                            8,
-
-                            box(
-                                width = 12,
-                                title = "Pool History",
-                                plotOutput("plot_pool", height = "250px")
-                            ),
-
-                            box(
-                                width = 12,
-                                title = "Price History",
-                                plotOutput("plot_price", height = "250px")
-                            ),
-
-                            box(
-                                width = 12,
-                                title = "Bank History",
-                                plotOutput("plot_bank", height = "250px")
-                            )
                         )
                     )
+                )
 
 
             } else {
 
-                # ==================================================
-                # BETTING VIEW
-                # ==================================================
+                tagList(
 
-                fluidRow(
+                    # ==================================================
+                    # TOP ROW: PLOTS (same as above)
+                    # ==================================================
 
-                    column(
-                        5,
+                    fluidRow(
 
-                        box(
-                            width = 12,
-                            title = "Place Bet",
+                        column(
+                            4,
 
-                            uiOutput("betting_panel"),
+                            box(
+                                width = 12,
+                                plotOutput("plot_pool", height = "320px")
+                            )
+                        ),
 
-                            br(),
+                        column(
+                            4,
 
-                            textOutput("current_bet"),
+                            box(
+                                width = 12,
+                                plotOutput("plot_price", height = "320px")
+                            )
+                        ),
 
-                            br(),
+                        column(
+                            4,
 
-                            dipsaus::actionButtonStyled(
-                                "stake_enter",
-                                "Enter Stake",
-                                type = "info"
-                            ),
-
-                            br(), br(),
-
-                            dipsaus::actionButtonStyled(
-                                "stake_undo",
-                                "Undo Stake",
-                                type = "warning"
+                            box(
+                                width = 12,
+                                plotOutput("plot_bank", height = "320px")
                             )
                         )
                     ),
 
-                    column(
-                        7,
 
-                        box(
-                            width = 12,
-                            title = "Market Information",
+                    # ==================================================
+                    # BOTTOM ROW: BETTING PANEL
+                    # ==================================================
 
-                            div(
-                                style = "
-                    max-width:700px;
-                    margin-left:auto;
-                    margin-right:auto;
+                    fluidRow(
+
+                        column(
+                            8,
+                            offset = 2,
+
+                            box(
+                                width = 12,
+                                title = "Betslip Entry",
+                                status = "primary",
+
+                                div(
+                                    style = "
+                    text-align:center;
+                    padding:10px 20px;
                 ",
 
-                                plotOutput("plot_pool", height = "220px"),
+                                    uiOutput("betting_panel"),
 
-                                br(),
+                                    br(),
 
-                                plotOutput("plot_price", height = "220px"),
+                                    div(
+                                        style = "
+                        font-size:18px;
+                        font-weight:600;
+                        color:#2E3440;
+                    ",
+                                        textOutput("current_bet")
+                                    ),
 
-                                br(),
+                                    br(),
 
-                                plotOutput("plot_bank", height = "220px")
+                                    fluidRow(
+
+                                        column(
+                                            6,
+
+                                            dipsaus::actionButtonStyled(
+                                                "stake_enter",
+                                                "Enter Stake",
+                                                type = "primary"
+                                            )
+                                        ),
+
+                                        column(
+                                            6,
+
+                                            dipsaus::actionButtonStyled(
+                                                "stake_undo",
+                                                "Undo Stake",
+                                                type = "warning"
+                                            )
+                                        )
+                                    )
+                                )
                             )
                         )
                     )
@@ -1169,7 +1249,6 @@ server <- function(input, output, session) {
             }
         )
     })
-
     # =======================================================
     # TABLES
     # =======================================================
@@ -1178,14 +1257,56 @@ server <- function(input, output, session) {
 
         tagList(
 
-            h4("Team"),
+            if (input$game_mode == "single") {
 
-            shinyWidgets::radioGroupButtons(
-                inputId = "selected_team",
-                choices = 1:10,
-                justified = FALSE,
-                size = "sm"
-            ),
+                tagList(
+
+                    h4("Team"),
+
+                    div(
+                        style = "
+                    background:#A8DADC;
+                    padding:12px;
+                    border-radius:10px;
+                    font-weight:700;
+                    color:#2E3440;
+                    text-align:center;
+                    ",
+
+                        "Single Player Mode: You are Team 1"
+                    ),
+
+                    # hidden input to keep server logic unchanged
+                    div(
+                        style = "display:none;",
+
+                        shinyWidgets::radioGroupButtons(
+                            inputId = "selected_team",
+                            choices = 1,
+                            selected = 1,
+                            justified = FALSE,
+                            size = "sm"
+                        )
+                    )
+
+                )
+
+            } else {
+
+                tagList(
+
+                    h4("Team"),
+
+                    shinyWidgets::radioGroupButtons(
+                        inputId = "selected_team",
+                        choices = 1:10,
+                        justified = FALSE,
+                        size = "sm"
+                    )
+
+                )
+            },
+
 
             br(),
 
@@ -1204,6 +1325,7 @@ server <- function(input, output, session) {
                 justified = FALSE,
                 size = "sm"
             ),
+
 
             br(),
 
@@ -1224,6 +1346,7 @@ server <- function(input, output, session) {
                 size = "sm"
             ),
 
+
             conditionalPanel(
                 condition = "input.selected_stake == 'Custom'",
 
@@ -1235,9 +1358,8 @@ server <- function(input, output, session) {
                 )
             ),
 
-            br(),
 
-            h4("Current bet"),
+            br(),
 
             textOutput("current_bet")
         )
@@ -1246,15 +1368,8 @@ server <- function(input, output, session) {
 
     output$pool <- DT::renderDT({
 
-        DT::datatable(
-
-            values$current_pool,
-
-            rownames = FALSE,
-
-            caption = "Pool",
-
-            colnames = c(
+        pool_df <- data.frame(
+            Horse = c(
                 "Red Rum",
                 "Secretariat",
                 "Seabiscuit",
@@ -1262,25 +1377,23 @@ server <- function(input, output, session) {
                 "Galileo",
                 "Best Mate"
             ),
+            Pool = as.numeric(values$current_pool)
+        )
 
+        DT::datatable(
+            pool_df,
+            rownames = FALSE,
             options = list(
                 dom = "t",
-                pageLength = 1
+                paging = FALSE
             )
         )
     })
 
     output$price <- DT::renderDT({
 
-        DT::datatable(
-
-            round(values$price, 1),
-
-            rownames = FALSE,
-
-            caption = "Notional Prices",
-
-            colnames = c(
+        price_df <- data.frame(
+            Horse = c(
                 "Red Rum",
                 "Secretariat",
                 "Seabiscuit",
@@ -1288,29 +1401,32 @@ server <- function(input, output, session) {
                 "Galileo",
                 "Best Mate"
             ),
+            Price = round(as.numeric(values$price), 1)
+        )
 
+        DT::datatable(
+            price_df,
+            rownames = FALSE,
             options = list(
                 dom = "t",
-                pageLength = 1
+                paging = FALSE
             )
         )
     })
 
     output$bank <- DT::renderDT({
 
+        bank_df <- data.frame(
+            Team = paste0("Team ", 1:10),
+            Bank = as.numeric(values$bank_updated)
+        )
+
         DT::datatable(
-
-            values$bank_updated,
-
+            bank_df,
             rownames = FALSE,
-
-            caption = "Bank",
-
-            colnames = paste0("Team ", 1:10),
-
             options = list(
                 dom = "t",
-                pageLength = 1
+                paging = FALSE
             )
         )
     })
@@ -1472,6 +1588,7 @@ server <- function(input, output, session) {
     shiny::observeEvent(input$next_race, {
 
         race_run(0)
+        shinyjs::enable("game_mode")
 
         betting_open(FALSE)
         betting_closed(FALSE)
@@ -1501,6 +1618,12 @@ server <- function(input, output, session) {
         values$winnings <- winnings_init
 
         values$bets_df <- data.frame()
+    })
+
+    observeEvent(input$run_race, {
+
+        shinyjs::disable("game_mode")
+
     })
 
     # =======================================================
@@ -1540,9 +1663,9 @@ server <- function(input, output, session) {
                 color = "#2E3440"
             ) +
 
-            ggplot2::scale_fill_gradient(
-                low = "#A8DADC",
-                high = "#7B9ACC"
+            scale_fill_gradient(
+                low = "#CDB4DB",
+                high = "#6D597A"
             ) +
 
             ggplot2::labs(
@@ -1559,10 +1682,21 @@ server <- function(input, output, session) {
 
             ggplot2::theme(
                 legend.position = "none",
+
                 plot.title = ggplot2::element_text(
                     face = "bold",
                     size = 20
                 ),
+
+                axis.title = ggplot2::element_text(
+                    face = "bold",
+                    size = 20
+                ),
+
+                axis.text = ggplot2::element_text(
+                    size = 18
+                ),
+
                 panel.grid.minor =
                     ggplot2::element_blank()
             )
@@ -1600,9 +1734,9 @@ server <- function(input, output, session) {
                 fontface = "bold"
             ) +
 
-            ggplot2::scale_fill_gradient(
-                low = "#CDB4DB",
-                high = "#7B9ACC"
+            scale_fill_gradient(
+                low = "#B7E4C7",
+                high = "#40916C"
             ) +
 
             ggplot2::labs(
@@ -1619,62 +1753,98 @@ server <- function(input, output, session) {
 
             ggplot2::theme(
                 legend.position = "none",
+
                 plot.title = ggplot2::element_text(
                     face = "bold",
                     size = 20
                 ),
+
+                axis.title = ggplot2::element_text(
+                    face = "bold",
+                    size = 20
+                ),
+
+                axis.text = ggplot2::element_text(
+                    size = 18
+                ),
+
                 panel.grid.minor =
                     ggplot2::element_blank()
             )
 
     }, height = 320)
 
-    output$plot_pool <- renderPlot(
-        {
-            pool_df <- data.frame(
-                horse = factor(1:6),
-                pool = as.numeric(values$current_pool)
-            )
+    output$plot_pool <- shiny::renderPlot({
 
-            ggplot2::ggplot(
-                pool_df,
-                ggplot2::aes(
-                    x = horse,
-                    y = pool,
-                    fill = pool
-                )
+        pool_df <- data.frame(
+            horse = factor(1:6),
+            pool = as.numeric(values$current_pool)
+        )
+
+        ggplot2::ggplot(
+            pool_df,
+            ggplot2::aes(
+                x = horse,
+                y = pool,
+                fill = pool
+            )
+        ) +
+
+            ggplot2::geom_col(
+                width = 0.7,
+                alpha = 0.9
             ) +
 
-                ggplot2::geom_col(width = 0.7) +
+            ggplot2::geom_text(
+                ggplot2::aes(
+                    label = round(pool / 1000, 1)
+                ),
+                vjust = -0.4,
+                size = 5,
+                fontface = "bold",
+                color = "#2E3440"
+            ) +
 
-                ggplot2::geom_text(
-                    ggplot2::aes(
-                        label = round(pool / 1000, 1)
-                    ),
-                    vjust = -0.4,
-                    size = 5
-                ) +
+            scale_fill_gradient(
+                low = "#A8DADC",
+                high = "#457B9D"
+            ) +
 
-                ggplot2::scale_fill_gradient(
-                    low = "#A8DADC",
-                    high = "#7B9ACC"
-                ) +
+            ggplot2::labs(
+                title = "Current Pool",
+                x = "Horse",
+                y = "Pool"
+            ) +
 
-                ggplot2::labs(
-                    title = "Current Pool",
-                    x = "Horse",
-                    y = "Pool"
-                ) +
+            ggplot2::scale_y_continuous(
+                expand = ggplot2::expansion(mult = c(0, 0.15))
+            ) +
 
-                ggplot2::theme_minimal() +
+            ggplot2::theme_minimal(base_size = 15) +
 
-                ggplot2::theme(
-                    legend.position = "none"
-                )
-        },
-        height = 280,
-        res = 96
-    )
+            ggplot2::theme(
+                legend.position = "none",
+
+                plot.title = ggplot2::element_text(
+                    face = "bold",
+                    size = 20
+                ),
+
+                axis.title = ggplot2::element_text(
+                    face = "bold",
+                    size = 20
+                ),
+
+                axis.text = ggplot2::element_text(
+                    size = 18
+                ),
+
+                panel.grid.minor =
+                    ggplot2::element_blank()
+            )
+
+    }, height = 320)
+
     output$plot_winnings <- shiny::renderPlot({
 
         ggplot2::ggplot(
