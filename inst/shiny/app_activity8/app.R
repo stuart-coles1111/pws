@@ -27,7 +27,7 @@ pool_init <- 100
 nominal_stake <- 100
 
 winnings_init <- rep(0, 10)
-seed = 1
+
 
 # =========================================================
 # RACE SIMULATION
@@ -377,6 +377,8 @@ h4 {
     border-radius: 8px !important;
 }
 
+
+
 "))
                 ),
 
@@ -395,6 +397,17 @@ h4 {
 
                 br(),
 
+                numericInput(
+                    "seed",
+                    "Random Seed",
+                    value = sample(1:999, 1),
+                    min = 1,
+                    max = 999,
+                    width = "90%"
+                ),
+
+                br(),
+
                 sliderInput(
                     "commission_max",
                     "Maximum Commission",
@@ -407,7 +420,7 @@ h4 {
 
                 sliderInput(
                     "allowed_time",
-                    "Allowed Time (seconds)",
+                    "Betting Window (seconds)",
                     min = 30,
                     max = 300,
                     value = 180,
@@ -603,6 +616,11 @@ server <- function(input, output, session) {
     })
 
     shiny::observeEvent(input$start_timer, {
+
+
+        if (counter_race() == 1) {
+            set.seed(input$seed)
+        }
 
         # Open betting
         betting_open(TRUE)
@@ -801,6 +819,24 @@ server <- function(input, output, session) {
         }
 
     })
+
+    observe({
+
+        req(betting_open())
+
+        if (!betting_closed()) {
+
+            shinyjs::disable("run_race")
+
+
+        } else {
+
+            shinyjs::enable("run_race")
+
+        }
+
+    })
+
 
     observeEvent(input$return_pool, {
 
@@ -1442,26 +1478,42 @@ server <- function(input, output, session) {
         if (!betting_open() && race_run() == 0) {
 
             dipsaus::actionButtonStyled(
-                inputId = "start_timer",
-                label = "Open Bets",
+                "start_timer",
+                "Open Bets",
                 type = "primary",
                 width = "100%"
             )
 
         } else if (betting_open()) {
 
-            dipsaus::actionButtonStyled(
-                inputId = "run_race",
-                label = "Run Race",
-                type = "success",
-                width = "100%"
-            )
+            if (!betting_closed()) {
+
+                tags$div(
+                    style = "opacity:0.35;",
+                    dipsaus::actionButtonStyled(
+                        "run_race",
+                        "Run Race",
+                        type = "success",
+                        width = "100%"
+                    )
+                )
+
+            } else {
+
+                dipsaus::actionButtonStyled(
+                    "run_race",
+                    "Run Race",
+                    type = "success",
+                    width = "100%"
+                )
+
+            }
 
         } else {
 
             dipsaus::actionButtonStyled(
-                inputId = "next_race",
-                label = "Next Race",
+                "next_race",
+                "Next Race",
                 type = "danger",
                 width = "100%"
             )
@@ -1469,7 +1521,6 @@ server <- function(input, output, session) {
         }
 
     })
-
     # =======================================================
     # RUN RACE
     # =======================================================
@@ -1477,6 +1528,9 @@ server <- function(input, output, session) {
     shiny::observeEvent(input$run_race, {
 
         race_run(1)
+
+        req(betting_closed())
+
 
         betting_open(FALSE)
 
