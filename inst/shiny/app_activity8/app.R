@@ -124,10 +124,28 @@ winnings <- data.frame()
 # UI
 # =========================================================
 
+
 ui <- page_navbar(
 
     title = "🏇 A Day at the Races",
+
+    theme = bs_theme(
+        version = 5,
+        bootswatch = "minty",
+        primary = "#7B9ACC",
+        bg = "#F7F7FB",
+        fg = "#2E3440",
+        base_font = font_google("Inter")
+    ),
+
+
+    # =====================================================
+    # GLOBAL HEADER / CSS
+    # =====================================================
+
     header = tagList(
+
+        tags$div(id="audio_placeholder"),
 
         useShinyjs(),
 
@@ -135,420 +153,525 @@ ui <- page_navbar(
 
             tags$style(HTML("
 
-            .main-title{
-                background: linear-gradient(90deg,#A8DADC,#CDB4DB);
-                padding: 28px;
-                border-radius: 18px;
-                margin-bottom: 25px;
-                text-align: center;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            }
-
-            .main-title h1{
-                font-weight: 700;
-                color: #1D3557;
-                font-size: 32px;
-                margin: 0;
-            }
-
-            .main-title p{
-                font-size: 18px;
-                color: #3D405B;
-                margin-top: 6px;
-            }
-
-            body{
+            body {
                 background:#F7F7FB;
             }
 
-        "))
-        ),
 
-        div(
-            class = "main-title",
-            h1("🏇 A Day at the Races")
-        )
-    ),
+            .app-header {
 
-    overview_page(
-        explanation = tagList(
-            p("This activity explores betting markets and probabilistic outcomes in horse racing.")
-        ),
-        individual = tagList(
-            tags$ol(
-                tags$li("Place stakes on horses."),
-                tags$li("Observe race outcomes."),
-                tags$li("Track performance over time.")
-            )
-        ),
-        group = tagList(
-            tags$ol(
-                tags$li("Compare strategies across participants."),
-                tags$li("Analyse risk and reward."),
-                tags$li("Discuss randomness in outcomes.")
-            )
-        ),
-        question = tagList(
-            tags$ul(
-                tags$li("Can strategies beat randomness?"),
-                tags$li("What drives long-term winnings?"),
-                tags$li("Is success skill or luck?")
-            )
-        )
-    ),
+                background:
+                linear-gradient(90deg,#A8DADC,#CDB4DB);
 
-    nav_panel(
-        "Activity",
+                padding:20px;
 
-        # 👇 THIS is where your OLD app goes (next step)
-        ui <- shinydashboard::dashboardPage(
+                border-radius:14px;
 
-            header = shinydashboard::dashboardHeader(
-                title = "",
-                titleWidth = 200
-            ),
+                margin-bottom:20px;
 
-            sidebar = shinydashboard::dashboardSidebar(
+                text-align:center;
 
-                width = 200,
+                box-shadow:
+                0 3px 10px rgba(0,0,0,0.08);
 
-                shiny::tags$head(
+            }
 
-                    bslib::bs_theme_dependencies(
 
-                        bslib::bs_theme(
-                            version = 5,
-                            bootswatch = "minty",
-                            primary = "#7B9ACC",
-                            bg = "#F7F7FB",
-                            fg = "#2E3440"
-                        )
-                    ),
+            .app-header h1 {
 
-                    shiny::tags$style(shiny::HTML("
+                font-weight:700;
 
-body {
-  background-color:#F7F7FB;
+                color:#1D3557;
+
+                margin:0;
+
+            }
+
+
+            .card-style {
+
+                background:white;
+
+                border-radius:14px;
+
+                padding:20px;
+
+                margin-bottom:20px;
+
+                box-shadow:
+                0 3px 10px rgba(0,0,0,0.08);
+
+            }
+
+
+            .btn-primary {
+
+                background:#89C2D9 !important;
+
+                border-color:#89C2D9 !important;
+
+            }
+
+
+            h2,h3,h4,h5 {
+
+                color:#2E3440;
+
+                font-weight:700;
+
+            }
+
+
+            /* shinyWidgets radioGroupButtons */
+
+            .radiobtn {
+
+                font-weight:600 !important;
+
+            }
+
+
+            button.radiobtn.active {
+
+                background:#7B9ACC !important;
+
+                color:white !important;
+
+            }
+
+
+            button.radiobtn:hover {
+
+                background:#A8DADC !important;
+
+                color:#2E3440 !important;
+
+            }
+
+            /* Sidebar card */
+
+.bslib-sidebar-layout > .sidebar {
+
+    background:#F7F7FB !important;
+
 }
 
-.content-wrapper, .right-side {
-  background-color:#F7F7FB;
+
+.sidebar .card-style {
+
+    padding:18px;
+
 }
 
-.main-header .logo,
-.main-header .navbar {
-    height: 50px !important;
-    line-height: 50px !important;
+
+/* Accordion styling */
+
+.accordion-button {
+
+    font-weight:700 !important;
+
+    color:#2E3440 !important;
+
 }
 
-.main-header .logo {
-    background-color:#7B9ACC !important;
-    color:white !important;
+
+.accordion-button:not(.collapsed) {
+
+    background:#A8DADC !important;
+
+}
+
+
+/* Inputs */
+
+.form-control {
+
+    border-radius:10px !important;
+
+    border:1px solid #CDB4DB !important;
+
+}
+
+
+/* Sliders */
+
+.irs--shiny .irs-bar {
+
+    background:#7B9ACC !important;
+
+}
+
+
+.irs--shiny .irs-handle {
+
+    border-color:#7B9ACC !important;
+
+}
+
+.nav-tabs .nav-link {
+
     font-weight:700;
+
+    color:#2E3440;
+
 }
 
-.main-header .navbar {
-    background-color:#7B9ACC !important;
+
+.nav-tabs .nav-link.active {
+
+    background:#7B9ACC !important;
+
+    color:white !important;
+
+    border-radius:10px 10px 0 0;
+
 }
 
-.main-sidebar {
-  background: linear-gradient(180deg,#A8DADC,#CDB4DB);
-}
 
-.sidebar-menu > li > a {
-  color:#2E3440 !important;
-  font-weight:600;
-}
+.tab-content {
 
-.box {
-  border-radius:16px !important;
-  border:none !important;
-  box-shadow:0 4px 12px rgba(0,0,0,0.08);
-  background:white;
-}
+    padding-top:20px;
 
-.btn {
-  border-radius:10px !important;
-  font-weight:600;
-  border:none !important;
-}
-
-.dataTables_wrapper {
-  font-size:15px;
-}
-
-table.dataTable {
-  border-radius:12px;
-  overflow:hidden;
-}
-
-.race-banner {
-  background: linear-gradient(90deg,#E76F51,#F4A261);
-  color:white;
-  font-size:28px;
-  font-weight:700;
-  text-align:center;
-  padding:18px;
-  border-radius:14px;
-  margin-bottom:20px;
-  box-shadow:0 4px 12px rgba(0,0,0,0.12);
 }
 
 .sidebar .btn {
-    width: 75% !important;
-    margin-left: auto;
-    margin-right: auto;
-    display: block;
+
+    border-radius:12px !important;
+
+    font-weight:700 !important;
+
 }
 
-.sidebar .form-control {
-    width: 75% !important;
-    margin-left: auto;
-    margin-right: auto;
+/* Universal button styling */
+
+.btn,
+button,
+.action-button {
+
+    border-radius:12px !important;
+
+    font-weight:700 !important;
+
 }
 
 
+/* Keep primary colour consistent */
 
-.box {
-    overflow: visible !important;
+.btn-primary {
+
+    background:#89C2D9 !important;
+
+    border-color:#89C2D9 !important;
+
+    color:#1D3557 !important;
+
 }
 
-.box-body {
-    padding-bottom: 15px !important;
+
+/* Hover */
+
+.btn-primary:hover {
+
+    background:#7B9ACC !important;
+
+    color:white !important;
+
 }
 
-.box-header .box-title {
-    font-weight: 700 !important;
-    font-size: 16px;
+/* Keep form controls rectangular */
+
+.form-control,
+.form-select,
+.input-group .form-control,
+.selectize-input {
+    border-radius: 4px !important;
 }
 
-.shiny-plot-output {
-    height: auto !important;
+
+/* Numeric inputs */
+input[type='number'] {
+    border-radius:4px !important;
 }
 
-/* Coloured betting checkboxes */
 
-input[type=checkbox] {
-    accent-color: #7B9ACC;
-    width: 18px;
-    height: 18px;
-}
-
-.checkbox label {
-    font-size: 16px;
-    font-weight: 600;
-    color: #2E3440;
-}
-
-.checkbox input {
-    margin-right: 8px;
-}
-
-/* Betting radio button groups */
-
-.btn-group .btn {
-    background-color: white !important;
-    color: #2E3440 !important;
-    border: 2px solid #7B9ACC !important;
-    font-weight: 600 !important;
-}
-
-.btn-group .btn:hover {
-    background-color: #A8DADC !important;
-    color: #2E3440 !important;
-}
-
-.btn-group .btn.active,
-.btn-group .btn.active:hover {
-    background-color: #7B9ACC !important;
-    color: white !important;
-    border-color: #7B9ACC !important;
-}
-
-/* Betting panel headings */
-
-h4 {
-    color: #2E3440;
-    font-weight: 700;
+/* Slider controls */
+.irs--shiny .irs-line,
+.irs--shiny .irs-bar,
+.irs--shiny .irs-handle {
+    border-radius: 4px !important;
 }
 
 .btn-group .btn {
-    margin-right: 4px;
-    border-radius: 8px !important;
+    border-radius:4px !important;
+}
+
+.betslip-card {
+    background:#FFFDF2 !important;
+    border:1px solid #F4E7B2;
+}
+
+/* DataTables */
+
+.dataTables_wrapper {
+    font-size:15px;
 }
 
 
+table.dataTable {
+    border-radius:12px !important;
+    overflow:hidden;
+}
 
-"))
+
+table.dataTable thead th {
+    background:#A8DADC !important;
+    color:#2E3440 !important;
+    font-weight:700;
+}
+
+
+table.dataTable tbody tr:hover {
+    background:#F7F7FB !important;
+}
+
+            "))
+
+        ),
+
+
+        div(
+            class="app-header",
+
+            h1("🏇 A Day at the Races")
+        )
+
+    ),
+
+
+
+    # =====================================================
+    # OVERVIEW PAGE
+    # =====================================================
+
+    overview_page(
+
+        explanation = tagList(
+
+            p(
+                "This activity explores betting markets and probabilistic outcomes in horse racing."
+            )
+
+        ),
+
+
+        individual = tagList(
+
+            tags$ol(
+
+                tags$li(
+                    "Place stakes on horses."
+                ),
+
+                tags$li(
+                    "Observe race outcomes."
+                ),
+
+                tags$li(
+                    "Track performance over time."
+                )
+
+            )
+
+        ),
+
+
+        group = tagList(
+
+            tags$ol(
+
+                tags$li(
+                    "Compare strategies across participants."
+                ),
+
+                tags$li(
+                    "Analyse risk and reward."
+                ),
+
+                tags$li(
+                    "Discuss randomness in outcomes."
+                )
+
+            )
+
+        ),
+
+
+        question = tagList(
+
+            tags$ul(
+
+                tags$li(
+                    "Can strategies beat randomness?"
+                ),
+
+                tags$li(
+                    "What drives long-term winnings?"
+                ),
+
+                tags$li(
+                    "Is success skill or luck?"
+                )
+
+            )
+
+        )
+
+    ),
+
+
+
+    # =====================================================
+    # ACTIVITY PAGE
+    # =====================================================
+
+    nav_panel(
+
+        "Activity",
+
+        layout_sidebar(
+
+            sidebar = div(
+
+                class = "card-style",
+
+                accordion(
+                    open = FALSE,
+
+                    accordion_panel(
+                        title = "⚙️ Race Setup",
+
+                        selectInput(
+                            "game_mode",
+                            "Mode",
+                            choices = c(
+                                "Multiplayer" = "multi",
+                                "Single Player" = "single"
+                            ),
+                            selected = "multi"
+                        ),
+
+                        numericInput(
+                            "seed",
+                            "Random Seed",
+                            value = sample(1:999,1),
+                            min = 1,
+                            max = 999
+                        ),
+
+                        sliderInput(
+                            "commission_max",
+                            "Maximum Commission",
+                            min = 0,
+                            max = 0.5,
+                            value = 0.2,
+                            step = 0.05
+                        ),
+
+                        sliderInput(
+                            "allowed_time",
+                            "Betting Window (seconds)",
+                            min = 30,
+                            max = 300,
+                            value = 180,
+                            step = 30
+                        )
+                    )
                 ),
 
                 br(),
-
-                selectInput(
-                    "game_mode",
-                    "Mode",
-                    choices = c(
-                        "Multiplayer" = "multi",
-                        "Single Player" = "single"
-                    ),
-                    selected = "multi",
-                    width = "90%"
-                ),
-
-                br(),
-
-                numericInput(
-                    "seed",
-                    "Random Seed",
-                    value = sample(1:999, 1),
-                    min = 1,
-                    max = 999,
-                    width = "90%"
-                ),
-
-                br(),
-
-                sliderInput(
-                    "commission_max",
-                    "Maximum Commission",
-                    min = 0,
-                    max = 0.5,
-                    value = 0.2,
-                    step = 0.05,
-                    width = "90%"
-                ),
-
-                sliderInput(
-                    "allowed_time",
-                    "Betting Window (seconds)",
-                    min = 30,
-                    max = 300,
-                    value = 180,
-                    step = 30,
-                    width = "90%"
-                ),
 
                 div(
-                    style = "text-align:center;",
+                    style="text-align:center;",
 
-                    h4(
-                        textOutput("header_text"),
-                        style="
-                color:#2E3440;
-                font-weight:600;
-                margin-bottom:10px;
-            "
-                    ),
+                    h4(textOutput("header_text")),
 
                     h3(
                         textOutput("timer"),
                         style="
                 color:#7B9ACC;
                 font-weight:700;
-                margin-bottom:20px;
-            "
+                "
                     )
                 ),
 
                 hr(),
 
                 uiOutput("sidebar_buttons")
-
             ),
 
-            body = shinydashboard::dashboardBody(
 
-                shinyjs::useShinyjs(),
+            # MAIN CONTENT GOES HERE (no main=)
 
-                shinydashboard::tabBox(
+            div(
+
+                class="card-style",
+
+                tabsetPanel(
+
                     id = "inTabset",
-                    width = 12,
 
-                    # =====================================================
-                    # TAB 1
-                    # =====================================================
-
-                    shiny::tabPanel(
+                    tabPanel(
                         "Pool",
                         value = "panel1",
 
                         uiOutput("pool_page")
                     ),
 
-                    # =====================================================
-                    # TAB 2
-                    # =====================================================
-
-                    shiny::tabPanel(
-
+                    tabPanel(
                         "Race",
                         value = "panel2",
 
-                        shinydashboard::box(
-                            width = 12,
-                            title = "Race Result",
-                            status = "warning",
+                        div(
+                            class="card-style",
 
-                            shiny::fluidRow(
+                            h2(textOutput("text_win")),
 
-                                shiny::column(
-                                    5,
+                            div(
+                                style = "
+        text-align:center;
+        margin-top:20px;
+        margin-bottom:20px;
+    ",
 
-                                    shiny::h2(
-                                        shiny::textOutput("text_win"),
-                                        style = "
-                color:#7B9ACC;
-                font-weight:700;
-                margin-top:20px;"
-                                    )
-                                ),
-
-                                shiny::column(
-                                    5,
-                                    offset = 1,
-                                    shiny::imageOutput("image")
+                                imageOutput(
+                                    "image",
+                                    width = "100%"
                                 )
                             ),
 
-                            shiny::br(),
+                            br(),
 
-                            shiny::fluidRow(
-                                shiny::column(
-                                    10,
-                                    offset = 1,
-
-                                    shiny::plotOutput(
-                                        "plot_winnings",
-                                        height = "35vh"
-                                    )
-                                )
+                            plotOutput(
+                                "plot_winnings",
+                                height="300px"
                             ),
-                            shiny::br(),
 
-                            shiny::fluidRow(
+                            br(),
 
-                                shiny::column(
-                                    4,
-                                    offset = 4,
-
-                                    dipsaus::actionButtonStyled(
-                                        inputId = "return_pool",
-                                        label = "Return to Pool",
-                                        type = "primary"
-                                    )
-                                )
+                            dipsaus::actionButtonStyled(
+                                inputId = "return_pool",
+                                label = "Return to Pool",
+                                type = "primary"
                             )
                         )
                     )
                 )
             )
         )
+
     )
+
 )
-
-
-
-
 
 # =========================================================
 # SERVER
@@ -564,7 +687,7 @@ server <- function(input, output, session) {
     # TIMER
     # =======================================================
 
-    remaining_time <- shiny::reactiveVal(300)
+    remaining_time <- shiny::reactiveVal(NULL)
 
     timer_active <- shiny::reactiveVal(FALSE)
 
@@ -590,9 +713,8 @@ server <- function(input, output, session) {
                     shinyjs::enable("run_race")
 
                     shiny::insertUI(
-                        selector = "#run_race",
-                        where = "afterEnd",
-
+                        selector = "#audio_placeholder",
+                        where = "beforeEnd",
                         ui = shiny::tags$audio(
                             src = "bell.mp3",
                             type = "audio/mp3",
@@ -600,7 +722,6 @@ server <- function(input, output, session) {
                             controls = NA,
                             style = "display:none;"
                         ),
-
                         immediate = TRUE
                     )
 
@@ -613,6 +734,16 @@ server <- function(input, output, session) {
                 }
             }
         })
+    })
+
+    observe({
+
+        if (!timer_active()) {
+
+            remaining_time(input$allowed_time)
+
+        }
+
     })
 
     shiny::observeEvent(input$start_timer, {
@@ -1114,8 +1245,8 @@ server <- function(input, output, session) {
                         column(
                             4,
 
-                            box(
-                                width = 12,
+                            div(
+                                class="card-style",
                                 plotOutput("plot_pool", height = "320px")
                             )
                         ),
@@ -1123,8 +1254,8 @@ server <- function(input, output, session) {
                         column(
                             4,
 
-                            box(
-                                width = 12,
+                            div(
+                                class="card-style",
                                 plotOutput("plot_price", height = "320px")
                             )
                         ),
@@ -1132,8 +1263,8 @@ server <- function(input, output, session) {
                         column(
                             4,
 
-                            box(
-                                width = 12,
+                            div(
+                                class="card-style",
                                 plotOutput("plot_bank", height = "320px")
                             )
                         )
@@ -1148,8 +1279,8 @@ server <- function(input, output, session) {
                         column(
                             4,
 
-                            box(
-                                width = 12,
+                            div(
+                                class="card-style",
                                 title = "Pool",
                                 DTOutput("pool")
                             )
@@ -1158,8 +1289,8 @@ server <- function(input, output, session) {
                         column(
                             4,
 
-                            box(
-                                width = 12,
+                            div(
+                                class="card-style",
                                 title = "Prices",
                                 DTOutput("price")
                             )
@@ -1168,8 +1299,8 @@ server <- function(input, output, session) {
                         column(
                             4,
 
-                            box(
-                                width = 12,
+                            div(
+                                class="card-style",
                                 title = "Bank",
                                 DTOutput("bank")
                             )
@@ -1191,8 +1322,8 @@ server <- function(input, output, session) {
                         column(
                             4,
 
-                            box(
-                                width = 12,
+                            div(
+                                class="card-style",
                                 plotOutput("plot_pool", height = "320px")
                             )
                         ),
@@ -1200,8 +1331,8 @@ server <- function(input, output, session) {
                         column(
                             4,
 
-                            box(
-                                width = 12,
+                            div(
+                                class="card-style",
                                 plotOutput("plot_price", height = "320px")
                             )
                         ),
@@ -1209,8 +1340,8 @@ server <- function(input, output, session) {
                         column(
                             4,
 
-                            box(
-                                width = 12,
+                            div(
+                                class="card-style",
                                 plotOutput("plot_bank", height = "320px")
                             )
                         )
@@ -1227,8 +1358,8 @@ server <- function(input, output, session) {
                             8,
                             offset = 2,
 
-                            box(
-                                width = 12,
+                            div(
+                                class="card-style betslip-card",
                                 title = "Betslip Entry",
                                 status = "primary",
 
@@ -1360,7 +1491,6 @@ server <- function(input, output, session) {
                 size = "sm"
             ),
 
-
             br(),
 
             h4("Stake ($100s)"),
@@ -1373,6 +1503,7 @@ server <- function(input, output, session) {
                     10,
                     20,
                     50,
+                    100,
                     "Custom"
                 ),
                 selected = 1,
@@ -1598,7 +1729,7 @@ server <- function(input, output, session) {
             list(
                 src = file.path("www", horse_pics[winner]),
                 contentType = "image/jpeg",
-                width = "80%",
+                width = "45%",
                 alt = "Winning horse"
             )
 
@@ -1645,6 +1776,8 @@ server <- function(input, output, session) {
     # NEXT RACE
     # =======================================================
 
+
+
     shiny::observeEvent(input$next_race, {
 
         race_run(0)
@@ -1685,6 +1818,7 @@ server <- function(input, output, session) {
         shinyjs::disable("game_mode")
 
     })
+
 
     # =======================================================
     # PLOTS
@@ -1800,7 +1934,7 @@ server <- function(input, output, session) {
             ) +
 
             ggplot2::labs(
-                title = "Team Bank",
+                title = "Team Bank ($k)",
                 x = "Team",
                 y = "Bank"
             ) +
@@ -1871,7 +2005,7 @@ server <- function(input, output, session) {
             ) +
 
             ggplot2::labs(
-                title = "Current Pool",
+                title = "Current Pool ($k)",
                 x = "Horse",
                 y = "Pool"
             ) +
