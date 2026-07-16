@@ -466,7 +466,11 @@ table.dataTable tbody tr:hover {
         explanation = tagList(
 
             p(
-                "This activity explores betting markets and probabilistic outcomes in horse racing."
+                "This activity illustrates how simulation can be used to recreate complex environments with random behaviour."
+            ),
+
+            p(
+                "The app provides a team-based pool betting framework based on a series of simulated horse races."
             )
 
         ),
@@ -552,6 +556,38 @@ table.dataTable tbody tr:hover {
 
                 class = "card-style",
 
+
+                accordion(
+
+                    open = FALSE,
+
+                    accordion_panel(
+
+                        title = "📥 Download Data",
+
+                        p(
+                            "Download the simulated horse racing results used by this activity."
+                        ),
+
+                        downloadButton(
+                            "download_csv",
+                            "Download CSV"
+                        ),
+
+                        br(),
+                        br(),
+
+                        downloadButton(
+                            "download_pdf",
+                            "Download PDF"
+                        )
+
+                    )
+
+                ),
+
+                hr(),
+
                 accordion(
                     open = FALSE,
 
@@ -594,7 +630,10 @@ table.dataTable tbody tr:hover {
                             step = 30
                         )
                     )
+
+
                 ),
+
 
                 br(),
 
@@ -702,6 +741,7 @@ server <- function(input, output, session) {
     output$timer <- shiny::renderText({
         paste0(remaining_time(), " s")
     })
+
 
     shiny::observe({
 
@@ -986,6 +1026,55 @@ server <- function(input, output, session) {
         )
 
     })
+
+    output$download_csv <- downloadHandler(
+
+        filename = function() {
+
+            "horse_race_results.csv"
+
+        },
+
+        content = function(file) {
+
+            file.copy(
+
+                system.file(
+                    "extdata",
+                    "horse_race_results.csv",
+                    package = "pws"
+                ),
+
+                file
+            )
+
+        }
+    )
+
+    output$download_pdf <- downloadHandler(
+
+        filename = function() {
+
+            "horse_race_results.pdf"
+
+        },
+
+        content = function(file) {
+
+            file.copy(
+
+                system.file(
+                    "extdata",
+                    "horse_race_results.pdf",
+                    package = "pws"
+                ),
+
+                file
+            )
+
+        }
+    )
+
 
     # =======================================================
     # REACTIVE VALUES
@@ -1398,7 +1487,8 @@ server <- function(input, output, session) {
                                 fluidRow(
 
                                     column(
-                                        6,
+                                        4,
+                                        offset = 2,
                                         dipsaus::actionButtonStyled(
                                             "stake_enter",
                                             "Enter Stake",
@@ -1407,7 +1497,7 @@ server <- function(input, output, session) {
                                     ),
 
                                     column(
-                                        6,
+                                        4,
                                         dipsaus::actionButtonStyled(
                                             "stake_undo",
                                             "Undo Stake",
@@ -1474,7 +1564,7 @@ server <- function(input, output, session) {
                         inputId = "selected_team",
                         choices = 1:10,
                         justified = FALSE,
-                        size = "lg"
+                        size = "normal"
                     )
 
                 )
@@ -1496,7 +1586,7 @@ server <- function(input, output, session) {
                     "6: Best Mate" = 6
                 ),
                 justified = FALSE,
-                size = "lg"
+                size = "normal"
             ),
 
             br(),
