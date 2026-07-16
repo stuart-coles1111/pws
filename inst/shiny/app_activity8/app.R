@@ -405,10 +405,7 @@ input[type='number'] {
     border-radius:4px !important;
 }
 
-.betslip-card {
-    background:#FFFDF2 !important;
-    border:1px solid #F4E7B2;
-}
+
 
 /* DataTables */
 
@@ -432,6 +429,14 @@ table.dataTable thead th {
 
 table.dataTable tbody tr:hover {
     background:#F7F7FB !important;
+}
+
+.betslip-card {
+    background:#FFFDF0 !important;
+    border-radius:14px;
+    padding:20px;
+    margin-bottom:20px;
+    box-shadow:0 3px 10px rgba(0,0,0,0.08);
 }
 
             "))
@@ -1355,55 +1360,55 @@ server <- function(input, output, session) {
                     fluidRow(
 
                         column(
-                            8,
-                            offset = 2,
+                            10,
+                            offset = 1,
 
                             div(
-                                class="card-style betslip-card",
-                                title = "Betslip Entry",
-                                status = "primary",
+                                class = "betslip-card",
+
+                                h3(
+                                    "🎟️ Betslip Entry",
+                                    style = "
+            margin-top:0;
+            margin-bottom:20px;
+            color:#2E3440;
+            font-weight:700;
+            text-align:center;
+        "
+                                ),
+
+                                uiOutput("betting_panel"),
+
+                                br(),
 
                                 div(
                                     style = "
-                    text-align:center;
-                    padding:10px 20px;
-                ",
+            font-size:18px;
+            font-weight:600;
+            color:#2E3440;
+        ",
+                                    textOutput("current_bet")
+                                ),
 
-                                    uiOutput("betting_panel"),
+                                br(),
 
-                                    br(),
+                                fluidRow(
 
-                                    div(
-                                        style = "
-                        font-size:18px;
-                        font-weight:600;
-                        color:#2E3440;
-                    ",
-                                        textOutput("current_bet")
+                                    column(
+                                        6,
+                                        dipsaus::actionButtonStyled(
+                                            "stake_enter",
+                                            "Enter Stake",
+                                            type = "primary"
+                                        )
                                     ),
 
-                                    br(),
-
-                                    fluidRow(
-
-                                        column(
-                                            6,
-
-                                            dipsaus::actionButtonStyled(
-                                                "stake_enter",
-                                                "Enter Stake",
-                                                type = "primary"
-                                            )
-                                        ),
-
-                                        column(
-                                            6,
-
-                                            dipsaus::actionButtonStyled(
-                                                "stake_undo",
-                                                "Undo Stake",
-                                                type = "warning"
-                                            )
+                                    column(
+                                        6,
+                                        dipsaus::actionButtonStyled(
+                                            "stake_undo",
+                                            "Undo Stake",
+                                            type = "warning"
                                         )
                                     )
                                 )
@@ -1499,9 +1504,12 @@ server <- function(input, output, session) {
                 inputId = "selected_stake",
                 choices = c(
                     1,
+                    2,
                     5,
                     10,
+                    15,
                     20,
+                    25,
                     50,
                     100,
                     "Custom"
