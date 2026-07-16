@@ -439,6 +439,9 @@ table.dataTable tbody tr:hover {
     box-shadow:0 3px 10px rgba(0,0,0,0.08);
 }
 
+.btn-group .radiobtn {
+    margin: 3px !important;
+}
             "))
 
         ),
@@ -1455,7 +1458,7 @@ server <- function(input, output, session) {
                             choices = 1,
                             selected = 1,
                             justified = FALSE,
-                            size = "sm"
+                            size = "normal"
                         )
                     )
 
@@ -1471,7 +1474,7 @@ server <- function(input, output, session) {
                         inputId = "selected_team",
                         choices = 1:10,
                         justified = FALSE,
-                        size = "sm"
+                        size = "lg"
                     )
 
                 )
@@ -1485,15 +1488,15 @@ server <- function(input, output, session) {
             shinyWidgets::radioGroupButtons(
                 inputId = "selected_horse",
                 choices = c(
-                    "Red Rum" = 1,
-                    "Secretariat" = 2,
-                    "Seabiscuit" = 3,
-                    "Shergar" = 4,
-                    "Galileo" = 5,
-                    "Best Mate" = 6
+                    "1: Red Rum" = 1,
+                    "2: Secretariat" = 2,
+                    "3: Seabiscuit" = 3,
+                    "4: Shergar" = 4,
+                    "5: Galileo" = 5,
+                    "6: Best Mate" = 6
                 ),
                 justified = FALSE,
-                size = "sm"
+                size = "lg"
             ),
 
             br(),
@@ -1913,7 +1916,7 @@ server <- function(input, output, session) {
 
             ggplot2::aes(
                 x = factor(team),
-                y = bank,
+                y = bank/1000,
                 fill = bank
             )
         ) +
@@ -1942,9 +1945,9 @@ server <- function(input, output, session) {
             ) +
 
             ggplot2::labs(
-                title = "Team Bank ($k)",
+                title = "Team Bank",
                 x = "Team",
-                y = "Bank"
+                y = "Bank ($1000s)"
             ) +
 
             ggplot2::scale_y_continuous(
@@ -1987,7 +1990,7 @@ server <- function(input, output, session) {
             pool_df,
             ggplot2::aes(
                 x = horse,
-                y = pool,
+                y = pool/100,
                 fill = pool
             )
         ) +
@@ -1999,7 +2002,7 @@ server <- function(input, output, session) {
 
             ggplot2::geom_text(
                 ggplot2::aes(
-                    label = round(pool / 1000, 1)
+                    label = round(pool / 100, 1)
                 ),
                 vjust = -0.4,
                 size = 5,
@@ -2013,9 +2016,9 @@ server <- function(input, output, session) {
             ) +
 
             ggplot2::labs(
-                title = "Current Pool ($k)",
+                title = "Current Pool",
                 x = "Horse",
-                y = "Pool"
+                y = "Pool ($100s)"
             ) +
 
             ggplot2::scale_y_continuous(
