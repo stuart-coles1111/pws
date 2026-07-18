@@ -64,6 +64,67 @@ simulate_race <- function(ratings = c(10, 40, 20, 60, 25, 30)) {
     return(place)
 }
 
+simulate_horse_race <- function(ratings = c(10, 40, 20, 60, 25, 30)) {
+
+    df <- data.frame(
+        horse = 1:6,
+        ratings = ratings
+    )
+
+    df_left <- df
+    place <- c()
+
+    for (i in 1:5) {
+
+        place[i] <- sample(
+            df_left$horse,
+            1,
+            prob = df_left$ratings
+        )
+
+        df_left <- subset(
+            df_left,
+            horse != place[i]
+        )
+    }
+
+    place <- c(place, df_left$horse)
+
+
+    return(place)
+
+}
+
+generate_history <- function(
+        ratings,
+        n_races
+){
+
+    results <- replicate(
+        n_races,
+        simulate_horse_race(ratings)
+    )
+
+    results <- t(results)
+
+    results <- data.frame(
+        race = 1:n_races,
+        results
+    )
+
+    colnames(results) <- c(
+        "race",
+        "1st",
+        "2nd",
+        "3rd",
+        "4th",
+        "5th",
+        "6th"
+    )
+
+    results
+}
+
 # =========================================================
 # INITIALISE STAKES / BANK / POOL
 # =========================================================
@@ -563,23 +624,99 @@ table.dataTable tbody tr:hover {
 
                     accordion_panel(
 
-                        title = "📥 Download Data",
+                        title = "🎲 Scenario",
 
-                        p(
-                            "Download the simulated horse racing results used by this activity."
-                        ),
+                        div(
+                            id = "scenario_controls",
+
+                            p(
+                                "Choose the horse rating scenario used by the simulator."
+                            ),
+
+                            radioButtons(
+                                "scenario_type",
+                                "Scenario",
+                                choices = c(
+                                    "Default Scenario" = "default",
+                                    "Generate New Scenario" = "generate",
+                                    "Upload Ratings" = "upload"
+                                ),
+                                selected = "default"
+                            ),
+
+                            conditionalPanel(
+
+                                condition = "input.scenario_type == 'generate'",
+
+                                sliderInput(
+                                    "dirichlet_a",
+                                    "Rating Dispersion",
+                                    min = 0.2,
+                                    max = 10,
+                                    value = 2,
+                                    step = 0.2
+                                ),
+
+                                numericInput(
+                                    "nraces",
+                                    "Number of Historical Races",
+                                    value = 50,
+                                    min = 10,
+                                    max = 1000
+                                ),
+
+                                actionButton(
+                                    "generate_scenario",
+                                    "Generate Scenario"
+                                )
+
+                            ),
+
+                            conditionalPanel(
+
+                                condition = "input.scenario_type == 'upload'",
+
+                                fileInput(
+                                    "ratings_file",
+                                    "Upload Ratings CSV",
+                                    accept = ".csv"
+                                )
+
+                            ),
+
+                            hr(),
+
+                            h4("Current Scenario"),
+
+                            textOutput(
+                                "scenario_status"
+                            )
+
+                        )
+                    )
+                ),
+
+                hr(),
+
+                accordion(
+
+                    open = FALSE,
+
+                    accordion_panel(
+
+                        title = "📥 Downloads",
 
                         downloadButton(
-                            "download_csv",
-                            "Download CSV"
+                            "download_ratings",
+                            "Download Ratings"
                         ),
 
                         br(),
                         br(),
 
                         downloadButton(
-                            "download_pdf",
-                            "Download PDF"
+                            "download_history",
+                            "Download Historical Data"
                         )
 
                     )
@@ -593,6 +730,9 @@ table.dataTable tbody tr:hover {
 
                     accordion_panel(
                         title = "⚙️ Race Setup",
+
+                        div(
+                            id = "race_setup_controls",
 
                         selectInput(
                             "game_mode",
@@ -631,25 +771,12 @@ table.dataTable tbody tr:hover {
                         )
                     )
 
-
+                    )
                 ),
+
 
 
                 br(),
-
-                div(
-                    style="text-align:center;",
-
-                    h4(textOutput("header_text")),
-
-                    h3(
-                        textOutput("timer"),
-                        style="
-                color:#7B9ACC;
-                font-weight:700;
-                "
-                    )
-                ),
 
                 hr(),
 
@@ -796,6 +923,9 @@ server <- function(input, output, session) {
 
     shiny::observeEvent(input$start_timer, {
 
+
+        shinyjs::disable("scenario_controls")
+        shinyjs::disable("race_setup_controls")
 
         if (counter_race() == 1) {
             set.seed(input$seed)
@@ -999,6 +1129,53 @@ server <- function(input, output, session) {
 
     })
 
+    observeEvent(input$generate_scenario, {
+
+        ratings <-
+            round(
+                100 *
+                    as.numeric(
+                        gtools::rdirichlet(
+                            1,
+                            rep(input$dirichlet_a, 6)
+                        )
+                    )
+            )
+
+        ratings_df <- data.frame(
+            horse = 1:6,
+            rating = ratings
+        )
+
+        attr(ratings_df, "source") <- "generated"
+
+        values$ratings <- ratings_df
+
+
+        values$historical_results <-
+            generate_history(
+                ratings,
+                input$nraces
+            )
+
+
+        showModal(
+
+            modalDialog(
+
+                title = "Scenario Generated",
+
+                paste(
+                    nrow(values$historical_results),
+                    "historical races created."
+                ),
+
+                "Use the download buttons to save the ratings and results."
+            )
+        )
+    })
+
+
     observe({
 
         req(betting_open())
@@ -1076,6 +1253,40 @@ server <- function(input, output, session) {
     )
 
 
+    output$download_ratings <- downloadHandler(
+
+        filename = function() {
+            "horse_ratings.csv"
+        },
+
+        content = function(file) {
+
+            write.csv(
+                values$ratings,
+                file,
+                row.names = FALSE
+            )
+        }
+    )
+
+
+    output$download_history <- downloadHandler(
+
+        filename = function() {
+            "horse_race_results.csv"
+        },
+
+        content = function(file) {
+
+            write.csv(
+                values$historical_results,
+                file,
+                row.names = FALSE
+            )
+        }
+    )
+
+
     # =======================================================
     # REACTIVE VALUES
     # =======================================================
@@ -1083,6 +1294,7 @@ server <- function(input, output, session) {
     betting_open <- reactiveVal(FALSE)
 
     betting_closed <- reactiveVal(FALSE)
+
 
     values <- shiny::reactiveValues(
 
@@ -1117,9 +1329,79 @@ server <- function(input, output, session) {
 
         undo_status = 1L,
 
-        bets_df = data.frame()
+        bets_df = data.frame(),
+
+        ratings = NULL,
+
+        historical_results = NULL
     )
 
+    default_ratings <- read.csv(
+        system.file(
+            "extdata",
+            "horse_ratings.csv",
+            package = "pws"
+        )
+    )
+
+    attr(default_ratings, "source") <- "default"
+
+    values$ratings <- default_ratings
+
+    values$historical_results <- read.csv(
+        system.file(
+            "extdata",
+            "horse_race_results.csv",
+            package = "pws"
+        )
+    )
+
+    observeEvent(input$ratings_file, {
+
+        req(input$ratings_file)
+
+        ratings <- read.csv(
+            input$ratings_file$datapath
+        )
+
+        attr(ratings, "source") <- "uploaded"
+
+        values$ratings <- ratings
+
+    })
+
+
+    output$scenario_status <- renderText({
+
+        if (identical(
+            attr(values$ratings, "source"),
+            "generated"
+        )) {
+
+            return(
+                paste(
+                    "Generated scenario:",
+                    nrow(values$historical_results),
+                    "historical races"
+                )
+            )
+
+        }
+
+        if (identical(
+            attr(values$ratings, "source"),
+            "uploaded"
+        )) {
+
+            return(
+                "Uploaded ratings scenario"
+            )
+
+        }
+
+        "Default scenario"
+
+    })
 
     # =======================================================
     # REACTIVE TABLE DATA
@@ -1168,6 +1450,8 @@ server <- function(input, output, session) {
         }
 
     })
+
+
     # =======================================================
     # ENTER STAKE
     # =======================================================
@@ -1319,12 +1603,31 @@ server <- function(input, output, session) {
 
         tagList(
 
-            h2(
-                paste("Race number", counter_race()),
+            div(
+
                 style = "
-                font-weight:700;
-                color:#7B9ACC;
-                margin-bottom:20px;"
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:20px;
+    ",
+
+                h2(
+                    paste("Race number", counter_race()),
+                    style = "
+        font-weight:700;
+        color:#7B9ACC;
+        margin:0;"
+                ),
+
+                h2(
+                    textOutput("timer"),
+                    style="
+        color:#7B9ACC;
+        font-weight:700;
+        margin:0;"
+                )
+
             ),
 
             div(id = "race_banner_placeholder"),
@@ -1801,8 +2104,23 @@ server <- function(input, output, session) {
         # force browser repaint
         Sys.sleep(0.25)
 
+
+        print(values$ratings$rating)
+
         # RUN RACE
-        winner <- simulate_race()[1]
+        req(values$ratings)
+
+        req(
+            nrow(values$ratings) == 6
+        )
+
+        req(
+            "rating" %in% names(values$ratings)
+        )
+
+        winner <- simulate_race(
+            ratings = values$ratings$rating
+        )[1]
 
         # REMOVE BANNER
         shiny::removeUI(
