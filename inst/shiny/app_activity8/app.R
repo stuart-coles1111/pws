@@ -15,10 +15,6 @@ suppressPackageStartupMessages({
 
 horse_pics <- paste0("horse", 1:6, ".jpg")
 
-#commission_max <- 0.2
-commission_max <- 0
-allowed_time <- 30
-
 bet_rate <- 5
 
 bet_proportion <- 0.1
@@ -734,42 +730,42 @@ table.dataTable tbody tr:hover {
                         div(
                             id = "race_setup_controls",
 
-                        selectInput(
-                            "game_mode",
-                            "Mode",
-                            choices = c(
-                                "Multiplayer" = "multi",
-                                "Single Player" = "single"
+                            selectInput(
+                                "game_mode",
+                                "Mode",
+                                choices = c(
+                                    "Multiplayer" = "multi",
+                                    "Single Player" = "single"
+                                ),
+                                selected = "multi"
                             ),
-                            selected = "multi"
-                        ),
 
-                        numericInput(
-                            "seed",
-                            "Random Seed",
-                            value = sample(1:999,1),
-                            min = 1,
-                            max = 999
-                        ),
+                            numericInput(
+                                "seed",
+                                "Random Seed",
+                                value = sample(1:999,1),
+                                min = 1,
+                                max = 999
+                            ),
 
-                        sliderInput(
-                            "commission_max",
-                            "Maximum Commission",
-                            min = 0,
-                            max = 0.5,
-                            value = 0.2,
-                            step = 0.05
-                        ),
+                            sliderInput(
+                                "commission_max",
+                                "Maximum Commission",
+                                min = 0,
+                                max = 0.5,
+                                value = 0.2,
+                                step = 0.05
+                            ),
 
-                        sliderInput(
-                            "allowed_time",
-                            "Betting Window (seconds)",
-                            min = 30,
-                            max = 300,
-                            value = 180,
-                            step = 30
+                            sliderInput(
+                                "allowed_time",
+                                "Betting Window (seconds)",
+                                min = 30,
+                                max = 300,
+                                value = 180,
+                                step = 30
+                            )
                         )
-                    )
 
                     )
                 ),
