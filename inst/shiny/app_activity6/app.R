@@ -349,26 +349,8 @@ main_panel_ui <- function(show_comp_results = FALSE){
                                 "jump-label",
                             class = "jump-label"
                         )
-                    ),
+                    )
 
-                    br(),
-
-                    if(show_comp_results){
-
-                        actionButton(
-                            "run_competition",
-                            "3: Competition Jump",
-                            class="btn-primary"
-                        )
-
-                    } else {
-
-                        actionButton(
-                            "run_training",
-                            "3: Run Training Jump",
-                            class="btn-primary"
-                        )
-                    }
                 )
             )
         )
