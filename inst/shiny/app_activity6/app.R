@@ -78,6 +78,58 @@ validate_spend <- function(vals, max_vals, phase_name){
 # UI Helper
 # =========================================================
 
+activity_buttons_ui <- function(show_comp_results = FALSE){
+
+    if(show_comp_results){
+
+        tagList(
+
+            actionButton(
+                "buy_comp_data",
+                "1: Buy Competition Data",
+                class = "btn-primary"
+            ),
+
+            actionButton(
+                "buy_comp_resources",
+                "2: Buy Competition Resources",
+                class = "btn-primary"
+            ),
+
+            actionButton(
+                "run_competition",
+                "3: Competition Jump",
+                class = "btn-primary"
+            )
+
+        )
+
+    } else {
+
+        tagList(
+
+            actionButton(
+                "buy_train_data",
+                "1: Buy Historical Data",
+                class = "btn-primary"
+            ),
+
+            actionButton(
+                "buy_train_resources",
+                "2: Buy Training Resources",
+                class = "btn-primary"
+            ),
+
+            actionButton(
+                "run_training",
+                "3: Run Training Jump",
+                class = "btn-primary"
+            )
+
+        )
+    }
+}
+
 main_panel_ui <- function(show_comp_results = FALSE){
 
     div(
@@ -134,21 +186,8 @@ main_panel_ui <- function(show_comp_results = FALSE){
                                 "train_data_summary"
                         ),
 
-                        br(),
+                        br()
 
-                        actionButton(
-                            if(show_comp_results)
-                                "buy_comp_data"
-                            else
-                                "buy_train_data",
-
-                            if(show_comp_results)
-                                "1: Buy Competition Data"
-                            else
-                                "1: Buy Historical Data",
-
-                            class="btn-primary"
-                        )
                     ),
 
                     br(),
@@ -213,24 +252,63 @@ main_panel_ui <- function(show_comp_results = FALSE){
 
                     br(),
 
-                    tagList(
+                )
 
-                        if(show_comp_results){
+            ),
 
-                            actionButton(
-                                "buy_comp_resources",
-                                "2: Buy Competition Resources",
-                                class="btn-primary"
-                            )
+            # ===================================================
+            # RIGHT COLUMN
+            # ===================================================
 
-                        } else {
+            column(
+                width = 6,
 
-                            actionButton(
-                                "buy_train_resources",
-                                "2: Buy Training Resources",
-                                class="btn-primary"
-                            )
-                        }
+                # =========================
+                # REGRESSION PLOT (TOP RIGHT)
+                # =========================
+                div(
+                    class = "card-style",
+
+                    h3("Regression Analysis"),
+
+                    plotOutput(
+                        if(show_comp_results)
+                            "regression_plot_comp"
+                        else
+                            "regression_plot",
+                        height = "420px"
+                    )
+                ),
+
+                # =========================
+                # COEFFICIENTS (UNDER PLOT)
+                # =========================
+                div(
+                    class = "card-style",
+
+                    h3("Regression Coefficients"),
+
+                    tableOutput(
+                        if(show_comp_results)
+                            "coef_table_comp"
+                        else
+                            "coef_table"
+                    )
+                ),
+
+                # =========================
+                # JUMP RESULTS (BOTTOM RIGHT)
+                # =========================
+                div(
+                    class = "card-style",
+
+                    h3("Jump Outcomes"),
+
+                    uiOutput(
+                        if(show_comp_results)
+                            "jump_results_comp"
+                        else
+                            "jump_results"
                     )
                 ),
                 # =========================
@@ -291,63 +369,6 @@ main_panel_ui <- function(show_comp_results = FALSE){
                             class="btn-primary"
                         )
                     }
-                )
-            ),
-
-            # ===================================================
-            # RIGHT COLUMN
-            # ===================================================
-
-            column(
-                width = 6,
-
-                # =========================
-                # REGRESSION PLOT (TOP RIGHT)
-                # =========================
-                div(
-                    class = "card-style",
-
-                    h3("Regression Analysis"),
-
-                    plotOutput(
-                        if(show_comp_results)
-                            "regression_plot_comp"
-                        else
-                            "regression_plot",
-                        height = "420px"
-                    )
-                ),
-
-                # =========================
-                # COEFFICIENTS (UNDER PLOT)
-                # =========================
-                div(
-                    class = "card-style",
-
-                    h3("Regression Coefficients"),
-
-                    tableOutput(
-                        if(show_comp_results)
-                            "coef_table_comp"
-                        else
-                            "coef_table"
-                    )
-                ),
-
-                # =========================
-                # JUMP RESULTS (BOTTOM RIGHT)
-                # =========================
-                div(
-                    class = "card-style",
-
-                    h3("Jump Outcomes"),
-
-                    uiOutput(
-                        if(show_comp_results)
-                            "jump_results_comp"
-                        else
-                            "jump_results"
-                    )
                 )
             )
         )
@@ -576,7 +597,6 @@ body{
   margin-top:10px;
   width:100%;
 }
-
 
 /* =========================
    MESSAGES
@@ -816,6 +836,12 @@ body{
                             123
                         ),
 
+                        hr(),
+
+                        activity_buttons_ui(FALSE),
+
+                        hr(),
+
                         uiOutput("training_complete_message")
 
                     ),
@@ -850,7 +876,11 @@ body{
 
                         hr(),
 
-                        uiOutput("competition_budget")
+                        uiOutput("competition_budget"),
+
+                        hr(),
+
+                        activity_buttons_ui(TRUE)
 
                     ),
 
@@ -1216,6 +1246,7 @@ server <- function(input, output, session){
     # =======================================================
 
     observeEvent(input$run_training, {
+
 
         req(rv$weight)
         req(rv$resources_purchased)
