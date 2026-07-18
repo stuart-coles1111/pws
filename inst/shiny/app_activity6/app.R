@@ -664,9 +664,6 @@ body{
   border-left:6px solid #52B788;
 }
 
-body {
-    zoom: 0.9;
-}
 
 "))
         ),
