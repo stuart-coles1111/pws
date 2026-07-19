@@ -100,21 +100,44 @@ ui <- page_navbar(
 }
 
 .btn-start{
+    background:#89C2D9 !important;
+    border-color:#89C2D9 !important;
+    color:#1D3557 !important;
+}
+
+.btn-start:hover{
     background:#7B9ACC !important;
     color:white !important;
-    border:none !important;
 }
 
 .btn-stop{
-    background:#E5989B !important;
+    background:#CDB4DB !important;
+    border-color:#CDB4DB !important;
+    color:#2E3440 !important;
+}
+
+.btn-stop:hover{
+    background:#B89ACB !important;
     color:white !important;
-    border:none !important;
 }
 
 .btn-reset{
-    background:#B8C0A8 !important;
+    background:#A8DADC !important;
+    border-color:#A8DADC !important;
+    color:#1D3557 !important;
+}
+
+.btn-reset:hover{
+    background:#89C2D9 !important;
     color:white !important;
-    border:none !important;
+}
+
+.button-spacing .btn{
+    width:100%;
+    margin-top:8px;
+    margin-bottom:8px;
+    border-radius:12px !important;
+    font-weight:700 !important;
 }
 
         ")
