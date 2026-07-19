@@ -47,13 +47,13 @@ ui <- page_navbar(
                 margin-bottom:18px;
             }
 
-            .card-style{
-                background:white;
-                border-radius:16px;
-                padding:22px;
-                margin-bottom:18px;
-                box-shadow:0 3px 12px rgba(0,0,0,0.08);
-            }
+.card-style{
+    background:white;
+    border-radius:16px;
+    padding:22px;
+    margin-bottom:18px;
+    box-shadow:0 3px 12px rgba(0,0,0,0.08);
+}
 
             .big-bank{
                 font-size:34px;

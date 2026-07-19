@@ -143,6 +143,14 @@ ui <- page_navbar(
                 width: 100%;
             }
 
+.card-style{
+    background:white;
+    border-radius:16px;
+    padding:22px;
+    margin-bottom:18px;
+    box-shadow:0 3px 12px rgba(0,0,0,0.08);
+}
+
             .main-title{
                 background: linear-gradient(90deg,#A8DADC,#CDB4DB);
                 padding: 16px;

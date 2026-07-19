@@ -245,20 +245,13 @@ ui <- page_navbar(
             }
 
 
-            .card-style {
-
-                background:white;
-
-                border-radius:14px;
-
-                padding:20px;
-
-                margin-bottom:20px;
-
-                box-shadow:
-                0 3px 10px rgba(0,0,0,0.08);
-
-            }
+.card-style{
+    background:white;
+    border-radius:16px;
+    padding:22px;
+    margin-bottom:18px;
+    box-shadow:0 3px 12px rgba(0,0,0,0.08);
+}
 
 
             .btn-primary {

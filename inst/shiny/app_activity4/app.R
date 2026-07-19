@@ -227,6 +227,14 @@ ui <- page_navbar(
     border-radius:10px;
     padding:12px;
     margin-bottom:28px;
+            }
+
+.card-style{
+    background:white;
+    border-radius:16px;
+    padding:22px;
+    margin-bottom:18px;
+    box-shadow:0 3px 12px rgba(0,0,0,0.08);
 }
 
 .sidebar-title{

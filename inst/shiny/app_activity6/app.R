@@ -557,11 +557,11 @@ body{
    ========================= */
 
 .card-style{
-  background:white;
-  border-radius:18px;
-  padding:24px;
-  margin-bottom:20px;
-  box-shadow:0 4px 14px rgba(0,0,0,0.08);
+    background:white;
+    border-radius:16px;
+    padding:22px;
+    margin-bottom:18px;
+    box-shadow:0 3px 12px rgba(0,0,0,0.08);
 }
 
 
