@@ -217,7 +217,7 @@ activity5_trick_analysis <- function(
 
 ui <- page_navbar(
 
-    title = "🪄 Activity 5: Statistics is Magic",
+    title = "🪄 Activity 5: Pick a Card",
 
     theme = pws_theme(),
 
@@ -507,7 +507,7 @@ button:disabled {
 
         div(
             class = "main-title",
-            h1("🪄 Activity 5: Statistics is Magic")
+            h1("🪄 Activity 5: Pick a Card")
         )
 
     ),
@@ -590,9 +590,9 @@ button:disabled {
 
             nav_panel(
 
-                "A Card Trick",
+                "The Trick",
 
-                div(class = "main-title", h1("A Card Trick")),
+                div(class = "main-title", h1("The Trick")),
 
                 layout_sidebar(
 

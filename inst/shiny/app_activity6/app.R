@@ -402,7 +402,7 @@ rules_accordion <- function(id){
                 ),
 
                 tags$li(
-                    "Budget cannot be carried over from the training phase to the competition phase."
+                    "Money cannot be carried over from the training phase to the competition phase."
                 ),
 
                 tags$li(
@@ -435,7 +435,7 @@ rules_accordion <- function(id){
 
 ui <- page_navbar(
 
-    title = "🎿 Activity 6: Breaking Records",
+    title = "🎿 Activity 6: The WOrld Record Ski Jump",
 
     theme = pws_theme(),
 
@@ -689,7 +689,7 @@ body{
 
         div(
             class = "main-title",
-            h1("🎿 Activity 6: Breaking Records")
+            h1("🎿 Activity 6:  The World Record Ski Jump")
         )
     ),
 
@@ -710,7 +710,7 @@ body{
             ),
 
             p(
-                "In each phase, your budget can be allocated between four options: Technique, Materials, Fitness, and Historical Data."
+                "Your budget for each phase can be allocated between four options: Technique, Materials, Fitness, and Historical Data."
             ),
 
             p(

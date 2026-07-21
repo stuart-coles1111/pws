@@ -16,9 +16,9 @@ stats_lab <- function() {
             "app_activity3",
         "Activity 4: Quiz Time" =
             "app_activity4",
-        "Activity 5: Statistics is Magic" =
+        "Activity 5: Pick a Card" =
             "app_activity5",
-        "Activity 6: Breaking Records" =
+        "Activity 6: The World Record Ski Jump" =
             "app_activity6",
         "Activity 7: A Dice Tournament" =
             "app_activity7",
