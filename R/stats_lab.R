@@ -24,7 +24,7 @@ stats_lab <- function() {
             "app_activity7",
         "Activity 8: A Day at the Races" =
             "app_activity8",
-        "Statistics Lab (Home)" =
+        "Statistics Lab" =
             "stats_lab",
         "Exit" = NA
     )
