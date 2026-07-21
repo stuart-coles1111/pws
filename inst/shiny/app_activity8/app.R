@@ -514,25 +514,46 @@ table.dataTable tbody tr:hover {
 
             p(
                 "The app provides a team-based pool betting framework based on a series of simulated horse races."
-            )
+            ),
+
+            p(
+                "Once bets are placed, team banks, pool size and notional prices are automatically updated."
+            ),
+
+            p("By default, commission is levied at an increasing rate throughout the betting period to a maximum of 20%. This level can
+              be changed in the race settings, or switched off by setting the level to zero."),
+
+            p("The pool is initiated with $100 per horse.")
 
         ),
 
 
         individual = tagList(
 
+            p(
+                "This activity was originally designed for group participation. However, a single player mode has been introduced to enable individual participation."
+            ),
+
             tags$ol(
 
                 tags$li(
-                    "Place stakes on horses."
+                    p("Use the historical data to estimate race win probabilities for each horse.")
                 ),
 
                 tags$li(
-                    "Observe race outcomes."
+                    p("Set single player mode in Race Controls. In this mode, bets placed by other teams are simulated.")
                 ),
 
                 tags$li(
-                    "Track performance over time."
+                    p("Experiment by betting early—to minimise commission—or betting late, so that notional prices are more accurate.")
+                ),
+
+                tags$li(
+                    p("Does the conclusion depend much on the level of commission charged?")
+                ),
+
+                tags$li(
+                    p("Repeat everything for different scenarios. Does the parameter have any effect on either your strategy for calculating probabilities or placing bets?")
                 )
 
             )
@@ -732,6 +753,15 @@ table.dataTable tbody tr:hover {
                                 value = sample(1:999,1),
                                 min = 1,
                                 max = 999
+                            ),
+
+                            sliderInput(
+                                "n_races",
+                                "Number of races",
+                                min = 1,
+                                max = 20,
+                                value = 10,
+                                step = 1
                             ),
 
                             sliderInput(
@@ -1417,22 +1447,6 @@ server <- function(input, output, session) {
         )
     })
 
-    observe({
-
-        if (betting_closed()) {
-
-            shinyjs::disable("stake_enter")
-            shinyjs::disable("stake_undo")
-
-        } else {
-
-            shinyjs::enable("stake_enter")
-            shinyjs::enable("stake_undo")
-
-        }
-
-    })
-
 
     # =======================================================
     # ENTER STAKE
@@ -1529,6 +1543,12 @@ server <- function(input, output, session) {
                 values$total_stake_net[horse, team] +
                 round(real_stake * (1 - commission), -2)
         }
+
+        showNotification(
+            "Bet successfully entered",
+            type = "message",
+            duration = 2
+        )
     })
 
     # =======================================================
@@ -1579,6 +1599,13 @@ server <- function(input, output, session) {
                 values$total_stake_net[horse, team] -
                 round(stake * (1 - commission), -2)
         }
+
+        showNotification(
+            "Bet successfully deleted",
+            type = "error",
+            duration = 2
+        )
+
     })
 
     output$pool_page <- renderUI({
@@ -1595,7 +1622,12 @@ server <- function(input, output, session) {
     ",
 
                 h2(
-                    paste("Race number", counter_race()),
+                    paste(
+                        "Race",
+                        counter_race(),
+                        "of",
+                        input$n_races
+                    ),
                     style = "
         font-weight:700;
         color:#7B9ACC;
@@ -2044,6 +2076,9 @@ server <- function(input, output, session) {
 
     shiny::observeEvent(input$run_race, {
 
+        shinyjs::disable("stake_enter")
+        shinyjs::disable("stake_undo")
+
         race_run(1)
 
         req(betting_closed())
@@ -2086,8 +2121,6 @@ server <- function(input, output, session) {
         # force browser repaint
         Sys.sleep(0.25)
 
-
-        print(values$ratings$rating)
 
         # RUN RACE
         req(values$ratings)
@@ -2171,32 +2204,62 @@ server <- function(input, output, session) {
         shinyjs::runjs("
           $('a[data-value=\"panel2\"]').tab('show');
         ")
+
+        if(counter_race() >= input$n_races){
+
+            shinyjs::disable("next_race")
+
+        }
     })
 
     # =======================================================
     # NEXT RACE
     # =======================================================
 
+    observe({
+
+        if(counter_race() >= input$n_races){
+
+            shinyjs::disable("next_race")
+
+        } else {
+
+            shinyjs::enable("next_race")
+
+        }
+
+    })
 
 
-    shiny::observeEvent(input$next_race, {
+    observeEvent(input$next_race, {
+
+
+        shinyjs::enable("stake_enter")
+        shinyjs::enable("stake_undo")
+
+        current_race <- counter_race()
+
+        if(current_race >= input$n_races){
+
+            shinyjs::disable("next_race")
+
+            return()
+
+        }
 
         race_run(0)
+
         shinyjs::enable("game_mode")
 
         betting_open(FALSE)
         betting_closed(FALSE)
 
-        tmp0 <- counter_race()
-
-        counter_race(tmp0 + 1)
+        counter_race(current_race + 1)
 
         values$current_pool <- pool
-
         values$current_pool_adj <- pool
 
         values$total_stake <- total_stake
-
         values$total_stake_net <- total_stake
 
         values$price <- (
@@ -2206,12 +2269,12 @@ server <- function(input, output, session) {
         )
 
         output$text_win <- NULL
-
         output$image <- NULL
 
         values$winnings <- winnings_init
 
         values$bets_df <- data.frame()
+
     })
 
     observeEvent(input$run_race, {
