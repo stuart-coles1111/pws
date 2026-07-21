@@ -165,18 +165,25 @@ main_panel_ui <- function(show_comp_results = FALSE){
 
                         h4("📊 Historical Data"),
 
-                        sliderInput(
-                            if(show_comp_results)
-                                "comp_data_rows"
+                        div(
+                            id = if(show_comp_results)
+                                "comp_data_container"
                             else
-                                "train_data_rows",
+                                "train_data_container",
 
-                            "Historical data purchased (jumps)",
+                            sliderInput(
+                                if(show_comp_results)
+                                    "comp_data_rows"
+                                else
+                                    "train_data_rows",
 
-                            min = 0,
-                            max = 100,
-                            value = 0,
-                            step = 10
+                                "Historical data purchased (jumps)",
+
+                                min = 0,
+                                max = 100,
+                                value = 0,
+                                step = 10
+                            )
                         ),
 
                         uiOutput(
@@ -252,8 +259,19 @@ main_panel_ui <- function(show_comp_results = FALSE){
 
                     br(),
 
-                )
+                ),
 
+                if(show_comp_results){
+
+                    div(
+                        class = "card-style",
+
+                        h3("Competition Budget"),
+
+                        uiOutput("competition_budget")
+                    )
+
+                }
             ),
 
             # ===================================================
@@ -575,6 +593,10 @@ body{
   width:100%;
 }
 
+.shiny-input-container.disabled {
+    opacity: 0.55;
+}
+
 /* =========================
    MESSAGES
    ========================= */
@@ -849,13 +871,6 @@ body{
 
                         class = "card-style",
 
-                        h4("Competition Budget"),
-
-                        hr(),
-
-                        uiOutput("competition_budget"),
-
-                        hr(),
 
                         activity_buttons_ui(TRUE)
 
@@ -873,6 +888,48 @@ body{
 # =========================================================
 
 server <- function(input, output, session){
+
+    observe({
+
+        shinyjs::disable("buy_comp_resources")
+        shinyjs::disable("run_competition")
+
+    })
+
+    observeEvent(input$buy_comp_data, {
+
+        shinyjs::disable("buy_comp_data")
+        shinyjs::enable("buy_comp_resources")
+
+    })
+
+    observeEvent(input$buy_comp_resources, {
+
+        shinyjs::disable("buy_comp_resources")
+        shinyjs::enable("run_competition")
+
+    })
+
+    observe({
+
+        shinyjs::disable("buy_train_resources")
+        shinyjs::disable("run_training")
+
+    })
+
+    observeEvent(input$buy_train_data, {
+
+        shinyjs::disable("buy_train_data")
+        shinyjs::enable("buy_train_resources")
+
+    })
+
+    observeEvent(input$buy_train_resources, {
+
+        shinyjs::disable("buy_train_resources")
+        shinyjs::enable("run_training")
+
+    })
 
     get_train_resource_spend <- function(){
 
@@ -1010,12 +1067,12 @@ server <- function(input, output, session){
     output$competition_budget <- renderUI({
 
         train <- c(
-            Technique = input$train_technique / 1000,
-            Materials = input$train_materials / 1000,
-            Fitness   = input$train_fitness / 1000
+            Technique = input$train_technique,
+            Materials = input$train_materials,
+            Fitness   = input$train_fitness
         )
 
-        remaining <- 10 - train
+        remaining <- 10000 - train
 
         comp_budget_used <-
             input$comp_data_rows * 100 +
@@ -1058,7 +1115,11 @@ server <- function(input, output, session){
                         tags$tr(
                             tags$td(strong(x)),
                             tags$td(
-                                paste0(train[x], " / 10")
+                                paste0(
+                                    format_money(train[x]),
+                                    " / ",
+                                    format_money(10000)
+                                )
                             )
                         )
 
@@ -1079,7 +1140,9 @@ server <- function(input, output, session){
 
                         tags$tr(
                             tags$td(strong(x)),
-                            tags$td(remaining[x])
+                            tags$td(
+                                format_money(remaining[x])
+                            )
                         )
 
                     })
@@ -1087,17 +1150,16 @@ server <- function(input, output, session){
                 )
             )
 
-
-
         )
 
     })
-
     # =======================================================
     # BUY TRAINING DATA
     # =======================================================
 
     observeEvent(input$buy_train_data, {
+
+        shinyjs::disable("train_data_rows")
 
         set.seed(input$seed)
 
@@ -1168,6 +1230,11 @@ server <- function(input, output, session){
     # =======================================================
 
     observeEvent(input$buy_train_resources, {
+
+
+        shinyjs::disable("train_technique")
+        shinyjs::disable("train_materials")
+        shinyjs::disable("train_fitness")
 
         req(rv$weight)
 
@@ -1313,6 +1380,9 @@ server <- function(input, output, session){
 
     observeEvent(input$buy_comp_data, {
 
+
+        shinyjs::disable("comp_data_rows")
+
         req(rv$train_complete)
 
         vals <- c(
@@ -1381,6 +1451,11 @@ server <- function(input, output, session){
     # =======================================================
 
     observeEvent(input$buy_comp_resources, {
+
+
+        shinyjs::disable("comp_technique")
+        shinyjs::disable("comp_materials")
+        shinyjs::disable("comp_fitness")
 
         req(rv$train_complete)
 
