@@ -71,11 +71,7 @@ scale_param <- 18
 # UI
 # =========================================================
 ui <- page_navbar(
-    theme = bs_theme(
-        version = 5,
-        bootswatch = "minty",
-        base_font = font_google("Inter")
-    ),
+    theme = pws_theme(),
 
     header = tagList(tags$head(tags$style(
         HTML(

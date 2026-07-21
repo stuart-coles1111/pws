@@ -419,12 +419,7 @@ ui <- page_navbar(
 
     title = "🎿 Activity 6: Breaking Records",
 
-    theme = bs_theme(
-        version = 5,
-        bootswatch = "lux",
-        primary = "#7B9ACC",
-        base_font = font_google("Inter")
-    ),
+    theme = pws_theme(),
 
     header = tagList(
 

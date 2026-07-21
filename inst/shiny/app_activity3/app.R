@@ -25,14 +25,7 @@ draw_ceiling <- function(mode) {
 # =========================================================
 
 ui <- page_navbar(
-    theme = bs_theme(
-        version = 5,
-        bootswatch = "minty",
-        primary = "#7B9ACC",
-        bg = "#F7F7FB",
-        fg = "#2E3440",
-        base_font = font_google("Inter")
-    ),
+    theme = pws_theme(),
 
     header = tagList(
         tags$style(

@@ -109,13 +109,7 @@ ui <- page_navbar(
 
     title = "🪙 Activity 1: Picturing Randomness",
 
-    theme = bs_theme(
-        version = 5,
-        bootswatch = "minty",
-        primary = "#7B9ACC",
-        bg = "#F7F7FB",
-        fg = "#2E3440"
-    ),
+    theme = pws_theme(),
 
     header = tagList(
 
