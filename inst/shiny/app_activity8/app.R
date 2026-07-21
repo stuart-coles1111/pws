@@ -540,6 +540,7 @@ table.dataTable tbody tr:hover {
                     p("Use the historical data to estimate race win probabilities for each horse.")
                 ),
 
+
                 tags$li(
                     p("Set single player mode in Race Controls. In this mode, bets placed by other teams are simulated.")
                 ),
@@ -553,7 +554,7 @@ table.dataTable tbody tr:hover {
                 ),
 
                 tags$li(
-                    p("Repeat everything for different scenarios. Does the parameter have any effect on either your strategy for calculating probabilities or placing bets?")
+                    p("Repeat everything for different scenarios. Does the rating dispersion parameter (set in the scenario panel) have any impact on either your strategy for calculating probabilities or placing bets?")
                 )
 
             )
@@ -587,15 +588,15 @@ table.dataTable tbody tr:hover {
             tags$ul(
 
                 tags$li(
-                    "Can strategies beat randomness?"
+                    p("When estimating race win probabilities, how can you utilise the complete information about placings from previous races?")
                 ),
 
                 tags$li(
-                    "What drives long-term winnings?"
+                    p("What strategies are available for choosing bet placements? Are some more effective than others?")
                 ),
 
                 tags$li(
-                    "Is success skill or luck?"
+                    "Which is the more imprtant aspect in this activity - estimating race win probabilities well or having a good betting strategy?"
                 )
 
             )
