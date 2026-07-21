@@ -31,7 +31,7 @@ stats_toolkit_ui <- function(id){
                 "Vector source",
                 choices = c(
                     "Manual entry" = "manual",
-                    "Simulate Poisson data" = "simulate"
+                    "Simulate data" = "simulate"
                 )
             ),
 
@@ -979,14 +979,34 @@ stats_toolkit_server<-function(id){
 
             if (input$data_source == "vector") {
 
-                vals <- toolkit_data()$data
+                if (input$vector_mode == "simulate") {
 
-                data_code <- paste0(
-                    "x <- c(",
-                    paste(head(vals, 20), collapse = ", "),
-                    if (length(vals) > 20) ", ..." else "",
-                    ")"
-                )
+                    data_code <- paste(
+                        paste0("set.seed(", input$seed, ")"),
+                        "",
+                        paste0("nsim <- ", input$sim_n),
+                        "",
+                        "lambda <- runif(1, 2, 20)",
+                        "",
+                        "x <- rpois(",
+                        "    nsim,",
+                        "    lambda",
+                        ")",
+                        sep = "\n"
+                    )
+
+                } else {
+
+                    vals <- toolkit_data()$data
+
+                    data_code <- paste0(
+                        "x <- c(",
+                        paste(head(vals, 20), collapse = ", "),
+                        if (length(vals) > 20) ", ..." else "",
+                        ")"
+                    )
+
+                }
 
             } else {
 
