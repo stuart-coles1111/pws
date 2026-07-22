@@ -20,7 +20,7 @@ stats_lab <- function() {
             "app_activity5",
         "Activity 6: The World Record Ski Jump" =
             "app_activity6",
-        "Activity 7: A Dice Tournament" =
+        "Activity 7: The World Cup of Dice" =
             "app_activity7",
         "Activity 8: A Day at the Races" =
             "app_activity8",

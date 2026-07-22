@@ -1,6 +1,8 @@
 suppressPackageStartupMessages({
     library(shiny)
+    library(shinyjs)
     library(bslib)
+    library(ggplot2)
 })
 
 # =========================================================
@@ -81,7 +83,7 @@ activity7_neg_log_lik <- function(
 
 ui <- page_navbar(
 
-    title = "🎲 Activity 7: A Dice Tournament",
+    title = "🎲 Activity 7: The World Cup of Dice",
 
     theme = pws_theme(),
 
@@ -231,7 +233,7 @@ $(home_id).val(home).change();
 
         div(
             class = "app-header",
-            h1("🎲 Activity 7: A Dice Tournament")
+            h1("🎲 Activity 7: The World Cup of Dice")
         )
     ),
 
@@ -469,6 +471,14 @@ $(home_id).val(home).change();
                 br(),
 
                 actionButton(
+                    "assign_colours",
+                    "🎲 Assign Dice Colours"
+                ),
+
+                br(),
+                br(),
+
+                actionButton(
                     "start",
                     "Start Tournament",
                     class = "btn-primary"
@@ -613,8 +623,18 @@ $(home_id).val(home).change();
                     hr(),
 
                     p(
-                        HTML("<b>Home advantage:</b> In every game, the home player receives an additional <b>0.5 points</b>.")
+                        HTML("<b>Home advantage:</b> In every game, the home player receives an additional <b>0.5 points</b>. In
+                             practice this means that if two players obtain the same game score, the home player is the winner of that game.
+                             In the tournament bracket below, the home player for each match is listed first.")
                     )
+
+                ),
+
+                accordion_panel(
+
+                    title = "🎲 Dice Colour Assignments",
+
+                    uiOutput("dice_assignments")
 
                 )
 
@@ -655,6 +675,7 @@ server <- function(input, output, session){
 
     rv <- reactiveValues(
         round=1,
+        colours_assigned = FALSE,
         player_colours=NULL,
         current_players=NULL,
         display_names=NULL,
@@ -696,6 +717,9 @@ server <- function(input, output, session){
     })
 
     start_tournament <- function(){
+
+        req(rv$colours_assigned)
+        disable("assign_colours")
 
         rv$sim_ready <- FALSE
         rv$sim_preview <- NULL
@@ -740,12 +764,6 @@ server <- function(input, output, session){
 
         }
 
-        rv$display_names <- nm
-
-        rv$player_colours <- setNames(
-            sample(rep(colours, length.out = nplayers)),
-            1:nplayers
-        )
 
         rv$current_players <- sample(1:nplayers)
         rv$round <- 1
@@ -791,6 +809,57 @@ server <- function(input, output, session){
         list(home=home,away=away,results=results,winners=winners)
     }
 
+    observe({
+
+        if(!rv$started && !rv$colours_assigned)
+            disable("start")
+
+    })
+
+    observeEvent(input$assign_colours, {
+
+        set.seed(input$seed)
+
+        nplayers <- 2^input$nrounds
+
+        nm <- player_names()
+
+        if (input$mode %in% c("human", "sim") && !is.null(nm)) {
+
+            nm <- trimws(nm)
+            nm <- nm[nm != ""]
+
+            if (length(nm) < nplayers) {
+
+                nm <- c(
+                    nm,
+                    paste("Player", (length(nm) + 1):nplayers)
+                )
+
+            }
+
+            nm <- sample(nm)[1:nplayers]
+
+        } else {
+
+            nm <- paste("Player", 1:nplayers)
+
+        }
+
+        rv$display_names <- nm
+
+        rv$player_colours <- setNames(
+            sample(rep(colours, length.out = nplayers)),
+            1:nplayers
+        )
+
+        rv$colours_assigned <- TRUE
+
+        enable("start")
+        disable("assign_colours")
+
+    })
+
     observeEvent(input$simulate_results, {
 
         req(rv$current_players)
@@ -813,6 +882,8 @@ server <- function(input, output, session){
     })
 
     observeEvent(input$start, {
+
+        req(rv$colours_assigned)
 
         if(rv$started){
 
@@ -850,9 +921,17 @@ server <- function(input, output, session){
 
         removeModal()
 
-        start_tournament()
+        rv$colours_assigned <- FALSE
+        rv$player_colours <- NULL
+        rv$display_names <- NULL
+
+        rv$started <- FALSE
+
+        enable("assign_colours")
+        disable("start")
 
     })
+
 
     observeEvent(
         {
@@ -1222,6 +1301,77 @@ server <- function(input, output, session){
 
     })
 
+    output$dice_assignments <- renderUI({
+
+        req(rv$colours_assigned)
+
+        entries <- lapply(
+
+            seq_along(rv$display_names),
+
+            function(i){
+
+                colour <- tolower(
+                    rv$player_colours[i]
+                )
+
+                div(
+
+                    style = "
+                    padding:4px;
+                    text-align:center;
+                ",
+
+                    div(
+                        style = "
+                        font-size:0.85em;
+                        font-weight:600;
+                        margin-bottom:2px;
+                        white-space:nowrap;
+                        overflow:hidden;
+                        text-overflow:ellipsis;
+                    ",
+                        rv$display_names[i]
+                    ),
+
+                    span(
+
+                        class = paste0(
+                            'player-badge badge-',
+                            colour
+                        ),
+
+                        style = '
+                        min-width:60px;
+                        padding:2px 8px;
+                        margin:0;
+                        font-size:0.75em;
+                    ',
+
+                        rv$player_colours[i]
+
+                    )
+
+                )
+
+            }
+
+        )
+
+        do.call(
+
+            layout_columns,
+
+            c(
+                list(
+                    col_widths = c(3,3,3,3)
+                ),
+                entries
+            )
+
+        )
+
+    })
     output$round_section <- renderUI({
 
         if(is.null(rv$current_players)){
@@ -1457,7 +1607,7 @@ server <- function(input, output, session){
                     shinyjs::disabled(
                         actionButton(
                             "show_data",
-                            "Show Data",
+                            "Show Scores",
                             class = "btn-primary"
                         )
                     )
@@ -1466,7 +1616,7 @@ server <- function(input, output, session){
 
                     actionButton(
                         "show_data",
-                        "Show Data",
+                        "Show Scores",
                         class = "btn-primary"
                     )
 
