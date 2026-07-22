@@ -374,6 +374,14 @@ $(home_id).val(home).change();
                             )
                         ),
 
+                        numericInput(
+                            "nrounds",
+                            "Number of rounds",
+                            5,
+                            1,
+                            8
+                        ),
+
                         conditionalPanel(
 
                             condition = "input.mode == 'human' || input.mode == 'sim'",
@@ -383,22 +391,16 @@ $(home_id).val(home).change();
                             h5("Player List"),
 
                             helpText(
-                                "Optional. Upload a CSV containing one player name per row. The names will be assigned randomly to tournament positions."
+                                "Optional. Upload a CSV containing player names, one name per row."
                             ),
 
                             fileInput(
                                 "player_file",
                                 "Upload player names",
                                 accept = ".csv"
-                            )
-                        ),
+                            ),
 
-                        numericInput(
-                            "nrounds",
-                            "Number of rounds",
-                            5,
-                            1,
-                            8
+                            uiOutput("player_file_warning")
                         ),
 
                         numericInput(
@@ -710,10 +712,68 @@ server <- function(input, output, session){
 
         dat <- read.csv(
             input$player_file$datapath,
-            stringsAsFactors = FALSE
+            stringsAsFactors = FALSE,
+            header = FALSE
         )
 
-        trimws(dat[[1]])
+        names <- trimws(dat[[1]])
+        names <- names[names != ""]
+
+        required_players <- 2^input$nrounds
+
+        if(length(names) != required_players)
+            return(NULL)
+
+        names
+
+    })
+
+    observeEvent(
+        list(input$player_file, input$nrounds),
+        {
+        req(input$player_file)
+
+        dat <- read.csv(
+            input$player_file$datapath,
+            stringsAsFactors = FALSE,
+            header = FALSE
+        )
+
+        names <- trimws(dat[[1]])
+        names <- names[names != ""]
+
+        required_players <- 2^input$nrounds
+
+        if(length(names) != required_players){
+
+            showNotification(
+                paste0(
+                    "Player file rejected: expected exactly ",
+                    required_players,
+                    " names for ",
+                    input$nrounds,
+                    " rounds, but found ",
+                    length(names),
+                    ". Please upload a different file."
+                ),
+                type = "error",
+                duration = NULL
+            )
+
+        } else {
+
+            showNotification(
+                paste0(
+                    "Player file accepted: ",
+                    length(names),
+                    " players loaded."
+                ),
+                type = "message",
+                duration = 4
+            )
+
+        }
+
     })
 
     start_tournament <- function(){
@@ -744,19 +804,7 @@ server <- function(input, output, session){
 
         if (input$mode %in% c("human", "sim") && !is.null(nm)) {
 
-            nm <- trimws(nm)
-            nm <- nm[nm != ""]
-
-            if (length(nm) < nplayers) {
-
-                nm <- c(
-                    nm,
-                    paste("Player", (length(nm) + 1):nplayers)
-                )
-
-            }
-
-            nm <- sample(nm)[1:nplayers]
+            nm <- sample(nm)
 
         } else {
 
@@ -826,19 +874,7 @@ server <- function(input, output, session){
 
         if (input$mode %in% c("human", "sim") && !is.null(nm)) {
 
-            nm <- trimws(nm)
-            nm <- nm[nm != ""]
-
-            if (length(nm) < nplayers) {
-
-                nm <- c(
-                    nm,
-                    paste("Player", (length(nm) + 1):nplayers)
-                )
-
-            }
-
-            nm <- sample(nm)[1:nplayers]
+            nm <- sample(nm)
 
         } else {
 
@@ -924,6 +960,9 @@ server <- function(input, output, session){
         rv$colours_assigned <- FALSE
         rv$player_colours <- NULL
         rv$display_names <- NULL
+        rv$started <- FALSE
+
+        shinyjs::enable("nrounds")
 
         rv$started <- FALSE
 
@@ -1094,6 +1133,10 @@ server <- function(input, output, session){
 
         }
     )
+
+    observeEvent(input$assign_colours, {
+        shinyjs::disable("nrounds")
+    })
 
     observeEvent(input$mode, {
 
