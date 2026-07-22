@@ -1537,13 +1537,13 @@ server <- function(input, output, session){
 
         df <- rv$sim_history
 
-            ggplot(df, aes(picture_value, fail_prob)) +
+        ggplot(df, aes(picture_value, fail_prob)) +
 
-        {if (nrow(df) > 1)
-            geom_line(
-                color = "#7B9ACC",
-                linewidth = 1.2
-            )}+
+            {if (nrow(df) > 1)
+                geom_line(
+                    color = "#7B9ACC",
+                    linewidth = 1.2
+                )} +
 
             geom_point(
                 color = "#CDB4DB",
@@ -1559,14 +1559,20 @@ server <- function(input, output, session){
                 color = "#7B9ACC"
             ) +
 
+            scale_x_continuous(
+                breaks = 1:10,
+                limits = c(1,10)
+            ) +
+
             theme_minimal(base_size = 14) +
 
             labs(
                 x = "Picture Card Value",
                 y = "Failure Probability"
             )
+
     })
-}
+    }
 
 # =========================================================
 # APP
