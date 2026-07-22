@@ -474,7 +474,7 @@ $(home_id).val(home).change();
 
                 actionButton(
                     "assign_colours",
-                    "🎲 Assign Dice Colours"
+                    label = "🎨 Assign Dice Colours"
                 ),
 
                 br(),
@@ -634,7 +634,7 @@ $(home_id).val(home).change();
 
                 accordion_panel(
 
-                    title = "🎲 Dice Colour Assignments",
+                    title = "🎨 Dice Colour Assignments",
 
                     uiOutput("dice_assignments")
 
