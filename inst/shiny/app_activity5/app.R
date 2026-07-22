@@ -1555,13 +1555,21 @@ server <- function(input, output, session){
                     ymin = fail_prob - 1.96 * se,
                     ymax = fail_prob + 1.96 * se
                 ),
-                width = 0.15,
+                width = 0.75,
                 color = "#7B9ACC"
             ) +
 
             scale_x_continuous(
-                breaks = 1:10,
-                limits = c(1,10)
+                breaks = 1:10
+            ) +
+
+            scale_y_continuous(
+                breaks = seq(0, 0.4, by = 0.1)
+            ) +
+
+            coord_cartesian(
+                xlim = c(1,10),
+                ylim = c(0, 0.4)
             ) +
 
             theme_minimal(base_size = 14) +
