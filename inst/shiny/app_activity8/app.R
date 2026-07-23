@@ -513,25 +513,31 @@ table.dataTable tbody tr:hover {
             ),
 
             p(
-                "The app provides a team-based pool betting framework based on a series of simulated horse races."
+                "The activity uses a pool betting market built around a series of simulated horse races."
             ),
 
             p(
-                "Once bets are placed, team banks, pool size and notional prices are automatically updated."
+                "Each race is simulated using underlying horse abilities together with a random component, so stronger horses are more likely—but not certain—to win."
             ),
 
-            p("By default, commission is levied at an increasing rate throughout the betting period to a maximum of 20%. This level can
-              be changed in the race settings, or switched off by setting the level to zero."),
+            p(
+                "Teams start with a bank of $10000 and the pool for each race is initiated with $100 per horse."
+            ),
 
-            p("The pool is initiated with $100 per horse.")
+            p(
+                "By default, commission on bets increases throughout the betting period, reaching a maximum of 20% immediately before the race. This level can be changed in the Race Settings panel, or switched off entirely by setting the maximum commission to zero."
+            ),
+
+            p(
+                "Once bets are placed, team banks, pool sizes and notional prices are updated automatically."
+            )
 
         ),
-
 
         individual = tagList(
 
             p(
-                "This activity was originally designed for group participation. However, a single player mode has been introduced to enable individual participation."
+                "This activity was originally designed for group participation. However, a single-player mode has been introduced to enable individual participation."
             ),
 
             tags$ol(
@@ -540,13 +546,12 @@ table.dataTable tbody tr:hover {
                     p("Use the historical data to estimate race win probabilities for each horse.")
                 ),
 
-
                 tags$li(
-                    p("Set single player mode in Race Controls. In this mode, bets placed by other teams are simulated.")
+                    p("Select Single Player Mode in Race Controls. In this mode, bets placed by other teams are simulated.")
                 ),
 
                 tags$li(
-                    p("Experiment by betting early—to minimise commission—or betting late, so that notional prices are more accurate.")
+                    p("Experiment with betting early—to minimise commission—or betting later, when notional prices may better reflect the views of other participants.")
                 ),
 
                 tags$li(
@@ -554,41 +559,55 @@ table.dataTable tbody tr:hover {
                 ),
 
                 tags$li(
-                    p("Repeat everything for different scenarios. Does the rating dispersion parameter (set in the scenario panel) have any impact on either your strategy for calculating probabilities or placing bets?")
+                    p("Repeat the activity under different scenarios. Does the rating dispersion parameter (set in the Scenario panel) affect either the way probabilities are estimated or the betting strategy adopted?")
                 )
 
             )
 
         ),
 
-
         group = tagList(
+
+            p(
+                "The activity is designed for group participation at a live meeting, with participants divided into 10 teams. The team finishing with the most money after a fixed number of races—10 by default—is the winner."
+            ),
+
+            p(
+                "Before the activity begins, teams can use historical race data to estimate win probabilities for future races. The app can be used to generate these historical data, which can then be distributed to teams in advance of the meeting."
+            ),
+
+            p(
+                "Horse abilities can either be fixed at default values or randomly generated. Full details are provided in Chapter 8 of Playing With Statistics."
+            ),
+
+            p(
+                "Following the activity, a number of issues can be discussed, including:"
+            ),
 
             tags$ol(
 
                 tags$li(
-                    "Compare strategies across participants."
+                    "Which teams had the most effective strategy for estimating probabilities and placing bets?"
                 ),
 
                 tags$li(
-                    "Analyse risk and reward."
+                    "Was it helpful to adjust betting strategies dynamically, either within races or across races?"
                 ),
 
                 tags$li(
-                    "Discuss randomness in outcomes."
+                    "Would it have been possible or helpful to update estimated win probabilities in light of the new race data generated during the activity?"
                 )
 
             )
 
         ),
-
 
         question = tagList(
 
             tags$ul(
 
                 tags$li(
-                    p("When estimating race win probabilities, how can you utilise the complete information about placings from previous races?")
+                    p("When estimating race win probabilities, how can the complete information about placings from previous races be utilised?")
                 ),
 
                 tags$li(
@@ -596,7 +615,7 @@ table.dataTable tbody tr:hover {
                 ),
 
                 tags$li(
-                    "Which is the more imprtant aspect in this activity - estimating race win probabilities well or having a good betting strategy?"
+                    "Which is more important in this activity: accurately estimating race win probabilities, or adopting an effective betting strategy?"
                 )
 
             )
@@ -799,9 +818,69 @@ table.dataTable tbody tr:hover {
 
             # MAIN CONTENT GOES HERE (no main=)
 
+
+
             div(
 
                 class="card-style",
+
+                accordion(
+
+                    open = FALSE,
+
+                    accordion_panel(
+
+                        title = "📖 Rules of Play",
+
+                        tags$ol(
+
+                            tags$li(
+                                "Each team begins with a bank of $10000."
+                            ),
+
+                            tags$li(
+                                "For every race, a betting pool is created with an initial stake of $100 on each horse."
+                            ),
+
+                            tags$li(
+                                "Teams may place bets on one or more horses during the betting period."
+                            ),
+
+                            tags$li(
+                                "As bets are placed, pool sizes and notional prices are updated automatically."
+                            ),
+
+                            tags$li(
+                                "Notional prices are shown on the basis of a stake size of $100."
+                            ),
+
+                            tags$li(
+                                "By default, commission increases throughout the betting period, reaching a maximum level immediately before the race begins."
+                            ),
+
+                            tags$li(
+                                "When betting closes, the race is simulated and the winning horse is determined."
+                            ),
+
+                            tags$li(
+                                "Winning bets are paid according to the final pool sizes after commission has been deducted."
+                            ),
+
+                            tags$li(
+                                "The process is repeated for the selected number of races."
+                            ),
+
+                            tags$li(
+                                "The team with the largest bank at the end of the final race is the winner."
+                            )
+
+                        )
+
+                    )
+
+                ),
+
+                br(),
 
                 tabsetPanel(
 
