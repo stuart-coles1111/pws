@@ -32,7 +32,7 @@ chapter3_ui <- function(id){
         numericInput(ns("x"), "x coordinate", 5),
         numericInput(ns("y"), "y coordinate", 10),
 
-        selectInput(ns("body"), "Body part", choices = c("Head", "Foot")),
+        selectInput(ns("body"), "Shot type", choices = c("Head", "Foot")),
 
         actionButton(ns("predict"), "Predict"),
 
@@ -54,102 +54,118 @@ chapter3_ui <- function(id){
         card(
 
             style = "
-        border-radius: 16px;
-        border: none;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        padding: 10px;
-    ",
+    border-radius: 16px;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    padding: 10px;
+",
 
             card_header(
                 div(
                     "⚖ Understanding Expected Goals (xG)",
                     style = "
-                font-size: 1.4rem;
-                font-weight: 700;
-                color: #2c3e50;
-            "
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #2c3e50;
+        "
                 )
             ),
 
             p(
                 strong("Main idea: "),
-                "Goals are rare and unpredictable events, but the probability
-             of scoring from a shot can be estimated from information
-             about where and how the shot was taken."
+                "Expected goals (xG) have become a widely used statistic for summarising football matches. They are defined as the number of goals a team would be expected to score, given the chances it created in a game. This module uses simulation to explore estimation and prediction from an xG model."
             ),
 
             hr(),
 
-            h5("What happens in this model?"),
-
-            tags$div(
-                style = "margin-left: 10px;",
-
-                p("① Thousands of shots are generated from a simulated football season."),
-
-                p("② Each shot has a location, angle and body part."),
-
-                p("③ A hidden probability model determines whether a goal is scored."),
-
-                p("④ A statistical model attempts to recover those relationships.")
-            ),
-
-            hr(),
-
-            h5("Your job"),
+            h5("xG model simulation and estimation"),
 
             p(
-                "Use the controls to generate data, fit an xG model and
-             investigate how shot characteristics influence scoring probability."
+                "This module is based on a simple xG model in which the probability of scoring from a chance depends on:"
             ),
 
             tags$ul(
-                tags$li("Generate different datasets"),
-                tags$li("Fit logistic regression models"),
-                tags$li("Compare estimated and true parameters"),
-                tags$li("Predict scoring probabilities for new shots")
+                tags$li("the distance to goal"),
+                tags$li("the angle to the centre of the goal"),
+                tags$li("the type of attempt (shot or header)")
+            ),
+
+            p(
+                "The detailed way in which each of these factors affects xG depends on a set of numerical parameters. Either default values or randomised values can be used."
+            ),
+
+            p(
+                "The same model is used for both simulation and estimation. Simulated data are generated from the model and then used to estimate its parameters. The estimated model can subsequently be used for predicting xG from new chance information."
             ),
 
             hr(),
 
-            h5("What will you see?"),
+            h5("Your options"),
+
+            p(
+                "Using either the default or randomised model parameters, generate a dataset of chances and goals, then fit an xG model to the simulated data."
+            ),
+
+            p("Experiment with:"),
 
             tags$ul(
-                tags$li("The true model used to generate goals"),
-                tags$li("Observed goal-scoring patterns"),
-                tags$li("Fitted xG model predictions"),
-                tags$li("Predicted probabilities for user-selected shots")
+                tags$li("Different model parameter values"),
+                tags$li("Different dataset sizes")
+            ),
+
+            hr(),
+
+            h5("Interpreting the output"),
+
+            p("Once a model has been fitted, you will see:"),
+
+            tags$ul(
+                tags$li(
+                    "A comparison of the true and estimated model parameters"
+                ),
+                tags$li(
+                    "Maps showing the observed outcomes (goal or miss) for all simulated chances, displayed separately for shots and headers"
+                ),
+                tags$li(
+                    "Heatmaps showing the fitted xG surface for shots and headers"
+                )
+            ),
+
+            p(
+                "Additionally, you can request the estimated xG value at any location on the pitch for either a shot or a header."
             ),
 
             hr(),
 
             div(
                 style = "
-            background-color: #f8f9fa;
-            border-left: 5px solid #7B9ACC;
-            padding: 12px;
-            border-radius: 8px;
-        ",
+        background-color: #f8f9fa;
+        border-left: 5px solid #7B9ACC;
+        padding: 12px;
+        border-radius: 8px;
+    ",
 
                 h5("Questions to investigate"),
 
                 tags$ul(
                     tags$li(
-                        "How does distance affect the chance of scoring?"
+                        "How accurate is the estimation procedure?"
                     ),
                     tags$li(
-                        "Why do narrow shooting angles reduce xG?"
+                        "How does estimation accuracy depend on sample size and parameter values?"
                     ),
                     tags$li(
-                        "How well does the fitted model recover the true parameters?"
+                        "Do the fitted heatmaps reflect the patterns visible in the observed goal/miss maps?"
                     ),
                     tags$li(
-                        "What information is required to predict future outcomes?"
+                        "How well can the estimated model predict xG at new locations?"
                     )
                 )
             )
         )
+
     )
+
 
     code_panel <- div(
         card(
