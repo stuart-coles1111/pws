@@ -6,29 +6,121 @@ chapter4_ui <- function(id){
 
         h4("A Quiz Score Explorer"),
 
-        p("Explore how a guess (G) and uncertainty (S) determine a score when the true value is Θ."),
-
-        sliderInput(
-            ns("Theta"),
-            "True value (Θ)",
-            min = -10, max = 10, value = 1, step = 0.1
+        p(
+            "Explore how a guess (G) and uncertainty (S) determine a score when the true value is T."
         ),
 
-        sliderInput(
-            ns("G"),
-            "Guess (G)",
-            min = -10, max = 10, value = 0, step = 0.1
+        radioButtons(
+            ns("view_mode"),
+            "Display",
+            choices = c(
+                "Single prediction" = "single",
+                "Score as error varies" = "error",
+                "Score as uncertainty varies" = "uncertainty"
+            ),
+            selected = "single"
         ),
 
-        sliderInput(
-            ns("S"),
-            "Uncertainty (S)",
-            min = 0.1, max = 10, value = 1, step = 0.1
+        hr(),
+
+        # =====================================================
+        # SINGLE PREDICTION
+        # =====================================================
+
+        conditionalPanel(
+
+            condition = sprintf(
+                "input['%s'] == 'single'",
+                ns("view_mode")
+            ),
+
+            sliderInput(
+                ns("Theta"),
+                "True value (Θ)",
+                min = -10,
+                max = 10,
+                value = 1,
+                step = 0.1
+            ),
+
+            sliderInput(
+                ns("G"),
+                "Guess (G)",
+                min = -10,
+                max = 10,
+                value = 0,
+                step = 0.1
+            ),
+
+            sliderInput(
+                ns("S"),
+                "Uncertainty (S)",
+                min = 0.1,
+                max = 10,
+                value = 1,
+                step = 0.1
+            ),
+
+            checkboxInput(
+                ns("lines"),
+                "Show true value and score",
+                value = TRUE
+            )
         ),
 
-        checkboxInput(ns("lines"), "Show true value and score", value = TRUE),
+        # =====================================================
+        # SCORE VS ERROR
+        # =====================================================
 
-        checkboxInput(ns("final_only"), "Show only final score plot", value = FALSE)
+        conditionalPanel(
+
+            condition = sprintf(
+                "input['%s'] == 'error'",
+                ns("view_mode")
+            ),
+
+            sliderInput(
+                ns("fixed_S"),
+                "Fixed uncertainty (S)",
+                min = 0.1,
+                max = 10,
+                value = 1,
+                step = 0.1
+            ),
+
+            checkboxInput(
+                ns("show_error_zero"),
+                "Show perfect prediction (δ = 0)",
+                value = FALSE
+            )
+        ),
+
+        # =====================================================
+        # SCORE VS UNCERTAINTY
+        # =====================================================
+
+        conditionalPanel(
+
+            condition = sprintf(
+                "input['%s'] == 'uncertainty'",
+                ns("view_mode")
+            ),
+
+            sliderInput(
+                ns("fixed_error"),
+                "Guess error (Θ − G)",
+                min = -50,
+                max = 50,
+                value = 2,
+                step = 0.5
+            ),
+
+            checkboxInput(
+                ns("show_optimum"),
+                "Show optimal uncertainty",
+                value = FALSE
+            )
+        )
     )
 
     overview_panel <- div(
@@ -159,108 +251,8 @@ chapter4_ui <- function(id){
             plotOutput(ns("plot"), height = 450)
         ),
 
-        card(
-            card_header("Score"),
+        uiOutput(ns("score_panel"))
 
-            div(
-                style = "
-        font-size: 1.5rem;
-        font-weight: 700;
-        text-align: center;
-        padding-top: 150px;
-      ",
-                textOutput(ns("score"))
-            )
-        )
-    )
-
-    learn_panel <- div(
-
-        card(
-
-            style = "
-            border-radius: 16px;
-            border: none;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            padding: 10px;
-        ",
-
-            card_header(
-                div(
-                    "What should you have learned?",
-                    style = "
-                    font-size: 1.3rem;
-                    font-weight: 700;
-                    color: #2c3e50;
-                "
-                )
-            ),
-
-            h5("1. Every prediction contains uncertainty"),
-
-            p(
-                "Even when we provide a best estimate, we are rarely
-             completely certain that it is correct."
-            ),
-
-            hr(),
-
-            h5("2. Good predictions balance accuracy and confidence"),
-
-            p(
-                "A useful prediction should be close to the truth while
-             also expressing an appropriate level of uncertainty."
-            ),
-
-            hr(),
-
-            h5("3. Overconfidence can be costly"),
-
-            p(
-                "Very narrow predictions may perform well when they are correct,
-             but they are heavily penalised when they are wrong."
-            ),
-
-            hr(),
-
-            h5("4. Uncertainty is information"),
-
-            p(
-                "Reporting uncertainty is not a weakness.
-             It provides valuable information about how reliable
-             a prediction is likely to be."
-            ),
-
-            hr(),
-
-            h5("5. Scoring rules reward honest forecasting"),
-
-            p(
-                "Well-designed scoring systems encourage people to report
-             both their best estimate and their genuine uncertainty."
-            ),
-
-            hr(),
-
-            div(
-                style = "
-                background-color: #f8f9fa;
-                border-left: 5px solid #28a745;
-                padding: 12px;
-                border-radius: 8px;
-            ",
-
-                h5("Key takeaway"),
-
-                p(
-                    strong("The goal is not to appear certain."),
-                    br(),
-                    "The goal is to describe uncertainty as accurately as possible.
-                 Good statistical predictions combine a best guess with an honest
-                 assessment of how confident we should be."
-                )
-            )
-        )
     )
 
 
@@ -279,7 +271,6 @@ chapter4_server <- function(id){
 
     moduleServer(id, function(input, output, session){
 
-
         score_obj <- reactive({
 
             activity4_response_score(
@@ -297,28 +288,234 @@ chapter4_server <- function(id){
 
         output$plot <- renderPlot({
 
-            pws::activity4_response_analysis(
-                G = input$G,
-                S = input$S,
-                Theta = input$Theta,
-                dp = 3,
-                lines = input$lines,
-                final_score_only = input$final_only
-            )
+            if (input$view_mode == "single") {
+
+                pws::activity4_response_analysis(
+                    G = input$G,
+                    S = input$S,
+                    Theta = input$Theta,
+                    dp = 3,
+                    lines = input$lines,
+                    final_score_only = FALSE
+                )
+
+            } else if (input$view_mode == "error") {
+
+                error_grid <- seq(-10, 10, length.out = 500)
+
+                score_vals <- sapply(
+                    error_grid,
+                    function(e)
+                        activity4_response_score(
+                            G = e,
+                            S = input$fixed_S,
+                            Theta = 0
+                        )$scores
+                )
+
+                p <- ggplot(
+                    data.frame(
+                        error = error_grid,
+                        score = score_vals
+                    ),
+                    aes(error, score)
+                ) +
+                    geom_line(
+                        colour = "#7B9ACC",
+                        linewidth = 1.4
+                    ) +
+                    labs(
+                        x = expression(delta == Theta - G),
+                        y = "Score"
+                    ) +
+                    theme_minimal(base_size = 16) +
+                    theme(
+                        axis.title = element_text(size = 16),
+                        axis.text = element_text(size = 14)
+                    )
+
+                if (input$show_error_zero) {
+
+                    p <- p +
+                        geom_vline(
+                            xintercept = 0,
+                            linetype = "dashed",
+                            colour = "#E76F51",
+                            linewidth = 1
+                        )
+                }
+
+                p
+
+            } else {
+
+                error <- abs(input$fixed_error)
+
+                s_opt <- abs(input$fixed_error) * qnorm(0.975)
+
+                s_min <- max(0.1, s_opt/5)
+                s_max <- max(20, s_opt*5)
+
+                s_grid <- seq(
+                    s_min,
+                    s_max,
+                    length.out = 1000
+                )
+
+                score_vals <- sapply(
+                    s_grid,
+                    function(s)
+                        activity4_response_score(
+                            G = input$fixed_error,
+                            S = s,
+                            Theta = 0
+                        )$scores
+                )
+
+                p <- ggplot(
+                    data.frame(
+                        S = s_grid,
+                        score = score_vals
+                    ),
+                    aes(S, score)
+                ) +
+                    geom_line(
+                        colour = "#E76F51",
+                        linewidth = 1.5
+                    ) +
+                    labs(
+                        x = "Uncertainty (S)",
+                        y = "Score"
+                    ) +
+                    theme_minimal(base_size = 16) +
+                    theme(
+                        axis.title = element_text(size = 18),
+                        axis.text = element_text(size = 15)
+                    )
+
+                if (input$show_optimum) {
+
+                    p <- p +
+                        geom_vline(
+                            xintercept = s_opt,
+                            linetype = "dashed",
+                            colour = "#7B9ACC",
+                            linewidth = 1
+                        ) +
+                        annotate(
+                            "text",
+                            x = s_opt,
+                            y = max(score_vals),
+                            label = "Optimal S",
+                            hjust = -0.4,
+                            size = 5
+                        )
+                }
+
+                p
+            }
         })
 
         output$code <- renderText({
 
-            paste0(
-                "activity4_response_score(",
-                "G = ", input$G,
-                ", S = ", input$S,
-                ", Theta = ", input$Theta,
-                ", alpha = 0.95, ",
-                "dp = 3",
-                ")"
-            )
+            if (input$view_mode == "single") {
+
+                paste0(
+                    "activity4_response_score(",
+                    "\n  G = ", input$G,
+                    ",\n  S = ", input$S,
+                    ",\n  Theta = ", input$Theta,
+                    ",\n  alpha = 0.95,",
+                    "\n  dp = 3",
+                    "\n)"
+                )
+
+            } else if (input$view_mode == "error") {
+
+                paste0(
+                    "error_grid <- seq(-10, 10, length.out = 500)\n\n",
+
+                    "score_vals <- sapply(error_grid, function(e)\n",
+                    "    activity4_response_score(\n",
+                    "        G = e,\n",
+                    "        S = ", input$fixed_S,
+                    ",\n        Theta = 0\n",
+                    "    )$scores\n",
+                    ")"
+                )
+
+            } else {
+
+                paste0(
+                    "s_opt <- abs(error) * qnorm(0.975)\n\n",
+
+                    "s_grid <- seq(\n",
+                    "    max(0.1, s_opt/5),\n",
+                    "    max(20, s_opt*5),\n",
+                    "    length.out = 1000\n",
+                    ")\n\n",
+
+                    "score_vals <- sapply(s_grid, function(s)\n",
+                    "    activity4_response_score(\n",
+                    "        G = ", input$fixed_error,
+                    ",\n        S = s,\n",
+                    "        Theta = 0\n",
+                    "    )$scores\n",
+                    ")"
+                )
+            }
         })
 
-    })
+        output$score_panel <- renderUI({
+
+            if (input$view_mode == "single") {
+
+                card(
+                    card_header("Score"),
+
+                    div(
+                        style = "
+                    font-size: 1.5rem;
+                    font-weight: 700;
+                    text-align: center;
+                    padding-top: 150px;
+                ",
+                        textOutput(session$ns("score"))
+                    )
+                )
+
+            } else if (input$view_mode == "error") {
+
+                card(
+                    card_header("Interpretation"),
+
+                    p(
+                        "For a fixed uncertainty S, the score is maximised when ",
+                        strong("δ = Θ − G = 0"),
+                        ", meaning the prediction is exactly correct."
+                    )
+                )
+
+            } else {
+
+                card(
+                    card_header("Optimal uncertainty"),
+
+                    div(
+                        style = "
+                    font-size: 1.5rem;
+                    font-weight: 700;
+                    text-align: center;
+                    padding-top: 100px;
+                ",
+                        paste0(
+                            "Optimal S = ",
+                            round(abs(input$fixed_error) * qnorm(0.975), 2)
+                        )
+                    )
+                )
+            }
+
+        })
+        })
 }

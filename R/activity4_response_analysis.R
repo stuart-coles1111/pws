@@ -9,7 +9,7 @@
 #' @param lines add lines to plots
 #' @param final show plot for final score only (TRUE/FALSE)
 #' @param dp decimal places for score
-#' @param data dataset (if any) containing answers
+#' @param print_score print score to console (TRUE/FALSE)
 #'
 #' @returns graphical analysis of score for quiz question
 #' @examples
@@ -24,7 +24,8 @@ activity4_response_analysis <- function(G,
                              alpha = 0.95,
                              lines = TRUE,
                              final_score_only = FALSE,
-                             dp = 2) {
+                             dp = 2,
+                             print_score = FALSE) {
     #get score information
     score <- pws::activity4_response_score(G, S, Theta, alpha, dp = dp)
     sigma <- score$sigma
@@ -35,7 +36,7 @@ activity4_response_analysis <- function(G,
     y <- dnorm(x, G, sigma)
     z <- log(y)
     m <- data.frame(x = x, y = y, z = z)
-    paste0("Score is ", round(score, 2)) %>% print
+    if(print_score) paste0("Score is ", round(score, 2)) %>% print
 
     if (lines) {
         p1 <-

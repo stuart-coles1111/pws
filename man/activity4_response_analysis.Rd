@@ -11,7 +11,8 @@ activity4_response_analysis(
   alpha = 0.95,
   lines = TRUE,
   final_score_only = FALSE,
-  dp = 2
+  dp = 2,
+  print_score = FALSE
 )
 }
 \arguments{
@@ -27,9 +28,9 @@ activity4_response_analysis(
 
 \item{dp}{decimal places for score}
 
-\item{final}{show plot for final score only (TRUE/FALSE)}
+\item{print_score}{print score to console (TRUE/FALSE)}
 
-\item{data}{dataset (if any) containing answers}
+\item{final}{show plot for final score only (TRUE/FALSE)}
 }
 \value{
 graphical analysis of score for quiz question
