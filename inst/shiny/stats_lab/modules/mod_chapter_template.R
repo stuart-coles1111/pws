@@ -45,11 +45,6 @@ chapter_page_ui <- function(
                 nav_panel(
                     "R Code",
                     code
-                ),
-
-                nav_panel(
-                    "Summary",
-                    learn
                 )
             )
         )

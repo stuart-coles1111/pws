@@ -42,6 +42,11 @@ chapter2_ui <- function(id){
                 max = 10,  # initial value, updated reactively
                 value = 7,
                 step = 1
+            ),
+            checkboxInput(
+                ns("show_comparison"),
+                "Overlay Normal approximation",
+                FALSE
             )
             ),
 
@@ -68,6 +73,11 @@ chapter2_ui <- function(id){
                 value = 10,
                 step = 1
             ),
+            checkboxInput(
+                ns("show_comparison"),
+                "Overlay Normal approximation",
+                FALSE
+            )
         ),
 
         # =====================================================
@@ -109,109 +119,168 @@ chapter2_ui <- function(id){
     # =========================================================
     # OVERVIEW PANEL
     # =========================================================
-
     overview_panel <- div(
 
         card(
 
             style = "
-            border-radius: 16px;
-            border: none;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            padding: 10px;
-        ",
+        border-radius: 16px;
+        border: none;
+        box-shadow: 4px 12px 12px rgba(0,0,0,0.08);
+        padding: 10px;
+    ",
 
             card_header(
                 div(
-                    "🌗 Understanding Probability Distributions",
+                    "🌗 Exploring Probability Distributions",
                     style = "
-                    font-size: 1.4rem;
-                    font-weight: 700;
-                    color: #2c3e50;
-                "
+                font-size: 1.4rem;
+                font-weight: 700;
+                color: #2c3e50;
+            "
                 )
             ),
 
             p(
                 strong("Main idea: "),
-                "A probability distribution describes how likely different
-             outcomes are before we observe what actually happens."
+                "This module extends the statistical toolkit by allowing exploration of, ",
+                "and calculation from, the standard probability distributions introduced ",
+                "in Playing With Statistics."
             ),
 
             hr(),
 
-            h5("What is a probability distribution?"),
-
-            p(
-                "Probability distributions provide a mathematical description
-             of uncertainty. They tell us which outcomes are likely,
-             which are unlikely, and how probability is distributed
-             across all possible values."
-            ),
-
-            hr(),
-
-            h5("Distributions to explore"),
+            h5("The available distributions"),
 
             tags$ul(
 
                 tags$li(
                     strong("Binomial distribution: "),
-                    "the number of successes in a fixed number of attempts."
+                    "the number of successes in a fixed number of independent trials, ",
+                    "where each trial has the same probability of success."
                 ),
 
                 tags$li(
                     strong("Poisson distribution: "),
-                    "the number of events occurring in a period of time or space."
+                    "the number of events occurring in a fixed interval of time or space."
                 ),
 
                 tags$li(
                     strong("Normal distribution: "),
-                    "continuous measurements that vary around an average value."
+                    "a continuous distribution used to model measurements that vary around ",
+                    "an average value."
                 )
+
+            ),
+
+            p(
+                "Each of these distributions is discussed in detail in Chapter 2 ",
+                "of Playing With Statistics."
             ),
 
             hr(),
 
-            h5("Your job"),
+            h5("Your options"),
 
             p(
-                "Adjust the parameters and investigate how the shape of each
-             distribution changes."
+                "You choose the distribution you wish to explore. Depending on your choice, ",
+                "you then select the relevant distribution parameters:"
             ),
 
             tags$ul(
-                tags$li("Which outcomes are most likely?"),
-                tags$li("Which outcomes become less likely?"),
-                tags$li("How does changing the parameters alter uncertainty?"),
-                tags$li("How are discrete and continuous distributions different?")
+
+                tags$li(
+                    strong("Binomial distribution: "),
+                    "n, the number of trials; p, the probability of success in each trial."
+                ),
+
+                tags$li(
+                    strong("Poisson distribution: "),
+                    "λ, the average rate of events over the fixed time interval."
+                ),
+
+                tags$li(
+                    strong("Normal distribution: "),
+                    "μ, the mean; σ, the standard deviation."
+                )
+
+            ),
+
+            p(
+                "For the Binomial and Poisson distributions, you choose a particular value ",
+                "of x and calculate its probability. For the Normal distribution, you specify ",
+                "an interval [a,b] and calculate the probability that X lies within that range."
+            ),
+
+            p(
+                "For the Binomial and Poisson distributions, you can optionally overlay a ",
+                "Normal approximation with the same mean and standard deviation. This allows ",
+                "you to investigate when a continuous model provides a good approximation ",
+                "to a discrete distribution."
+            ),
+
+            hr(),
+
+            h5("Exploring the distributions"),
+
+            p(
+                "The module can be used as a simple probability calculator. Choose a ",
+                "distribution, select its parameters, and calculate probabilities for ",
+                "particular values or intervals."
+            ),
+
+            p(
+                "It can also be used for experimentation. Adjust the parameters and ",
+                "observe how the shape and spread of each distribution change."
+            ),
+
+            tags$ul(
+
+                tags$li(
+                    "Adjust the parameters and observe how the distribution changes."
+                ),
+
+                tags$li(
+                    "For Binomial and Poisson distributions, try overlaying a Normal ",
+                    "distribution and compare the shapes."
+                )
+
             ),
 
             hr(),
 
             div(
+
                 style = "
-                background-color: #f8f9fa;
-                border-left: 5px solid #7B9ACC;
-                padding: 12px;
-                border-radius: 8px;
-            ",
+            background-color: #f8f9fa;
+            border-left: 5px solid #7B9ACC;
+            padding: 12px;
+            border-radius: 8px;
+        ",
 
                 h5("Questions to investigate"),
 
                 tags$ul(
+
                     tags$li(
-                        "How does increasing the probability of success affect a Binomial distribution?"
+                        "How does increasing the probability of success affect the shape ",
+                        "of the Binomial distribution?"
                     ),
+
                     tags$li(
-                        "How does the event rate affect a Poisson distribution?"
+                        "How does changing the event rate affect the shape of the ",
+                        "Poisson distribution?"
                     ),
+
                     tags$li(
-                        "How does the standard deviation affect a Normal distribution?"
+                        "How do the mean and standard deviation affect a Normal distribution?"
                     ),
+
                     tags$li(
-                        "What differences do you notice between discrete and continuous models?"
+                        "In which situations does the Normal distribution provide a ",
+                        "reasonable approximation to the Binomial or Poisson distributions?"
                     )
+
                 )
             )
         )
@@ -249,101 +318,7 @@ chapter2_ui <- function(id){
         )
     )
 
-    # =========================================================
-    # LEARN PANEL
-    # =========================================================
 
-    learn_panel <- div(
-
-        card(
-
-            style = "
-            border-radius: 16px;
-            border: none;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            padding: 10px;
-        ",
-
-            card_header(
-                div(
-                    "What should you have learned?",
-                    style = "
-                    font-size: 1.3rem;
-                    font-weight: 700;
-                    color: #2c3e50;
-                "
-                )
-            ),
-
-            h5("1. Probability distributions describe uncertainty"),
-
-            p(
-                "Rather than predicting a single outcome, a distribution
-             describes the range of possible outcomes and their
-             probabilities."
-            ),
-
-            hr(),
-
-            h5("2. Different problems require different distributions"),
-
-            p(
-                "No single probability model works for every situation.
-             Binomial, Poisson and Normal distributions are designed
-             for different types of data and questions."
-            ),
-
-            hr(),
-
-            h5("3. Parameters determine the shape of a distribution"),
-
-            p(
-                "Changing the parameter values changes the probabilities.
-             The same mathematical model can describe many different
-             real-world situations."
-            ),
-
-            hr(),
-
-            h5("4. Discrete and continuous uncertainty are different"),
-
-            p(
-                "Some variables can take only specific values
-             (such as counts of goals or events), while others can vary
-             continuously across a range of values."
-            ),
-
-            hr(),
-
-            h5("5. Probability is a long-run concept"),
-
-            p(
-                "A probability does not guarantee what will happen next.
-             Instead, it describes what tends to happen when the same
-             process is repeated many times."
-            ),
-
-            hr(),
-
-            div(
-                style = "
-                background-color: #f8f9fa;
-                border-left: 5px solid #28a745;
-                padding: 12px;
-                border-radius: 8px;
-            ",
-
-                h5("Key takeaway"),
-
-                p(
-                    strong("Probability distributions are models of uncertainty."),
-                    br(),
-                    "They allow us to quantify how likely different outcomes
-                 are and form the foundation of statistical reasoning."
-                )
-            )
-        )
-    )
 
 
     # =========================================================
@@ -482,23 +457,77 @@ chapter2_server <- function(id){
 
                 input$dist,
 
-                "Binomial" = paste0(
-                    "dbinom(",
-                    input$x_bin,
-                    ", ",
-                    input$n,
-                    ", ",
-                    input$p,
-                    ")"
-                ),
+                "Binomial" = {
 
-                "Poisson" = paste0(
-                    "dpois(",
-                    input$x_pois,
-                    ", ",
-                    input$lambda,
-                    ")"
-                ),
+                    code <- paste0(
+                        "dbinom(",
+                        input$x_bin,
+                        ", ",
+                        input$n,
+                        ", ",
+                        input$p,
+                        ")"
+                    )
+
+                    if (isTRUE(input$show_comparison)) {
+
+                        code <- paste(
+                            code,
+                            "",
+                            "# Normal approximation",
+                            paste0(
+                                "dnorm(x, mean = ",
+                                input$n * input$p,
+                                ", sd = ",
+                                round(
+                                    sqrt(
+                                        input$n *
+                                            input$p *
+                                            (1 - input$p)
+                                    ),
+                                    3
+                                ),
+                                ")"
+                            ),
+                            sep = "\n"
+                        )
+                    }
+
+                    code
+                },
+
+                "Poisson" = {
+
+                    code <- paste0(
+                        "dpois(",
+                        input$x_pois,
+                        ", ",
+                        input$lambda,
+                        ")"
+                    )
+
+                    if (isTRUE(input$show_comparison)) {
+
+                        code <- paste(
+                            code,
+                            "",
+                            "# Normal approximation",
+                            paste0(
+                                "dnorm(x, mean = ",
+                                input$lambda,
+                                ", sd = ",
+                                round(
+                                    sqrt(input$lambda),
+                                    3
+                                ),
+                                ")"
+                            ),
+                            sep = "\n"
+                        )
+                    }
+
+                    code
+                },
 
                 "Normal" = paste0(
                     "pnorm(",
@@ -572,7 +601,7 @@ chapter2_server <- function(id){
                 x <- 0:input$n
                 y <- dbinom(x, input$n, input$p)
 
-                ggplot(data.frame(x, y), aes(x, y)) +
+                p <- ggplot(data.frame(x, y), aes(x, y)) +
                     geom_col(fill = "#7B9ACC") +
                     geom_col(
                         data = data.frame(
@@ -591,6 +620,30 @@ chapter2_server <- function(id){
                         y = "Probability"
                     )
 
+                if (isTRUE(input$show_comparison)) {
+
+                    mu <- input$n * input$p
+
+                    sigma <- sqrt(
+                        input$n *
+                            input$p *
+                            (1 - input$p)
+                    )
+
+                    p <- p +
+                        stat_function(
+                            fun = dnorm,
+                            args = list(
+                                mean = mu,
+                                sd = sigma
+                            ),
+                            linewidth = 1.2,
+                            colour = "#E76F51"
+                        )
+                }
+
+                p
+
             } else if(input$dist == "Poisson"){
 
                 req(input$lambda > 0)
@@ -600,7 +653,7 @@ chapter2_server <- function(id){
                 x <- 0:upper
                 y <- dpois(x, input$lambda)
 
-                ggplot(data.frame(x, y), aes(x, y)) +
+                p <- ggplot(data.frame(x, y), aes(x, y)) +
                     geom_col(fill = "#CDB4DB") +
                     geom_col(
                         data = data.frame(
@@ -617,6 +670,22 @@ chapter2_server <- function(id){
                         x = "Number of events",
                         y = "Probability"
                     )
+
+                if (isTRUE(input$show_comparison)) {
+
+                    p <- p +
+                        stat_function(
+                            fun = dnorm,
+                            args = list(
+                                mean = input$lambda,
+                                sd = sqrt(input$lambda)
+                            ),
+                            linewidth = 1.2,
+                            colour = "#7B9ACC"
+                        )
+                }
+
+                p
 
             } else {
 

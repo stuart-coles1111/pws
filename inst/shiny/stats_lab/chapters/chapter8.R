@@ -231,46 +231,6 @@ chapter8_ui <- function(id) {
             card_header("Generated R Code"),
 
             tags$pre(textOutput(ns("generated_code")))
-        ),
-
-        br(),
-
-        card(
-
-            card_header("Simulation Pipeline"),
-
-            tags$ol(
-
-                tags$li(
-                    strong("Estimate team strengths"),
-                    " using attack (α), defence (β) and home advantage (τ)."
-                ),
-
-                tags$li(
-                    strong("Convert strengths into expected goals"),
-                    " using the Poisson model."
-                ),
-
-                tags$li(
-                    strong("Simulate every match"),
-                    " in the season."
-                ),
-
-                tags$li(
-                    strong("Award league points"),
-                    " and apply tie-break rules."
-                ),
-
-                tags$li(
-                    strong("Repeat thousands of times"),
-                    " to estimate uncertainty in final league positions."
-                ),
-
-                tags$li(
-                    strong("Dynamic model only:"),
-                    " allow team strengths to evolve throughout the season."
-                )
-            )
         )
     )
 
@@ -314,6 +274,54 @@ chapter8_ui <- function(id) {
                     DT::DTOutput(ns("match_probs"))
                 )
             )
+        ),
+
+        br(),
+
+        accordion(
+
+            open = FALSE,
+
+            accordion_panel(
+
+                title = "📖 Simulation Pipeline",
+
+                tags$ol(
+
+                    tags$li(
+                        strong("Estimate team strengths"),
+                        " using attack (α), defence (β) and home advantage (τ)."
+                    ),
+
+                    tags$li(
+                        strong("Convert strengths into expected goals"),
+                        " using the Poisson model."
+                    ),
+
+                    tags$li(
+                        strong("Simulate every match"),
+                        " in the season."
+                    ),
+
+                    tags$li(
+                        strong("Award league points"),
+                        " and apply tie-break rules."
+                    ),
+
+                    tags$li(
+                        strong("Repeat thousands of times"),
+                        " to estimate uncertainty in final league positions."
+                    ),
+
+                    tags$li(
+                        strong("Dynamic model only:"),
+                        " allow team strengths to evolve throughout the season."
+                    )
+
+                )
+
+            )
+
         ),
 
         br(),

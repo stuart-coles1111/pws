@@ -8,7 +8,7 @@ chapter1_ui <- function(id){
 
     sidebar_controls <- sidebar(
 
-        h4("Comparing Theoretical and Observed Frequencies"),
+        h4("Model Settings"),
 
         sliderInput(ns("pois_mean"), "Average number of goal scoring opportunities",
                     min = 1, max = 50, value = 25),
@@ -41,7 +41,7 @@ chapter1_ui <- function(id){
 
             card_header(
                 div(
-                    "🎲 Understanding Random Goal Scoring",
+                    "🎲 A Probability Model for Total Goals",
                     style = "
                     font-size: 1.4rem;
                     font-weight: 700;
@@ -52,59 +52,77 @@ chapter1_ui <- function(id){
 
             p(
                 strong("Main idea: "),
-                "Although individual football matches are unpredictable,
-             the pattern of goals across many matches follows
-             predictable statistical rules."
+                "Complex probability models can often be built by combining simpler ones. In this module, a model for the total number of goals scored in a football match is constructed from a model for the number of chances created and a model for the probability that each chance becomes a goal."
             ),
 
             hr(),
 
-            h5("What happens in this model?"),
+            h5("How the model is built"),
 
-            tags$div(
-                style = "margin-left: 10px;",
+            p("The model is defined by specifying:"),
 
-                p("① A game contains a random number of scoring opportunities."),
+            tags$ul(
 
-                p("② Each opportunity has some chance of becoming a goal."),
+                tags$li(
+                    "The probabilities for the number of chances in a game."
+                ),
 
-                p("③ That conversion probability varies from game to game."),
+                tags$li(
+                    "The probability that any chance is converted into a goal."
+                )
 
-                p("④ The total number of goals scored is recorded.")
             ),
-
-            hr(),
-
-            h5("Your job"),
 
             p(
-                "Use the controls to create your own goal-scoring model by choosing:"
-            ),
-
-            tags$ul(
-                tags$li("The average number of opportunities per game"),
-                tags$li("The average probability of converting an opportunity"),
-                tags$li("How much the conversion probability varies"),
-                tags$li("How many games to simulate")
+                "To make things more realistic, the model assumes that different chances have different probabilities of being converted into goals."
             ),
 
             hr(),
 
-            h5("What will you see?"),
+            h5("Your options"),
+
+            p(
+                "The controls in the sidebar allow you to choose:"
+            ),
 
             tags$ul(
+
                 tags$li(
-                    "The distributions used to generate opportunities and scoring probabilities"
+                    "The average number of chances per game."
                 ),
+
                 tags$li(
-                    "The theoretical distribution of goals implied by your choices"
+                    "The average probability that a chance is converted into a goal."
                 ),
+
                 tags$li(
-                    "The observed results from simulated matches"
-                ),
-                tags$li(
-                    "A comparison between theory and simulation"
+                    "The variation in the conversion probability from one chance to another. If the shape parameter is large, conversion probabilities remain close to the chosen average value. If the shape parameter is small, conversion probabilities can vary substantially, while still having the same average."
                 )
+
+            ),
+
+            p(
+                "You can also choose the number of games to simulate."
+            ),
+
+            hr(),
+
+            h5("Things to observe"),
+
+            tags$ul(
+
+                tags$li(
+                    "The top row shows the probability distribution for the number of chances per game and the probability density function (introduced fully in Chapter 2 of Playing With Statistics) for the conversion probability. These graphs will always be consistent with your chosen input values."
+                ),
+
+                tags$li(
+                    "The bottom row shows the expected frequencies of the number of goals per game implied by the model and your chosen parameter values."
+                ),
+
+                tags$li(
+                    "After pressing 'Run Simulation', the lower graph will also display a histogram of the observed frequencies from the simulated matches."
+                )
+
             ),
 
             hr(),
@@ -120,18 +138,23 @@ chapter1_ui <- function(id){
                 h5("Questions to investigate"),
 
                 tags$ul(
+
                     tags$li(
-                        "How do the parameter values affect the shape of the goal distribution?"
+                        "How do the input values affect the shape of the goal distribution?"
                     ),
+
+                    tags$li(
+                        "Which inputs have the strongest influence? Which have the least?"
+                    ),
+
                     tags$li(
                         "How closely do simulated results match theoretical expectations?"
                     ),
+
                     tags$li(
-                        "What changes when the number of simulated games increases?"
-                    ),
-                    tags$li(
-                        "Which inputs have the strongest influence on scoring outcomes?"
+                        "What effect does the number of simulated games have?"
                     )
+
                 )
             )
         )

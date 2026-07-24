@@ -104,7 +104,7 @@ stats_toolkit_ui <- function(id){
 
             numericInput(
                 ns("template_rows"),
-                "Template rows",
+                "Number of Individuals",
                 20,
                 min = 1
             ),
@@ -112,7 +112,7 @@ stats_toolkit_ui <- function(id){
 
             numericInput(
                 ns("template_cols"),
-                "Template columns",
+                "Number of Variables",
                 3,
                 min = 1
             ),
@@ -223,6 +223,15 @@ stats_toolkit_ui <- function(id){
                 choices = NULL
             ),
 
+            sliderInput(
+                ns("point_size"),
+                "Point size",
+                min = 0.5,
+                max = 5,
+                value = 1.5,
+                step = 0.5
+            ),
+
 
             checkboxInput(
                 ns("add_lm"),
@@ -238,34 +247,114 @@ stats_toolkit_ui <- function(id){
 
 
 
-    overview_panel <- card(
+    overview_panel <- div(
 
-        card_header(
-            "Simple Statistics Toolkit"
-        ),
+        card(
 
+            style = "
+        border-radius: 16px;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        padding: 10px;
+    ",
 
-        p(
-            "Explore basic statistical summaries and visualisations from either manually entered data or uploaded CSV files."
-        ),
-
-
-        tags$ul(
-
-            tags$li(
-                "Calculate descriptive statistics"
+            card_header(
+                div(
+                    "🧰 Statistics Toolkit",
+                    style = "
+                font-size: 1.4rem;
+                font-weight: 700;
+                color: #2c3e50;
+            "
+                )
             ),
 
-            tags$li(
-                "Create histograms"
+            p(
+                strong("Main idea: "),
+                "Explore datasets using various basic numerical and graphical summaries.
+                The toolkit can be used to investigate data, check calculations, and carry out simple experiments."
             ),
 
-            tags$li(
-                "Explore relationships using scatterplots"
+            hr(),
+
+            h5("Data can be entered in different ways"),
+
+            tags$ul(
+
+                tags$li("By entering values manually using the data entry box."),
+
+                tags$li("By uploading a CSV file containing one or more variables."),
+
+                tags$li("By simulating data from a hidden statistical model.")
+
+            ),
+
+            hr(),
+
+            h5("Things to do"),
+
+            p(
+                "Enter or simulate data, then use the tools provided to explore their main features. Specifically:"
+            ),
+
+            tags$ul(
+                tags$li("Calculate summary statistics"),
+                tags$li("Create frequency tables"),
+                tags$li("Draw histograms and boxplots"),
+                tags$li("Explore relationships using scatterplots (when there are two or more variables)"),
+                tags$li("Add a regression line when appropriate")
+            ),
+
+            hr(),
+
+            h5("Things to observe"),
+
+            tags$ul(
+                tags$li(
+                    "Numerical summaries such as means, medians, standard deviations, and ranges"
+                ),
+                tags$li(
+                    "Tables showing observed frequencies"
+                ),
+                tags$li(
+                    "Graphs displaying the distribution of data"
+                ),
+                tags$li(
+                    "Scatterplots showing relationships between variables"
+                ),
+                tags$li(
+                    "Regression output when a fitted line is requested"
+                )
+            ),
+
+            hr(),
+
+            div(
+                style = "
+            background-color: #f8f9fa;
+            border-left: 5px solid #7B9ACC;
+            padding: 12px;
+            border-radius: 8px;
+        ",
+
+                h5("Questions to investigate"),
+
+                tags$ul(
+                    tags$li(
+                        "Is much detail lost when summarizing data numerically amd/or graphically?"
+                    ),
+                    tags$li(
+                        "When are graphical summaries superior to numerical summaries?"
+                    ),
+                    tags$li(
+                        "When are histograms preferable to boxplots?"
+                    ),
+                    tags$li(
+                        "Is it always appropriate to add a regression line to a scatterplot?"
+                    )
+                )
             )
-
         )
-
     )
 
 
@@ -306,26 +395,6 @@ stats_toolkit_ui <- function(id){
     )
 
 
-
-
-
-    learn_panel <- card(
-
-        card_header(
-            "What should you have learned?"
-        ),
-
-
-        p(
-            "Summary statistics describe the centre and spread of data."
-        ),
-
-
-        p(
-            "Graphs help reveal patterns that are not obvious from numbers alone."
-        )
-
-    )
 
 
 
@@ -903,21 +972,14 @@ stats_toolkit_server<-function(id){
 
 
             plot(
-
                 x,
-
                 y,
-
-                pch=19,
-
-                col="#CDB4DB",
-
-                xlab=input$x_col,
-
-                ylab=input$y_col,
-
-                main="Scatterplot"
-
+                pch = 19,
+                cex = input$point_size,
+                col = "#CDB4DB",
+                xlab = input$x_col,
+                ylab = input$y_col,
+                main = "Scatterplot"
             )
 
 
@@ -1029,7 +1091,16 @@ stats_toolkit_server<-function(id){
 
             } else {
 
-                data_code <- "data <- read.csv('my_data.csv')"
+                file_name <- if (!is.null(input$csv_file)) {
+                    input$csv_file$name
+                } else {
+                    "my_data.csv"
+                }
+
+                data_code <- sprintf(
+                    "data <- read.csv(%s)",
+                    shQuote(file_name)
+                )
 
             }
 
@@ -1264,6 +1335,8 @@ stats_toolkit_server<-function(id){
                         input$x_col,
                         ", data$",
                         input$y_col,
+                        ", cex = ",
+                        input$point_size,
                         ")"
                     )
                 )
