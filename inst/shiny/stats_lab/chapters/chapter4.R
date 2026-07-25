@@ -4,17 +4,13 @@ chapter4_ui <- function(id){
 
     sidebar_controls <- sidebar(
 
-        h4("A Quiz Score Explorer"),
-
-        p(
-            "Explore how a guess (G) and uncertainty (S) determine a score when the true value is T."
-        ),
+        h4("Quiz Score Explorer"),
 
         radioButtons(
             ns("view_mode"),
             "Display",
             choices = c(
-                "Single prediction" = "single",
+                "Single score" = "single",
                 "Score as error varies" = "error",
                 "Score as uncertainty varies" = "uncertainty"
             ),
@@ -36,7 +32,7 @@ chapter4_ui <- function(id){
 
             sliderInput(
                 ns("Theta"),
-                "True value (Θ)",
+                "True value (T)",
                 min = -10,
                 max = 10,
                 value = 1,
@@ -90,7 +86,7 @@ chapter4_ui <- function(id){
 
             checkboxInput(
                 ns("show_error_zero"),
-                "Show perfect prediction (δ = 0)",
+                "Show optimal response (δ = 0)",
                 value = FALSE
             )
         ),
@@ -147,23 +143,28 @@ chapter4_ui <- function(id){
 
             p(
                 strong("Main idea: "),
-                "A good prediction should communicate both what you expect
-             to happen and how certain you are about that expectation."
+                "This module provides tools to explore the quiz score function used in Chapter 4 of Playing With Statistics."
             ),
 
             hr(),
 
-            h5("The problem"),
+            h5("Background"),
 
             p(
-                "Suppose you are asked to predict an unknown quantity.
-             Giving a single number is often not enough because
-             uncertainty is part of every prediction."
+                "Activity 4 of Playing With Statistics presents a quiz that requires participants to provide not just their best guess (G)
+                to an answer, but also a measure of uncertainty (S) that defines how confident they are in their guess."
             ),
 
             p(
-                "A useful prediction therefore combines two things:"
+                "This is defined so that if the true answer is T, P(G - S <= T <= G + S) = 95%")
             ),
+
+        p(
+            "In other words, particpants choose S such that they are 95% confident that the true answer is less than a distance S from their guess G"
+    ),
+
+
+
 
             tags$ul(
                 tags$li(
@@ -325,7 +326,7 @@ chapter4_server <- function(id){
                         linewidth = 1.4
                     ) +
                     labs(
-                        x = expression(delta == Theta - G),
+                        x = expression(delta == T - G),
                         y = "Score"
                     ) +
                     theme_minimal(base_size = 16) +
@@ -421,13 +422,13 @@ chapter4_server <- function(id){
             if (input$view_mode == "single") {
 
                 paste0(
-                    "activity4_response_score(",
-                    "\n  G = ", input$G,
-                    ",\n  S = ", input$S,
-                    ",\n  Theta = ", input$Theta,
-                    ",\n  alpha = 0.95,",
-                    "\n  dp = 3",
-                    "\n)"
+                    "pws::activity4_response_analysis(\n",
+                    "    G = ", input$G, ",\n",
+                    "    S = ", input$S, ",\n",
+                    "    Theta = ", input$Theta, ",\n",
+                    "    dp = 3,\n",
+                    "    lines = ", input$lines, "\n",
+                    ")"
                 )
 
             } else if (input$view_mode == "error") {
@@ -435,13 +436,24 @@ chapter4_server <- function(id){
                 paste0(
                     "error_grid <- seq(-10, 10, length.out = 500)\n\n",
 
-                    "score_vals <- sapply(error_grid, function(e)\n",
-                    "    activity4_response_score(\n",
-                    "        G = e,\n",
-                    "        S = ", input$fixed_S,
-                    ",\n        Theta = 0\n",
-                    "    )$scores\n",
-                    ")"
+                    "score_vals <- sapply(\n",
+                    "    error_grid,\n",
+                    "    function(e)\n",
+                    "        activity4_response_score(\n",
+                    "            G = e,\n",
+                    "            S = ", input$fixed_S, ",\n",
+                    "            Theta = 0\n",
+                    "        )$scores\n",
+                    ")\n\n",
+
+                    "ggplot(\n",
+                    "    data.frame(\n",
+                    "        error = error_grid,\n",
+                    "        score = score_vals\n",
+                    "    ),\n",
+                    "    aes(error, score)\n",
+                    ") +\n",
+                    "    geom_line()\n"
                 )
 
             } else {
@@ -455,17 +467,27 @@ chapter4_server <- function(id){
                     "    length.out = 1000\n",
                     ")\n\n",
 
-                    "score_vals <- sapply(s_grid, function(s)\n",
-                    "    activity4_response_score(\n",
-                    "        G = ", input$fixed_error,
-                    ",\n        S = s,\n",
-                    "        Theta = 0\n",
-                    "    )$scores\n",
-                    ")"
+                    "score_vals <- sapply(\n",
+                    "    s_grid,\n",
+                    "    function(s)\n",
+                    "        activity4_response_score(\n",
+                    "            G = ", input$fixed_error, ",\n",
+                    "            S = s,\n",
+                    "            Theta = 0\n",
+                    "        )$scores\n",
+                    ")\n\n",
+
+                    "ggplot(\n",
+                    "    data.frame(\n",
+                    "        S = s_grid,\n",
+                    "        score = score_vals\n",
+                    "    ),\n",
+                    "    aes(S, score)\n",
+                    ") +\n",
+                    "    geom_line()\n"
                 )
             }
         })
-
         output$score_panel <- renderUI({
 
             if (input$view_mode == "single") {
