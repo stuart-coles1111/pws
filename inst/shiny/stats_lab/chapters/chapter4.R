@@ -156,42 +156,29 @@ chapter4_ui <- function(id){
             ),
 
             p(
-                "This is defined so that if the true answer is T, P(G - S <= T <= G + S) = 95%")
+                "This is defined so that if the true answer is T,"
             ),
+
+            p(
+                "P(G - S <= T <= G + S) = 95%"
+            ),
+
 
         p(
             "In other words, particpants choose S such that they are 95% confident that the true answer is less than a distance S from their guess G"
     ),
 
-
-
-
-            tags$ul(
-                tags$li(
-                    strong("A best guess"),
-                    " about the true value"
-                ),
-                tags$li(
-                    strong("A measure of uncertainty"),
-                    " describing how confident you are"
-                )
-            ),
-
             hr(),
 
-            h5("What happens in this chapter?"),
+            h5("Your options"),
 
-            tags$div(
-                style = "margin-left: 10px;",
-
-                p("① Choose a guess for the true value."),
-
-                p("② Specify how uncertain you are."),
-
-                p("③ Reveal the true value."),
-
-                p("④ Evaluate the prediction using a scoring rule.")
-            ),
+            p("The module provides grpahical tools that show:"),
+    tags$ul(
+        tags$li("The calculation of a question's score for any combination of T, S and G"),
+        tags$li("The score as a function of answer error for any fixed uncertainty value S"),
+        tags$li("The score as a function of uncertainty value S, for any choice of answer error")
+    ),
+    p("Additionally, for any choice of answer error, the optimal value of uncertainty error is also calculated."),
 
             hr(),
 
