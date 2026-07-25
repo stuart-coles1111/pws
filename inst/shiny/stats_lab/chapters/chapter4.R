@@ -132,7 +132,7 @@ chapter4_ui <- function(id){
 
             card_header(
                 div(
-                    "📉 Understanding Uncertainty",
+                    "📉 Quantifying Uncertainty",
                     style = "
                     font-size: 1.4rem;
                     font-weight: 700;

@@ -95,7 +95,7 @@ chapter5_ui <- function(id){
 
             selectInput(
                 ns("boot_method"),
-                "Inference method",
+                "Estimate simulation method",
                 choices = c(
                     "Process Simulation (exact)" = "true_p",
                     "Process Simulation (approx)" = "est_p",
@@ -178,70 +178,145 @@ chapter5_ui <- function(id){
     # =====================================================
 
     overview_panel <- div(
+
         card(
 
-            card_header("📊 Learning from Samples"),
+            style = "
+        border-radius: 16px;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        padding: 10px;
+        ",
+
+            card_header(
+                div(
+                    "📊 Basics of statistical inference",
+                    style = "
+                font-size: 1.4rem;
+                font-weight: 700;
+                color: #2c3e50;
+                "
+                )
+            ),
 
             p(
                 strong("Main idea: "),
-                "We rarely observe an entire population. Instead, we collect a sample and use it to estimate unknown quantities."
+                "Chapter 5 of Playing With Statistics discusses general principles of statistics, focusing on some of the main themes of statistical inference and modelling."
             ),
 
             hr(),
 
-            h5("The problem"),
+            h5("Topics"),
 
             p(
-                "Suppose we want to know the probability of rolling a six with a particular die. We cannot know the true probability directly, but we can estimate it from observed rolls."
+                "The module provides tools to explore two topics from Chapter 5 of Playing With Statistics:"
+            ),
+
+            tags$ul(
+                tags$li(
+                    "Statistical inference (using the two dice game for illustration)"
+                ),
+                tags$li(
+                    "Regression (using points in the Premier League as an example)"
+                )
             ),
 
             hr(),
 
-            h5("What happens in this topic?"),
+            h5("Your options"),
 
-            p("① Roll a die repeatedly."),
+            p(
+                "Choose to explore either statistical inference or regression."
+            ),
 
-            p("② Estimate the probability of rolling a six."),
-
-            p("③ Generate many bootstrap samples."),
-
-            p("④ Use the bootstrap distribution to measure uncertainty."),
-
-            p("⑤ Construct a confidence interval."),
-
-            hr(),
-
-            h5("Your job"),
+            p(
+                "If you choose statistical inference, you are guided through a simulation and analysis of the two dice game, including:"
+            ),
 
             tags$ul(
-                tags$li("Explore how estimates vary from sample to sample"),
-                tags$li("Investigate the effect of sample size"),
-                tags$li("Compare different bootstrap methods"),
-                tags$li("Study how confidence intervals change")
+                tags$li("Simulation of observed data"),
+                tags$li("Resampling of probability estimates"),
+                tags$li("Calculation of confidence intervals")
+            ),
+
+            p(
+                "Sidebar options allow you to choose the sample size, the method used to generate new estimates, and the confidence level used for intervals."
+            ),
+
+            p(
+                "If you choose regression, you calculate a linear regression relationship between points scored in the first and second halves of Premier League seasons. The display shows:"
+            ),
+
+            tags$ul(
+                tags$li(
+                    "A graphical representation of the linear model overlaid on the data"
+                ),
+                tags$li(
+                    "Predictions at any chosen point"
+                ),
+                tags$li(
+                    "A confidence band around the fitted regression line"
+                ),
+                tags$li(
+                    "A numerical summary of the regression model"
+                )
+            ),
+
+            p(
+                "Sidebar options allow you to vary the subset of data analysed, the prediction point, and the confidence level used for the confidence band."
             ),
 
             hr(),
 
             div(
+
                 style = "
             background-color:#f8f9fa;
             border-left:5px solid #7B9ACC;
             padding:12px;
             border-radius:8px;
-        ",
+            ",
 
                 h5("Questions to investigate"),
 
+                p(
+                    strong("For statistical inference:")
+                ),
+
                 tags$ul(
-                    tags$li("How close is the estimate to the true probability?"),
-                    tags$li("Why do different samples produce different estimates?"),
-                    tags$li("How does sample size affect uncertainty?"),
-                    tags$li("What does a confidence interval tell us?")
+                    tags$li(
+                        "How does the accuracy of estimates depend on the number of simulations?"
+                    ),
+                    tags$li(
+                        "Does the confidence interval always contain the true probability?"
+                    ),
+                    tags$li(
+                        "Does the method used to generate new estimates affect the results?"
+                    )
+                ),
+
+                p(
+                    strong("For regression:")
+                ),
+
+                tags$ul(
+                    tags$li(
+                        "What is the effect of fitting the regression model to smaller datasets?"
+                    ),
+                    tags$li(
+                        "How does changing the confidence level affect the confidence bands?"
+                    ),
+                    tags$li(
+                        "Are confidence intervals the same width at all prediction points?"
+                    )
                 )
+
             )
+
         )
 
     )
+
     # =====================================================
     # Generated Code
     # =====================================================
