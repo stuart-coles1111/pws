@@ -143,7 +143,8 @@ chapter4_ui <- function(id){
 
             p(
                 strong("Main idea: "),
-                "This module provides tools to explore the quiz score function used in Chapter 4 of Playing With Statistics."
+                "This module provides tools to explore how quiz scores are calculated
+            from a prediction and its associated uncertainty."
             ),
 
             hr(),
@@ -151,44 +152,71 @@ chapter4_ui <- function(id){
             h5("Background"),
 
             p(
-                "Activity 4 of Playing With Statistics presents a quiz that requires participants to provide not just their best guess (G)
-                to an answer, but also a measure of uncertainty (S) that defines how confident they are in their guess."
+                "Activity 4 of Playing With Statistics presents a quiz that requires
+            participants to provide not only their best guess (G) for an answer,
+            but also a measure of uncertainty (S) describing how confident they
+            are in that guess."
             ),
 
             p(
-                "This is defined so that if the true answer is T,"
+                "The uncertainty measure is defined so that, if the true answer is T,"
+            ),
+
+            withMathJax(
+                p(
+                    "\\(P(G-S \\leq T \\leq G+S)=0.95\\)"
+                )
             ),
 
             p(
-                "P(G - S <= T <= G + S) = 95%"
+                "In other words, participants choose S so that they are 95% confident
+            that the true answer lies within a distance S of their guess G."
             ),
-
-
-        p(
-            "In other words, particpants choose S such that they are 95% confident that the true answer is less than a distance S from their guess G"
-    ),
 
             hr(),
 
             h5("Your options"),
 
-            p("The module provides grpahical tools that show:"),
-    tags$ul(
-        tags$li("The calculation of a question's score for any combination of T, S and G"),
-        tags$li("The score as a function of answer error for any fixed uncertainty value S"),
-        tags$li("The score as a function of uncertainty value S, for any choice of answer error")
-    ),
-    p("Additionally, for any choice of answer error, the optimal value of uncertainty error is also calculated."),
+            p(
+                "The module provides graphical tools that show:"
+            ),
+
+            tags$ul(
+                tags$li(
+                    "The score for any combination of T, G and S."
+                ),
+                tags$li(
+                    "How the score changes as answer error varies for a fixed uncertainty value S."
+                ),
+                tags$li(
+                    "How the score changes as uncertainty S varies for a fixed answer error."
+                )
+            ),
+
+            p(
+                "Additionally, for any chosen answer error, the optimal value of
+            uncertainty can be calculated."
+            ),
 
             hr(),
 
-            h5("Your job"),
+            h5("Interpretation"),
 
-            tags$ul(
-                tags$li("Explore different combinations of guesses and uncertainty"),
-                tags$li("Investigate how scores change when predictions are accurate or inaccurate"),
-                tags$li("Compare cautious predictions with confident predictions"),
-                tags$li("Discover what kinds of predictions receive the best scores")
+            p(
+                "The module can be used simply as a calculator to determine the score
+            for a given combination of T, G and S."
+            ),
+
+            p(
+                "It can also be used to understand the nature of the scoring process
+            and the consequences of errors in a guess, or of being over- or
+            under-confident when expressing uncertainty through S."
+            ),
+
+            p(
+                "The graphical presentation of results allows the scoring mechanism
+            to be visualised, including the relative costs of inaccurate guesses
+            and of inappropriate uncertainty estimates."
             ),
 
             hr(),
@@ -205,16 +233,19 @@ chapter4_ui <- function(id){
 
                 tags$ul(
                     tags$li(
-                        "What happens when the guess is correct but uncertainty is very small?"
+                        "Does the scoring system treat over-estimates and under-estimates differently?"
                     ),
                     tags$li(
-                        "What happens when the guess is wrong but uncertainty is large?"
+                        "What happens if S is very large relative to the error in an answer?"
                     ),
                     tags$li(
-                        "Can being overconfident hurt your score?"
+                        "What happens if S is very small relative to the error in an answer?"
                     ),
                     tags$li(
-                        "What level of uncertainty seems appropriate for different situations?"
+                        "How should the score curves be interpreted?"
+                    ),
+                    tags$li(
+                        "What does the optimal choice of uncertainty tell us about good prediction?"
                     )
                 )
             )
