@@ -127,7 +127,7 @@ ui <- page_navbar(
     # =======================================================
 
     nav_panel(
-        "📐 Chapter 6",
+        "🔍 Chapter 6",
         chapter6_ui("chapter6")
     ),
 

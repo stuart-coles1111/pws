@@ -7,6 +7,8 @@ bp <- function(n) {
     1 - p
 }
 
+
+
 # =========================================================
 # Chapter 6 UI
 # =========================================================
@@ -40,13 +42,93 @@ chapter6_ui <- function(id){
                 ns("demo")
             ),
 
-            sliderInput(
-                ns("p_level"),
-                "Probability threshold (p)",
-                min = 0.01,
-                max = 0.99,
-                value = 0.50,
-                step = 0.01
+            radioButtons(
+                ns("birthday_type"),
+                "Choose birthday investigation",
+
+                choices = c(
+                    "Classic birthday problem" = "classic",
+                    "Non-Classic birthday problem" = "context"
+                ),
+
+                selected = "classic"
+            ),
+
+
+            conditionalPanel(
+
+                condition = sprintf(
+                    "input['%s']=='classic'",
+                    ns("birthday_type")
+                ),
+
+                sliderInput(
+                    ns("p_level"),
+                    "Probability threshold (p)",
+                    min = 0.01,
+                    max = 0.99,
+                    value = 0.50,
+                    step = 0.01
+                )
+
+            ),
+
+
+            conditionalPanel(
+
+                condition = sprintf(
+                    "input['%s']=='context'",
+                    ns("birthday_type")
+                ),
+
+                sliderInput(
+                    ns("match_size"),
+                    "Number sharing birthday",
+                    min = 2,
+                    max = 10,
+                    value = 4
+                ),
+
+                sliderInput(
+                    ns("team_small"),
+                    "Team size",
+                    min = 5,
+                    max = 100,
+                    value = 20
+                ),
+
+                sliderInput(
+                    ns("team_large"),
+                    "Company size",
+                    min = 10,
+                    max = 500,
+                    value = 100
+                ),
+
+                radioButtons(
+                    ns("birthday_method"),
+                    "Calculation method",
+
+                    choices = c(
+                        "Dynamic programming (exact)" = "dp",
+                        "Poisson approximation (fast)" = "poisson"
+                    ),
+
+                    selected = "poisson"
+                ),
+
+                radioButtons(
+                    ns("birthday_scale"),
+                    "Display scale",
+
+                    choices = c(
+                        "Probability" = "prob",
+                        "Log probability" = "log"
+                    ),
+
+                    selected = "log"
+                )
+
             )
         ),
 
@@ -179,7 +261,7 @@ chapter6_ui <- function(id){
 
             card_header(
                 div(
-                    "📐 When randomness looks like structure",
+                    "🔍 Context in statistical design and analysis",
                     style = "
                     font-size: 1.4rem;
                     font-weight: 700;
@@ -190,34 +272,27 @@ chapter6_ui <- function(id){
 
             p(
                 strong("Main idea: "),
-                "Random data can easily produce patterns that look meaningful,
-             even when no real underlying relationship exists."
+                "Data never live in isolation. They are generated through some process of collection, whether from a designed experiment, an observational study, or a sample from a population of interest.
+The way data are collected influences what conclusions can be drawn, and good study design can lead to more reliable analyses and better decisions."
             ),
 
             hr(),
 
-            h5("The problem"),
+            h5("Three conexts"),
 
-            p(
-                "In real-world data analysis, we are constantly searching for patterns.
-             The danger is that randomness itself can create patterns that appear real."
+            p("This module illustrates probability and statiscs calculations from three scenarios"),
+
+            tags$ul(
+                tags$li("The classic birthday problem"),
+                tags$li("A potential ITV jinx when showing England games"),
+                tags$li("The issue of data dredging")
             ),
 
             hr(),
 
-            h5("What happens in this chapter?"),
+            h5("Your options"),
 
-            tags$div(
-                style = "margin-left: 10px;",
-
-                p("① Explore how unlikely events can still occur (Birthday Problem)."),
-
-                p("② Estimate differences between groups using simulated data."),
-
-                p("③ Study how often random data produces ‘significant’ results."),
-
-                p("④ Observe how regression can find relationships in pure noise.")
-            ),
+            p("In the birthday problem, you can explore the relationship between the "),
 
             hr(),
 
@@ -376,7 +451,7 @@ chapter6_ui <- function(id){
 
     chapter_page_ui(
         id = id,
-        title = "📐 Chapter 6: Design",
+        title = "🔍 Chapter 6: Context",
         sidebar = sidebar_controls,
         overview = overview_panel,
         code = code_panel,
@@ -443,6 +518,16 @@ chapter6_server <- function(id){
             ignoreInit = TRUE
         )
 
+        observeEvent(input$team_small, {
+
+            updateSliderInput(
+                session,
+                "team_large",
+                min = input$team_small + 1
+            )
+
+        })
+
         # -------------------------------------------------
         # Reactive analysis (no Run button)
         # -------------------------------------------------
@@ -459,20 +544,95 @@ chapter6_server <- function(id){
 
             if(input$demo == "Birthday Problem"){
 
-                nmax <- 60
 
-                df <- data.frame(
-                    N = 1:nmax,
-                    P = sapply(1:nmax, bp)
-                )
+                if(input$birthday_type == "classic"){
 
-                required_n <- df$N[which(df$P >= input$p_level)[1]]
 
-                list(
-                    type = "birthday",
-                    data = df,
-                    required_n = required_n
-                )
+                    nmax <- 60
+
+                    df <- data.frame(
+                        N = 1:nmax,
+                        P = sapply(1:nmax,bp)
+                    )
+
+                    required_n <- df$N[which(df$P >= input$p_level)[1]]
+
+
+                    list(
+                        type = "birthday",
+                        data = df,
+                        required_n = required_n
+                    )
+
+
+                } else {
+
+
+                    m <- input$match_size
+                    n1 <- input$team_small
+                    n2 <- max(input$team_large, n1 + 1)
+
+                    k1 <- 365^m
+
+                    k2 <- 365^(m-1)
+
+
+                    if(input$birthday_method=="dp"){
+
+                        p1 <- birthday_dp(n1,m)
+                        p2 <- birthday_dp(n2,m)
+
+                    } else {
+
+                        p1 <- birthday_poisson(n1,m)
+                        p2 <- birthday_poisson(n2,m)
+
+                    }
+
+
+                    data <- data.frame(
+
+                        Scenario = factor(
+                            c(
+                                paste(m, "specific people,\nspecific date"),
+                                paste(m, "specific people,\nany date"),
+                                paste("Any", m, "in group of", n1),
+                                paste("Any", m, "in group of", n2)
+                            ),
+                            levels = c(
+                                paste(m, "specific people,\nspecific date"),
+                                paste(m, "specific people,\nany date"),
+                                paste("Any", m, "in group of", n1),
+                                paste("Any", m, "in group of", n2)
+                            )
+                        ),
+
+                        k = c(
+                            k1,
+                            k2,
+                            1/p1,
+                            1/p2
+                        )
+                    )
+
+
+                    list(
+
+                        type="birthday_context",
+
+                        data=data,
+
+                        probabilities=c(
+                            1/k1,
+                            1/k2,
+                            p1,
+                            p2
+                        )
+
+                    )
+
+                }
+
             }
 
             # =================================================
@@ -548,30 +708,65 @@ chapter6_server <- function(id){
 
         output$generated_code <- renderText({
 
-            switch(
-                input$demo,
+            if(input$demo == "Birthday Problem") {
 
-                "Birthday Problem" =
-                    "plot_bp(p = p_level, nmax = 60)",
+                if(input$birthday_type == "classic") {
 
-                "Assessing the ITV jinx" =
                     paste0(
-                        "prop.diff(counts = c(",
-                        input$count1, ",", input$count2,
-                        "), trials = c(",
-                        input$trial1, ",", input$trial2,
-                        "))"
-                    ),
-
-                "Data Dredging" =
-                    paste0(
-                        "data_dredge(n_data = ",
-                        input$n_data,
-                        ", n_var = ",
-                        input$n_var,
+                        "birthday_classic(\n",
+                        "    threshold = ", input$p_level, "\n",
                         ")"
                     )
-            )
+
+                } else {
+
+                    paste0(
+                        "birthday_context(\n",
+                        "    matches = ", input$match_size, ",\n",
+                        "    group_sizes = c(",
+                        input$team_small,
+                        ", ",
+                        input$team_large,
+                        "),\n",
+                        "    method = \"",
+                        input$birthday_method,
+                        "\"\n",
+                        ")"
+                    )
+
+                }
+
+            } else if(input$demo == "Assessing the ITV jinx") {
+
+                paste0(
+                    "difference_in_proportions(\n",
+                    "    wins = c(",
+                    input$count1,
+                    ", ",
+                    input$count2,
+                    "),\n",
+                    "    matches = c(",
+                    input$trial1,
+                    ", ",
+                    input$trial2,
+                    ")\n",
+                    ")"
+                )
+
+            } else {
+
+                paste0(
+                    "data_dredging(\n",
+                    "    n_data = ",
+                    input$n_data,
+                    ",\n",
+                    "    n_predictors = ",
+                    input$n_var,
+                    "\n)"
+                )
+
+            }
+
         })
 
         # =====================================================
@@ -582,21 +777,36 @@ chapter6_server <- function(id){
 
             a <- analysis()
 
+
+            # =====================================================
+            # Classic birthday problem
+            # =====================================================
+
             if(a$type == "birthday"){
 
                 ggplot(a$data, aes(N, P)) +
-                    geom_line(colour = "#7B9ACC", linewidth = 1) +
-                    geom_point(colour = "#7B9ACC") +
+
+                    geom_line(
+                        colour = "#7B9ACC",
+                        linewidth = 1
+                    ) +
+
+                    geom_point(
+                        colour = "#7B9ACC"
+                    ) +
+
                     geom_hline(
                         yintercept = input$p_level,
                         colour = "red",
                         linetype = "dashed"
                     ) +
+
                     geom_vline(
                         xintercept = a$required_n,
                         colour = "darkred",
                         linetype = "dotted"
                     ) +
+
                     annotate(
                         "point",
                         x = a$required_n,
@@ -604,37 +814,162 @@ chapter6_server <- function(id){
                         colour = "red",
                         size = 4
                     ) +
-                    theme_minimal(base_size = 14)
+
+                    theme_minimal(
+                        base_size = 14
+                    ) +
+                    theme(
+                        axis.title.x = element_text(
+                            size = 16,
+                            face = "bold"
+                        ),
+
+                        axis.title.y = element_text(
+                            size = 16,
+                            face = "bold"
+                        ),
+
+                        axis.text.x = element_text(
+                            size = 14
+                        ),
+
+                        axis.text.y = element_text(
+                            size = 14
+                        )
+                    )
+
             }
+
+
+            # =====================================================
+            # Context-dependent birthday problem
+            # =====================================================
+
+            else if(a$type == "birthday_context"){
+
+                plot_data <- a$data
+
+                if(input$birthday_scale == "prob"){
+
+                    plot_data$value <- a$probabilities
+
+                    ylab <- "Probability"
+
+                } else {
+
+                    plot_data$value <- -log10(a$probabilities)
+
+                    ylab <- "-log10(Probability)"
+
+                }
+
+
+                ggplot(
+                    plot_data,
+                    aes(
+                        x = Scenario,
+                        y = value
+                    )
+                ) +
+
+                    geom_point(
+                        size = 4,
+                        colour = "#7B9ACC"
+                    ) +
+
+                    geom_line(
+                        aes(group = 1),
+                        colour = "#7B9ACC"
+                    ) +
+
+                    theme_minimal(
+                        base_size = 14
+                    ) +
+
+                    theme(
+                        axis.title.x = element_text(
+                            size = 16,
+                            face = "bold"
+                        ),
+
+                        axis.title.y = element_text(
+                            size = 16,
+                            face = "bold"
+                        ),
+
+                        axis.text.x = element_text(
+                            size = 14,
+                            angle = 30,
+                            hjust = 1
+                        ),
+
+                        axis.text.y = element_text(
+                            size = 14
+                        )
+                    )
+
+            }
+
+
+            # =====================================================
+            # Difference in proportions
+            # =====================================================
 
             else if(a$type == "prop"){
 
-                ggplot(data.frame(d = a$d), aes(d)) +
+                ggplot(
+                    data.frame(d = a$d),
+                    aes(d)
+                ) +
+
                     geom_histogram(
                         bins = 20,
                         fill = "#7B9ACC",
                         colour = "white"
                     ) +
+
                     geom_vline(
                         xintercept = a$ci,
                         colour = "red",
                         linetype = "dashed"
                     ) +
-                    theme_minimal(base_size = 14)
+
+                    theme_minimal(
+                        base_size = 14
+                    )
+
             }
+
+
+            # =====================================================
+            # Data dredging
+            # =====================================================
 
             else {
 
                 ggplot(
-                    data.frame(x = a$x, y = a$y),
+                    data.frame(
+                        x = a$x,
+                        y = a$y
+                    ),
                     aes(x, y)
                 ) +
-                    geom_point(colour = "#7B9ACC") +
-                    geom_smooth(method = "lm", colour = "red") +
-                    theme_minimal(base_size = 14)
-            }
-        })
 
+                    geom_point(
+                        colour = "#7B9ACC"
+                    ) +
+
+                    geom_smooth(
+                        method = "lm",
+                        colour = "red"
+                    ) +
+
+                    theme_minimal(
+                        base_size = 14
+                    )
+            }
+
+        })
         # =====================================================
         # Results panel
         # =====================================================
@@ -659,6 +994,123 @@ chapter6_server <- function(id){
                             a$required_n
                         )
                     )
+                )
+
+            } else if(a$type == "birthday_context"){
+
+
+                card(
+
+                    card_header("How surprising is the event?"),
+
+                    p(
+                        "The probability depends strongly on how the question is framed."
+                    ),
+
+                    tags$table(
+
+                        class = "table",
+
+                        tags$tr(
+                            tags$th("Scenario"),
+                            tags$th("Probability"),
+                            tags$th("Reciprocal probability")
+                        ),
+
+                        lapply(
+                            1:nrow(a$data),
+
+                            function(i){
+
+                                tags$tr(
+
+                                    tags$td(
+                                        a$data$Scenario[i]
+                                    ),
+
+                                    tags$td(
+                                        sprintf(
+                                            "%.6f",
+                                            a$probabilities[i]
+                                        )
+                                    ),
+
+                                    tags$td(
+                                        format(
+                                            round(a$data$k[i]),
+                                            big.mark = ","
+                                        )
+                                    )
+
+                                )
+
+                            }
+                        )
+
+                    ),
+
+                    br(),
+
+                    accordion(
+
+                        open = FALSE,
+
+                        accordion_panel(
+
+                            "How are these probabilities calculated?",
+
+                            h5("Exact dynamic programming approach"),
+
+                            p(
+                                "The exact calculation treats birthdays as 365 possible boxes.
+            It tracks the probability that people can be allocated to these
+            boxes without any box reaching the chosen group size."
+                            ),
+
+                            p(
+                                "The calculation keeps only states where no birthday has yet
+            reached m people. At the end, the probability of interest is found
+            by subtracting this probability from 1."
+                            ),
+
+                            withMathJax(),
+
+                            p(
+                                "$$P(\\text{at least }m)=1-P(\\text{maximum birthday count}<m)$$"
+                            ),
+
+                            hr(),
+
+                            h5("Poisson approximation"),
+
+                            p(
+                                "The approximation treats the number of people sharing any one
+            birthday as approximately Poisson distributed."
+                            ),
+
+                            p(
+                                "The expected number of people on each birthday is:"
+                            ),
+
+                            p(
+                                "$$\\lambda=\\frac{n}{365}$$"
+                            ),
+
+                            p(
+                                "The probability that every birthday has fewer than m people is
+            approximated by multiplying the probability for one birthday
+            across all 365 birthdays."
+                            ),
+
+                            p(
+                                "$$P(\\text{at least }m)
+            \\approx
+            1-[P(X<m)]^{365}$$"
+                            )
+
+                        )
+                    )
+
                 )
 
             } else if(a$type == "prop"){
