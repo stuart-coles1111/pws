@@ -623,6 +623,16 @@ ui <- page_navbar(
 
 server <- function(input, output, session){
 
+    empty_team_data <- function() {
+
+        tibble(
+            team = character(),
+            question = integer(),
+            G = numeric(),
+            S = numeric()
+        )
+
+    }
 
     # =======================================================
     # QUESTIONS DATABASE
@@ -642,6 +652,9 @@ server <- function(input, output, session){
         questions(
             load_question_set(input$question_set)
         )
+
+        # Remove all previously loaded team data
+        team_data(empty_team_data())
 
     }, ignoreInit = TRUE)
 
@@ -691,13 +704,7 @@ server <- function(input, output, session){
     # =======================================================
 
     team_data <- reactiveVal(
-
-        tibble(
-            team = character(),
-            question = integer(),
-            G = numeric(),
-            S = numeric()
-        )
+        empty_team_data()
     )
 
     # =======================================================
@@ -924,6 +931,14 @@ server <- function(input, output, session){
 
     })
 
+    observeEvent(input$participant_data, {
+
+        req(input$participant_data == "none")
+
+        team_data(empty_team_data())
+
+    })
+
     observe({
 
         if (input$question_set == "sports") {
@@ -999,7 +1014,7 @@ server <- function(input, output, session){
             session,
             "explore_team",
             choices = teams,
-            selected = teams[1]
+            selected = if(length(teams) > 0) teams[1] else character(0)
         )
     })
 

@@ -615,382 +615,382 @@ code
 
         })
 
-        # -----------------------------
-        # Run simulation
-        # -----------------------------
+# -----------------------------
+# Run simulation
+# -----------------------------
 
-        observeEvent(input$run, {
-
-
-            set.seed(input$seed)
+observeEvent(input$run, {
 
 
-            sim_data(
-                double_dice_game_sim(
-                    n = input$n_sim,
-                    p = input$p
+    set.seed(input$seed)
+
+
+    sim_data(
+        double_dice_game_sim(
+            n = input$n_sim,
+            p = input$p
+        )
+    )
+
+
+    fitted_models(NULL)
+
+    diagnostics(NULL)
+
+    show_probs(FALSE)
+
+    show_diag(FALSE)
+
+})
+
+
+
+# -----------------------------
+# Fit models button
+# -----------------------------
+
+observeEvent(input$fit_models, {
+
+
+    req(sim_data())
+
+
+    counts <- table(
+        factor(
+            sim_data(),
+            levels = 1:9
+        )
+    )
+
+
+    fitted_models(
+        mod_ests(
+            as.numeric(counts)
+        )
+    )
+
+
+    show_probs(TRUE)
+
+})
+
+
+
+# -----------------------------
+# Compare diagnostics button
+# -----------------------------
+
+observeEvent(input$compare, {
+
+
+    req(sim_data())
+
+
+    diagnostics(
+
+        double_dice_game_model_check(
+            sim_data(),
+            seed = 3
+        )
+
+    )
+
+
+    show_diag(TRUE)
+
+})
+
+
+
+# -----------------------------
+# Start again
+# -----------------------------
+
+observeEvent(input$reset, {
+
+
+    sim_data(NULL)
+
+    fitted_models(NULL)
+
+    diagnostics(NULL)
+
+    show_probs(FALSE)
+
+    show_diag(FALSE)
+
+
+    updateCheckboxGroupInput(
+        session,
+        "models",
+        selected = character(0)
+    )
+
+})
+
+
+
+# -----------------------------
+# Plot
+# -----------------------------
+
+# -----------------------------
+# Plot
+# -----------------------------
+
+output$hist <- renderPlot({
+
+    req(sim_data())
+
+    observed <- data.frame(
+
+        Score = 1:9,
+
+        Frequency =
+            as.numeric(
+                table(
+                    factor(
+                        sim_data(),
+                        levels = 1:9
+                    )
                 )
-            )
+            ),
 
+        Type = "Observed"
 
-            fitted_models(NULL)
+    )
 
-            diagnostics(NULL)
+    plot_data <- observed
 
-            show_probs(FALSE)
+    title_text <- "Observed frequencies"
 
-            show_diag(FALSE)
+    if (!is.null(fitted_models())) {
 
-        })
+        ests <- fitted_models()
 
+        model_probs <- list(
 
+            N = ests$p_N,
 
-        # -----------------------------
-        # Fit models button
-        # -----------------------------
+            S = ests$p_S,
 
-        observeEvent(input$fit_models, {
+            D = ests$p_D,
 
+            P = ests$p_P
 
-            req(sim_data())
+        )
 
+        fitted <- purrr::map_dfr(
 
-            counts <- table(
-                factor(
-                    sim_data(),
-                    levels = 1:9
-                )
-            )
+            input$models,
 
+            function(m) {
 
-            fitted_models(
-                mod_ests(
-                    as.numeric(counts)
-                )
-            )
+                data.frame(
 
+                    Score = 1:9,
 
-            show_probs(TRUE)
+                    Frequency =
+                        model_probs[[m]] *
+                        length(sim_data()),
 
-        })
-
-
-
-        # -----------------------------
-        # Compare diagnostics button
-        # -----------------------------
-
-        observeEvent(input$compare, {
-
-
-            req(sim_data())
-
-
-            diagnostics(
-
-                double_dice_game_model_check(
-                    sim_data(),
-                    seed = 3
-                )
-
-            )
-
-
-            show_diag(TRUE)
-
-        })
-
-
-
-        # -----------------------------
-        # Start again
-        # -----------------------------
-
-        observeEvent(input$reset, {
-
-
-            sim_data(NULL)
-
-            fitted_models(NULL)
-
-            diagnostics(NULL)
-
-            show_probs(FALSE)
-
-            show_diag(FALSE)
-
-
-            updateCheckboxGroupInput(
-                session,
-                "models",
-                selected = character(0)
-            )
-
-        })
-
-
-
-        # -----------------------------
-        # Plot
-        # -----------------------------
-
-        # -----------------------------
-        # Plot
-        # -----------------------------
-
-        output$hist <- renderPlot({
-
-            req(sim_data())
-
-            observed <- data.frame(
-
-                Score = 1:9,
-
-                Frequency =
-                    as.numeric(
-                        table(
-                            factor(
-                                sim_data(),
-                                levels = 1:9
-                            )
-                        )
-                    ),
-
-                Type = "Observed"
-
-            )
-
-            plot_data <- observed
-
-            title_text <- "Observed frequencies"
-
-            if (!is.null(fitted_models())) {
-
-                ests <- fitted_models()
-
-                model_probs <- list(
-
-                    N = ests$p_N,
-
-                    S = ests$p_S,
-
-                    D = ests$p_D,
-
-                    P = ests$p_P
-
-                )
-
-                fitted <- purrr::map_dfr(
-
-                    input$models,
-
-                    function(m) {
-
-                        data.frame(
-
-                            Score = 1:9,
-
-                            Frequency =
-                                model_probs[[m]] *
-                                length(sim_data()),
-
-                            Type =
-                                paste(
-                                    "Model",
-                                    m
-                                )
-
+                    Type =
+                        paste(
+                            "Model",
+                            m
                         )
 
-                    }
-
                 )
 
-                plot_data <- rbind(
-                    observed,
-                    fitted
-                )
-
-                title_text <- "Observed vs fitted models"
             }
 
-            ggplot(
+        )
 
-                plot_data,
+        plot_data <- rbind(
+            observed,
+            fitted
+        )
 
-                aes(
-                    x = factor(Score),
-                    y = Frequency,
-                    fill = Type
-                )
+        title_text <- "Observed vs fitted models"
+    }
 
-            ) +
+    ggplot(
 
-                geom_col(
-                    position = "dodge"
-                ) +
+        plot_data,
 
-                scale_fill_manual(
+        aes(
+            x = factor(Score),
+            y = Frequency,
+            fill = Type
+        )
 
-                    values = c(
+    ) +
 
-                        "Observed" = "#4C78A8",
+        geom_col(
+            position = "dodge"
+        ) +
 
-                        "Model N" = "#F58518",
+        scale_fill_manual(
 
-                        "Model S" = "#54A24B",
+            values = c(
 
-                        "Model D" = "#E45756",
+                "Observed" = "#4C78A8",
 
-                        "Model P" = "#B279A2"
+                "Model N" = "#F58518",
 
-                    ),
+                "Model S" = "#54A24B",
 
-                    drop = FALSE
+                "Model D" = "#E45756",
 
-                ) +
+                "Model P" = "#B279A2"
 
-                theme_minimal() +
+            ),
 
-                labs(
+            drop = FALSE
 
-                    title = title_text,
+        ) +
 
-                    x = "Score",
+        theme_minimal() +
 
-                    y = "Frequency",
+        labs(
 
-                    fill = ""
+            title = title_text,
 
-                )
+            x = "Score",
 
-        })
+            y = "Frequency",
 
+            fill = ""
 
+        )
 
-        # -----------------------------
-        # Probability table
-        # -----------------------------
-
-        output$prob_table <- DT::renderDT({
-
-
-            req(fitted_models())
-
-
-            ests <- fitted_models()
+})
 
 
-            df <- data.frame(
 
-                Score = 1:9,
+# -----------------------------
+# Probability table
+# -----------------------------
 
-                "Model N" =
-                    round(
-                        ests$p_N,
-                        3
-                    ),
+output$prob_table <- DT::renderDT({
 
-                "Model S" =
-                    round(
-                        ests$p_S,
-                        3
-                    ),
 
-                "Model D" =
-                    round(
-                        ests$p_D,
-                        3
-                    ),
+    req(fitted_models())
 
-                "Model P" =
-                    round(
-                        ests$p_P,
-                        3
+
+    ests <- fitted_models()
+
+
+    df <- data.frame(
+
+        Score = 1:9,
+
+        "Model N" =
+            round(
+                ests$p_N,
+                3
+            ),
+
+        "Model S" =
+            round(
+                ests$p_S,
+                3
+            ),
+
+        "Model D" =
+            round(
+                ests$p_D,
+                3
+            ),
+
+        "Model P" =
+            round(
+                ests$p_P,
+                3
+            )
+
+    )
+
+
+    DT::datatable(
+        df,
+        rownames = FALSE,
+        options = list(
+            dom = "t"
+        )
+    )
+
+
+})
+
+
+
+# -----------------------------
+# Diagnostics table
+# -----------------------------
+
+output$model_table <- DT::renderDT({
+
+
+    req(diagnostics())
+
+
+    df <- as.data.frame(
+        diagnostics()
+    )
+
+
+    dt <- DT::datatable(
+
+        df,
+
+        options = list(
+            dom = "t",
+            paging = FALSE,
+            ordering = FALSE
+        )
+
+    )
+
+
+    # highlight best (lowest) diagnostic value
+    # in each column
+
+    for(col in names(df)){
+
+
+        best_value <- min(
+            df[[col]],
+            na.rm = TRUE
+        )
+
+
+        dt <- dt |>
+
+            DT::formatStyle(
+
+                columns = col,
+
+                valueColumns = col,
+
+                backgroundColor =
+                    DT::styleEqual(
+
+                        best_value,
+
+                        "#c6efce"
+
                     )
 
             )
 
-
-            DT::datatable(
-                df,
-                rownames = FALSE,
-                options = list(
-                    dom = "t"
-                )
-            )
+    }
 
 
-        })
+    dt
 
 
-
-        # -----------------------------
-        # Diagnostics table
-        # -----------------------------
-
-        output$model_table <- DT::renderDT({
-
-
-            req(diagnostics())
-
-
-            df <- as.data.frame(
-                diagnostics()
-            )
-
-
-            dt <- DT::datatable(
-
-                df,
-
-                options = list(
-                    dom = "t",
-                    paging = FALSE,
-                    ordering = FALSE
-                )
-
-            )
-
-
-            # highlight best (lowest) diagnostic value
-            # in each column
-
-            for(col in names(df)){
-
-
-                best_value <- min(
-                    df[[col]],
-                    na.rm = TRUE
-                )
-
-
-                dt <- dt |>
-
-                    DT::formatStyle(
-
-                        columns = col,
-
-                        valueColumns = col,
-
-                        backgroundColor =
-                            DT::styleEqual(
-
-                                best_value,
-
-                                "#c6efce"
-
-                            )
-
-                    )
-
-            }
-
-
-            dt
-
-
-        })
+})
 
 
     })

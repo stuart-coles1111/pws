@@ -130,6 +130,7 @@ chapter6_ui <- function(id){
                 )
 
             )
+
         ),
 
         # ==========================================
@@ -188,13 +189,6 @@ chapter6_ui <- function(id){
                 value = sample.int(999, 1),
                 min = 1,
                 max = 999
-            ),
-
-            numericInput(
-                ns("nsim"),
-                "Number of Bootstrap Simulations",
-                value = 5000,
-                min = 1000
             )
         ),
 
@@ -210,7 +204,7 @@ chapter6_ui <- function(id){
             ),
 
             numericInput(
-                ns("seed"),
+                ns("seed_dredge"),
                 "Random seed",
                 value = sample.int(999, 1),
                 min = 1,
@@ -253,80 +247,123 @@ chapter6_ui <- function(id){
         card(
 
             style = "
-            border-radius: 16px;
-            border: none;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            padding: 10px;
-        ",
+        border-radius: 16px;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        padding: 10px;
+    ",
 
             card_header(
                 div(
                     "🔍 Context in statistical design and analysis",
                     style = "
-                    font-size: 1.4rem;
-                    font-weight: 700;
-                    color: #2c3e50;
-                "
+                font-size: 1.4rem;
+                font-weight: 700;
+                color: #2c3e50;
+            "
                 )
             ),
 
             p(
                 strong("Main idea: "),
-                "Data never live in isolation. They are generated through some process of collection, whether from a designed experiment, an observational study, or a sample from a population of interest.
-The way data are collected influences what conclusions can be drawn, and good study design can lead to more reliable analyses and better decisions."
+                "Statistical conclusions depend not only on calculations, but also on how questions are asked and how data are generated. ",
+                "The same data can appear surprising, convincing, or misleading depending on the context in which they are considered."
+            ),
+
+            p(
+                "Good statistical analysis therefore requires understanding the process that produced the data, ",
+                "whether from a designed experiment, an observational study, or a random sample from a population of interest."
             ),
 
             hr(),
 
-            h5("Three conexts"),
+            h5("Three contexts"),
 
-            p("This module illustrates probability and statiscs calculations from three scenarios"),
+            p(
+                "This module explores three examples that illustrate how probability and statistical reasoning can be affected by context:"
+            ),
 
             tags$ul(
-                tags$li("The classic birthday problem"),
+                tags$li("The birthday problem"),
                 tags$li("A potential ITV jinx when showing England games"),
-                tags$li("The issue of data dredging")
+                tags$li("The problem of data dredging")
             ),
 
             hr(),
 
             h5("Your options"),
 
-            p("In the birthday problem, you can explore the relationship between the "),
-
-            hr(),
-
-            h5("Your job"),
+            p(
+                "The birthday problem includes both the classic version and a non-classic version discussed in Playing With Statistics."
+            ),
 
             tags$ul(
-                tags$li("Investigate how often random data appears structured"),
-                tags$li("Compare true effects with apparent effects"),
-                tags$li("Explore how sample size affects false discoveries"),
-                tags$li("Learn how easily regression can be misled")
+                tags$li(
+                    "The classic version allows you to explore how the probability of a shared birthday changes as the group size increases."
+                ),
+                tags$li(
+                    "The non-classic version explores how different ways of framing the question lead to very different probabilities."
+                )
+            ),
+
+            p(
+                "The ITV jinx investigation allows you to repeat the analysis from Playing With Statistics, ",
+                "or explore similar comparisons using your own data. The aim is to investigate how much evidence is needed ",
+                "before we can distinguish a genuine effect from random variation."
+            ),
+
+            p(
+                "The data dredging example explores how searching through many possible relationships can produce apparently convincing ",
+                "patterns even when no real relationship exists."
             ),
 
             hr(),
 
             div(
                 style = "
-                background-color:#f8f9fa;
-                border-left:5px solid #7B9ACC;
-                padding:12px;
-                border-radius:8px;
-            ",
+            background-color:#f8f9fa;
+            border-left:5px solid #7B9ACC;
+            padding:12px;
+            border-radius:8px;
+        ",
 
                 h5("Questions to investigate"),
 
+                p("For the birthday problems:"),
+
                 tags$ul(
-                    tags$li("Why do rare events become inevitable with enough trials?"),
-                    tags$li("How often do confidence intervals mislead us?"),
-                    tags$li("Can regression find patterns in pure noise?"),
-                    tags$li("When should we distrust a ‘significant’ result?")
+                    tags$li(
+                        "For the classical problem, are there probability thresholds where the required number of people seems surprising?"
+                    ),
+                    tags$li(
+                        "For the non-classical problem, how do group size and the number of matching birthdays affect the relative probabilities of the different scenarios?"
+                    )
+                ),
+
+                p("For the ITV jinx problem:"),
+
+                tags$ul(
+                    tags$li(
+                        "How much data are needed before there is convincing evidence of a difference between groups?"
+                    ),
+                    tags$li(
+                        "How easily can random variation create the appearance of an effect?"
+                    )
+                ),
+
+                p("For data dredging:"),
+
+                tags$ul(
+                    tags$li(
+                        "How does increasing the sample size affect the results?"
+                    ),
+                    tags$li(
+                        "How does searching through more possible predictors increase the chance of finding an apparently meaningful relationship?"
+                    )
                 )
             )
         )
     )
-
     # =======================================================
     # Code
     # =======================================================
@@ -487,7 +524,10 @@ chapter6_server <- function(id){
             )
 
 
-            if (input$demo != "Birthday Problem") {
+            if (input$demo %in% c(
+                "Assessing the ITV jinx",
+                "Data Dredging"
+            )) {
 
                 updateNumericInput(
                     session,
@@ -507,8 +547,8 @@ chapter6_server <- function(id){
                 input$count2,
                 input$trial2,
                 input$alpha,
-                input$nsim,
                 input$seed,
+                input$seed_dredge,
                 input$n_data,
                 input$n_var
             ),
@@ -520,11 +560,16 @@ chapter6_server <- function(id){
 
         observeEvent(input$team_small, {
 
-            updateSliderInput(
-                session,
-                "team_large",
-                min = input$team_small + 1
-            )
+            if(input$team_large <= input$team_small){
+
+                updateSliderInput(
+                    session,
+                    "team_large",
+                    value = input$team_small + 10,
+                    min = input$team_small + 1
+                )
+
+            }
 
         })
 
@@ -646,8 +691,10 @@ chapter6_server <- function(id){
                 p1 <- input$count1 / input$trial1
                 p2 <- input$count2 / input$trial2
 
-                s1 <- rbinom(input$nsim, input$trial1, p1) / input$trial1
-                s2 <- rbinom(input$nsim, input$trial2, p2) / input$trial2
+                nsim <- 5000
+
+                s1 <- rbinom(nsim, input$trial1, p1) / input$trial1
+                s2 <- rbinom(nsim, input$trial2, p2) / input$trial2
 
                 d <- s1 - s2
 
@@ -673,7 +720,7 @@ chapter6_server <- function(id){
 
             else {
 
-                set.seed(input$seed)
+                set.seed(input$seed_dredge)
 
                 y <- rnorm(input$n_data, 0, 5)
 
@@ -723,7 +770,7 @@ chapter6_server <- function(id){
                     paste0(
                         "birthday_context(\n",
                         "    matches = ", input$match_size, ",\n",
-                        "    group_sizes = c(",
+                        "    groups = c(",
                         input$team_small,
                         ", ",
                         input$team_large,
