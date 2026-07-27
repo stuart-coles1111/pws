@@ -198,7 +198,7 @@ chapter7_ui <- function(id){
 
     sidebar_controls <- sidebar(
 
-        h4("Model Estimation and Comparison"),
+        h4("The Two-Dice Game"),
 
         numericInput(
             ns("seed"),
@@ -286,50 +286,53 @@ chapter7_ui <- function(id){
 
             p(
                 strong("Main idea: "),
-                "Different statistical models can explain the same data in different ways.
-            The goal is to compare these explanations and see which ones are more consistent with what we observe."
+                "This module allows you to simulate data from the Two-Dice game, fit competing statistical models, and compare their performance using graphical and numerical diagnostics."
             ),
 
             hr(),
 
-            h5("What is happening in this chapter?"),
-
-            tags$div(
-                style = "margin-left: 10px;",
-
-                p("① We simulate outcomes from a simple two-dice game."),
-
-                p("② Each model proposes a different explanation of how scores are generated."),
-
-                p("③ We estimate probabilities implied by each model from the observed data."),
-
-                p("④ We compare how well each model matches the data using likelihood and diagnostics.")
-            ),
-
-            hr(),
-
-            h5("Your job"),
+            h5("Background"),
 
             p(
-                "Use the controls to explore how different models behave and how well they fit the same dataset."
+                "Four statistical models are considered for the Two-Dice game. Each model provides a different explanation of how scores are generated."
             ),
 
             tags$ul(
-                tags$li("Generate game outcomes by adjusting the probability of Dice 1"),
-                tags$li("Compare observed score distributions to different model assumptions"),
-                tags$li("Inspect estimated probabilities under each model"),
-                tags$li("Evaluate model performance using diagnostic summaries")
+                tags$li(
+                    strong("Model N (Null): "),
+                    "all scores are assumed to be equally likely."
+                ),
+                tags$li(
+                    strong("Model S (Saturated): "),
+                    "each score has its own estimated probability."
+                ),
+                tags$li(
+                    strong("Model D (Data-driven): "),
+                    "probabilities are based on patterns observed in the data."
+                ),
+                tags$li(
+                    strong("Model P (Process-driven): "),
+                    "probabilities are derived from the known mechanism that generated the data."
+                )
+            ),
+
+            p(
+                "The purpose of this module is to estimate these models, compare their predictions, and evaluate their performance using diagnostic measures."
             ),
 
             hr(),
 
-            h5("What will you see?"),
+            h5("Your options"),
+
+            p(
+                "You can adjust the probability of selecting the red die and the number of times the game is played. Then you can:"
+            ),
 
             tags$ul(
-                tags$li("Simulated score distributions from the two-dice process"),
-                tags$li("Competing model-based probability estimates"),
-                tags$li("Observed vs expected frequency comparisons"),
-                tags$li("Numerical summaries of model fit and performance")
+                tags$li("Simulate data from the Two-Dice game."),
+                tags$li("Fit the competing statistical models."),
+                tags$li("Display estimated model probabilities graphically and numerically."),
+                tags$li("Compare models using diagnostic measures.")
             ),
 
             hr(),
@@ -345,13 +348,22 @@ chapter7_ui <- function(id){
                 h5("Questions to investigate"),
 
                 tags$ul(
-                    tags$li("How do different models change our interpretation of the same data?"),
-                    tags$li("Which models capture the structure in the data most effectively?"),
-                    tags$li("When does a simpler model perform just as well as a complex one?"),
-                    tags$li("How does model choice affect what we predict about future outcomes?")
+                    tags$li(
+                        "How do the different models rank when describing data from the Two-Dice game?"
+                    ),
+                    tags$li(
+                        "Does the ranking of the models depend on the sample size or the probability of selecting the red die?"
+                    ),
+                    tags$li(
+                        "Do graphical comparisons and diagnostic measures always lead to the same conclusion?"
+                    ),
+                    tags$li(
+                        "Can two models produce similar predictions while receiving different diagnostic scores?"
+                    )
                 )
             )
         )
+
     )
 
     code_panel <- div(
@@ -362,6 +374,49 @@ chapter7_ui <- function(id){
     )
 
     results_panel <- div(
+
+        accordion(
+
+            accordion_panel(
+
+                title = "🎲 Rules of the Double Dice Game",
+
+                tags$ul(
+
+                    tags$li(
+                        "You have two standard dice, one red and one blue."
+                    ),
+
+                    tags$li(
+                        "The red dice has sides labelled from 1 to 6."
+                    ),
+
+                    tags$li(
+                        "The blue dice has sides labelled from 4 to 9."
+                    ),
+
+                    tags$li(
+                        "First select one of the dice."
+                    ),
+
+                    tags$li(
+                        "Then roll that dice to obtain your score."
+                    )
+
+                ),
+
+                p(
+                    "Selection between the red and blue dice may be deterministic or random, depending on how the game is played."
+                ),
+
+                p(
+                    "For example, we could toss a coin to choose between the dice, or we could decide that adults use the red dice while children use the blue dice."
+                )
+
+            ),
+
+            open = FALSE
+        ),
 
         layout_columns(
 
@@ -540,89 +595,90 @@ chapter7_server <- function(id){
 
         output$generated_code <- renderText({
 
-            code <- paste0(
-                "## Double Dice Game Simulation
+            stage <- workflow_stage()
 
-# Set random seed
-set.seed(", input$seed, ")
+            code <- character(0)
 
-# Simulate game outcomes
+            if (stage == "start") {
 
-game_scores <- double_dice_game_sim(
-    n = ", input$n_sim, ",
-    p = ", input$p, "
-)
+                code <- c(
+                    "## Workflow",
+                    "",
+                    "# No code has been run yet.",
+                    "# Press 'Run simulation' to begin."
+                )
 
-# Estimate model probabilities
+            }
 
-counts <- table(
-    factor(
-        game_scores,
-        levels = 1:9
-    )
-)
+            if (stage %in% c("simulated", "fitted", "complete")) {
 
-estimates <- mod_ests(
-    as.numeric(counts)
-)
+                code <- c(
+                    code,
+                    "## Step 1: Simulate outcomes from the Double Dice Game",
+                    "",
+                    paste0("set.seed(", input$seed, ")"),
+                    "",
+                    "game_scores <- double_dice_game_sim(",
+                    paste0("    n = ", input$n_sim, ","),
+                    paste0("    p = ", input$p),
+                    ")",
+                    "",
+                    "head(game_scores)"
+                )
 
-# Model probabilities
+            }
 
-Model_N <- estimates$p_N
+            if (stage %in% c("fitted", "complete")) {
 
-Model_S <- estimates$p_S
+                code <- c(
+                    code,
+                    "",
+                    "## Step 2: Estimate model probabilities",
+                    "",
+                    "counts <- table(",
+                    "    factor(game_scores, levels = 1:9)",
+                    ")",
+                    "",
+                    "estimates <- mod_ests(",
+                    "    as.numeric(counts)",
+                    ")"
+                )
 
-Model_D <- estimates$p_D
+                if (length(input$models) > 0) {
 
-Model_P <- estimates$p_P
-"
-            )
+                    code <- c(
+                        code,
+                        "",
+                        "# Models displayed",
+                        paste0(
+                            "models_to_display <- c(\"",
+                            paste(input$models, collapse = "\", \""),
+                            "\")"
+                        )
+                    )
 
+                }
 
-if (!is.null(fitted_models())) {
+            }
 
-    code <- paste0(
-        code,
-        "
+            if (stage == "complete") {
 
-# Models currently displayed
+                code <- c(
+                    code,
+                    "",
+                    "## Step 3: Compare model diagnostics",
+                    "",
+                    "double_dice_game_model_check(",
+                    "    game_scores,",
+                    "    seed = 3",
+                    ")"
+                )
 
-models_selected <- c(",
-        paste(
-            input$models,
-            collapse = ", "
-        ),
-        ")
+            }
 
-# Compare fitted models with observed data
-"
-    )
-
-}
-
-
-if (!is.null(diagnostics())) {
-
-    code <- paste0(
-        code,
-        "
-
-# Model diagnostics
-
-double_dice_game_model_check(
-    game_scores
-)
-"
-    )
-
-}
-
-
-code
+            paste(code, collapse = "\n")
 
         })
-
-
 
 observe({
 

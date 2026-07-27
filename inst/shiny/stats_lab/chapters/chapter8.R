@@ -94,7 +94,7 @@ chapter8_ui <- function(id) {
 
     sidebar_controls <- sidebar(
 
-        h4("A Football Predictor"),
+        h4("A Football Calculator"),
 
         selectInput(ns("team1"), "Home team",
                     choices = PL24_pars$teams$teams,
@@ -106,8 +106,54 @@ chapter8_ui <- function(id) {
 
         hr(),
 
-        sliderInput(ns("sigma"), "Dynamic variation (sigma)",
-                    min = 0, max = 0.2, value = 0.05, step = 0.01),
+        h5("Model parameters"),
+
+        sliderInput(
+            ns("alpha_home"),
+            "Home attack (α)",
+            min = -1.5,
+            max = 1.5,
+            value = 0,
+            step = 0.01
+        ),
+
+        sliderInput(
+            ns("beta_home"),
+            "Home defence (β)",
+            min = -1.5,
+            max = 1.5,
+            value = 0,
+            step = 0.01
+        ),
+
+        sliderInput(
+            ns("alpha_away"),
+            "Away attack (α)",
+            min = -1.5,
+            max = 1.5,
+            value = 0,
+            step = 0.01
+        ),
+
+        sliderInput(
+            ns("beta_away"),
+            "Away defence (β)",
+            min = -1.5,
+            max = 1.5,
+            value = 0,
+            step = 0.01
+        ),
+
+        sliderInput(
+            ns("tau"),
+            "Home advantage (τ)",
+            min = 0,
+            max = 1,
+            value = 0.2,
+            step = 0.01
+        ),
+
+        hr(),
 
         numericInput(ns("seed"), "Random seed", value = 44),
 
@@ -115,8 +161,15 @@ chapter8_ui <- function(id) {
                      value = 1000, min = 100, step = 100),
 
 
+        hr(),
+
         actionButton(ns("run_static"),
                      "Calculate static league position probabilities"),
+
+        hr(),
+
+        sliderInput(ns("sigma"), "Dynamic variation (sigma)",
+                    min = 0, max = 0.2, value = 0.05, step = 0.01),
 
         actionButton(ns("run_dynamic"),
                      "Calculate dynamic league position probabilities"),
@@ -238,42 +291,23 @@ chapter8_ui <- function(id) {
 
         uiOutput(ns("sim_banner")),
 
-        div(
-            style = "display:flex; gap:15px; align-items:flex-start;",
+        layout_columns(
 
-            div(
-                style = "flex:1;",
+            card(
+                card_header("Match Summary"),
+                uiOutput(ns("match_summary"))
+            ),
 
-                card(
-
-                    card_header("Team Parameters"),
-
-                    DT::DTOutput(ns("parameter_table")),
-
-                    hr(),
-
-                    div(
-                        style = "
-                padding:8px;
-                background:#f8f9fa;
-                border-radius:8px;
-            ",
-
-                        strong("Home advantage (τ)"),
-                        br(),
-
-                        textOutput(ns("tau_value"))
-                    )
+            card(
+                card_header("Scoreline Probability Matrix"),
+                plotOutput(
+                    ns("score_matrix"),
+                    height = 350
                 )
             ),
 
-            div(
-                style = "flex:1;",
-                card(
-                    card_header("Match Outcome Probabilities"),
-                    DT::DTOutput(ns("match_probs"))
-                )
-            )
+            col_widths = c(3, 9)
+
         ),
 
         br(),
@@ -346,93 +380,6 @@ chapter8_ui <- function(id) {
         )
     )
 
-    # =======================================================
-    # Learn Panel
-    # =======================================================
-
-    learn_panel <- div(
-
-        card(
-
-            style = "
-        border-radius: 16px;
-        border: none;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        padding: 10px;
-    ",
-
-            card_header(
-                div(
-                    "What should you have learned?",
-                    style = "
-                font-size: 1.3rem;
-                font-weight: 700;
-                color: #2c3e50;
-            "
-                )
-            ),
-
-            tags$div(
-
-                h5("1. Small randomness can scale into large uncertainty"),
-
-                p(
-                    "Individual match outcomes are only mildly uncertain,
-                but when repeated across an entire season,
-                this randomness produces a wide range of possible league tables."
-                ),
-
-                hr(),
-
-                h5("2. Complex outcomes can emerge from simple rules"),
-
-                p(
-                    "Even with relatively simple assumptions about goal scoring,
-                the interaction of teams across many matches generates
-                rich and unpredictable league dynamics."
-                ),
-
-                hr(),
-
-                h5("3. Model structure matters as much as parameter values"),
-
-                p(
-                    "Whether team strength is fixed or allowed to evolve
-                can meaningfully change predictions, even if average ability is similar."
-                ),
-
-                hr(),
-
-                h5("4. Simulation is a tool for understanding uncertainty"),
-
-                p(
-                    "Monte Carlo simulation lets us observe the full distribution of possible seasons,
-                rather than a single predicted outcome."
-                ),
-
-                hr(),
-
-                h5("Key takeaway"),
-
-                div(
-                    style = "
-                background-color: #f8f9fa;
-                border-left: 5px solid #28a745;
-                padding: 12px;
-                border-radius: 8px;
-            ",
-
-                    p(
-                        strong("A league table is not a fixed outcome — it is a distribution."),
-                        br(),
-                        "Statistical modelling helps us understand not just what is likely to happen,
-                    but how many different futures are plausible given the same underlying system."
-                    )
-                )
-            )
-        )
-    )
-
 
 
     chapter_page_ui(
@@ -455,11 +402,224 @@ chapter8_server <- function(id) {
     moduleServer(id, function(input, output, session) {
 
 
+        observeEvent(input$team1, {
+
+            home <- PL24_pars$teams |>
+                dplyr::filter(
+                    teams == input$team1
+                )
+
+            updateSliderInput(
+                session,
+                "alpha_home",
+                value = home$alpha
+            )
+
+            updateSliderInput(
+                session,
+                "beta_home",
+                value = home$beta
+            )
+
+        }, ignoreInit = FALSE)
+
+        observeEvent(input$team2, {
+
+            away <- PL24_pars$teams |>
+                dplyr::filter(
+                    teams == input$team2
+                )
+
+            updateSliderInput(
+                session,
+                "alpha_away",
+                value = away$alpha
+            )
+
+            updateSliderInput(
+                session,
+                "beta_away",
+                value = away$beta
+            )
+
+        }, ignoreInit = FALSE)
+
+        match_means <- reactive({
+
+            list(
+
+                home =
+                    exp(
+                        input$tau +
+                            input$alpha_home -
+                            input$beta_away
+                    ),
+
+                away =
+                    exp(
+                        input$alpha_away -
+                            input$beta_home
+                    )
+
+            )
+
+        })
+
+        score_matrix_data <- reactive({
+
+            mu <- match_means()
+
+            hp <- c(
+                dpois(0:5, mu$home),
+                1 - ppois(5, mu$home)
+            )
+
+            ap <- c(
+                dpois(0:5, mu$away),
+                1 - ppois(5, mu$away)
+            )
+
+            df <- expand.grid(
+
+                Home = factor(
+                    c(0:5, "6+"),
+                    levels = c(0:5, "6+")
+                ),
+
+                Away = factor(
+                    c(0:5, "6+"),
+                    levels = c(0:5, "6+")
+                )
+
+            )
+
+            df$Prob <- as.vector(
+                outer(
+                    hp,
+                    ap
+                )
+            )
+
+            df
+
+        })
+
+        output$match_summary <- renderUI({
+
+            mu <- match_means()
+
+            df <- score_matrix_data()
+
+            best <- df[which.max(df$Prob), ]
+
+            probs <- match_win_probs(
+
+                c(
+                    input$alpha_home,
+                    input$beta_home
+                ),
+
+                c(
+                    input$alpha_away,
+                    input$beta_away
+                ),
+
+                input$tau
+            )
+
+            tags$div(
+
+                style = "padding:10px;",
+
+                h5("Expected goals"),
+
+                p(
+                    strong(input$team1),
+                    paste0(": ", round(mu$home, 2)),
+                    br(),
+                    strong(input$team2),
+                    paste0(": ", round(mu$away, 2))
+                ),
+
+                h5("Most likely score"),
+
+                p(
+                    paste0(best$Home, " – ", best$Away),
+                    br(),
+                    scales::percent(
+                        best$Prob,
+                        accuracy = 0.1
+                    )
+                ),
+
+                h5("Total expected goals"),
+
+                p(
+                    round(
+                        mu$home + mu$away,
+                        2
+                    )
+                )
+            )
+        })
+
+        output$score_matrix <- renderPlot({
+
+            df <- score_matrix_data()
+
+            ggplot(
+
+                df,
+
+                aes(
+                    x = Away,
+                    y = Home,
+                    fill = Prob
+                )
+
+            ) +
+
+                geom_tile() +
+
+                geom_text(
+
+                    aes(
+                        label = ifelse(
+                            Prob < 0.005,
+                            "",
+                            scales::percent(
+                                Prob,
+                                accuracy = 0.1
+                            )
+                        )
+                    ),
+
+                    size = 3
+
+                ) +
+
+                scale_fill_gradient(
+                    low = "#f7f7f7",
+                    high = "#4C78A8",
+                    labels = scales::percent
+                ) +
+
+                labs(
+                    x = "Away goals",
+                    y = "Home goals",
+                    fill = "Probability"
+                ) +
+
+                theme_minimal()
+
+        })
+
         # -------------------------
         # BANNER STATE
         # -------------------------
 
         rv <- reactiveValues(sim_running = FALSE)
+
 
         output$sim_banner <- renderUI({
             if (rv$sim_running) {
@@ -482,44 +642,36 @@ chapter8_server <- function(id) {
 
         output$match_probs <- DT::renderDT({
 
-            home <- PL24_pars$teams |> dplyr::filter(teams == input$team1)
-            away <- PL24_pars$teams |> dplyr::filter(teams == input$team2)
-
             probs <- match_win_probs(
-                c(home$alpha, home$beta),
-                c(away$alpha, away$beta),
-                PL24_pars$tau
-            )
 
-            DT::datatable(
-                data.frame(
-                    Outcome = c("Home win", "Draw", "Away win"),
-                    Probability = round(as.numeric(probs), 3)
+                c(
+                    input$alpha_home,
+                    input$beta_home
                 ),
-                options = list(dom = "t"),
-                rownames = FALSE
+
+                c(
+                    input$alpha_away,
+                    input$beta_away
+                ),
+
+                input$tau
             )
-        })
-
-        output$tau_value <- renderText(round(PL24_pars$tau, 3))
-
-        output$parameter_table <- DT::renderDT({
-
-            home <- PL24_pars$teams |>
-                dplyr::filter(teams == input$team1) |>
-                dplyr::select(Team = teams, Attack = alpha, Defence = beta)
-
-            away <- PL24_pars$teams |>
-                dplyr::filter(teams == input$team2) |>
-                dplyr::select(Team = teams, Attack = alpha, Defence = beta)
 
             DT::datatable(
-                bind_rows(home, away),
-                options = list(dom = "t"),
+                df,
+                options = list(
+                    dom = "t",
+                    paging = FALSE,
+                    searching = FALSE,
+                    info = FALSE
+                ),
                 rownames = FALSE
-            ) |>
-                formatRound(c("Attack", "Defence"), digits = 3)
+            )
+
+
         })
+
+
 
         output$generated_code <- renderText({
 
