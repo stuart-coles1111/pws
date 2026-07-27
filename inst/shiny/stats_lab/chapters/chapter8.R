@@ -123,103 +123,146 @@ chapter8_ui <- function(id) {
             accept = ".csv"
         ),
 
-        selectInput(
-            ns("team1"),
-            "Home team",
-            choices = NULL,
-            selected = "Manchester City"
-        ),
+        h5("Analysis mode"),
 
-        selectInput(
-            ns("team2"),
-            "Away team",
-            choices = NULL,
-            selected = "Liverpool"
+        radioButtons(
+            ns("analysis_mode"),
+            NULL,
+            choices = c(
+                "Team analysis" = "team",
+                "League simulation" = "league"
+            ),
+            selected = "team"
         ),
 
         hr(),
+        conditionalPanel(
+            condition = "input.analysis_mode == 'team'",
+            ns = ns,
 
-        h5("Model parameters"),
+            selectInput(
+                ns("team1"),
+                "Home team",
+                choices = NULL,
+                selected = "Manchester City"
+            ),
 
-        sliderInput(
-            ns("alpha_home"),
-            "Home attack (α)",
-            min = -1.5,
-            max = 1.5,
-            value = 0,
-            step = 0.01
-        ),
+            selectInput(
+                ns("team2"),
+                "Away team",
+                choices = NULL,
+                selected = "Liverpool"
+            ),
 
-        sliderInput(
-            ns("beta_home"),
-            "Home defence (β)",
-            min = -1.5,
-            max = 1.5,
-            value = 0,
-            step = 0.01
-        ),
+            hr(),
 
-        sliderInput(
-            ns("alpha_away"),
-            "Away attack (α)",
-            min = -1.5,
-            max = 1.5,
-            value = 0,
-            step = 0.01
-        ),
+            h5("Model parameters"),
 
-        sliderInput(
-            ns("beta_away"),
-            "Away defence (β)",
-            min = -1.5,
-            max = 1.5,
-            value = 0,
-            step = 0.01
-        ),
+            sliderInput(
+                ns("alpha_home"),
+                "Home attack (α)",
+                min = -1.5,
+                max = 1.5,
+                value = 0,
+                step = 0.01
+            ),
 
-        sliderInput(
-            ns("tau"),
-            "Home advantage (τ)",
-            min = 0,
-            max = 1,
-            value = 0.2,
-            step = 0.01
+            sliderInput(
+                ns("beta_home"),
+                "Home defence (β)",
+                min = -1.5,
+                max = 1.5,
+                value = 0,
+                step = 0.01
+            ),
+
+            sliderInput(
+                ns("alpha_away"),
+                "Away attack (α)",
+                min = -1.5,
+                max = 1.5,
+                value = 0,
+                step = 0.01
+            ),
+
+            sliderInput(
+                ns("beta_away"),
+                "Away defence (β)",
+                min = -1.5,
+                max = 1.5,
+                value = 0,
+                step = 0.01
+            ),
+
+            sliderInput(
+                ns("tau"),
+                "Home advantage (τ)",
+                min = 0,
+                max = 1,
+                value = 0.2,
+                step = 0.01
+            )
         ),
 
         hr(),
 
         uiOutput(ns("data_source")),
 
-        numericInput(ns("seed"), "Random seed", value = 44),
+        conditionalPanel(
+            condition = "input.analysis_mode == 'league'",
+            ns = ns,
 
-        numericInput(ns("n_sim"), "Number of  seasons to simulate",
-                     value = 1000, min = 100, step = 100),
+            numericInput(
+                ns("seed"),
+                "Random seed",
+                value = 44
+            ),
 
+            numericInput(
+                ns("n_sim"),
+                "Number of seasons to simulate",
+                value = 1000,
+                min = 100,
+                step = 100
+            ),
 
-        hr(),
+            hr(),
 
-        actionButton(ns("run_static"),
-                     "Calculate static league position probabilities"),
+            actionButton(
+                ns("run_static"),
+                "Calculate static league position probabilities"
+            ),
 
-        hr(),
+            hr(),
 
-        sliderInput(ns("sigma"), "Dynamic variation (sigma)",
-                    min = 0, max = 0.2, value = 0.05, step = 0.01),
+            sliderInput(
+                ns("sigma"),
+                "Dynamic variation (sigma)",
+                min = 0,
+                max = 0.2,
+                value = 0.05,
+                step = 0.01
+            ),
 
-        actionButton(ns("run_dynamic"),
-                     "Calculate dynamic league position probabilities"),
+            actionButton(
+                ns("run_dynamic"),
+                "Calculate dynamic league position probabilities"
+            ),
 
-        hr(),
+            hr(),
 
-        selectInput(
-            ns("comparison_team"),
-            "Team for comparison",
-            choices = NULL,
-            selected = "Arsenal"
-        ),
+            selectInput(
+                ns("comparison_team"),
+                "Team for comparison",
+                choices = NULL,
+                selected = "Arsenal"
+            ),
 
-        actionButton(ns("run_compare"),
-                     "Compare static vs dynamic")
+            actionButton(
+                ns("run_compare"),
+                "Compare static vs dynamic"
+            )
+        )
     )
 
     overview_panel <- div(
@@ -328,95 +371,64 @@ chapter8_ui <- function(id) {
 
         uiOutput(ns("sim_banner")),
 
-        layout_columns(
+        conditionalPanel(
+            condition = "input.analysis_mode == 'team'",
+            ns = ns,
 
-            card(
-                card_header("Match Summary"),
-                uiOutput(ns("match_summary"))
-            ),
+            layout_columns(
 
-            card(
-                card_header("Scoreline Probability Matrix"),
-                plotOutput(
-                    ns("score_matrix"),
-                    height = 350
-                )
-            ),
+                card(
+                    card_header("Match Summary"),
+                    uiOutput(ns("match_summary"))
+                ),
 
-            col_widths = c(3, 9)
-
-        ),
-
-        br(),
-
-        accordion(
-
-            open = FALSE,
-
-            accordion_panel(
-
-                title = "📖 Simulation Pipeline",
-
-                tags$ol(
-
-                    tags$li(
-                        strong("Estimate team strengths"),
-                        " using attack (α), defence (β) and home advantage (τ)."
-                    ),
-
-                    tags$li(
-                        strong("Convert strengths into expected goals"),
-                        " using the Poisson model."
-                    ),
-
-                    tags$li(
-                        strong("Simulate every match"),
-                        " in the season."
-                    ),
-
-                    tags$li(
-                        strong("Award league points"),
-                        " and apply tie-break rules."
-                    ),
-
-                    tags$li(
-                        strong("Repeat thousands of times"),
-                        " to estimate uncertainty in final league positions."
-                    ),
-
-                    tags$li(
-                        strong("Dynamic model only:"),
-                        " allow team strengths to evolve throughout the season."
+                card(
+                    card_header("Scoreline Probability Matrix"),
+                    plotOutput(
+                        ns("score_matrix"),
+                        height = 350
                     )
+                ),
 
-                )
+                col_widths = c(3,9)
 
             )
-
         ),
 
-        br(),
 
-        card(
-            card_header("Final League Positions (Static Model)"),
-            plotOutput(ns("static_plot"), height = 650)
-        ),
+        conditionalPanel(
+            condition = "input.analysis_mode == 'league'",
+            ns = ns,
 
-        br(),
+            card(
+                card_header("Final League Positions (Static Model)"),
+                plotOutput(
+                    ns("static_plot"),
+                    height = 650
+                )
+            ),
 
-        card(
-            card_header("Final League Positions (Dynamic Model)"),
-            plotOutput(ns("dynamic_plot"), height = 650)
-        ),
+            br(),
 
-        br(),
+            card(
+                card_header("Final League Positions (Dynamic Model)"),
+                plotOutput(
+                    ns("dynamic_plot"),
+                    height = 650
+                )
+            ),
 
-        card(
-            card_header("Static vs Dynamic Comparison"),
-            plotOutput(ns("comparison_plot"), height = 400)
+            br(),
+
+            card(
+                card_header("Static vs Dynamic Comparison"),
+                plotOutput(
+                    ns("comparison_plot"),
+                    height = 400
+                )
+            )
         )
     )
-
 
 
     chapter_page_ui(
@@ -568,6 +580,8 @@ chapter8_server <- function(id) {
         }, ignoreInit = FALSE)
 
         match_means <- reactive({
+
+            req(input$analysis_mode == "team")
 
             list(
 
@@ -841,6 +855,8 @@ chapter8_server <- function(id) {
 
         observeEvent(input$run_static, {
 
+            req(input$analysis_mode == "league")
+
             rv$sim_running <- TRUE
 
             seed <- input$seed
@@ -968,6 +984,8 @@ chapter8_server <- function(id) {
         dynamic_sim <- reactiveVal(NULL)
 
         observeEvent(input$run_dynamic, {
+
+            req(input$analysis_mode == "league")
 
             rv$sim_running <- TRUE
 
