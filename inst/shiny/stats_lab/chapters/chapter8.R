@@ -56,11 +56,16 @@ season_sim <- function(df, team_h, team_a, tau) {
     list(p_h, p_a, g_h - g_a, g_h, g_a)
 }
 
-league_sim <- function(df, tau) {
+league_sim <- function(df, schedule, tau) {
 
-    results <- season_sim(df, PL25_schedule[, 2], PL25_schedule[, 3], tau)
+    results <- season_sim(
+        df,
+        schedule[,2],
+        schedule[,3],
+        tau
+    )
 
-    points <- PL25_schedule
+    points <- schedule
     points$hp <- results[[1]]
     points$ap <- results[[2]]
     points$gd <- results[[3]]
@@ -96,13 +101,41 @@ chapter8_ui <- function(id) {
 
         h4("A Football Calculator"),
 
-        selectInput(ns("team1"), "Home team",
-                    choices = PL24_pars$teams$teams,
-                    selected = "Manchester City"),
+        hr(),
 
-        selectInput(ns("team2"), "Away team",
-                    choices = PL24_pars$teams$teams,
-                    selected = "Liverpool"),
+        h5("Data entry (optional)"),
+
+        fileInput(
+            ns("pars_file"),
+            "Upload team parameters CSV",
+            accept = ".csv"
+        ),
+
+        fileInput(
+            ns("tau_file"),
+            "Upload home advantage CSV",
+            accept = ".csv"
+        ),
+
+        fileInput(
+            ns("schedule_file"),
+            "Upload fixture CSV",
+            accept = ".csv"
+        ),
+
+        selectInput(
+            ns("team1"),
+            "Home team",
+            choices = NULL,
+            selected = "Manchester City"
+        ),
+
+        selectInput(
+            ns("team2"),
+            "Away team",
+            choices = NULL,
+            selected = "Liverpool"
+        ),
 
         hr(),
 
@@ -155,6 +188,8 @@ chapter8_ui <- function(id) {
 
         hr(),
 
+        uiOutput(ns("data_source")),
+
         numericInput(ns("seed"), "Random seed", value = 44),
 
         numericInput(ns("n_sim"), "Number of  seasons to simulate",
@@ -176,10 +211,12 @@ chapter8_ui <- function(id) {
 
         hr(),
 
-        selectInput(ns("comparison_team"),
-                    "Team for comparison",
-                    choices = PL24_pars$teams$teams,
-                    selected = "Arsenal"),
+        selectInput(
+            ns("comparison_team"),
+            "Team for comparison",
+            choices = NULL,
+            selected = "Arsenal"
+        ),
 
         actionButton(ns("run_compare"),
                      "Compare static vs dynamic")
@@ -390,7 +427,7 @@ chapter8_ui <- function(id) {
         code = code_panel,
         results = results_panel,
         learn = learn_panel
-        )
+    )
 }
 
 # =========================================================
@@ -401,10 +438,96 @@ chapter8_server <- function(id) {
 
     moduleServer(id, function(input, output, session) {
 
+        validate_teams <- function(df){
+
+            required <- c(
+                "teams",
+                "alpha",
+                "beta"
+            )
+
+            if(!all(required %in% names(df))){
+                stop(
+                    "Parameters file must contain: teams, alpha, beta"
+                )
+            }
+
+            df
+        }
+
+
+        teams_data <- reactive({
+
+            if(is.null(input$pars_file)){
+
+                PL24_pars$teams
+
+            } else {
+
+                validate_teams(
+                    read.csv(input$pars_file$datapath)
+                )
+
+            }
+
+        })
+
+        tau_data <- reactive({
+
+            if (is.null(input$tau_file)) {
+
+                PL24_pars$tau
+
+            } else {
+
+                read.csv(input$tau_file$datapath)$tau[1]
+
+            }
+
+        })
+
+
+        schedule_data <- reactive({
+
+            if (is.null(input$schedule_file)) {
+
+                PL25_schedule
+
+            } else {
+
+                read.csv(
+                    input$schedule_file$datapath,
+                    stringsAsFactors = FALSE
+                )
+
+            }
+
+        })
+        observeEvent(teams_data(), {
+
+            updateSelectInput(
+                session,
+                "team1",
+                choices = teams_data()$teams
+            )
+
+            updateSelectInput(
+                session,
+                "team2",
+                choices = teams_data()$teams
+            )
+
+            updateSelectInput(
+                session,
+                "comparison_team",
+                choices = teams_data()$teams
+            )
+
+        })
 
         observeEvent(input$team1, {
 
-            home <- PL24_pars$teams |>
+            home <- teams_data() |>
                 dplyr::filter(
                     teams == input$team1
                 )
@@ -425,7 +548,7 @@ chapter8_server <- function(id) {
 
         observeEvent(input$team2, {
 
-            away <- PL24_pars$teams |>
+            away <- teams_data() |>
                 dplyr::filter(
                     teams == input$team2
                 )
@@ -501,6 +624,23 @@ chapter8_server <- function(id) {
             )
 
             df
+
+        })
+
+        output$data_source <- renderUI({
+
+            if(is.null(input$pars_file)){
+
+                "Using built-in 2024/25 model parameters"
+
+            } else {
+
+                paste(
+                    "Using uploaded parameters:",
+                    input$pars_file$name
+                )
+
+            }
 
         })
 
@@ -678,17 +818,19 @@ chapter8_server <- function(id) {
             paste0(
                 "# Static model\n",
                 "league_sim(\n",
-                "  teams = PL24_pars$teams,\n",
-                "  tau = ", round(PL24_pars$tau,3), "\n",
+                "  teams = teams_data(),\n",
+                "  tau = ", round(tau_data(), 3), "\n",
                 ")\n\n",
+
                 "# Dynamic model\n",
                 "dynamic_league_sim(\n",
-                "  teams = PL24_pars$teams,\n",
-                "  PL25_schedule = PL25_schedule,\n",
-                "  tau = ", round(PL24_pars$tau,3), ",\n",
+                "  teams = teams_data(),\n",
+                "  schedule = schedule_data(),\n",
+                "  tau = ", round(tau_data(), 3), ",\n",
                 "  sigma = ", input$sigma, "\n",
                 ")"
             )
+
         })
 
         # =====================================================
@@ -701,11 +843,11 @@ chapter8_server <- function(id) {
 
             rv$sim_running <- TRUE
 
-            # snapshot reactive values BEFORE leaving reactive context
             seed <- input$seed
             n_sim <- input$n_sim
-            teams <- PL24_pars$teams
-            tau <- PL24_pars$tau
+            teams <- teams_data()
+            tau <- tau_data()
+            sched <- schedule_data()
 
             later::later(function() {
 
@@ -713,7 +855,11 @@ chapter8_server <- function(id) {
 
                 sims <- sapply(
                     1:n_sim,
-                    function(x) league_sim(teams, tau)
+                    function(x) league_sim(
+                        teams,
+                        sched,
+                        tau
+                    )
                 )
 
                 rownames(sims) <- teams$teams
@@ -723,7 +869,6 @@ chapter8_server <- function(id) {
 
             }, 0.05)
         })
-
         # =====================================================
         # DYNAMIC SIM (FIXED)
         # =====================================================
@@ -758,7 +903,7 @@ chapter8_server <- function(id) {
         dynamic_season_sim <- function(df, round, team_h, team_a, tau,
                                        ro = 0.9, sigma = 0.1) {
 
-            teams_dynamic <- make_dynamic(PL24_pars$teams, ro = ro, sigma = sigma)
+            teams_dynamic <- make_dynamic(df, ro = ro, sigma = sigma)
 
             mu_h <- mu_a <- c()
 
@@ -787,18 +932,18 @@ chapter8_server <- function(id) {
             list(p_h, p_a, g_h - g_a, g_h, g_a)
         }
 
-        dynamic_league_sim <- function(df, PL25_schedule, tau, sigma = 0.1) {
+        dynamic_league_sim <- function(df, schedule, tau, sigma = 0.1) {
 
             results <- dynamic_season_sim(
                 df,
-                PL25_schedule[,1],
-                PL25_schedule[,2],
-                PL25_schedule[,3],
+                schedule[,1],
+                schedule[,2],
+                schedule[,3],
                 tau,
                 sigma = sigma
             )
 
-            points <- PL25_schedule
+            points <- schedule
             points$hp <- results[[1]]
             points$ap <- results[[2]]
             points$gd <- results[[3]]
@@ -829,9 +974,9 @@ chapter8_server <- function(id) {
             seed <- input$seed
             n_sim <- input$n_sim
             sigma <- input$sigma
-            teams <- PL24_pars$teams
-            tau <- PL24_pars$tau
-            sched <- PL25_schedule
+            teams <- teams_data()
+            tau <- tau_data()
+            sched <- schedule_data()
 
             later::later(function() {
 
@@ -862,12 +1007,12 @@ chapter8_server <- function(id) {
 
         output$static_plot <- renderPlot({
             req(static_sim())
-            league_position_plot(PL24_pars$teams, static_sim(), 4)
+            league_position_plot(teams_data(), static_sim(), 4)
         })
 
         output$dynamic_plot <- renderPlot({
             req(dynamic_sim())
-            league_position_plot(PL24_pars$teams, dynamic_sim(), 4)
+            league_position_plot(teams_data(), dynamic_sim(), 4)
         })
 
         output$comparison_plot <- renderPlot({
