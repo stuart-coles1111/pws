@@ -27,7 +27,13 @@ league_position_plot <- function(df, league_position, rows = 4, scales = "fixed"
         ) +
         xlab("Final league position") +
         ylab("Probability") +
-        facet_wrap(~ team, nrow = rows, scales = scales)
+        facet_wrap(~ team, nrow = rows, scales = scales)+
+        theme_minimal(base_size = 16) +
+        theme(
+            axis.title = element_text(size = 18, face = "bold"),
+            axis.text = element_text(size = 14),
+            strip.text = element_text(size = 14, face = "bold")
+        )
 }
 
 # =========================================================
@@ -143,15 +149,13 @@ chapter8_ui <- function(id) {
             selectInput(
                 ns("team1"),
                 "Home team",
-                choices = NULL,
-                selected = "Manchester City"
+                choices = NULL
             ),
 
             selectInput(
                 ns("team2"),
                 "Away team",
-                choices = NULL,
-                selected = "Liverpool"
+                choices = NULL
             ),
 
             hr(),
@@ -260,7 +264,8 @@ chapter8_ui <- function(id) {
 
             actionButton(
                 ns("run_compare"),
-                "Compare static vs dynamic"
+                "Compare static vs dynamic",
+                disabled = TRUE
             )
         )
     )
@@ -378,20 +383,22 @@ chapter8_ui <- function(id) {
             layout_columns(
 
                 card(
-                    card_header("Match Summary"),
-                    uiOutput(ns("match_summary"))
-                ),
-
-                card(
                     card_header("Scoreline Probability Matrix"),
                     plotOutput(
                         ns("score_matrix"),
-                        height = 350
+                        height = 450
                     )
                 ),
 
-                col_widths = c(3,9)
+                col_widths = c(12)
 
+            ),
+
+            br(),
+
+            card(
+                card_header("Match Summary"),
+                uiOutput(ns("match_summary"))
             )
         ),
 
@@ -515,24 +522,55 @@ chapter8_server <- function(id) {
             }
 
         })
+
+        observe({
+
+            if(
+                !is.null(static_sim()) &&
+                !is.null(dynamic_sim())
+            ){
+
+                updateActionButton(
+                    session,
+                    "run_compare",
+                    disabled = FALSE
+                )
+
+            } else {
+
+                updateActionButton(
+                    session,
+                    "run_compare",
+                    disabled = TRUE
+                )
+
+            }
+
+        })
+
         observeEvent(teams_data(), {
+
+            teams <- teams_data()$teams
 
             updateSelectInput(
                 session,
                 "team1",
-                choices = teams_data()$teams
+                choices = teams,
+                selected = teams[1]
             )
 
             updateSelectInput(
                 session,
                 "team2",
-                choices = teams_data()$teams
+                choices = teams,
+                selected = teams[2]
             )
 
             updateSelectInput(
                 session,
                 "comparison_team",
-                choices = teams_data()$teams
+                choices = teams,
+                selected = teams[1]
             )
 
         })
@@ -748,7 +786,7 @@ chapter8_server <- function(id) {
                         )
                     ),
 
-                    size = 3
+                    size = 5
 
                 ) +
 
@@ -764,7 +802,11 @@ chapter8_server <- function(id) {
                     fill = "Probability"
                 ) +
 
-                theme_minimal()
+                theme_minimal(base_size = 16) +
+                theme(
+                    axis.title = element_text(size = 18, face = "bold"),
+                    axis.text = element_text(size = 15)
+                )
 
         })
 
@@ -1051,8 +1093,13 @@ chapter8_server <- function(id) {
             ggplot(df, aes(Position, fill = Model)) +
                 geom_bar(aes(y = after_stat(count / sum(count))),
                          position = "dodge") +
-                labs(x = "League Position", y = "Probability") +
-                theme_minimal()
+                labs(x = "League Position", y = "Probability")+
+                theme_minimal(base_size = 16) +
+                theme(
+                    axis.title = element_text(size = 18, face = "bold"),
+                    axis.text = element_text(size = 14),
+                    strip.text = element_text(size = 14, face = "bold")
+                )
         })
     })
 }
