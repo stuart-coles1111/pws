@@ -41,7 +41,7 @@ chapter5_ui <- function(id){
             ns("topic"),
             "Choose topic",
             choices = c(
-                "Two dice game" = "Inference",
+                "One dice game" = "Inference",
                 "Regression" = "Regression"
             ),
             selected = "Inference"
@@ -59,7 +59,7 @@ chapter5_ui <- function(id){
 
             hr(),
 
-            h5("The Two-Dice game"),
+            h5("The One-Dice game"),
 
             numericInput(
                 ns("n"),
@@ -214,7 +214,7 @@ chapter5_ui <- function(id){
 
             tags$ul(
                 tags$li(
-                    "Statistical inference (using the two dice game for illustration)"
+                    "Statistical inference (using the one-dice game for illustration)"
                 ),
                 tags$li(
                     "Regression (using points in the Premier League as an example)"
@@ -230,7 +230,7 @@ chapter5_ui <- function(id){
             ),
 
             p(
-                "If you choose statistical inference, you are guided through a simulation and analysis of the two dice game, including:"
+                "If you choose statistical inference, you are guided through a simulation and analysis of the one-dice game, including:"
             ),
 
             tags$ul(
@@ -691,7 +691,7 @@ chapter5_server <- function(id){
             if (input$topic == "Inference") {
 
                 code <- paste0(
-                    "## Two-dice inference investigation
+                    "## One-dice inference investigation
 
 # Generate observed dice rolls
 set.seed(", input$seed, ")

@@ -192,6 +192,8 @@ mod_ests <- function(x){
 
 chapter7_ui <- function(id){
 
+    library(shinyjs)
+
     ns <- NS(id)
 
     sidebar_controls <- sidebar(
@@ -480,15 +482,20 @@ chapter7_ui <- function(id){
 
 
 
-    chapter_page_ui(
-        id = id,
-        title = "🧩 Chapter 7: Models",
-        sidebar = sidebar_controls,
-        overview = overview_panel,
-        code = code_panel,
-        results = results_panel,
-        learn = learn_panel
+    tagList(
+        shinyjs::useShinyjs(),
+
+        chapter_page_ui(
+            id = id,
+            title = "🧩 Chapter 7: Models",
+            sidebar = sidebar_controls,
+            overview = overview_panel,
+            code = code_panel,
+            results = results_panel,
+            learn = learn_panel
+        )
     )
+
 }
 
 
@@ -516,7 +523,7 @@ chapter7_server <- function(id){
 
         show_diag <- reactiveVal(FALSE)
 
-
+        workflow_stage <- reactiveVal("start")
 
         # These are used by conditionalPanel()
         output$show_probs <- reactive({
@@ -615,6 +622,32 @@ code
 
         })
 
+
+
+observe({
+
+    stage <- workflow_stage()
+
+    shinyjs::disable("run")
+    shinyjs::disable("fit_models")
+    shinyjs::disable("compare")
+
+    if (stage == "start") {
+
+        shinyjs::enable("run")
+
+    } else if (stage == "simulated") {
+
+        shinyjs::enable("fit_models")
+
+    } else if (stage == "fitted") {
+
+        shinyjs::enable("compare")
+
+    }
+
+})
+
 # -----------------------------
 # Run simulation
 # -----------------------------
@@ -640,6 +673,8 @@ observeEvent(input$run, {
     show_probs(FALSE)
 
     show_diag(FALSE)
+
+    workflow_stage("simulated")
 
 })
 
@@ -672,6 +707,8 @@ observeEvent(input$fit_models, {
 
     show_probs(TRUE)
 
+    workflow_stage("fitted")
+
 })
 
 
@@ -698,6 +735,8 @@ observeEvent(input$compare, {
 
     show_diag(TRUE)
 
+    workflow_stage("complete")
+
 })
 
 
@@ -707,7 +746,6 @@ observeEvent(input$compare, {
 # -----------------------------
 
 observeEvent(input$reset, {
-
 
     sim_data(NULL)
 
@@ -719,15 +757,23 @@ observeEvent(input$reset, {
 
     show_diag(FALSE)
 
-
     updateCheckboxGroupInput(
         session,
         "models",
         selected = character(0)
     )
 
-})
+    new_seed <- sample(1:999, 1)
 
+    updateNumericInput(
+        session,
+        "seed",
+        value = new_seed
+    )
+
+    workflow_stage("start")
+
+})
 
 
 # -----------------------------
