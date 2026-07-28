@@ -117,16 +117,41 @@ chapter8_ui <- function(id) {
             accept = ".csv"
         ),
 
-        fileInput(
-            ns("tau_file"),
-            "Upload home advantage CSV",
-            accept = ".csv"
+        helpText(
+            "Required columns: teams, alpha, beta"
+        ),
+
+        downloadButton(
+            ns("download_pars_template"),
+            "Download parameters template"
         ),
 
         fileInput(
             ns("schedule_file"),
             "Upload fixture CSV",
             accept = ".csv"
+        ),
+
+        helpText(
+            "Required columns: Round, Home.Team, Away.Team"
+        ),
+
+        downloadButton(
+            ns("download_schedule_template"),
+            "Download fixture template"
+        ),
+
+        sliderInput(
+            ns("tau"),
+            "Home advantage (τ)",
+            min = -0.5,
+            max = 1,
+            value = ifelse(
+                is.null(PL24_pars$tau) || is.na(PL24_pars$tau),
+                0.2,
+                PL24_pars$tau
+            ),
+            step = 0.01
         ),
 
         h5("Analysis mode"),
@@ -195,15 +220,6 @@ chapter8_ui <- function(id) {
                 min = -1.5,
                 max = 1.5,
                 value = 0,
-                step = 0.01
-            ),
-
-            sliderInput(
-                ns("tau"),
-                "Home advantage (τ)",
-                min = 0,
-                max = 1,
-                value = 0.2,
                 step = 0.01
             )
         ),
@@ -275,89 +291,127 @@ chapter8_ui <- function(id) {
         card(
 
             style = "
-        border-radius: 16px;
-        border: none;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        padding: 10px;
-    ",
+    border-radius: 16px;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    padding: 10px;
+",
 
             card_header(
                 div(
-                    "🕸️ Understanding Football as a Complex System",
+                    "🕸️ Studying Output from a Football Model",
                     style = "
-                font-size: 1.4rem;
-                font-weight: 700;
-                color: #2c3e50;
-            "
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #2c3e50;
+        "
                 )
             ),
 
             p(
                 strong("Main idea: "),
-                "A football season is not just a collection of matches.
-            It is a complex system where uncertainty at the match level
-            aggregates into unpredictable season-level outcomes."
+                "A football season is not simply a sequence of predictable matches. ",
+                "Even when teams have different underlying strengths, randomness at the match level can create a wide range of possible season outcomes."
             ),
-
-            hr(),
-
-            h5("What is happening in this chapter?"),
-
-            tags$div(
-                style = "margin-left: 10px;",
-
-                p("① We model match outcomes using a Poisson goal-scoring process."),
-
-                p("② Team strength is represented through attack, defence, and home advantage."),
-
-                p("③ We simulate full league seasons many times to capture uncertainty in final standings."),
-
-                p("④ We compare two worlds: one where team strength is fixed, and one where it evolves over time.")
-            ),
-
-            hr(),
-
-            h5("Your job"),
 
             p(
-                "Use simulation to explore how randomness and structural assumptions shape an entire league season."
-            ),
-
-            tags$ul(
-                tags$li("Simulate full seasons under different assumptions"),
-                tags$li("Compare static and dynamic representations of team strength"),
-                tags$li("Investigate how uncertainty propagates from matches to league tables"),
-                tags$li("Explore how parameter choices affect long-run outcomes")
+                "This module explores how statistical models can be used to understand uncertainty, ",
+                "moving from individual match probabilities to the distribution of possible final league positions."
             ),
 
             hr(),
 
-            h5("What will you see?"),
+            h5("Background"),
+
+            p(
+                "The model represents each match using a Poisson goal-scoring process. ",
+                "Team strength is described using attacking ability, defensive ability, and home advantage."
+            ),
 
             tags$ul(
-                tags$li("Simulated distributions of final league positions"),
-                tags$li("Match-level win probabilities between teams"),
-                tags$li("Side-by-side comparisons of static vs dynamic models"),
-                tags$li("Visual evidence of how uncertainty changes across model assumptions")
+
+                tags$li(
+                    strong("Match model: "),
+                    "expected goals are determined from the strengths of the two teams and the home advantage."
+                ),
+
+                tags$li(
+                    strong("Team analysis: "),
+                    "explores the probability of different match outcomes for a pair of teams."
+                ),
+
+                tags$li(
+                    strong("League simulation: "),
+                    "repeatedly simulates an entire season to show the range of possible final standings."
+                ),
+
+                tags$li(
+                    strong("Dynamic model: "),
+                    "allows team strengths to change over time rather than remaining fixed throughout the season."
+                )
+            ),
+
+            hr(),
+
+            h5("What to observe"),
+
+            p(
+                "The output from a simulation should not be interpreted as a prediction of exactly what will happen. ",
+                "Instead, it represents the uncertainty associated with different possible futures."
+            ),
+
+            tags$ul(
+
+                tags$li(
+                    "Even strong teams may fail to finish near the top in some simulations because of random variation."
+                ),
+
+                tags$li(
+                    "A narrow distribution of final positions suggests greater certainty, whereas a wide distribution indicates more uncertainty."
+                ),
+
+                tags$li(
+                    "Small differences between teams can become amplified over a season, but randomness can still dominate individual outcomes."
+                ),
+
+                tags$li(
+                    "A more complex model is not automatically better — it should only be preferred if it improves our understanding of the data."
+                )
             ),
 
             hr(),
 
             div(
                 style = "
-            background-color: #f8f9fa;
-            border-left: 5px solid #7B9ACC;
-            padding: 12px;
-            border-radius: 8px;
-        ",
+        background-color:#f8f9fa;
+        border-left:5px solid #7B9ACC;
+        padding:12px;
+        border-radius:8px;
+    ",
 
                 h5("Questions to investigate"),
 
                 tags$ul(
-                    tags$li("How much of a season’s outcome is determined by randomness?"),
-                    tags$li("What changes when team strength is allowed to evolve?"),
-                    tags$li("Why do strong teams still fail to finish at the top sometimes?"),
-                    tags$li("When does a static model become too simple to be useful?")
+
+                    tags$li(
+                        "How much of a season's outcome is determined by team strength and how much by randomness?"
+                    ),
+
+                    tags$li(
+                        "How different are the conclusions from a match-level analysis compared with a full-season simulation?"
+                    ),
+
+                    tags$li(
+                        "Does allowing team strength to evolve produce more realistic uncertainty?"
+                    ),
+
+                    tags$li(
+                        "When does a more complicated model provide useful additional information?"
+                    ),
+
+                    tags$li(
+                        "Why can two teams with very different strengths still have overlapping distributions of possible finishing positions?"
+                    )
                 )
             )
         )
@@ -491,19 +545,7 @@ chapter8_server <- function(id) {
 
         })
 
-        tau_data <- reactive({
-
-            if (is.null(input$tau_file)) {
-
-                PL24_pars$tau
-
-            } else {
-
-                read.csv(input$tau_file$datapath)$tau[1]
-
-            }
-
-        })
+        tau_data <- reactive(input$tau)
 
 
         schedule_data <- reactive({
@@ -810,6 +852,39 @@ chapter8_server <- function(id) {
                 )
 
         })
+
+        output$download_pars_template <- downloadHandler(
+
+            filename = function() {
+                "team_parameters_template.csv"
+            },
+
+            content = function(file) {
+
+                write.csv(
+                    PL24_pars$teams,
+                    file,
+                    row.names = FALSE
+                )
+            }
+        )
+
+        output$download_schedule_template <- downloadHandler(
+
+            filename = function() {
+                "fixture_template.csv"
+            },
+
+            content = function(file) {
+
+                write.csv(
+                    PL24_schedule,
+                    file,
+                    row.names = FALSE
+                )
+            }
+        )
+
 
         # -------------------------
         # BANNER STATE
