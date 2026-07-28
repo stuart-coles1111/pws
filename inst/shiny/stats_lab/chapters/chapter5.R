@@ -244,6 +244,23 @@ chapter5_ui <- function(id){
             ),
 
             p(
+                "The display includes:
+                "
+            ),
+
+            tags$ul(
+                tags$li(
+                    "A bar chart of the simulated data"
+                ),
+                tags$li(
+                    "A histogram of the simulated estimates based on those data"
+                ),
+                tags$li(
+                    "A summary of the inference"
+                ),
+            ),
+
+            p(
                 "If you choose regression, you calculate a linear regression relationship between points scored in the first and second halves of Premier League seasons. The display shows:"
             ),
 
@@ -265,6 +282,14 @@ chapter5_ui <- function(id){
             p(
                 "Sidebar options allow you to vary the subset of data analysed, the prediction point, and the confidence level used for the confidence band."
             ),
+            hr(),
+
+            h5("What to observe"),
+
+            p("For each example, notice how the size of confidence intervals or bands are affected by the choie of sample size and the level of
+              confidence chosen."),
+
+            p("Notice also whether the numerical summaries of analyses are more or less effective in conveying information than the graphical summaries."),
 
             hr(),
 
@@ -407,75 +432,7 @@ chapter5_ui <- function(id){
         )
     )
 
-    # =====================================================
-    # Learn
-    # =====================================================
 
-    learn_panel <- div(
-
-        card(
-
-            card_header("What should you have learned?"),
-
-            h5("1. Samples vary"),
-
-            p(
-                "Different samples from the same population produce different estimates."
-            ),
-
-            hr(),
-
-            h5("2. Estimation involves uncertainty"),
-
-            p(
-                "An estimate is not a fact. It is our best guess based on limited information."
-            ),
-
-            hr(),
-
-            h5("3. Bootstrap methods mimic repeated sampling"),
-
-            p(
-                "By repeatedly resampling the observed data, we can study how much an estimate might vary."
-            ),
-
-            hr(),
-
-            h5("4. Confidence intervals measure precision"),
-
-            p(
-                "Narrow intervals indicate more precise estimates, while wider intervals indicate greater uncertainty."
-            ),
-
-            hr(),
-
-            h5("5. Statistical inference is about populations"),
-
-            p(
-                "The ultimate goal is not to describe the sample itself, but to learn about the larger population from which it came."
-            ),
-
-            hr(),
-
-            div(
-                style = "
-            background-color:#f8f9fa;
-            border-left:5px solid #28a745;
-            padding:12px;
-            border-radius:8px;
-        ",
-
-                h5("Key takeaway"),
-
-                p(
-                    strong("Statistics allows us to learn from incomplete information."),
-                    br(),
-                    "Inference uses samples to estimate unknown population quantities while acknowledging uncertainty."
-                )
-            )
-        )
-
-    )
 
 
 
@@ -853,10 +810,6 @@ output$inference_results <- renderUI({
     if (is.null(rv$dice)) {
 
         return(
-            card(
-                card_header("Inference Summary"),
-                p("Roll the dice to begin.")
-            )
         )
 
     }
@@ -864,10 +817,6 @@ output$inference_results <- renderUI({
     if (is.null(rv$p_hat)) {
 
         return(
-            card(
-                card_header("Inference Summary"),
-                p("Simulate estimates to calculate uncertainty.")
-            )
         )
 
     }

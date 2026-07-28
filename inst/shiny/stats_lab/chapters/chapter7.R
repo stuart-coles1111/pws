@@ -337,6 +337,26 @@ chapter7_ui <- function(id){
 
             hr(),
 
+            h5("A note on model comparison"),
+
+            p(
+                "When comparing models, the model that fits the data best is not always the most useful model."
+            ),
+
+            p(
+                "Some models achieve excellent fit simply because they contain many parameters. Others fit slightly less well but provide a clearer explanation of the underlying process."
+            ),
+
+            p(
+                "A central goal of statistical modelling is therefore to balance accuracy and simplicity. Good models capture the important structure in the data without becoming unnecessarily complicated."
+            ),
+
+            p(
+                "As you explore the examples in this module, pay attention not only to which model performs best, but also to why it performs best and what assumptions it makes about the data-generating process."
+            ),
+
+            hr(),
+
             div(
                 style = "
             background-color: #f8f9fa;

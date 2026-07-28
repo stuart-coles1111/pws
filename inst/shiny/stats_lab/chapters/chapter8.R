@@ -578,20 +578,20 @@ chapter8_server <- function(id) {
         observeEvent(input$team1, {
 
             home <- teams_data() |>
-                dplyr::filter(
-                    teams == input$team1
-                )
+                dplyr::filter(teams == input$team1)
+
+            if (nrow(home) != 1) return()
 
             updateSliderInput(
                 session,
                 "alpha_home",
-                value = home$alpha
+                value = home$alpha[[1]]
             )
 
             updateSliderInput(
                 session,
                 "beta_home",
-                value = home$beta
+                value = home$beta[[1]]
             )
 
         }, ignoreInit = FALSE)
@@ -599,23 +599,24 @@ chapter8_server <- function(id) {
         observeEvent(input$team2, {
 
             away <- teams_data() |>
-                dplyr::filter(
-                    teams == input$team2
-                )
+                dplyr::filter(teams == input$team2)
+
+            if (nrow(away) != 1) return()
 
             updateSliderInput(
                 session,
                 "alpha_away",
-                value = away$alpha
+                value = away$alpha[[1]]
             )
 
             updateSliderInput(
                 session,
                 "beta_away",
-                value = away$beta
+                value = away$beta[[1]]
             )
 
         }, ignoreInit = FALSE)
+
 
         match_means <- reactive({
 

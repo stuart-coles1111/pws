@@ -319,6 +319,30 @@ chapter6_ui <- function(id){
 
             hr(),
 
+            h5("A note on context"),
+
+            p(
+                "The birthday problem and the ITV jinx example are included because they appear in ",
+                em("Playing With Statistics."),
+                "The birthday problem is primarily a probability puzzle, while the ITV example is often presented as a standard hypothesis-testing exercise."
+            ),
+
+            p(
+                "Viewed in isolation, neither example fully illustrates the central message of this chapter. ",
+                "The key issue is not simply how to calculate probabilities or p-values, but how the broader context influences the interpretation of those calculations."
+            ),
+
+            p(
+                "The ITV example is particularly revealing. A conventional statistical analysis may suggest evidence of a difference between broadcasters. ",
+                "However, the data were examined precisely because an apparent pattern had already been noticed. ",
+                "When a question is motivated by an observed pattern, that selection process becomes part of the context and should be taken into account when drawing conclusions."
+            ),
+
+            p(
+                "Statistical methods can only answer the questions we ask. Understanding why those questions were asked, and how the data came to our attention, is often just as important as performing the calculations themselves."
+            ),
+
+            hr(),
             div(
                 style = "
             background-color:#f8f9fa;
