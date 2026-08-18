@@ -54,7 +54,7 @@ source("chapters/chapter8.R")
 
 ui <- page_navbar(
 
-    title = "📘 Inside PWS",
+    title = "📘 PWS Explorer",
 
     header = shinyjs::useShinyjs(),
 

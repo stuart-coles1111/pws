@@ -24,7 +24,7 @@ stats_lab <- function() {
             "app_activity7",
         "Activity 8: A Day at the Races" =
             "app_activity8",
-        "Inside PWS" =
+        "PWS Explorer" =
             "stats_lab",
         "Exit" = NA
     )
@@ -44,7 +44,7 @@ stats_lab <- function() {
 
         choice <- menu(
             names(apps),
-            title = "Choose an activity"
+            title = "Choose an option"
         )
 
         # user cancelled

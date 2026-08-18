@@ -4,7 +4,7 @@ stats_toolkit_ui <- function(id){
 
     sidebar_controls <- sidebar(
 
-        h4("Simple Statistics Toolkit"),
+        h4("Data Settings"),
 
 
         radioButtons(
@@ -132,7 +132,9 @@ stats_toolkit_ui <- function(id){
 
         ),
 
+        hr(),
 
+        h4("Analysis Settings"),
 
 
         checkboxGroupInput(
