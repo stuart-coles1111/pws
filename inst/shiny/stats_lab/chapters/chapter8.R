@@ -147,9 +147,9 @@ chapter8_ui <- function(id) {
             min = -0.5,
             max = 1,
             value = ifelse(
-                is.null(PL24_pars$tau) || is.na(PL24_pars$tau),
+                is.null(PL25_pars$tau) || is.na(PL25_pars$tau),
                 0.2,
-                PL24_pars$tau
+                PL25_pars$tau
             ),
             step = 0.01
         ),
@@ -533,7 +533,7 @@ chapter8_server <- function(id) {
 
             if(is.null(input$pars_file)){
 
-                PL24_pars$teams
+                PL25_pars$teams
 
             } else {
 
@@ -552,7 +552,7 @@ chapter8_server <- function(id) {
 
             if (is.null(input$schedule_file)) {
 
-                PL25_schedule
+                PL26_schedule
 
             } else {
 
@@ -862,7 +862,7 @@ chapter8_server <- function(id) {
             content = function(file) {
 
                 write.csv(
-                    PL24_pars$teams,
+                    PL25_pars$teams,
                     file,
                     row.names = FALSE
                 )
