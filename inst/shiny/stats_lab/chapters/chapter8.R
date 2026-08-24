@@ -109,36 +109,54 @@ chapter8_ui <- function(id) {
 
         hr(),
 
-        h5("Data entry (optional)"),
+        h5("Data source"),
 
-        fileInput(
-            ns("pars_file"),
-            "Upload team parameters CSV",
-            accept = ".csv"
+        radioButtons(
+            ns("data_source"),
+            NULL,
+
+            choices = c(
+                "PL fits: 25/26; Predict: 26/27" = "current",
+                "PL fits: 24/25; Predict: 25/26" = "previous",
+                "Upload my own data" = "upload"
+            ),
+
+            selected = "current"
         ),
 
-        helpText(
-            "Required columns: teams, alpha, beta"
-        ),
+        conditionalPanel(
+            condition = "input.data_source == 'upload'",
+            ns = ns,
 
-        downloadButton(
-            ns("download_pars_template"),
-            "Download parameters template"
-        ),
+            fileInput(
+                ns("pars_file"),
+                "Upload team parameters CSV",
+                accept = ".csv"
+            ),
 
-        fileInput(
-            ns("schedule_file"),
-            "Upload fixture CSV",
-            accept = ".csv"
-        ),
+            helpText(
+                "Required columns: teams, alpha, beta"
+            ),
 
-        helpText(
-            "Required columns: Round, Home.Team, Away.Team"
-        ),
+            downloadButton(
+                ns("download_pars_template"),
+                "Download parameters template"
+            ),
 
-        downloadButton(
-            ns("download_schedule_template"),
-            "Download fixture template"
+            fileInput(
+                ns("schedule_file"),
+                "Upload fixture CSV",
+                accept = ".csv"
+            ),
+
+            helpText(
+                "Required columns: Round, Home.Team, Away.Team"
+            ),
+
+            downloadButton(
+                ns("download_schedule_template"),
+                "Download fixture template"
+            )
         ),
 
         sliderInput(
@@ -146,11 +164,7 @@ chapter8_ui <- function(id) {
             "Home advantage (τ)",
             min = -0.5,
             max = 1,
-            value = ifelse(
-                is.null(PL25_pars$tau) || is.na(PL25_pars$tau),
-                0.2,
-                PL25_pars$tau
-            ),
+            value = 0.2,
             step = 0.01
         ),
 
@@ -310,8 +324,8 @@ chapter8_ui <- function(id) {
 
             p(
                 strong("Main idea: "),
-                "A football season is not simply a sequence of predictable matches. ",
-                "Even when teams have different underlying strengths, randomness at the match level can create a wide range of possible season outcomes."
+                "This module provides tools for calculating match win probabilities and the probabilities of final league position for
+                football teams based on a simplified version of the Dixon and Coles model discussed in Chapter 8 of Playing With Statistics"
             ),
 
             p(
@@ -511,6 +525,9 @@ chapter8_server <- function(id) {
 
     moduleServer(id, function(input, output, session) {
 
+        static_sim <- reactiveVal(NULL)
+        dynamic_sim <- reactiveVal(NULL)
+
         validate_teams <- function(df){
 
             required <- c(
@@ -529,32 +546,85 @@ chapter8_server <- function(id) {
         }
 
 
+        # =====================================================
+        # DATA SOURCE
+        # =====================================================
+
         teams_data <- reactive({
 
-            if(is.null(input$pars_file)){
+            source <- input$data_source
 
-                PL25_pars$teams
-
-            } else {
+            if (source == "current") {
 
                 validate_teams(
-                    read.csv(input$pars_file$datapath)
+                    PL25_pars$teams
+                )
+
+            } else if (source == "previous") {
+
+                validate_teams(
+                    PL24_pars$teams
+                )
+
+            } else if (source == "upload") {
+
+                req(input$pars_file)
+
+                validate_teams(
+                    read.csv(
+                        input$pars_file$datapath,
+                        stringsAsFactors = FALSE
+                    )
                 )
 
             }
 
         })
 
-        tau_data <- reactive(input$tau)
+        observeEvent(input$data_source, {
+
+            tau <- switch(
+                input$data_source,
+
+                current = PL25_pars$tau,
+
+                previous = PL24_pars$tau,
+
+                upload = NULL
+            )
+
+            if (
+                !is.null(tau) &&
+                length(tau) == 1 &&
+                !is.na(tau)
+            ) {
+
+                updateSliderInput(
+                    session,
+                    "tau",
+                    value = tau
+                )
+
+            }
+
+        })
 
 
         schedule_data <- reactive({
 
-            if (is.null(input$schedule_file)) {
+            source <- input$data_source
+
+            if (source == "current") {
 
                 PL26_schedule
 
-            } else {
+            } else if (source == "previous") {
+
+                PL25_schedule
+
+            } else if (source == "upload") {
+
+                req(input$schedule_file)
 
                 read.csv(
                     input$schedule_file$datapath,
@@ -563,6 +633,11 @@ chapter8_server <- function(id) {
 
             }
 
+        })
+
+
+        tau_data <- reactive({
+            input$tau
         })
 
         observe({
@@ -724,18 +799,69 @@ chapter8_server <- function(id) {
 
         output$data_source <- renderUI({
 
-            if(is.null(input$pars_file)){
+            source <- input$data_source
 
-                "Using built-in 2024/25 model parameters"
+            if (source == "current") {
+
+                div(
+                    style = "
+                padding: 10px;
+                background-color: #e8f4ea;
+                border-radius: 6px;
+                font-weight: 600;
+            ",
+                    "Using fitted 2025/26 model parameters and 2025/26 fixtures"
+                )
+
+            } else if (source == "previous") {
+
+                div(
+                    style = "
+                padding: 10px;
+                background-color: #e8eef8;
+                border-radius: 6px;
+                font-weight: 600;
+            ",
+                    "Using fitted 2024/25 model parameters and 2026/27 fixtures"
+                )
 
             } else {
 
-                paste(
-                    "Using uploaded parameters:",
-                    input$pars_file$name
+                req(input$pars_file, input$schedule_file)
+
+                div(
+                    style = "
+                padding: 10px;
+                background-color: #fff3cd;
+                border-radius: 6px;
+                font-weight: 600;
+            ",
+
+                    "Using uploaded data",
+
+                    br(),
+
+                    paste(
+                        "Parameters:",
+                        input$pars_file$name
+                    ),
+
+                    br(),
+
+                    paste(
+                        "Fixtures:",
+                        input$schedule_file$name
+                    )
                 )
 
             }
+
+        })
+
+        observeEvent(input$data_source, {
+
+            static_sim(NULL)
+            dynamic_sim(NULL)
 
         })
 
@@ -878,10 +1004,11 @@ chapter8_server <- function(id) {
             content = function(file) {
 
                 write.csv(
-                    PL24_schedule,
+                    PL26_schedule,
                     file,
                     row.names = FALSE
                 )
+
             }
         )
 
@@ -947,29 +1074,55 @@ chapter8_server <- function(id) {
 
         output$generated_code <- renderText({
 
+            source_text <- switch(
+                input$data_source,
+
+                current =
+                    paste0(
+                        "teams <- PL25_pars$teams\n",
+                        "schedule <- PL26_schedule\n"
+                    ),
+
+                previous =
+                    paste0(
+                        "teams <- PL24_pars$teams\n",
+                        "schedule <- PL25_schedule\n"
+                    ),
+
+                upload =
+                    paste0(
+                        "teams <- read.csv(\"your_parameters.csv\")\n",
+                        "schedule <- read.csv(\"your_schedule.csv\")\n"
+                    )
+            )
+
             paste0(
+
+                "# Data source\n",
+                source_text,
+                "\n",
+
                 "# Static model\n",
                 "league_sim(\n",
-                "  teams = teams_data(),\n",
+                "  df = teams,\n",
+                "  schedule = schedule,\n",
                 "  tau = ", round(tau_data(), 3), "\n",
                 ")\n\n",
 
                 "# Dynamic model\n",
                 "dynamic_league_sim(\n",
-                "  teams = teams_data(),\n",
-                "  schedule = schedule_data(),\n",
+                "  df = teams,\n",
+                "  schedule = schedule,\n",
                 "  tau = ", round(tau_data(), 3), ",\n",
                 "  sigma = ", input$sigma, "\n",
                 ")"
+
             )
 
         })
-
         # =====================================================
         # STATIC SIM (FIXED)
         # =====================================================
-
-        static_sim <- reactiveVal(NULL)
 
         observeEvent(input$run_static, {
 
@@ -1007,63 +1160,140 @@ chapter8_server <- function(id) {
         # DYNAMIC SIM (FIXED)
         # =====================================================
 
-        make_dynamic <- function(teams, ro = 0.9, sigma = 0.1) {
+        make_dynamic <- function(
+        teams,
+        ro = 0.9,
+        sigma = 0.1
+        ) {
+
+            n_teams <- nrow(teams)
+            n_rounds <- 38
 
             teams_dynamic <- teams
-            teams_dynamic <- cbind(teams_dynamic, matrix(0, nr = 20, nc = 76))
 
-            colnames(teams_dynamic)[4:41] <- paste0("a_round_", 1:38)
-            colnames(teams_dynamic)[42:79] <- paste0("b_round_", 1:38)
+            for (r in seq_len(n_rounds)) {
 
-            for (i in 1:20) {
-                td <- mvrnorm(
-                    37,
-                    c(0, 0),
-                    matrix(c(1, ro, ro, 1), nr = 2) * sigma^2
+                teams_dynamic[[paste0("a_round_", r)]] <- NA_real_
+                teams_dynamic[[paste0("b_round_", r)]] <- NA_real_
+
+            }
+
+            for (i in seq_len(n_teams)) {
+
+                td <- MASS::mvrnorm(
+                    n_rounds - 1,
+                    mu = c(0, 0),
+                    Sigma = matrix(
+                        c(1, ro, ro, 1),
+                        nrow = 2
+                    ) * sigma^2
                 )
 
-                td <- rbind(c(0, 0), td)
+                td <- rbind(
+                    c(0, 0),
+                    td
+                )
 
-                ad <- teams[i, "alpha"] + cumsum(td[, 1])
-                bd <- teams[i, "beta"] + cumsum(td[, 2])
+                ad <- teams$alpha[i] + cumsum(td[, 1])
+                bd <- teams$beta[i] + cumsum(td[, 2])
 
-                teams_dynamic[i, 8:45] <- ad
-                teams_dynamic[i, 46:83] <- bd
+                teams_dynamic[i, paste0("a_round_", 1:n_rounds)] <- ad
+                teams_dynamic[i, paste0("b_round_", 1:n_rounds)] <- bd
+
             }
 
             teams_dynamic
+
         }
 
-        dynamic_season_sim <- function(df, round, team_h, team_a, tau,
-                                       ro = 0.9, sigma = 0.1) {
+        dynamic_season_sim <- function(
+        df,
+        round,
+        team_h,
+        team_a,
+        tau,
+        ro = 0.9,
+        sigma = 0.1
+        ) {
 
-            teams_dynamic <- make_dynamic(df, ro = ro, sigma = sigma)
+            teams_dynamic <- make_dynamic(
+                df,
+                ro = ro,
+                sigma = sigma
+            )
 
-            mu_h <- mu_a <- c()
+            mu_h <- numeric(length(round))
+            mu_a <- numeric(length(round))
 
-            for (i in 1:length(round)) {
+            for (i in seq_along(round)) {
 
-                mu_h <- c(mu_h,
-                          exp(tau +
-                                  teams_dynamic[match(team_h[i], df$teams), round[i] + 7] -
-                                  teams_dynamic[match(team_a[i], df$teams), round[i] + 45])
+                home_idx <- match(
+                    team_h[i],
+                    df$teams
                 )
 
-                mu_a <- c(mu_a,
-                          exp(
-                              teams_dynamic[match(team_a[i], df$teams), round[i] + 7] -
-                                  teams_dynamic[match(team_h[i], df$teams), round[i] + 45]
-                          )
+                away_idx <- match(
+                    team_a[i],
+                    df$teams
                 )
+
+                r <- round[i]
+
+                mu_h[i] <- exp(
+                    tau +
+                        teams_dynamic[
+                            home_idx,
+                            paste0("a_round_", r)
+                        ] -
+                        teams_dynamic[
+                            away_idx,
+                            paste0("b_round_", r)
+                        ]
+                )
+
+                mu_a[i] <- exp(
+                    teams_dynamic[
+                        away_idx,
+                        paste0("a_round_", r)
+                    ] -
+                        teams_dynamic[
+                            home_idx,
+                            paste0("b_round_", r)
+                        ]
+                )
+
             }
 
-            g_h <- rpois(length(team_h), mu_h)
-            g_a <- rpois(length(team_a), mu_a)
+            g_h <- rpois(
+                length(team_h),
+                mu_h
+            )
 
-            p_h <- ifelse(g_h > g_a, 3, ifelse(g_h == g_a, 1, 0))
-            p_a <- ifelse(g_h > g_a, 0, ifelse(g_h == g_a, 1, 3))
+            g_a <- rpois(
+                length(team_a),
+                mu_a
+            )
 
-            list(p_h, p_a, g_h - g_a, g_h, g_a)
+            p_h <- ifelse(
+                g_h > g_a,
+                3,
+                ifelse(g_h == g_a, 1, 0)
+            )
+
+            p_a <- ifelse(
+                g_h > g_a,
+                0,
+                ifelse(g_h == g_a, 1, 3)
+            )
+
+            list(
+                p_h,
+                p_a,
+                g_h - g_a,
+                g_h,
+                g_a
+            )
+
         }
 
         dynamic_league_sim <- function(df, schedule, tau, sigma = 0.1) {
@@ -1099,7 +1329,6 @@ chapter8_server <- function(id) {
                   arrange(df_out, desc(tot), desc(gd), desc(gf))[[1]])
         }
 
-        dynamic_sim <- reactiveVal(NULL)
 
         observeEvent(input$run_dynamic, {
 
