@@ -305,32 +305,27 @@ chapter8_ui <- function(id) {
         card(
 
             style = "
-    border-radius: 16px;
-    border: none;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    padding: 10px;
-",
+            border-radius: 16px;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 10px;
+        ",
 
             card_header(
                 div(
                     "🕸️ Studying Output from a Football Model",
                     style = "
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: #2c3e50;
-        "
+                    font-size: 1.4rem;
+                    font-weight: 700;
+                    color: #2c3e50;
+                "
                 )
             ),
 
             p(
                 strong("Main idea: "),
-                "This module provides tools for calculating match win probabilities and the probabilities of final league position for
-                football teams based on a simplified version of the Dixon and Coles model discussed in Chapter 8 of Playing With Statistics"
-            ),
-
-            p(
-                "This module explores how statistical models can be used to understand uncertainty, ",
-                "moving from individual match probabilities to the distribution of possible final league positions."
+                "This module allows you to explore how a statistical model of football matches can be used to calculate match probabilities and simulate possible final league positions. ",
+                "Rather than treating a single simulated season as a prediction of exactly what will happen, the simulations show the range of outcomes that could plausibly occur given the assumptions of the model."
             ),
 
             hr(),
@@ -338,94 +333,148 @@ chapter8_ui <- function(id) {
             h5("Background"),
 
             p(
-                "The model represents each match using a Poisson goal-scoring process. ",
-                "Team strength is described using attacking ability, defensive ability, and home advantage."
+                "The model used in this module is a simplified version of the Dixon–Coles approach to modelling football scores. ",
+                "It assumes that the goals scored by the home and away teams are independent Poisson random variables, with their expected values determined by the attacking and defensive strengths of the teams and an additional home advantage."
             ),
 
             tags$ul(
 
                 tags$li(
                     strong("Match model: "),
-                    "expected goals are determined from the strengths of the two teams and the home advantage."
+                    "expected goals depend on the attacking strength of one team, the defensive strength of the other team, and the home advantage."
+                ),
+
+                tags$li(
+                    strong("Team strengths: "),
+                    "each team has parameters describing its attacking and defensive ability."
                 ),
 
                 tags$li(
                     strong("Team analysis: "),
-                    "explores the probability of different match outcomes for a pair of teams."
+                    "the model can be used to explore the probabilities of different scorelines and match outcomes for two teams."
                 ),
 
                 tags$li(
                     strong("League simulation: "),
-                    "repeatedly simulates an entire season to show the range of possible final standings."
+                    "the model can be used repeatedly to simulate an entire season and examine the distribution of possible final league positions."
                 ),
 
                 tags$li(
                     strong("Dynamic model: "),
-                    "allows team strengths to change over time rather than remaining fixed throughout the season."
+                    "team strengths can be allowed to change over the course of a season, introducing an additional source of uncertainty."
                 )
+
+            ),
+
+            p(
+                "The module therefore provides a way to move from a model for an individual match to a simulation of an entire football season."
             ),
 
             hr(),
 
-            h5("What to observe"),
+            h5("Your options"),
 
             p(
-                "The output from a simulation should not be interpreted as a prediction of exactly what will happen. ",
-                "Instead, it represents the uncertainty associated with different possible futures."
+                "You can choose between pre-specified Premier League data or provide your own team parameters and fixture list."
             ),
 
             tags$ul(
 
                 tags$li(
-                    "Even strong teams may fail to finish near the top in some simulations because of random variation."
+                    strong("Use the current Premier League data: "),
+                    "use fitted parameters from the 2025/26 season to explore possible outcomes for the 2026/27 season."
                 ),
 
                 tags$li(
-                    "A narrow distribution of final positions suggests greater certainty, whereas a wide distribution indicates more uncertainty."
+                    strong("Use the previous Premier League data: "),
+                    "use fitted parameters from the 2024/25 season to explore possible outcomes for the 2025/26 season."
                 ),
 
                 tags$li(
-                    "Small differences between teams can become amplified over a season, but randomness can still dominate individual outcomes."
-                ),
-
-                tags$li(
-                    "A more complex model is not automatically better — it should only be preferred if it improves our understanding of the data."
+                    strong("Upload your own data: "),
+                    "provide team attack and defence parameters together with a fixture list, allowing the model to be applied to another league or season."
                 )
+
+            ),
+
+            p(
+                "You can then choose between two types of analysis:"
+            ),
+
+            tags$ul(
+
+                tags$li(
+                    strong("Team analysis: "),
+                    "select two teams and examine the probabilities associated with different possible scorelines."
+                ),
+
+                tags$li(
+                    strong("League simulation: "),
+                    "simulate many complete seasons and examine the probability distribution of each team's final league position."
+                )
+
+            ),
+
+            p(
+                "For league simulations, you can also compare a static model, in which team strengths remain fixed, with a dynamic model in which team strengths are allowed to vary during the season, with the amount of variation controlled by you."
+            ),
+
+            hr(),
+
+            h5("A note on model complexity"),
+
+            p(
+                "The dynamic model is more complicated than the static model because it allows team strengths to change during the season. ",
+                "However, greater complexity does not automatically make a model better."
+            ),
+
+            p(
+                "A more complicated model introduces additional assumptions and sources of variation. ",
+                "The useful question is therefore whether that additional complexity provides a more informative representation of the process we are trying to understand."
+            ),
+
+            p(
+                "As you explore the results, consider not only which model produces the most interesting or realistic-looking distributions, but also what assumptions are responsible for those differences."
             ),
 
             hr(),
 
             div(
                 style = "
-        background-color:#f8f9fa;
-        border-left:5px solid #7B9ACC;
-        padding:12px;
-        border-radius:8px;
-    ",
+                background-color: #f8f9fa;
+                border-left: 5px solid #7B9ACC;
+                padding: 12px;
+                border-radius: 8px;
+            ",
 
                 h5("Questions to investigate"),
 
                 tags$ul(
 
                     tags$li(
-                        "How much of a season's outcome is determined by team strength and how much by randomness?"
+                        "How much of a football season's outcome is determined by team strength and how much by random variation?"
                     ),
 
                     tags$li(
-                        "How different are the conclusions from a match-level analysis compared with a full-season simulation?"
+                        "How different are the conclusions from analysing a single match compared with simulating an entire season?"
                     ),
 
                     tags$li(
-                        "Does allowing team strength to evolve produce more realistic uncertainty?"
+                        "Why can a team with a high expected finishing position still have a substantial probability of finishing much lower?"
+                    ),
+
+                    tags$li(
+                        "How does allowing team strength to change over time affect the distribution of possible league positions?"
+                    ),
+
+                    tags$li(
+                        "Why might two teams with different strengths still have overlapping distributions of possible finishing positions?"
                     ),
 
                     tags$li(
                         "When does a more complicated model provide useful additional information?"
-                    ),
-
-                    tags$li(
-                        "Why can two teams with very different strengths still have overlapping distributions of possible finishing positions?"
                     )
+
                 )
             )
         )
