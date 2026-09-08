@@ -12,10 +12,28 @@ stats_toolkit_ui <- function(id){
             "Data source",
             choices = c(
                 "Enter data (x)" = "vector",
+                "Use mtcars example data" = "mtcars",
                 "Upload CSV" = "csv"
             )
         ),
 
+        conditionalPanel(
+
+            condition = sprintf(
+                "input['%s']=='mtcars'",
+                ns("data_source")
+            ),
+
+            p(
+                "Use the built-in mtcars dataset as an example of a CSV data file."
+            ),
+
+            downloadButton(
+                ns("download_mtcars"),
+                "Download mtcars CSV"
+            )
+
+        ),
 
 
         conditionalPanel(
@@ -101,14 +119,12 @@ stats_toolkit_ui <- function(id){
                 ns("data_source")
             ),
 
-
             numericInput(
                 ns("template_rows"),
                 "Number of Individuals",
                 20,
                 min = 1
             ),
-
 
             numericInput(
                 ns("template_cols"),
@@ -117,12 +133,10 @@ stats_toolkit_ui <- function(id){
                 min = 1
             ),
 
-
             downloadButton(
                 ns("download_template"),
                 "Download CSV template"
             ),
-
 
             fileInput(
                 ns("csv_file"),
@@ -174,7 +188,8 @@ stats_toolkit_ui <- function(id){
         conditionalPanel(
 
             condition = sprintf(
-                "input['%s']=='csv'",
+                "input['%s']=='csv' || input['%s']=='mtcars'",
+                ns("data_source"),
                 ns("data_source")
             ),
 
@@ -206,7 +221,8 @@ stats_toolkit_ui <- function(id){
         conditionalPanel(
 
             condition = sprintf(
-                "input['%s']=='csv' && input['%s'].indexOf('Scatterplot') > -1",
+                "(input['%s']=='csv' || input['%s']=='mtcars') && input['%s'].indexOf('Scatterplot') > -1",
+                ns("data_source"),
                 ns("data_source"),
                 ns("toolkit_action")
             ),
@@ -247,64 +263,115 @@ stats_toolkit_ui <- function(id){
 
 
 
-
-
     overview_panel <- div(
 
         card(
 
             style = "
-        border-radius: 16px;
-        border: none;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        padding: 10px;
-    ",
+            border-radius: 16px;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 10px;
+        ",
 
             card_header(
                 div(
                     "🧰 Statistics Toolkit",
                     style = "
-                font-size: 1.4rem;
-                font-weight: 700;
-                color: #2c3e50;
-            "
+                    font-size: 1.4rem;
+                    font-weight: 700;
+                    color: #2c3e50;
+                "
                 )
             ),
 
             p(
                 strong("Main idea: "),
-                "Explore datasets using various basic numerical and graphical summaries.
-                The toolkit can be used to investigate data, check calculations, and carry out simple experiments."
+                "Explore data using basic numerical and graphical summaries. ",
+                "Use the toolkit to investigate distributions, compare variables, ",
+                "look for relationships, check calculations, and experiment with ",
+                "different ways of summarising data."
             ),
 
             hr(),
 
-            h5("Data can be entered in different ways"),
+            h5("Choose a data source"),
 
             tags$ul(
 
-                tags$li("By entering values manually using the data entry box."),
+                tags$li(
+                    strong("Enter data (x): "),
+                    "enter your own numerical values manually, or simulate a ",
+                    "numerical dataset using the simulation controls."
+                ),
 
-                tags$li("By uploading a CSV file containing one or more variables."),
+                tags$li(
+                    strong("Use mtcars example data: "),
+                    "use the built-in mtcars dataset immediately, without uploading ",
+                    "a file. This is a small dataset containing several variables ",
+                    "describing different car models and is useful for practising ",
+                    "analyses involving more than one variable."
+                ),
 
-                tags$li("By simulating data from a hidden statistical model.")
+                tags$li(
+                    strong("Upload CSV: "),
+                    "download a CSV template if required, enter or edit your data, ",
+                    "and then upload the completed file."
+                )
 
             ),
-
-            hr(),
-
-            h5("Things to do"),
 
             p(
-                "Enter or simulate data, then use the tools provided to explore their main features. Specifically:"
+                "When using mtcars or an uploaded CSV file, the available variables ",
+                "are shown in the variable selectors in the Analysis Settings."
+            ),
+
+            hr(),
+
+            h5("Explore the data"),
+
+            p(
+                "Select one or more options under ",
+                strong("Display"),
+                " to choose the analyses you want to see."
             ),
 
             tags$ul(
-                tags$li("Calculate summary statistics"),
-                tags$li("Create frequency tables"),
-                tags$li("Draw histograms and boxplots"),
-                tags$li("Explore relationships using scatterplots (when there are two or more variables)"),
-                tags$li("Add a regression line when appropriate")
+
+                tags$li(
+                    strong("Summary statistics: "),
+                    "choose a variable and display its mean, median, standard ",
+                    "deviation, variance, minimum, and/or maximum."
+                ),
+
+                tags$li(
+                    strong("Frequency table: "),
+                    "display the observed frequencies of the values in a selected variable."
+                ),
+
+                tags$li(
+                    strong("Histogram: "),
+                    "display the distribution of a selected numerical variable and ",
+                    "adjust the number of bins."
+                ),
+
+                tags$li(
+                    strong("Boxplot: "),
+                    "display a boxplot for a selected numerical variable."
+                ),
+
+                tags$li(
+                    strong("Scatterplot: "),
+                    "when using mtcars or an uploaded CSV file, select an X variable ",
+                    "and a Y variable to investigate their relationship."
+                ),
+
+                tags$li(
+                    strong("Regression line: "),
+                    "when using a scatterplot, optionally add a fitted linear ",
+                    "regression line and view the associated regression results."
+                )
+
             ),
 
             hr(),
@@ -312,52 +379,87 @@ stats_toolkit_ui <- function(id){
             h5("Things to observe"),
 
             tags$ul(
+
                 tags$li(
-                    "Numerical summaries such as means, medians, standard deviations, and ranges"
+                    "How much information is retained or lost when data are summarised?"
                 ),
+
                 tags$li(
-                    "Tables showing observed frequencies"
+                    "How do numerical and graphical summaries complement one another?"
                 ),
+
                 tags$li(
-                    "Graphs displaying the distribution of data"
+                    "What does a histogram or boxplot reveal about the distribution of a variable?"
                 ),
+
                 tags$li(
-                    "Scatterplots showing relationships between variables"
+                    "What patterns or relationships can be seen in a scatterplot?"
                 ),
+
                 tags$li(
-                    "Regression output when a fitted line is requested"
+                    "Does a regression line provide a useful description of the relationship?"
                 )
+
+            ),
+
+            hr(),
+
+            h5("Using the R Code tab"),
+
+            p(
+                "The ",
+                strong("R Code"),
+                " tab shows an approximate version of the R code used to produce ",
+                "the analyses displayed in the Explore tab. ",
+                "You can use this code to see how the analysis could be carried out ",
+                "directly in R and to help connect the interactive controls with the ",
+                "underlying statistical commands."
             ),
 
             hr(),
 
             div(
                 style = "
-            background-color: #f8f9fa;
-            border-left: 5px solid #7B9ACC;
-            padding: 12px;
-            border-radius: 8px;
-        ",
+                background-color: #f8f9fa;
+                border-left: 5px solid #7B9ACC;
+                padding: 12px;
+                border-radius: 8px;
+            ",
 
                 h5("Questions to investigate"),
 
                 tags$ul(
+
                     tags$li(
-                        "Is much detail lost when summarizing data numerically amd/or graphically?"
+                        "Is much detail lost when summarising data numerically and/or graphically?"
                     ),
+
                     tags$li(
                         "When are graphical summaries superior to numerical summaries?"
                     ),
+
                     tags$li(
                         "When are histograms preferable to boxplots?"
                     ),
+
+                    tags$li(
+                        "What can a scatterplot reveal that separate summaries of two variables cannot?"
+                    ),
+
                     tags$li(
                         "Is it always appropriate to add a regression line to a scatterplot?"
+                    ),
+
+                    tags$li(
+                        "How might your conclusions change when you explore a different variable or a different pair of variables?"
                     )
+
                 )
             )
         )
     )
+
+
 
 
 
@@ -479,6 +581,42 @@ stats_toolkit_server<-function(id){
 
         )
 
+
+
+        output$download_mtcars <- downloadHandler(
+
+            filename = function() {
+                "mtcars.csv"
+            },
+
+            content = function(file) {
+
+                mtcars_file <- system.file(
+                    "extdata",
+                    "mtcars.csv",
+                    package = "pws"
+                )
+
+                validate(
+                    need(
+                        mtcars_file != "",
+                        "mtcars.csv could not be found in the package."
+                    )
+                )
+
+                file.copy(
+                    mtcars_file,
+                    file,
+                    overwrite = TRUE
+                )
+
+            }
+
+        )
+
+
+
+
         observeEvent(input$data_source, {
 
             base_choices <- c(
@@ -488,7 +626,7 @@ stats_toolkit_server<-function(id){
                 "Boxplot"
             )
 
-            if(input$data_source == "csv") {
+            if(input$data_source %in% c("csv", "mtcars")) {
                 base_choices <- c(
                     base_choices,
                     "Scatterplot"
@@ -542,31 +680,85 @@ stats_toolkit_server<-function(id){
 
         toolkit_data <- reactive({
 
-            if(input$data_source == "vector"){
+            # ---------------------------
+            # Vector mode
+            # ---------------------------
+
+            if (input$data_source == "vector") {
 
                 x <- as.numeric(
                     trimws(
-                        unlist(strsplit(input$vector_input, ","))
+                        unlist(
+                            strsplit(
+                                input$vector_input,
+                                ","
+                            )
+                        )
                     )
                 )
 
                 validate(
-                    need(all(!is.na(x)), "Vector must contain only numbers.")
+                    need(
+                        all(!is.na(x)),
+                        "Vector must contain only numbers."
+                    )
                 )
 
-                return(list(
-                    type = "vector",
-                    data = x
-                ))
+                return(
+                    list(
+                        type = "vector",
+                        data = x
+                    )
+                )
             }
 
-            # CSV mode
+
+            # ---------------------------
+            # mtcars mode
+            # ---------------------------
+
+            if (input$data_source == "mtcars") {
+
+                mtcars_file <- system.file(
+                    "extdata",
+                    "mtcars.csv",
+                    package = "pws"
+                )
+
+                validate(
+                    need(
+                        mtcars_file != "",
+                        "mtcars.csv could not be found."
+                    )
+                )
+
+                df <- readr::read_csv(
+                    mtcars_file,
+                    show_col_types = FALSE
+                )
+
+                return(
+                    list(
+                        type = "dataframe",
+                        data = df
+                    )
+                )
+            }
+
+
+            # ---------------------------
+            # Uploaded CSV
+            # ---------------------------
+
             req(input$data_source == "csv")
             req(input$csv_file)
 
-            if (is.null(input$csv_file$datapath) || input$csv_file$datapath == "") {
-                return(NULL)
-            }
+            validate(
+                need(
+                    input$csv_file$datapath != "",
+                    "Please upload a CSV file."
+                )
+            )
 
             df <- readr::read_csv(
                 input$csv_file$datapath,
@@ -574,11 +766,11 @@ stats_toolkit_server<-function(id){
             )
 
             list(
-                type = "csv",
+                type = "dataframe",
                 data = df
             )
-        })
 
+        })
         observeEvent(input$data_source, {
 
             if(input$data_source == "vector") {
@@ -593,11 +785,17 @@ stats_toolkit_server<-function(id){
 
         observe({
 
-            req(input$data_source == "csv")
+            req(
+                input$data_source %in% c("csv", "mtcars")
+            )
 
             dat <- toolkit_data()
+
             req(!is.null(dat))
-            req(dat$type == "csv")
+
+            req(
+                dat$type == "dataframe"
+            )
 
             df <- dat$data
 
@@ -609,25 +807,42 @@ stats_toolkit_server<-function(id){
                 session,
                 "x_col",
                 choices = names(df),
-                selected = if(current_x %in% names(df)) current_x else names(df)[1]
+                selected = if(
+                    current_x %in% names(df)
+                ) {
+                    current_x
+                } else {
+                    names(df)[1]
+                }
             )
 
             updateSelectInput(
                 session,
                 "y_col",
                 choices = names(df),
-                selected = if(current_y %in% names(df)) current_y else names(df)[min(2, ncol(df))]
+                selected = if(
+                    current_y %in% names(df)
+                ) {
+                    current_y
+                } else {
+                    names(df)[min(2, ncol(df))]
+                }
             )
 
             updateSelectInput(
                 session,
                 "summary_col",
                 choices = names(df),
-                selected = if(current_summary %in% names(df)) current_summary else names(df)[1]
+                selected = if(
+                    current_summary %in% names(df)
+                ) {
+                    current_summary
+                } else {
+                    names(df)[1]
+                }
             )
 
         })
-
         output$combined_results <- renderUI({
 
             req(input$toolkit_action)
@@ -713,7 +928,7 @@ stats_toolkit_server<-function(id){
             # Scatterplot
             # ---------------------------
             if(
-                input$data_source == "csv" &&
+                input$data_source %in% c("csv", "mtcars") &&
                 "Scatterplot" %in% displays
             ){
 
@@ -958,20 +1173,18 @@ stats_toolkit_server<-function(id){
         output$scatter <- renderPlot({
 
             dat <- toolkit_data()
-            req(input$data_source == "csv")
-            req(!is.null(input$csv_file))
-            req(input$csv_file$datapath != "")
+
+            req(
+                input$data_source %in% c("csv", "mtcars")
+            )
 
             req(
                 input$x_col,
                 input$y_col
             )
 
-
             x <- dat$data[[input$x_col]]
-
             y <- dat$data[[input$y_col]]
-
 
             plot(
                 x,
@@ -984,36 +1197,26 @@ stats_toolkit_server<-function(id){
                 main = "Scatterplot"
             )
 
-
             if(input$add_lm) {
 
-
-                model <- lm(
-                    y ~ x
-                )
-
+                model <- lm(y ~ x)
 
                 abline(
                     model,
-                    col="#7B9ACC",
-                    lwd=3
+                    col = "#7B9ACC",
+                    lwd = 3
                 )
-
-
-
             }
 
-
         })
-
 
 
         output$regression_results <- renderTable({
 
             dat <- toolkit_data()
-            req(input$data_source == "csv")
-            req(!is.null(input$csv_file))
-            req(input$csv_file$datapath != "")
+            req(
+                input$data_source %in% c("csv", "mtcars")
+            )
 
             req(
                 input$add_lm,
@@ -1036,6 +1239,7 @@ stats_toolkit_server<-function(id){
 
         })
 
+
         output$generated_code <- renderText({
 
             req(input$data_source)
@@ -1047,16 +1251,16 @@ stats_toolkit_server<-function(id){
             }
 
 
-            #-------------------------
+            # =========================================================
             # Data
-            #-------------------------
+            # =========================================================
 
             if (input$data_source == "vector") {
 
                 if (input$vector_mode == "simulate") {
 
                     data_code <- paste(
-                        "# Simulation code",
+                        "# Generate simulated data",
                         paste0(
                             "set.seed(",
                             input$seed,
@@ -1083,13 +1287,23 @@ stats_toolkit_server<-function(id){
 
                     data_code <- paste0(
                         "x <- c(",
-                        paste(head(vals, 20), collapse = ", "),
+                        paste(
+                            head(vals, 20),
+                            collapse = ", "
+                        ),
                         if (length(vals) > 20) ", ..." else "",
                         ")"
                     )
 
                 }
 
+            } else if (input$data_source == "mtcars") {
+
+                data_code <- paste(
+                    "# Load the mtcars example data",
+                    'data <- read.csv("mtcars.csv")',
+                    sep = "\n"
+                )
 
             } else {
 
@@ -1099,23 +1313,29 @@ stats_toolkit_server<-function(id){
                     "my_data.csv"
                 }
 
-                data_code <- sprintf(
-                    "data <- read.csv(%s)",
-                    shQuote(file_name)
+                data_code <- paste(
+                    "# Load uploaded CSV data",
+                    paste0(
+                        "data <- read.csv(",
+                        shQuote(file_name),
+                        ")"
+                    ),
+                    sep = "\n"
                 )
 
             }
 
 
-
-            #-------------------------
+            # =========================================================
             # Analysis
-            #-------------------------
+            # =========================================================
 
             analysis_code <- character(0)
 
 
-            ## Summary statistics
+            # ---------------------------------------------------------
+            # Summary statistics
+            # ---------------------------------------------------------
 
             if ("Summary statistics" %in% actions) {
 
@@ -1165,65 +1385,69 @@ stats_toolkit_server<-function(id){
 
                         varname <- input$summary_col
 
-                        if ("Mean" %in% stats)
-                            analysis_code <- c(
-                                analysis_code,
-                                paste0(
-                                    "mean(data$",
-                                    varname,
-                                    ", na.rm = TRUE)"
-                                )
-                            )
+                        if (!is.null(varname) && nzchar(varname)) {
 
-                        if ("Median" %in% stats)
-                            analysis_code <- c(
-                                analysis_code,
-                                paste0(
-                                    "median(data$",
-                                    varname,
-                                    ", na.rm = TRUE)"
+                            if ("Mean" %in% stats)
+                                analysis_code <- c(
+                                    analysis_code,
+                                    paste0(
+                                        "mean(data$`",
+                                        varname,
+                                        "`, na.rm = TRUE)"
+                                    )
                                 )
-                            )
 
-                        if ("SD" %in% stats)
-                            analysis_code <- c(
-                                analysis_code,
-                                paste0(
-                                    "sd(data$",
-                                    varname,
-                                    ", na.rm = TRUE)"
+                            if ("Median" %in% stats)
+                                analysis_code <- c(
+                                    analysis_code,
+                                    paste0(
+                                        "median(data$`",
+                                        varname,
+                                        "`, na.rm = TRUE)"
+                                    )
                                 )
-                            )
 
-                        if ("Variance" %in% stats)
-                            analysis_code <- c(
-                                analysis_code,
-                                paste0(
-                                    "var(data$",
-                                    varname,
-                                    ", na.rm = TRUE)"
+                            if ("SD" %in% stats)
+                                analysis_code <- c(
+                                    analysis_code,
+                                    paste0(
+                                        "sd(data$`",
+                                        varname,
+                                        "`, na.rm = TRUE)"
+                                    )
                                 )
-                            )
 
-                        if ("Min" %in% stats)
-                            analysis_code <- c(
-                                analysis_code,
-                                paste0(
-                                    "min(data$",
-                                    varname,
-                                    ", na.rm = TRUE)"
+                            if ("Variance" %in% stats)
+                                analysis_code <- c(
+                                    analysis_code,
+                                    paste0(
+                                        "var(data$`",
+                                        varname,
+                                        "`, na.rm = TRUE)"
+                                    )
                                 )
-                            )
 
-                        if ("Max" %in% stats)
-                            analysis_code <- c(
-                                analysis_code,
-                                paste0(
-                                    "max(data$",
-                                    varname,
-                                    ", na.rm = TRUE)"
+                            if ("Min" %in% stats)
+                                analysis_code <- c(
+                                    analysis_code,
+                                    paste0(
+                                        "min(data$`",
+                                        varname,
+                                        "`, na.rm = TRUE)"
+                                    )
                                 )
-                            )
+
+                            if ("Max" %in% stats)
+                                analysis_code <- c(
+                                    analysis_code,
+                                    paste0(
+                                        "max(data$`",
+                                        varname,
+                                        "`, na.rm = TRUE)"
+                                    )
+                                )
+
+                        }
 
                     }
 
@@ -1232,8 +1456,9 @@ stats_toolkit_server<-function(id){
             }
 
 
-
-            ## Frequency table
+            # ---------------------------------------------------------
+            # Frequency table
+            # ---------------------------------------------------------
 
             if ("Frequency table" %in% actions) {
 
@@ -1246,22 +1471,27 @@ stats_toolkit_server<-function(id){
 
                 } else {
 
-                    analysis_code <- c(
-                        analysis_code,
-                        paste0(
-                            "table(data$",
-                            input$summary_col,
-                            ")"
+                    if (!is.null(input$summary_col)) {
+
+                        analysis_code <- c(
+                            analysis_code,
+                            paste0(
+                                "table(data$`",
+                                input$summary_col,
+                                "`)"
+                            )
                         )
-                    )
+
+                    }
 
                 }
 
             }
 
 
-
-            ## Histogram
+            # ---------------------------------------------------------
+            # Histogram
+            # ---------------------------------------------------------
 
             if ("Histogram" %in% actions) {
 
@@ -1278,24 +1508,29 @@ stats_toolkit_server<-function(id){
 
                 } else {
 
-                    analysis_code <- c(
-                        analysis_code,
-                        paste0(
-                            "hist(data$",
-                            input$summary_col,
-                            ", breaks = ",
-                            input$hist_bins,
-                            ")"
+                    if (!is.null(input$summary_col)) {
+
+                        analysis_code <- c(
+                            analysis_code,
+                            paste0(
+                                "hist(data$`",
+                                input$summary_col,
+                                "`, breaks = ",
+                                input$hist_bins,
+                                ")"
+                            )
                         )
-                    )
+
+                    }
 
                 }
 
             }
 
 
-
-            ## Boxplot
+            # ---------------------------------------------------------
+            # Boxplot
+            # ---------------------------------------------------------
 
             if ("Boxplot" %in% actions) {
 
@@ -1308,75 +1543,114 @@ stats_toolkit_server<-function(id){
 
                 } else {
 
+                    if (!is.null(input$summary_col)) {
+
+                        analysis_code <- c(
+                            analysis_code,
+                            paste0(
+                                "boxplot(data$`",
+                                input$summary_col,
+                                "`)"
+                            )
+                        )
+
+                    }
+
+                }
+
+            }
+
+
+            # ---------------------------------------------------------
+            # Scatterplot
+            # ---------------------------------------------------------
+
+            if (
+                input$data_source %in% c("csv", "mtcars") &&
+                "Scatterplot" %in% actions
+            ) {
+
+                if (
+                    !is.null(input$x_col) &&
+                    !is.null(input$y_col)
+                ) {
+
                     analysis_code <- c(
                         analysis_code,
                         paste0(
-                            "boxplot(data$",
-                            input$summary_col,
+                            "plot(",
+                            "data$`",
+                            input$x_col,
+                            "`, ",
+                            "data$`",
+                            input$y_col,
+                            "`, ",
+                            "pch = 19, ",
+                            "cex = ",
+                            input$point_size,
                             ")"
                         )
                     )
 
+
+                    # Regression line
+
+                    if (isTRUE(input$add_lm)) {
+
+                        analysis_code <- c(
+                            analysis_code,
+                            paste0(
+                                "model <- lm(",
+                                "data$`",
+                                input$y_col,
+                                "` ~ data$`",
+                                input$x_col,
+                                "`",
+                                ")"
+                            ),
+                            "abline(model)",
+                            "summary(model)$coefficients"
+                        )
+
+                    }
+
                 }
 
             }
 
 
+            # =========================================================
+            # Final output
+            # =========================================================
 
-            ## Scatterplot
+            if (length(analysis_code) == 0) {
 
-            if (
-                input$data_source == "csv" &&
-                "Scatterplot" %in% actions
-            ) {
-
-                analysis_code <- c(
-                    analysis_code,
-                    paste0(
-                        "plot(data$",
-                        input$x_col,
-                        ", data$",
-                        input$y_col,
-                        ", cex = ",
-                        input$point_size,
-                        ")"
-                    )
+                paste(
+                    "# Data",
+                    data_code,
+                    "",
+                    "# Select an analysis to generate R code.",
+                    sep = "\n"
                 )
 
-                if (input$add_lm) {
+            } else {
 
-                    analysis_code <- c(
+                paste(
+                    "# Data",
+                    data_code,
+                    "",
+                    "# Analysis",
+                    paste(
                         analysis_code,
-                        paste0(
-                            "model <- lm(data$",
-                            input$y_col,
-                            " ~ data$",
-                            input$x_col,
-                            ")"
-                        ),
-                        "abline(model)",
-                        "summary(model)$coefficients"
-                    )
-
-                }
+                        collapse = "\n"
+                    ),
+                    sep = "\n"
+                )
 
             }
 
-
-
-            paste(
-                "# Data",
-                data_code,
-                "",
-                "# Analysis",
-                paste(
-                    analysis_code,
-                    collapse = "\n"
-                ),
-                sep = "\n"
-            )
-
         })
+
     })
 
 }
