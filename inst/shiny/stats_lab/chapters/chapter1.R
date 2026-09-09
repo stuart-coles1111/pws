@@ -276,6 +276,7 @@ chapter1_ui <- function(id){
     )
 }
 
+
 # =========================================================
 # SERVER
 # =========================================================
@@ -290,8 +291,9 @@ chapter1_server <- function(id){
 
         last_run_inputs <- reactiveVal(NULL)
 
-        # NEW: store simulation output explicitly
+        # Store simulation output explicitly
         sim_data <- reactiveVal(NULL)
+
 
         # -------------------------------------------------
         # Run simulation (triggered only on button press)
@@ -309,17 +311,21 @@ chapter1_server <- function(id){
                 phi = input$phi
             ))
 
+            # Internally prevent mu and phi from being zero.
+            # The sliders themselves still allow zero.
+            mu_used <- max(input$mu, 0.01)
+            phi_used <- max(input$phi, 0.01)
+
             sim_data(
                 pws::goals_sim(
                     n_sim = input$n_sim,
                     pois_mean = input$pois_mean,
-                    mu = input$mu,
-                    phi = input$phi,
+                    mu = mu_used,
+                    phi = phi_used,
                     seed = input$seed
                 )
             )
         })
-
 
 
         # -------------------------------------------------
@@ -338,58 +344,90 @@ chapter1_server <- function(id){
             )
         })
 
+
         # -------------------------------------------------
         # Components plot
         # -------------------------------------------------
 
         output$components <- renderPlot({
 
-            phi <- pmax(input$phi, 0.01)
+            # Internally prevent zero values.
+            mu <- max(input$mu, 0.01)
+            phi <- max(input$phi, 0.01)
 
-            beta_1 <- input$mu * input$phi
-            beta_2 <- (1 - input$mu) * input$phi
+            beta_1 <- mu * phi
+            beta_2 <- (1 - mu) * phi
 
             max_n <- qpois(0.999, input$pois_mean)
 
             pois_df <- data.frame(
                 Opportunities = 0:max_n,
-                Probability = dpois(0:max_n, lambda = input$pois_mean)
+                Probability = dpois(
+                    0:max_n,
+                    lambda = input$pois_mean
+                )
             )
 
-            p1 <- ggplot(pois_df,
-                         aes(x = Opportunities,
-                             y = Probability)) +
-                geom_col(fill = "#7B9ACC", width = 0.9) +
+            p1 <- ggplot(
+                pois_df,
+                aes(
+                    x = Opportunities,
+                    y = Probability
+                )
+            ) +
+                geom_col(
+                    fill = "#7B9ACC",
+                    width = 0.9
+                ) +
                 scale_x_continuous(
                     breaks = scales::breaks_pretty(n = 8),
                     expand = expansion(mult = c(0.02, 0.02))
                 ) +
                 theme_minimal(base_size = 12) +
-                labs(title = "Number of chances",
-                     x = "Opportunities",
-                     y = "Probability")
+                labs(
+                    title = "Number of chances",
+                    x = "Opportunities",
+                    y = "Probability"
+                )
+
 
             p_grid <- seq(0, 1, length.out = 500)
 
             beta_df <- data.frame(
                 p = p_grid,
-                Density = dbeta(p_grid, beta_1, beta_2)
+                Density = dbeta(
+                    p_grid,
+                    beta_1,
+                    beta_2
+                )
             )
 
-            p2 <- ggplot(beta_df,
-                         aes(x = p,
-                             y = Density)) +
-                geom_line(colour = "#CDB4DB", linewidth = 1.2) +
-                geom_vline(xintercept = input$mu,
-                           linetype = 2,
-                           colour = "grey40") +
+            p2 <- ggplot(
+                beta_df,
+                aes(
+                    x = p,
+                    y = Density
+                )
+            ) +
+                geom_line(
+                    colour = "#CDB4DB",
+                    linewidth = 1.2
+                ) +
+                geom_vline(
+                    xintercept = mu,
+                    linetype = 2,
+                    colour = "grey40"
+                ) +
                 theme_minimal(base_size = 12) +
-                labs(title = "Conversion probability",
-                     x = "p",
-                     y = "Density")
+                labs(
+                    title = "Conversion probability",
+                    x = "p",
+                    y = "Density"
+                )
 
             p1 + p2
         })
+
 
         # -------------------------------------------------
         # MAIN PLOT
@@ -401,17 +439,22 @@ chapter1_server <- function(id){
             # THEORETICAL (always shown)
             # -----------------------------
 
-            lambda <- input$pois_mean * input$mu
-            phi <- pmax(input$phi, 0.01)
+            # Internally prevent zero values.
+            mu <- max(input$mu, 0.01)
+            phi <- max(input$phi, 0.01)
 
-            beta_1 <- input$mu * phi
-            beta_2 <- (1 - input$mu) * phi
+            lambda <- input$pois_mean * mu
+
+            beta_1 <- mu * phi
+            beta_2 <- (1 - mu) * phi
 
             goals <- 0:qpois(0.999, lambda)
 
             probs <- dpois(
                 goals,
-                lambda = input$pois_mean * beta_1 / (beta_1 + beta_2)
+                lambda = input$pois_mean *
+                    beta_1 /
+                    (beta_1 + beta_2)
             )
 
             probs <- pmax(probs, 0)
@@ -425,6 +468,7 @@ chapter1_server <- function(id){
 
             plot_df <- theoretical_df
 
+
             # -----------------------------
             # OBSERVED (only after run)
             # -----------------------------
@@ -433,7 +477,8 @@ chapter1_server <- function(id){
 
             show_observed <- FALSE
 
-            if (!is.null(sim_out) && !is.null(last_run_inputs())) {
+            if (!is.null(sim_out) &&
+                !is.null(last_run_inputs())) {
 
                 prev <- last_run_inputs()
 
@@ -443,6 +488,7 @@ chapter1_server <- function(id){
                     identical(prev$mu, input$mu) &&
                     identical(prev$phi, input$phi)
             }
+
 
             if (show_observed) {
 
@@ -454,30 +500,49 @@ chapter1_server <- function(id){
                     Type = "Observed"
                 )
 
-                plot_df <- rbind(observed_df, theoretical_df)
+                plot_df <- rbind(
+                    observed_df,
+                    theoretical_df
+                )
             }
+
+
+            # -----------------------------
+            # PLOT
+            # -----------------------------
 
             plot_df$Goals <- factor(
                 plot_df$Goals,
                 levels = sort(unique(plot_df$Goals))
             )
 
-            ggplot(plot_df,
-                   aes(x = Goals,
-                       y = Proportion,
-                       fill = Type)) +
-                geom_col(position = position_dodge(width = 0.9)) +
-                scale_y_continuous(
-                    labels = scales::label_percent()
+            ggplot(
+                plot_df,
+                aes(
+                    x = Goals,
+                    y = Proportion,
+                    fill = Type
+                )
+            ) +
+                geom_col(
+                    position = position_dodge(width = 0.9)
                 ) +
-                scale_fill_manual(values = c(
-                    Observed = "#7B9ACC",
-                    Theoretical = "#CDB4DB"
-                )) +
+                scale_y_continuous(
+                    labels = scales::label_percent(),
+                    expand = expansion(mult = c(0, 0.05))
+                ) +
+                scale_fill_manual(
+                    values = c(
+                        Observed = "#7B9ACC",
+                        Theoretical = "#CDB4DB"
+                    )
+                ) +
                 theme_minimal(base_size = 14) +
-                labs(x = "Goals scored",
-                     y = "Probability / proportion",
-                     fill = NULL)
+                labs(
+                    x = "Goals scored",
+                    y = "Probability / proportion",
+                    fill = NULL
+                )
         })
     })
 }
