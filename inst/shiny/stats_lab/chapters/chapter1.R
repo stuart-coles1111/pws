@@ -17,7 +17,7 @@ chapter1_ui <- function(id){
                     min = 0, max = 1, value = 0.1, step = 0.01),
 
         sliderInput(ns("phi"), "Shape",
-                    min = 0, max = 200, value = 10, step = 1),
+                    min = 0, max = 200, value = 50, step = 1),
 
         numericInput(ns("seed"), "Random seed",
                      value = sample(1:999, 1)),
@@ -116,11 +116,11 @@ chapter1_ui <- function(id){
                 ),
 
                 tags$li(
-                    "The bottom row shows the expected frequencies of the number of goals per game implied by the model and your chosen parameter values."
+                    "The bottom row shows the theoretical probability of each possible number of goals implied by the model and your chosen parameter values."
                 ),
 
                 tags$li(
-                    "After pressing 'Run Simulation', the lower graph will also display a histogram of the observed frequencies from the simulated matches."
+                    "After pressing 'Run Simulation', the lower graph will also display the observed proportions from the simulated matches."
                 )
 
             ),
@@ -357,9 +357,13 @@ chapter1_server <- function(id){
             )
 
             p1 <- ggplot(pois_df,
-                         aes(x = factor(Opportunities),
+                         aes(x = Opportunities,
                              y = Probability)) +
-                geom_col(fill = "#7B9ACC") +
+                geom_col(fill = "#7B9ACC", width = 0.9) +
+                scale_x_continuous(
+                    breaks = scales::breaks_pretty(n = 8),
+                    expand = expansion(mult = c(0.02, 0.02))
+                ) +
                 theme_minimal(base_size = 12) +
                 labs(title = "Number of chances",
                      x = "Opportunities",
@@ -415,7 +419,7 @@ chapter1_server <- function(id){
 
             theoretical_df <- data.frame(
                 Goals = goals,
-                Frequency = input$n_sim * probs,
+                Proportion = probs,
                 Type = "Theoretical"
             )
 
@@ -446,7 +450,7 @@ chapter1_server <- function(id){
 
                 observed_df <- data.frame(
                     Goals = observed$Goals,
-                    Frequency = observed$Frequency,
+                    Proportion = observed$Frequency / input$n_sim,
                     Type = "Observed"
                 )
 
@@ -460,16 +464,19 @@ chapter1_server <- function(id){
 
             ggplot(plot_df,
                    aes(x = Goals,
-                       y = Frequency,
+                       y = Proportion,
                        fill = Type)) +
                 geom_col(position = position_dodge(width = 0.9)) +
+                scale_y_continuous(
+                    labels = scales::label_percent()
+                ) +
                 scale_fill_manual(values = c(
                     Observed = "#7B9ACC",
                     Theoretical = "#CDB4DB"
                 )) +
                 theme_minimal(base_size = 14) +
                 labs(x = "Goals scored",
-                     y = "Frequency",
+                     y = "Probability / proportion",
                      fill = NULL)
         })
     })
