@@ -4,6 +4,7 @@ suppressPackageStartupMessages({
     library(ggplot2)
     library(dplyr)
     library(gt)
+    library(shinyjs)
 })
 
 # =========================================================
@@ -112,6 +113,8 @@ ui <- page_navbar(
     title = "🪙 Activity 1: Picturing Randomness",
 
     theme = pws_theme(),
+
+    useShinyjs(),
 
     header = tagList(
 
@@ -357,7 +360,8 @@ ui <- page_navbar(
                 actionButton(
                     "compare_groups",
                     "Compare with groups",
-                    class = "btn-success"
+                    class = "btn-success",
+                    disabled = TRUE
                 ),
 
                 actionButton(
@@ -545,14 +549,13 @@ server <- function(input, output, session) {
 
         req(input$upload_data)
 
-        df <- tryCatch(
+        df <- tryCatch({
             read.csv(
                 input$upload_data$datapath,
                 header = FALSE,
                 stringsAsFactors = FALSE
-            ),
-            error = function(e) NULL
-        )
+            )
+        }, error = function(e) NULL)
 
         if (is.null(df)) {
             showNotification(
@@ -582,7 +585,6 @@ server <- function(input, output, session) {
         )
     })
 
-
     observeEvent(input$submit_seq, {
 
         rv$show_comparison <- FALSE
@@ -598,6 +600,8 @@ server <- function(input, output, session) {
         }
 
         rv$user_seq <- seq
+
+        enable("compare_groups")
     })
 
 
@@ -626,8 +630,6 @@ server <- function(input, output, session) {
 
 
     observeEvent(input$groups_analysis, {
-
-        req(rv$user_seq)
 
         rv$show_group_analysis <- TRUE
     })
@@ -833,6 +835,7 @@ server <- function(input, output, session) {
     # Comparison plots
     # -------------------------------------------------------
 
+
     output$heads_plot <- renderPlot({
 
         req(rv$user_seq)
@@ -845,62 +848,84 @@ server <- function(input, output, session) {
 
         p <- ggplot()
 
-        if (input$compare_humans) {
-
-            p <- p +
-                geom_histogram(
-                    data = data.frame(
-                        value = human_heads,
-                        source = "Smartodds"
-                    ),
-                    aes(
-                        x = value,
-                        y = after_stat(density),
-                        fill = source
-                    ),
-                    binwidth = 1,
-                    alpha = 0.5,
-                    boundary = -0.5,
-                    position = "identity"
-                )
-        }
-
-        if (
-            input$compare_uploaded &&
+        show_smartodds <- isTRUE(input$compare_humans)
+        show_uploaded <- isTRUE(input$compare_uploaded) &&
             !is.null(rv$uploaded_data)
-        ) {
+        show_theoretical <- isTRUE(input$compare_theoretical)
 
-            p <- p +
-                geom_histogram(
-                    data = data.frame(
-                        value = uploaded_heads(),
-                        source = "Uploaded"
-                    ),
-                    aes(
-                        x = value,
-                        y = after_stat(density),
-                        fill = source
-                    ),
-                    binwidth = 1,
-                    alpha = 0.5,
-                    boundary = -0.5,
-                    position = "identity"
-                )
+        if (show_smartodds) {
+
+            p <- p + geom_histogram(
+                data = data.frame(
+                    value = human_heads,
+                    source = "Smartodds"
+                ),
+                aes(
+                    x = value,
+                    y = after_stat(density),
+                    fill = source
+                ),
+                binwidth = 1,
+                alpha = 0.5,
+                boundary = -0.5,
+                position = "identity"
+            )
         }
 
-        if (input$compare_theoretical) {
+        if (show_uploaded) {
+
+            p <- p + geom_histogram(
+                data = data.frame(
+                    value = uploaded_heads(),
+                    source = "Uploaded"
+                ),
+                aes(
+                    x = value,
+                    y = after_stat(density),
+                    fill = source
+                ),
+                binwidth = 1,
+                alpha = 0.5,
+                boundary = -0.5,
+                position = "identity"
+            )
+        }
+
+        if (show_theoretical) {
+
+            p <- p + geom_col(
+                data = theoretical_heads_df() %>%
+                    mutate(source = "Theoretical"),
+                aes(
+                    x = x,
+                    y = prob,
+                    fill = source
+                ),
+                alpha = 0.7,
+                width = 0.9
+            )
+        }
+
+        # Add the fill scale only when at least one comparison is shown.
+        if (show_smartodds || show_uploaded || show_theoretical) {
+
+            fill_values <- c(
+                Smartodds = "#7B9ACC",
+                Uploaded = "#F4A261",
+                Theoretical = "#CDB4DB"
+            )
+
+            active_sources <- c(
+                if (show_smartodds) "Smartodds",
+                if (show_uploaded) "Uploaded",
+                if (show_theoretical) "Theoretical"
+            )
 
             p <- p +
-                geom_col(
-                    data = theoretical_heads_df() %>%
-                        mutate(source = "Theoretical"),
-                    aes(
-                        x = x,
-                        y = prob,
-                        fill = source
-                    ),
-                    alpha = 0.7,
-                    width = 0.9
+                scale_fill_manual(
+                    name = NULL,
+                    values = fill_values[active_sources],
+                    drop = FALSE
                 )
         }
 
@@ -912,34 +937,16 @@ server <- function(input, output, session) {
                 ),
                 linewidth = 1.4
             ) +
-
-            scale_fill_manual(
-                name = NULL,
-                values = c(
-                    Smartodds = "#7B9ACC",
-                    Uploaded = "#F4A261",
-                    Theoretical = "#CDB4DB"
-                ),
-                drop = FALSE
-            ) +
-
             scale_colour_manual(
                 name = NULL,
-                values = c(
-                    "Your sequence" = "red"
-                )
+                values = c("Your sequence" = "red")
             ) +
-
             labs(
                 x = "Number of Heads",
                 y = "Frequency density"
             ) +
-
-            theme_minimal(
-                base_size = 14
-            )
+            theme_minimal(base_size = 14)
     })
-
 
     output$runs_plot <- renderPlot({
 
@@ -949,68 +956,88 @@ server <- function(input, output, session) {
             return(NULL)
         }
 
-        user_run <- max(
-            rle(current_seq())$lengths
-        )
+        user_run <- max(rle(current_seq())$lengths)
 
         p <- ggplot()
 
-        if (input$compare_humans) {
-
-            p <- p +
-                geom_histogram(
-                    data = data.frame(
-                        value = human_runs,
-                        source = "Smartodds"
-                    ),
-                    aes(
-                        x = value,
-                        y = after_stat(density),
-                        fill = source
-                    ),
-                    binwidth = 1,
-                    alpha = 0.5,
-                    boundary = -0.5,
-                    position = "identity"
-                )
-        }
-
-        if (
-            input$compare_uploaded &&
+        show_smartodds <- isTRUE(input$compare_humans)
+        show_uploaded <- isTRUE(input$compare_uploaded) &&
             !is.null(rv$uploaded_data)
-        ) {
+        show_theoretical <- isTRUE(input$compare_theoretical)
 
-            p <- p +
-                geom_histogram(
-                    data = data.frame(
-                        value = uploaded_runs(),
-                        source = "Uploaded"
-                    ),
-                    aes(
-                        x = value,
-                        y = after_stat(density),
-                        fill = source
-                    ),
-                    binwidth = 1,
-                    alpha = 0.5,
-                    boundary = -0.5,
-                    position = "identity"
-                )
+        if (show_smartodds) {
+
+            p <- p + geom_histogram(
+                data = data.frame(
+                    value = human_runs,
+                    source = "Smartodds"
+                ),
+                aes(
+                    x = value,
+                    y = after_stat(density),
+                    fill = source
+                ),
+                binwidth = 1,
+                alpha = 0.5,
+                boundary = -0.5,
+                position = "identity"
+            )
         }
 
-        if (input$compare_theoretical) {
+        if (show_uploaded) {
+
+            p <- p + geom_histogram(
+                data = data.frame(
+                    value = uploaded_runs(),
+                    source = "Uploaded"
+                ),
+                aes(
+                    x = value,
+                    y = after_stat(density),
+                    fill = source
+                ),
+                binwidth = 1,
+                alpha = 0.5,
+                boundary = -0.5,
+                position = "identity"
+            )
+        }
+
+        if (show_theoretical) {
+
+            p <- p + geom_col(
+                data = theoretical_runs_df() %>%
+                    mutate(source = "Theoretical"),
+                aes(
+                    x = x,
+                    y = prob,
+                    fill = source
+                ),
+                alpha = 0.7,
+                width = 0.9
+            )
+        }
+
+        # Add the fill scale only when at least one comparison is shown.
+        if (show_smartodds || show_uploaded || show_theoretical) {
+
+            fill_values <- c(
+                Smartodds = "#7B9ACC",
+                Uploaded = "#F4A261",
+                Theoretical = "#CDB4DB"
+            )
+
+            active_sources <- c(
+                if (show_smartodds) "Smartodds",
+                if (show_uploaded) "Uploaded",
+                if (show_theoretical) "Theoretical"
+            )
 
             p <- p +
-                geom_col(
-                    data = theoretical_runs_df() %>%
-                        mutate(source = "Theoretical"),
-                    aes(
-                        x = x,
-                        y = prob,
-                        fill = source
-                    ),
-                    alpha = 0.7,
-                    width = 0.9
+                scale_fill_manual(
+                    name = NULL,
+                    values = fill_values[active_sources],
+                    drop = FALSE
                 )
         }
 
@@ -1022,32 +1049,15 @@ server <- function(input, output, session) {
                 ),
                 linewidth = 1.4
             ) +
-
-            scale_fill_manual(
-                name = NULL,
-                values = c(
-                    Smartodds = "#7B9ACC",
-                    Uploaded = "#F4A261",
-                    Theoretical = "#CDB4DB"
-                ),
-                drop = FALSE
-            ) +
-
             scale_colour_manual(
                 name = NULL,
-                values = c(
-                    "Your sequence" = "red"
-                )
+                values = c("Your sequence" = "red")
             ) +
-
             labs(
                 x = "Longest Run",
                 y = "Frequency density"
             ) +
-
-            theme_minimal(
-                base_size = 14
-            )
+            theme_minimal(base_size = 14)
     })
 }
 
