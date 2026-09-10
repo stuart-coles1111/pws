@@ -465,14 +465,154 @@ stats_toolkit_ui <- function(id){
 
 
 
-    results_panel <- card(
+    # =========================================================
+    # mtcars INFORMATION
+    # =========================================================
 
-        card_header(
-            "Data Exploration"
+    mtcars_info <- conditionalPanel(
+
+        condition = sprintf(
+            "input['%s']=='mtcars'",
+            ns("data_source")
         ),
 
-        uiOutput(
-            ns("combined_results")
+        accordion(
+
+            id = ns("mtcars_info"),
+
+            # Closed by default
+            open = FALSE,
+
+            accordion_panel(
+
+                "📖 About the mtcars dataset",
+
+                p(
+                    "The ",
+                    strong("mtcars"),
+                    " dataset contains data on fuel consumption and ",
+                    "10 aspects of automobile design and performance for ",
+                    "32 automobiles."
+                ),
+
+                p(
+                    "The data were extracted from the 1974 US magazine ",
+                    em("Motor Trend"),
+                    ". The dataset is commonly used in R examples and ",
+                    "statistics teaching because it contains a mixture of ",
+                    "continuous and categorical variables and allows a range ",
+                    "of simple statistical analyses."
+                ),
+
+                h5("The variables"),
+
+                tags$ul(
+
+                    tags$li(
+                        strong("mpg"),
+                        " — Miles per US gallon."
+                    ),
+
+                    tags$li(
+                        strong("cyl"),
+                        " — Number of cylinders."
+                    ),
+
+                    tags$li(
+                        strong("disp"),
+                        " — Displacement, in cubic inches."
+                    ),
+
+                    tags$li(
+                        strong("hp"),
+                        " — Gross horsepower."
+                    ),
+
+                    tags$li(
+                        strong("drat"),
+                        " — Rear axle ratio."
+                    ),
+
+                    tags$li(
+                        strong("wt"),
+                        " — Weight, in 1,000 lbs."
+                    ),
+
+                    tags$li(
+                        strong("qsec"),
+                        " — 1/4 mile time."
+                    ),
+
+                    tags$li(
+                        strong("vs"),
+                        " — Engine shape: 0 = V-shaped, 1 = straight."
+                    ),
+
+                    tags$li(
+                        strong("am"),
+                        " — Transmission: 0 = automatic, 1 = manual."
+                    ),
+
+                    tags$li(
+                        strong("gear"),
+                        " — Number of forward gears."
+                    ),
+
+                    tags$li(
+                        strong("carb"),
+                        " — Number of carburetors."
+                    )
+
+                ),
+
+                h5("A note about the data"),
+
+                p(
+                    "In the original R version of ",
+                    strong("mtcars"),
+                    ", the names of the cars are stored as row names ",
+                    "rather than as a separate variable. The CSV file used ",
+                    "in this app does not include those row names, so it ",
+                    "contains the 11 variables listed above."
+                ),
+
+                p(
+                    "For variables such as ",
+                    strong("vs"),
+                    " and ",
+                    strong("am"),
+                    ", the numerical values represent categories rather ",
+                    "than quantities. For example, ",
+                    strong("am"),
+                    " uses 0 for automatic transmission and 1 for manual ",
+                    "transmission."
+                )
+
+            )
+
+        )
+
+    )
+
+
+    # =========================================================
+    # EXPLORE
+    # =========================================================
+
+    results_panel <- div(
+
+        mtcars_info,
+
+        card(
+
+            card_header(
+                "Data Exploration"
+            ),
+
+            uiOutput(
+                ns("combined_results")
+            )
+
         )
 
     )

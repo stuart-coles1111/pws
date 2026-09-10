@@ -237,17 +237,31 @@ ui <- page_navbar(
 
                 h4("Data Entry"),
 
-                textAreaInput(
-                    "user_seq",
-                    "Enter 50 imaginary coin tosses (H/T)",
-                    placeholder = "e.g. HTHTHTHT...",
-                    height = "120px"
+                radioButtons(
+                    "entry_method",
+                    "How would you like to create the sequence?",
+                    choices = c(
+                        "Enter an imaginary sequence" = "manual",
+                        "Generate a genuinely random sequence" = "random"
+                    ),
+                    selected = "manual"
                 ),
 
-                actionButton(
-                    "random_seq",
-                    "Generate random sequence",
-                    class = "btn-random"
+                uiOutput("sequence_input"),
+
+                conditionalPanel(
+                    condition = "input.entry_method == 'random'",
+
+                    actionButton(
+                        "random_seq",
+                        "Generate random sequence",
+                        class = "btn-random"
+                    ),
+
+                    helpText(
+                        "Generate a genuinely random sequence for comparison. ",
+                        "This is provided as a reference rather than as the main activity."
+                    )
                 ),
 
                 actionButton(
@@ -255,6 +269,10 @@ ui <- page_navbar(
                     "Analyse data",
                     class = "btn-primary"
                 ),
+
+
+
+
 
                 hr(),
 
@@ -302,7 +320,7 @@ ui <- page_navbar(
 
                 actionButton(
                     "groups_analysis",
-                    "Groups analysis",
+                    "Group analysis",
                     class = "btn-info"
                 )
             ),
@@ -347,9 +365,9 @@ ui <- page_navbar(
                                 "Record the sequence in the order the tosses are imagined."
                             ),
                             tags$li(
-                                "Do not use a real coin or a computer simulation. Computer-generated sequences can be explored separately using the ",
-                                strong("Generate random sequence"),
-                                " button."
+                                "Do not use a real coin or a computer simulation. ",
+                                "The activity is intended to investigate what people think a random sequence looks like. ",
+                                "A genuinely random computer-generated sequence is available separately for comparison."
                             )
                         )
                     )
@@ -545,6 +563,33 @@ server <- function(input, output, session){
         req(rv$user_seq)
         rv$user_seq
     })
+
+
+    output$sequence_input <- renderUI({
+
+        if (input$entry_method == "random") {
+
+            textAreaInput(
+                "user_seq",
+                "Generated sequence",
+                value = "",
+                height = "120px"
+            )
+
+        } else {
+
+            textAreaInput(
+                "user_seq",
+                "Enter 50 imaginary coin tosses (H/T)",
+                placeholder = "e.g. HTHTHTHT...",
+                height = "120px"
+            )
+
+        }
+
+    })
+
+
 
     uploaded_heads <- reactive({
         req(rv$uploaded_data)
