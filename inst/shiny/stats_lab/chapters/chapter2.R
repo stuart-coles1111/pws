@@ -40,7 +40,7 @@ chapter2_ui <- function(id){
                 "x (successes)",
                 min = 0,
                 max = 10,  # initial value, updated reactively
-                value = 7,
+                value = 5,
                 step = 1
             ),
             checkboxInput(
@@ -359,6 +359,19 @@ chapter2_server <- function(id){
             sprintf("%.3f", round(x, 3))
         }
 
+        integer_breaks <- function(n = 8) {
+            function(x) {
+                rng <- range(x, finite = TRUE)
+                step <- max(1, ceiling(diff(rng) / n))
+
+                seq(
+                    ceiling(rng[1] / step) * step,
+                    floor(rng[2] / step) * step,
+                    by = step
+                )
+            }
+        }
+
         bounds <- reactive({
             req(input$interval)
 
@@ -620,6 +633,10 @@ chapter2_server <- function(id){
                         ),
                         fill = "#E76F51"
                     ) +
+                    scale_x_continuous(
+                        breaks = integer_breaks(8),
+                        minor_breaks = NULL
+                    ) +
                     theme_minimal(base_size = 14) +
                     labs(
                         x = "Number of successes",
@@ -670,6 +687,10 @@ chapter2_server <- function(id){
                             )
                         ),
                         fill = "#E76F51"
+                    ) +
+                    scale_x_continuous(
+                        breaks = integer_breaks(8),
+                        minor_breaks = NULL
                     ) +
                     theme_minimal(base_size = 14) +
                     labs(
