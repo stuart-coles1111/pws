@@ -5,6 +5,7 @@ suppressPackageStartupMessages({
     library(dplyr)
     library(gt)
     library(shinyjs)
+    library(patchwork)
 })
 
 # =========================================================
@@ -38,12 +39,6 @@ activity1_stats <- function(x) {
     )
 }
 
-seq_df <- function(x) {
-    data.frame(
-        pos = seq_along(x),
-        toss = x
-    )
-}
 
 validate_uploaded_data <- function(df) {
     if (ncol(df) != 50) {
@@ -114,9 +109,9 @@ ui <- page_navbar(
 
     theme = pws_theme(),
 
-    useShinyjs(),
-
     header = tagList(
+
+        useShinyjs(),
 
         tags$head(
 
@@ -360,8 +355,7 @@ ui <- page_navbar(
                 actionButton(
                     "compare_groups",
                     "Compare with groups",
-                    class = "btn-success",
-                    disabled = TRUE
+                    class = "btn-success"
                 ),
 
                 actionButton(
@@ -434,15 +428,22 @@ ui <- page_navbar(
                     div(
                         style = "font-family: monospace; font-size: 18px;",
                         textOutput("seq_text")
-                    )
-                ),
+                    ),
 
-                card(
-                    h4("Visual structure"),
+                    div(
+                        style = "
+        margin-top: 8px;
+        width: 100%;
+        height: 12px;
+        overflow: hidden;
+        border-radius: 3px;
+    ",
 
-                    plotOutput(
-                        "seq_plot",
-                        height = 120
+                        plotOutput(
+                            "seq_plot",
+                            height = 12,
+                            width = "100%"
+                        )
                     )
                 ),
 
@@ -456,16 +457,22 @@ ui <- page_navbar(
 
                             div(
                                 style = "
-                                    background: #EEF2FF;
-                                    padding: 18px;
-                                    border-radius: 10px;
-                                    text-align: center;
-                                ",
+                    background: #EEF2FF;
+                    padding: 12px 18px;
+                    border-radius: 10px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                ",
 
-                                h5("Heads"),
+                                h5(
+                                    "Heads",
+                                    style = "margin: 0;"
+                                ),
 
-                                h2(
-                                    textOutput("user_heads")
+                                h3(
+                                    textOutput("user_heads", inline = TRUE),
+                                    style = "margin: 0;"
                                 )
                             )
                         ),
@@ -475,48 +482,32 @@ ui <- page_navbar(
 
                             div(
                                 style = "
-                                    background: #F3E8FF;
-                                    padding: 18px;
-                                    border-radius: 10px;
-                                    text-align: center;
-                                ",
+                    background: #F3E8FF;
+                    padding: 12px 18px;
+                    border-radius: 10px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                ",
 
-                                h5("Longest run"),
+                                h5(
+                                    "Longest run",
+                                    style = "margin: 0;"
+                                ),
 
-                                h2(
-                                    textOutput("user_run")
+                                h3(
+                                    textOutput("user_run", inline = TRUE),
+                                    style = "margin: 0;"
                                 )
                             )
                         )
                     )
                 ),
 
-                fluidRow(
-
-                    column(
-                        6,
-
-                        card(
-                            h4("Number of Heads"),
-
-                            plotOutput(
-                                "heads_plot",
-                                height = 320
-                            )
-                        )
-                    ),
-
-                    column(
-                        6,
-
-                        card(
-                            h4("Longest Run"),
-
-                            plotOutput(
-                                "runs_plot",
-                                height = 320
-                            )
-                        )
+                card(
+                    plotOutput(
+                        "comparison_plots",
+                        height = 350
                     )
                 ),
 
@@ -623,8 +614,6 @@ server <- function(input, output, session) {
 
     observeEvent(input$compare_groups, {
 
-        req(rv$user_seq)
-
         rv$show_comparison <- TRUE
     })
 
@@ -696,6 +685,28 @@ server <- function(input, output, session) {
     # Individual sequence output
     # -------------------------------------------------------
 
+    output$seq_plot <- renderPlot({
+
+        df <- data.frame(
+            pos = seq_along(current_seq()),
+            toss = current_seq()
+        )
+
+        ggplot(df, aes(pos, 1, fill = toss)) +
+            geom_tile(height = 1) +
+            scale_fill_manual(
+                values = c(
+                    H = "#7B9ACC",
+                    T = "#CDB4DB"
+                )
+            ) +
+            theme_void() +
+            theme(
+                legend.position = "none",
+                plot.margin = margin(0, 0, 0, 0)
+            )
+    })
+
     output$user_heads <- renderText({
         activity1_stats(current_seq())$heads
     })
@@ -708,24 +719,6 @@ server <- function(input, output, session) {
         paste(current_seq(), collapse = " ")
     })
 
-
-    output$seq_plot <- renderPlot({
-
-        df <- seq_df(current_seq())
-
-        ggplot(df, aes(pos, 1, fill = toss)) +
-            geom_tile(height = 1) +
-            scale_fill_manual(
-                values = c(
-                    H = "#7B9ACC",
-                    T = "#CDB4DB"
-                )
-            ) +
-            theme_void() +
-            theme(
-                legend.position = "none"
-            )
-    })
 
 
     # -------------------------------------------------------
@@ -835,16 +828,24 @@ server <- function(input, output, session) {
     # Comparison plots
     # -------------------------------------------------------
 
+    comparison_colours <- c(
+        Smartodds = "#7B9ACC",
+        Uploaded = "#F4A261",
+        Theoretical = "#CDB4DB",
+        `Your sequence` = "red"
+    )
 
-    output$heads_plot <- renderPlot({
-
-        req(rv$user_seq)
+    heads_plot <- reactive({
 
         if (!rv$show_comparison) {
             return(NULL)
         }
 
-        user_heads <- sum(current_seq() == "H")
+        user_heads <- NULL
+
+        if (!is.null(rv$user_seq)) {
+            user_heads <- sum(rv$user_seq == "H")
+        }
 
         p <- ggplot()
 
@@ -854,7 +855,6 @@ server <- function(input, output, session) {
         show_theoretical <- isTRUE(input$compare_theoretical)
 
         if (show_smartodds) {
-
             p <- p + geom_histogram(
                 data = data.frame(
                     value = human_heads,
@@ -873,7 +873,6 @@ server <- function(input, output, session) {
         }
 
         if (show_uploaded) {
-
             p <- p + geom_histogram(
                 data = data.frame(
                     value = uploaded_heads(),
@@ -892,7 +891,6 @@ server <- function(input, output, session) {
         }
 
         if (show_theoretical) {
-
             p <- p + geom_col(
                 data = theoretical_heads_df() %>%
                     mutate(source = "Theoretical"),
@@ -906,57 +904,55 @@ server <- function(input, output, session) {
             )
         }
 
-        # Add the fill scale only when at least one comparison is shown.
-        if (show_smartodds || show_uploaded || show_theoretical) {
-
-            fill_values <- c(
-                Smartodds = "#7B9ACC",
-                Uploaded = "#F4A261",
-                Theoretical = "#CDB4DB"
+        p <- p +
+            scale_fill_manual(
+                name = NULL,
+                values = comparison_colours,
+                breaks = c(
+                    if (show_smartodds) "Smartodds",
+                    if (show_uploaded) "Uploaded",
+                    if (show_theoretical) "Theoretical"
+                ),
+                drop = FALSE
             )
 
-            active_sources <- c(
-                if (show_smartodds) "Smartodds",
-                if (show_uploaded) "Uploaded",
-                if (show_theoretical) "Theoretical"
-            )
-
+        if (!is.null(user_heads)) {
             p <- p +
-                scale_fill_manual(
+                geom_vline(
+                    aes(
+                        xintercept = user_heads,
+                        colour = "Your sequence"
+                    ),
+                    linewidth = 1.4
+                ) +
+                scale_colour_manual(
                     name = NULL,
-                    values = fill_values[active_sources],
-                    drop = FALSE
+                    values = c(
+                        "Your sequence" = "red"
+                    )
                 )
         }
 
         p +
-            geom_vline(
-                aes(
-                    xintercept = user_heads,
-                    colour = "Your sequence"
-                ),
-                linewidth = 1.4
-            ) +
-            scale_colour_manual(
-                name = NULL,
-                values = c("Your sequence" = "red")
-            ) +
             labs(
+                title = "Number of Heads",
                 x = "Number of Heads",
                 y = "Frequency density"
             ) +
             theme_minimal(base_size = 14)
     })
 
-    output$runs_plot <- renderPlot({
-
-        req(rv$user_seq)
+    runs_plot <- reactive({
 
         if (!rv$show_comparison) {
             return(NULL)
         }
 
-        user_run <- max(rle(current_seq())$lengths)
+        user_run <- NULL
+
+        if (!is.null(rv$user_seq)) {
+            user_run <- max(rle(rv$user_seq)$lengths)
+        }
 
         p <- ggplot()
 
@@ -966,7 +962,6 @@ server <- function(input, output, session) {
         show_theoretical <- isTRUE(input$compare_theoretical)
 
         if (show_smartodds) {
-
             p <- p + geom_histogram(
                 data = data.frame(
                     value = human_runs,
@@ -985,7 +980,6 @@ server <- function(input, output, session) {
         }
 
         if (show_uploaded) {
-
             p <- p + geom_histogram(
                 data = data.frame(
                     value = uploaded_runs(),
@@ -1004,7 +998,6 @@ server <- function(input, output, session) {
         }
 
         if (show_theoretical) {
-
             p <- p + geom_col(
                 data = theoretical_runs_df() %>%
                     mutate(source = "Theoretical"),
@@ -1018,48 +1011,61 @@ server <- function(input, output, session) {
             )
         }
 
-        # Add the fill scale only when at least one comparison is shown.
-        if (show_smartodds || show_uploaded || show_theoretical) {
-
-            fill_values <- c(
-                Smartodds = "#7B9ACC",
-                Uploaded = "#F4A261",
-                Theoretical = "#CDB4DB"
+        p <- p +
+            scale_fill_manual(
+                name = NULL,
+                values = comparison_colours,
+                breaks = c(
+                    if (show_smartodds) "Smartodds",
+                    if (show_uploaded) "Uploaded",
+                    if (show_theoretical) "Theoretical"
+                ),
+                drop = FALSE
             )
 
-            active_sources <- c(
-                if (show_smartodds) "Smartodds",
-                if (show_uploaded) "Uploaded",
-                if (show_theoretical) "Theoretical"
-            )
-
+        if (!is.null(user_run)) {
             p <- p +
-                scale_fill_manual(
+                geom_vline(
+                    aes(
+                        xintercept = user_run,
+                        colour = "Your sequence"
+                    ),
+                    linewidth = 1.4
+                ) +
+                scale_colour_manual(
                     name = NULL,
-                    values = fill_values[active_sources],
-                    drop = FALSE
+                    values = c(
+                        "Your sequence" = "red"
+                    )
                 )
         }
 
         p +
-            geom_vline(
-                aes(
-                    xintercept = user_run,
-                    colour = "Your sequence"
-                ),
-                linewidth = 1.4
-            ) +
-            scale_colour_manual(
-                name = NULL,
-                values = c("Your sequence" = "red")
-            ) +
             labs(
+                title = "Longest Run",
                 x = "Longest Run",
                 y = "Frequency density"
             ) +
             theme_minimal(base_size = 14)
     })
-}
+
+    output$comparison_plots <- renderPlot({
+
+        req(rv$show_comparison)
+
+        heads_plot() +
+            runs_plot() +
+            plot_layout(
+                ncol = 2,
+                guides = "collect"
+            ) &
+            theme(
+                legend.position = "bottom",
+                legend.direction = "horizontal"
+            )
+    })
+
+    }
 
 
 # =========================================================
