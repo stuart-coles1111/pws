@@ -564,7 +564,7 @@ server <- function(input, output, session) {
                 div(
                     class = "card-style",
 
-                    h3("🧩 What does Balder know?"),
+                    h3("🧩  Balder's Information?"),
 
                     div(
                         class = "info-box",
@@ -589,7 +589,7 @@ server <- function(input, output, session) {
 
                             HTML(
                                 "<b>Fact 2.</b><br>
-                Balder does not know whether Movie C or Movie D is older."
+                Balder does not know which of Movie C or Movie D is oldest."
                             )
                         )
                     ),
@@ -620,9 +620,9 @@ server <- function(input, output, session) {
 
                     <ul>
 
-                        <li>Correct &rarr; <b>1,000,000 kroner</b>.</li>
+                        <li>Correct &rarr; <b> Win 1,000,000 kroner</b>.</li>
 
-                        <li>Incorrect &rarr; <b>50,000 kroner</b>.</li>
+                        <li>Incorrect &rarr; <b>Win 50,000 kroner</b>.</li>
 
                     </ul>
 
@@ -722,7 +722,7 @@ server <- function(input, output, session) {
 
     <br><br>
 
-    We have treated Balder's information as if it only tells us:
+    We have treated Balder's knowledge as if it only tells us:
 
     <br><br>
 
@@ -732,7 +732,7 @@ server <- function(input, output, session) {
 
     <br>
 
-    What if the details of the information matter?
+    Is this a correct interpretation?
     ")
                         ),
 
@@ -746,7 +746,7 @@ server <- function(input, output, session) {
 
                     This argument sounds very reasonable.
 
-                    But have we really used all of Balder's information?
+                    But could Balder's knowledge actually contain additional relevant information?
                     ")
                         ),
 
@@ -768,16 +768,17 @@ server <- function(input, output, session) {
                 div(
                     class = "card-style",
 
-                    h3("Information changes probabilities"),
+                    h3("A better argument"),
 
                     div(class = "explain", if (!rv$reveal) {
                         HTML(
                             "
-                                    Without additional information, all 24 orderings are equally likely.
-                                    In 6 of these, C is oldest.<br><br>
+                                    Taking a step back, if Balder were completely ignorant about the age of all four movies,
+                                    all 24 orderings would be equally likely.
+                                    In 6 of these, C is oldest. So...<br><br>
 
                                     <center style='font-size:28px;font-weight:700;'>
-                                    P(C is oldest) = 6/24 = 1/4
+                                    P(C is oldest) = 6/24 = 1/4.
                                     </center>
                                 "
                         )
@@ -795,11 +796,40 @@ server <- function(input, output, session) {
                         )
                     }),
 
+                    div(
+                        style = "
+                            margin-top:20px;
+                            padding:18px;
+                            background:#F4F8FC;
+                            border-left:6px solid #7B9ACC;
+                            border-radius:10px;
+                            font-size:18px;
+                            line-height:1.7;
+                        ",
+
+                        HTML(
+                            "
+                            <b>One way of interpreting Balder's information</b>
+                            is that he knows that Movie <b>C</b> is older than
+                            Movies <b>A</b> and <b>B</b>, but has no additional
+                            information about the relative ages of the movies.
+
+                            <br><br>
+
+                            In other words, Balder's information tells us which
+                            orderings are possible, but does not tell us whether
+                            some of the remaining orderings are more likely than others.
+                            "
+                        )
+                    ),
+
                     br(),
 
                     if (!rv$reveal) {
                         actionButton("reveal_btn", "Apply information")
                     },
+
+                    br(),
 
                     div(class = "perm-grid", lapply(1:nrow(
                         perm_df
@@ -832,7 +862,7 @@ server <- function(input, output, session) {
                             HTML(
                                 "
                                     <b>Reflection.</b><br>
-                                    We assumed all remaining orderings are equally likely.<br><br>
+                                    This assumes all remaining orderings are equally likely.<br><br>
 
                                     But is that reasonable?
                                     Could some still be more likely than others?
@@ -849,6 +879,7 @@ server <- function(input, output, session) {
             ))
         }
 
+
         else if (rv$page == 4) {
 
             tagList(
@@ -863,32 +894,43 @@ server <- function(input, output, session) {
 
                         HTML(
                             "
-                    <p>
-                    Since Balder knows nothing about the relative ages of Movies
-                    <b>C</b> and <b>D</b>, it is reasonable to model their ages as
-                    independent random variables drawn from the same unknown
-                    distribution with cumulative distribution function
-                    <b>F(z)</b>.
-                    </p>
+                <p>
+                Balder knows that Movie <b>C</b> is older than both Movies
+                <b>A</b> and <b>B</b>. This gives him information about how
+                old C must be.
+                </p>
 
-                    <p>
-                    Balder also knows that Movie <b>C</b> is older than Movies
-                    <b>A</b> and <b>B</b>. We represent this information by
-                    conditioning on the event
-                    <b>C &gt; z</b>, where <b>z</b> denotes the age of the older
-                    of Movies <b>A</b> and <b>B</b>.
-                    </p>
+                <p>
+                Let <b>z</b> denote the age of the older of Movies <b>A</b>
+                and <b>B</b>. Then Balder's information tells him that
+                <b>C &gt; z</b>.
+                </p>
 
-                    <p style='text-align:center;font-size:28px;font-weight:700;'>
-                    P(C &gt; D &nbsp;|&nbsp; C &gt; z)
-                    </p>
+                <p>
+                At the same time, if Balder has no other information that
+                distinguishes Movies <b>C</b> and <b>D</b>, he might regard
+                their ages as having the same underlying distribution.
+                We represent this by modelling their ages as independent
+                draws from the same distribution with cumulative distribution
+                function <b>F(z)</b>.
+                </p>
 
-                    <p>
-                    This probability depends on the unknown distribution
-                    <b>F</b>. To illustrate the effect of Balder's information,
-                    we use the example probability density function below.
-                    </p>
-                    "
+                <p>
+                Putting these two pieces of information together, we want to
+                calculate the probability that C is older than D, given that
+                C is older than z:
+                </p>
+
+                <p style='text-align:center;font-size:28px;font-weight:700;'>
+                P(C &gt; D &nbsp;|&nbsp; C &gt; z)
+                </p>
+
+                <p>
+                The interesting question is therefore: <b>how does knowing
+                that C is older than z change the probability that C is
+                older than D?</b>
+                </p>
+                "
                         )
 
                     )
@@ -926,7 +968,9 @@ server <- function(input, output, session) {
                             actionButton("back3", "← Back"),
                             actionButton("next4", "Next →")
                         )
-                    ), column(
+                    ),
+
+                    column(
                         8,
 
                         div(
@@ -938,15 +982,15 @@ server <- function(input, output, session) {
 
                             div(
                                 style = "
-                                margin-top:20px;
-                                padding:18px;
-                                background:#F4F8FC;
-                                border-left:6px solid #7B9ACC;
-                                border-radius:10px;
-                                font-size:20px;
-                                line-height:1.8;
-                                text-align:center;
-                            ",
+                            margin-top:20px;
+                            padding:18px;
+                            background:#F4F8FC;
+                            border-left:6px solid #7B9ACC;
+                            border-radius:10px;
+                            font-size:20px;
+                            line-height:1.8;
+                            text-align:center;
+                        ",
 
                                 uiOutput("p_cd_panel")
                             ),
@@ -955,7 +999,8 @@ server <- function(input, output, session) {
 
                             actionButton("why_formula", "Why does this formula work?")
                         )
-                    ))
+                    )
+                )
             )
         }
 
