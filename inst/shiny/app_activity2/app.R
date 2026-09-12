@@ -370,55 +370,116 @@ ui <- page_navbar(
     # OVERVIEW
     # =====================================================
 
+
     overview_page(
 
         explanation = tagList(
-
             p(
-                "This activity introduces conditional probability and decision making under uncertainty."
+                "This interactive activity accompanies the discussion of probability and decision making in the book. It uses a simple game-show scenario to explore how we should reason about probability when we have partial information, and how probabilistic beliefs can ultimately inform decisions."
             ),
-
             p(
-                "Students explore how probabilities change when new information becomes available before extending these ideas to probability distributions, expected utility and behavioural decision making."
-            )
+                "The activity begins with a seemingly straightforward question: given what Balder knows about the ages of four movies, how likely is it that Movie C is the oldest? We first examine the tempting 50-50 argument, before looking more carefully at what Balder's information actually tells us."
+            ),
+            p(
+                "We then use the example to explore conditional probability and probability modelling. In particular, we consider how information about C's age can affect the probability that C is older than D, and how this depends on assumptions about the unknown distribution of movie ages."
+            ),
+            p(
+                "The final part turns from probability to decision making. Even if we can calculate the probability that Balder will answer correctly, this does not by itself determine whether he should take the question. The decision also depends on the possible gains and losses, and on how Balder values those gains and losses. We capture this using a simple happiness function and explore how probability and preferences together determine an optimal strategy."
+            ),
+            div(
+                class = "info-box",
+                HTML(
+                    "
+                <b>How to use this activity</b><br><br>
 
+                The activity is designed primarily for use in <b>group meetings</b>.
+                The different stages provide opportunities for discussion,
+                comparison of intuitions, and examination of the assumptions
+                behind different probability arguments.
+
+                <br><br>
+
+                It can also be used <b>individually</b>. If working alone,
+                pause at each stage and consider what you think the answer
+                should be, and why, before moving on. The aim is not simply
+                to obtain the final answer, but to explore the reasoning
+                that leads to it.
+                "
+                )
+            )
         ),
 
         individual = tagList(
-
+            h4("If you are working individually"),
             tags$ol(
-                tags$li("Work through each stage of the activity independently."),
-                tags$li("Predict probabilities before revealing new information."),
-                tags$li("Interpret how the sample space changes."),
-                tags$li("Explore the decision-making scenarios.")
+                tags$li(
+                    "Work through the activity at your own pace."
+                ),
+                tags$li(
+                    "Before revealing the next step, try to decide what you think the answer should be and formulate your own reasoning."
+                ),
+                tags$li(
+                    "Pay attention to the assumptions being made about the information Balder has and about the things he does not know."
+                ),
+                tags$li(
+                    "Experiment with the interactive elements and consider how changing the assumptions affects the conclusions."
+                )
             )
-
         ),
 
         group = tagList(
-
+            h4("If you are working in a group"),
             tags$ol(
-                tags$li("Compare probability calculations with classmates."),
-                tags$li("Discuss why conditioning changes probabilities."),
-                tags$li("Compare different attitudes towards risk."),
-                tags$li("Relate the examples to real-world decision making.")
+                tags$li(
+                    "Discuss the initial 50-50 argument before moving to the next stage. Why does it seem reasonable?"
+                ),
+                tags$li(
+                    "Ask what Balder's information actually tells us, and what it leaves unknown."
+                ),
+                tags$li(
+                    "Compare the different probability arguments and discuss the assumptions on which they depend."
+                ),
+                tags$li(
+                    "In the final section, discuss whether the probability of winning is enough to determine what Balder should do."
+                ),
+                tags$li(
+                    "Consider how different attitudes towards gains and losses might lead to different decisions."
+                )
             )
-
         ),
 
         question = tagList(
-
+            h4("Questions to consider"),
             tags$ul(
-                tags$li("Naively it seems Balder has a 50-50 choice for the final answer. Why might that reasoning be too simplistic?"),
-                tags$li("What is the correct way to interpret Balder's knowledge, and how does it affect the probability of the final answer outcomes?"),
-                tags$li("Even if the final answer outcomes are 50-50, can an argument be made that Balder should have answered the question anyway?"),
-                tags$li("What additional factors does this depend on?"),
-                tags$li("Taking everything into account, do you think Balder made the right choice?")
+                tags$li(
+                    "Why does the apparently natural 50-50 argument seem convincing?"
+                ),
+                tags$li(
+                    "What exactly does Balder's information tell us, and what does it not tell us?"
+                ),
+                tags$li(
+                    "How does conditioning on Balder's information change the probability that C is the oldest?"
+                ),
+                tags$li(
+                    "What assumptions are needed to construct a probability model for the ages of C and D?"
+                ),
+                tags$li(
+                    "How does the probability of answering correctly affect the decision to play?"
+                ),
+                tags$li(
+                    "Why might the probability of winning not be sufficient to determine the best decision?"
+                ),
+                tags$li(
+                    "How does Balder's attitude towards gains and losses affect the decision?"
+                ),
+                tags$li(
+                    "Taking probabilities and consequences together, when should Balder answer the question?"
+                )
             )
-
         )
-
     ),
+
+
 
     # =====================================================
     # ACTIVITY
