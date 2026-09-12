@@ -413,8 +413,7 @@ ui <- page_navbar(
                 tags$li("What is the correct way to interpret Balder's knowledge, and how does it affect the probability of the final answer outcomes?"),
                 tags$li("Even if the final answer outcomes are 50-50, can an argument be made that Balder should have answered the question anyway?"),
                 tags$li("What additional factors does this depend on?"),
-                tags$li("Taking everything into account, do you think Balder made the right choice?"),
-
+                tags$li("Taking everything into account, do you think Balder made the right choice?")
             )
 
         )
@@ -1120,111 +1119,168 @@ server <- function(input, output, session) {
         }
 
         else if (rv$page == 6) {
-            fluidRow(column(
-                4,
+
+            tagList(
 
                 div(
                     class = "card-style",
 
-                    h3("Loss aversion"),
+                    h3("From probability to decision"),
 
-                    sliderInput("lambda", "λ", 0, 3, 1, 0.01),
-                    sliderInput("p", "Win Probability", 0, 1, 0.5, 0.01),
+                    div(
+                        class = "explain",
 
-                    hr(),
-
-                    actionButton("back4", "← Back"),
-                    actionButton("reset", "Restart")
-                )
-            ), column(
-                8,
-
-                div(
-                    class = "card-style",
-
-                    fluidRow(
-
-                        column(
-                            5,
-
-                            h4("Happiness function"),
-
-                            div(
-                                class = "info-box",
-
-                                HTML(
-                                    "
-                        <p>
-                        The happiness function measures changes relative to
-                        Balder's current position: walking away with
-                        <b>500,000 kroner</b>.
-                        </p>
-
-                        <p>
-                        For a chosen happiness function, we can calculate how
-                        Balder's happiness changes if he answers the final
-                        question and is either correct or incorrect.
-                        </p>
-                        "
-                                )
-                            )
+                        p(
+                            "However we choose to use Balder's information to calculate the probability that Movie C is the oldest, a decision still has to be made: should Balder answer the question or walk away?"
                         ),
 
-                        column(
-                            7,
-
-                            plotOutput("utility_plot", height = "350px")
-
-                        )
-
-                    ),
-
-                    hr(),
-
-                    fluidRow(
-
-                        column(
-                            5,
-
-                            h4("Expected happiness"),
-
-                            div(
-                                class = "info-box",
-
-                                HTML(
-                                    "
-                        <p>
-                        By combining the possible changes in happiness with
-                        the probability of answering correctly, we calculate
-                        Balder's expected change in happiness from answering.
-                        </p>
-
-                        <p>
-                        If this expected change is positive, answering increases
-                        Balder's expected happiness. Otherwise, he should walk away.
-                        </p>
-                        "
-                                )
-                            )
+                        p(
+                            "This decision depends not only on the probability of answering correctly, but also on the potential gains and losses associated with each choice, and on how Balder values those gains and losses."
                         ),
 
-                        column(
-                            7,
-
-                            plotOutput("eu_plot", height = "350px")
-
+                        p(
+                            "We can summarise the latter using a ",
+                            tags$b("happiness function"),
+                            ". Together, the probability of winning and Balder's happiness function determine the strategy that maximises his expected happiness."
                         )
 
+                    )
+                ),
+
+                fluidRow(
+
+                    column(
+                        4,
+
+                        div(
+                            class = "card-style",
+
+                            h3("Maximising happiness"),
+
+                            sliderInput(
+                                "lambda",
+                                "λ",
+                                0,
+                                3,
+                                1,
+                                0.01
+                            ),
+
+                            sliderInput(
+                                "p",
+                                "Probability of answering correctly",
+                                0,
+                                1,
+                                0.5,
+                                0.01
+                            ),
+
+                            hr(),
+
+                            actionButton("back4", "← Back"),
+                            actionButton("reset", "Restart")
+                        )
                     ),
 
-                    hr(),
+                    column(
+                        8,
 
-                    uiOutput("decision_text")
+                        div(
+                            class = "card-style",
+
+                            fluidRow(
+
+                                column(
+                                    5,
+
+                                    h4("Happiness function"),
+
+                                    div(
+                                        class = "info-box",
+
+                                        HTML(
+                                            "
+                            <p>
+                            The happiness function measures changes relative to
+                            Balder's current position: walking away with
+                            <b>500,000 kroner</b>.
+                            </p>
+
+                            <p>
+                            For a chosen happiness function, we can calculate how
+                            Balder's happiness changes if he answers the final
+                            question and is either correct or incorrect.
+                            </p>
+                            "
+                                        )
+                                    )
+                                ),
+
+                                column(
+                                    7,
+
+                                    plotOutput(
+                                        "utility_plot",
+                                        height = "350px"
+                                    )
+
+                                )
+
+                            ),
+
+                            hr(),
+
+                            fluidRow(
+
+                                column(
+                                    5,
+
+                                    h4("Expected happiness"),
+
+                                    div(
+                                        class = "info-box",
+
+                                        HTML(
+                                            "
+                            <p>
+                            By combining the possible changes in happiness with
+                            the probability of answering correctly, we calculate
+                            Balder's expected change in happiness from answering.
+                            </p>
+
+                            <p>
+                            If this expected change is positive, answering increases
+                            Balder's expected happiness. Otherwise, he should walk away.
+                            </p>
+                            "
+                                        )
+                                    )
+                                ),
+
+                                column(
+                                    7,
+
+                                    plotOutput(
+                                        "eu_plot",
+                                        height = "350px"
+                                    )
+
+                                )
+
+                            ),
+
+                            hr(),
+
+                            uiOutput("decision_text")
+
+                        )
+                    )
 
                 )
-            )
+
             )
         }
+
     })
 
     # =====================================================
