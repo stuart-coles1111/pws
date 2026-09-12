@@ -760,6 +760,7 @@ server <- function(input, output, session) {
             )
         }
 
+
         else if (rv$page == 3) {
             fluidRow(column(
                 12,
@@ -772,53 +773,81 @@ server <- function(input, output, session) {
                     div(class = "explain", if (!rv$reveal) {
                         HTML(
                             "
-                                    Taking a step back, if Balder were completely ignorant about the age of all four movies,
-                                    all 24 orderings would be equally likely.
-                                    In 6 of these, C is oldest. So...<br><br>
+                        Taking a step back, suppose Balder were completely
+                        ignorant about the ages of all four movies.
+                        Then all 24 orderings would be equally likely.
 
-                                    <center style='font-size:28px;font-weight:700;'>
-                                    P(C is oldest) = 6/24 = 1/4.
-                                    </center>
-                                "
+                        In 6 of these orderings, C is the oldest movie.
+                        Therefore:
+
+                        <br><br>
+
+                        <center style='font-size:28px;font-weight:700;'>
+                        P(C is oldest) = 6/24 = 1/4.
+                        </center>
+
+                        <br>
+
+                        Now we can ask what happens when Balder's information
+                        is taken into account.
+                        "
                         )
 
                     } else {
                         HTML(
                             "
-                                    After applying Balder’s information, 8 orderings remain.
-                                    In 6 of these, C is oldest.<br><br>
+                        After applying Balder's information, 8 orderings remain.
+                        In 6 of these, C is oldest.
 
-                                    <center style='font-size:28px;font-weight:700;'>
-                                    P(C is oldest | info) = 6/8 = 3/4
-                                    </center>
-                                "
+                        <br><br>
+
+                        <center style='font-size:28px;font-weight:700;'>
+                        P(C is oldest | information) = 6/8 = 3/4
+                        </center>
+
+                        <br>
+
+                        So, if the remaining orderings are equally likely,
+                        Balder's probability of answering correctly is
+                        <b>3/4</b>.
+                        "
                         )
                     }),
 
                     div(
                         style = "
-                            margin-top:20px;
-                            padding:18px;
-                            background:#F4F8FC;
-                            border-left:6px solid #7B9ACC;
-                            border-radius:10px;
-                            font-size:18px;
-                            line-height:1.7;
-                        ",
+                        margin-top:20px;
+                        padding:18px;
+                        background:#F4F8FC;
+                        border-left:6px solid #7B9ACC;
+                        border-radius:10px;
+                        font-size:18px;
+                        line-height:1.7;
+                    ",
 
                         HTML(
                             "
-                            <b>One way of interpreting Balder's information</b>
-                            is that he knows that Movie <b>C</b> is older than
-                            Movies <b>A</b> and <b>B</b>, but has no additional
-                            information about the relative ages of the movies.
+                        <b>But notice what we have assumed.</b>
 
-                            <br><br>
+                        <br><br>
 
-                            In other words, Balder's information tells us which
-                            orderings are possible, but does not tell us whether
-                            some of the remaining orderings are more likely than others.
-                            "
+                        Balder's information tells us which orderings are
+                        possible. It does not, by itself, tell us that all
+                        of those remaining orderings are equally likely.
+
+                        <br><br>
+
+                        So there are really two different questions:
+
+                        <ul>
+                            <li>Which orderings are consistent with what Balder knows?</li>
+                            <li>How likely is each of those orderings?</li>
+                        </ul>
+
+                        The first question is answered by Balder's information.
+                        The second requires us to make assumptions about how
+                        movie ages are distributed.
+                        "
                         )
                     ),
 
@@ -849,23 +878,24 @@ server <- function(input, output, session) {
                     if (rv$reveal) {
                         div(
                             style = "
-                                    margin-top:25px;
-                                    padding:18px;
-                                    background:#FFF3CD;
-                                    border-left:6px solid #E0A800;
-                                    border-radius:10px;
-                                    font-size:18px;
-                                    line-height:1.7;
-                                ",
+                            margin-top:25px;
+                            padding:18px;
+                            background:#FFF3CD;
+                            border-left:6px solid #E0A800;
+                            border-radius:10px;
+                            font-size:18px;
+                            line-height:1.7;
+                        ",
 
                             HTML(
                                 "
-                                    <b>Reflection.</b><br>
-                                    This assumes all remaining orderings are equally likely.<br><br>
+                            <b>Key idea.</b><br><br>
 
-                                    But is that reasonable?
-                                    Could some still be more likely than others?
-                                "
+                            Conditioning on information tells us which
+                            possibilities remain. To assign probabilities
+                            to those possibilities, we also need a model
+                            for how the movie ages are distributed.
+                            "
                             )
                         )
                     },
@@ -893,43 +923,51 @@ server <- function(input, output, session) {
 
                         HTML(
                             "
-                <p>
-                Balder knows that Movie <b>C</b> is older than both Movies
-                <b>A</b> and <b>B</b>. This gives him information about how
-                old C must be.
-                </p>
+                        <p>
+                        Balder knows that Movie <b>C</b> is older than both
+                        Movies <b>A</b> and <b>B</b>. This gives him information
+                        about how old C must be.
+                        </p>
 
-                <p>
-                Let <b>z</b> denote the age of the older of Movies <b>A</b>
-                and <b>B</b>. Then Balder's information tells him that
-                <b>C &gt; z</b>.
-                </p>
+                        <p>
+                        Let <b>z</b> denote the age of the older of Movies
+                        <b>A</b> and <b>B</b>. Then Balder's information tells
+                        him that:
+                        </p>
 
-                <p>
-                At the same time, if Balder has no other information that
-                distinguishes Movies <b>C</b> and <b>D</b>, he might regard
-                their ages as having the same underlying distribution.
-                We represent this by modelling their ages as independent
-                draws from the same distribution with cumulative distribution
-                function <b>F(z)</b>.
-                </p>
+                        <p style='text-align:center;font-size:26px;font-weight:700;'>
+                        C &gt; z
+                        </p>
 
-                <p>
-                Putting these two pieces of information together, we want to
-                calculate the probability that C is older than D, given that
-                C is older than z:
-                </p>
+                        <p>
+                        We also need to make an assumption about Movies
+                        <b>C</b> and <b>D</b>. If Balder has no information
+                        that distinguishes them, it is natural to suppose
+                        that, before taking his information into account,
+                        they have the same age distribution.
+                        </p>
 
-                <p style='text-align:center;font-size:28px;font-weight:700;'>
-                P(C &gt; D &nbsp;|&nbsp; C &gt; z)
-                </p>
+                        <p>
+                        We represent this by modelling their ages as
+                        independent draws from the same distribution, with
+                        cumulative distribution function <b>F(z)</b>.
+                        </p>
 
-                <p>
-                The interesting question is therefore: <b>how does knowing
-                that C is older than z change the probability that C is
-                older than D?</b>
-                </p>
-                "
+                        <p>
+                        We can now combine these two ideas: Balder knows
+                        that <b>C &gt; z</b>, while C and D are otherwise
+                        symmetric.
+                        </p>
+
+                        <p style='text-align:center;font-size:28px;font-weight:700;'>
+                        P(C &gt; D &nbsp;|&nbsp; C &gt; z)
+                        </p>
+
+                        <p>
+                        The question is: <b>how does knowing that C is older
+                        than z change the probability that C is older than D?</b>
+                        </p>
+                        "
                         )
 
                     )
@@ -955,7 +993,10 @@ server <- function(input, output, session) {
                                 step = 0.5
                             ),
 
-                            div(class = "formula-box", uiOutput("tail_probability")),
+                            div(
+                                class = "formula-box",
+                                uiOutput("tail_probability")
+                            ),
 
                             br(),
 
@@ -981,142 +1022,179 @@ server <- function(input, output, session) {
 
                             div(
                                 style = "
-                            margin-top:20px;
-                            padding:18px;
-                            background:#F4F8FC;
-                            border-left:6px solid #7B9ACC;
-                            border-radius:10px;
-                            font-size:20px;
-                            line-height:1.8;
-                            text-align:center;
-                        ",
+                                margin-top:20px;
+                                padding:18px;
+                                background:#F4F8FC;
+                                border-left:6px solid #7B9ACC;
+                                border-radius:10px;
+                                font-size:20px;
+                                line-height:1.8;
+                                text-align:center;
+                            ",
 
                                 uiOutput("p_cd_panel")
                             ),
 
                             br(),
 
-                            actionButton("why_formula", "Why does this formula work?")
+                            actionButton(
+                                "why_formula",
+                                "Why does this formula work?"
+                            )
                         )
                     )
                 )
             )
         }
 
+
+
         else if (rv$page == 5) {
-            fluidRow(column(
-                12,
-
-                div(
-                    class = "card-style",
-
-                    h3("Why does the formula work?"),
-
-                    p("We know that Movie C is older than z.", class =
-                          "explain"),
-
-                    p("Now consider two possible cases for Movie D:", class =
-                          "explain"),
-
-                    fluidRow(column(
-                        6,
-
-                        div(
-                            style = "
-                                        background:#D8F3DC;
-                                        padding:20px;
-                                        border-radius:12px;
-                                        min-height:260px;
-                                    ",
-
-                            h4("Case 1: Movie D is less than z years old"),
-
-                            p("This happens with probability F(z).", class =
-                                  "explain"),
-
-                            p(
-                                "If D is younger than z, then C must automatically be older than D.",
-                                class = "explain"
-                            ),
-
-                            div(
-                                style = 'font-size:28px;font-weight:700;text-align:center;',
-                                HTML("P(C &gt; D) = 1")
-                            )
-                        )
-                    ), column(
-                        6,
-
-                        div(
-                            style = "
-                                        background:#F4F8FC;
-                                        padding:20px;
-                                        border-radius:12px;
-                                        min-height:260px;
-                                    ",
-
-                            h4("Case 2: Movie D is more than z years old"),
-
-                            p("This happens with probability 1 − F(z).", class =
-                                  "explain"),
-
-                            p("Now both C and D are older than z.", class =
-                                  "explain"),
-
-                            p(
-                                "By symmetry, each movie is equally likely to be older than the other.",
-                                class = "explain"
-                            ),
-
-                            div(
-                                style = 'font-size:28px;font-weight:700;text-align:center;',
-                                HTML("P(C &gt; D) = 1/2")
-                            )
-                            )
-                    )),
-
-                    br(),
+            fluidRow(
+                column(
+                    12,
 
                     div(
-                        style = "
-                                background:#FFF3CD;
-                                padding:22px;
-                                border-radius:12px;
-                                text-align:center;
-                                font-size:22px;
-                                line-height:1.8;
-                            ",
+                        class = "card-style",
 
-                        HTML(
+                        h3("Why does the formula work?"),
+
+                        p(
+                            "We know that Movie C is older than z.",
+                            class = "explain"
+                        ),
+
+                        p(
+                            "Now consider two possible cases for Movie D:",
+                            class = "explain"
+                        ),
+
+                        fluidRow(
+                            column(
+                                6,
+
+                                div(
+                                    style = "
+                                    background:#D8F3DC;
+                                    padding:20px;
+                                    border-radius:12px;
+                                    min-height:260px;
+                                ",
+
+                                    h4("Case 1: Movie D is less than z years old"),
+
+                                    p(
+                                        "This happens with probability F(z).",
+                                        class = "explain"
+                                    ),
+
+                                    p(
+                                        "If D is younger than z, then C must automatically be older than D.",
+                                        class = "explain"
+                                    ),
+
+                                    div(
+                                        style = "font-size:28px;font-weight:700;text-align:center;",
+                                        HTML("P(C &gt; D) = 1")
+                                    )
+                                )
+                            ),
+
+                            column(
+                                6,
+
+                                div(
+                                    style = "
+                                    background:#F4F8FC;
+                                    padding:20px;
+                                    border-radius:12px;
+                                    min-height:260px;
+                                ",
+
+                                    h4("Case 2: Movie D is more than z years old"),
+
+                                    p(
+                                        "This happens with probability 1 − F(z).",
+                                        class = "explain"
+                                    ),
+
+                                    p(
+                                        "Now both C and D are older than z.",
+                                        class = "explain"
+                                    ),
+
+                                    p(
+                                        "By symmetry, each movie is equally likely to be older than the other.",
+                                        class = "explain"
+                                    ),
+
+                                    div(
+                                        style = "font-size:28px;font-weight:700;text-align:center;",
+                                        HTML("P(C &gt; D) = 1/2")
+                                    )
+                                )
+                            )
+                        ),
+
+                        br(),
+
+                        div(
+                            style = "
+                            background:#FFF3CD;
+                            padding:22px;
+                            border-radius:12px;
+                            font-size:20px;
+                            line-height:1.8;
+                        ",
+
+                            HTML(
+                                "
+                            <div style='text-align:center;'>
+                            <b>Putting the two cases together</b>
+                            </div>
+
+                            <br>
+
+                            If D is below z, C is certainly older than D.
+
+                            <br>
+
+                            If D is above z, C and D are symmetric,
+                            so C is older with probability 1/2.
+
+                            <br><br>
+
+                            Therefore:
+
+                            <br><br>
+
+                            <div style='text-align:center;font-size:24px;'>
+
+                            P(C &gt; D &nbsp;|&nbsp; C &gt; z)
+
+                            <br>
+
+                            = F(z) &times; 1 + (1 - F(z)) &times; 1/2
+
+                            <br>
+
+                            = (1 + F(z))/2
+
+                            </div>
                             "
-    Putting things together:
+                            )
+                        ),
 
-    <br><br>
+                        br(),
 
-    <span style='font-size:24px;'>
-
-    P(C &gt; D &nbsp;|&nbsp; C &gt; z)
-
-    <br>
-
-    = F(z) &times; 1 + (1 - F(z)) &times; 1/2
-
-    <br>
-
-    = (1 + F(z))/2
-
-    </span>
-    "
-                        )
-                    ),
-
-                    br(),
-
-                    actionButton("back4", "← Back"),
-                    actionButton("next5", "Next →")
+                        actionButton("back4", "← Back"),
+                        actionButton("next5", "Next →")
+                    )
                 )
-            ))
+            )
         }
+
+
 
         else if (rv$page == 6) {
 
@@ -1139,11 +1217,39 @@ server <- function(input, output, session) {
                         ),
 
                         p(
-                            "We can summarise the latter using a ",
+                            "We can summarise how Balder values these outcomes using a ",
                             tags$b("happiness function"),
-                            ". Together, the probability of winning and Balder's happiness function determine the strategy that maximises his expected happiness."
-                        )
+                            ". The probability of winning, together with this happiness function, allows us to compare the two choices in terms of expected happiness."
+                        ),
 
+                        div(
+                            style = "
+                            margin-top:20px;
+                            padding:18px;
+                            background:#F4F8FC;
+                            border-left:6px solid #7B9ACC;
+                            border-radius:10px;
+                            text-align:center;
+                            font-size:21px;
+                            line-height:1.8;
+                        ",
+
+                            HTML(
+                                "
+                            <b>Probability of winning</b>
+                            &nbsp;&nbsp; + &nbsp;&nbsp;
+                            <b>Value of each outcome</b>
+                            <br>
+                            &darr;
+                            <br>
+                            <b>Expected happiness</b>
+                            <br>
+                            &darr;
+                            <br>
+                            <b>Decision</b>
+                            "
+                            )
+                        )
                     )
                 ),
 
@@ -1200,18 +1306,25 @@ server <- function(input, output, session) {
 
                                         HTML(
                                             "
-                            <p>
-                            The happiness function measures changes relative to
-                            Balder's current position: walking away with
-                            <b>500,000 kroner</b>.
-                            </p>
+                                        <p>
+                                        The happiness function measures changes
+                                        relative to Balder's current position:
+                                        walking away with <b>500,000 kroner</b>.
+                                        </p>
 
-                            <p>
-                            For a chosen happiness function, we can calculate how
-                            Balder's happiness changes if he answers the final
-                            question and is either correct or incorrect.
-                            </p>
-                            "
+                                        <p>
+                                        The parameter <b>λ</b> controls how strongly
+                                        Balder dislikes losing money relative to
+                                        how much he values an equivalent gain.
+                                        </p>
+
+                                        <p>
+                                        For a chosen happiness function, we can
+                                        calculate how Balder's happiness changes
+                                        if he answers and is either correct or
+                                        incorrect.
+                                        </p>
+                                        "
                                         )
                                     )
                                 ),
@@ -1242,17 +1355,21 @@ server <- function(input, output, session) {
 
                                         HTML(
                                             "
-                            <p>
-                            By combining the possible changes in happiness with
-                            the probability of answering correctly, we calculate
-                            Balder's expected change in happiness from answering.
-                            </p>
+                                        <p>
+                                        We now combine the probability of answering
+                                        correctly with the happiness associated
+                                        with each possible outcome.
+                                        </p>
 
-                            <p>
-                            If this expected change is positive, answering increases
-                            Balder's expected happiness. Otherwise, he should walk away.
-                            </p>
-                            "
+                                        <p>
+                                        This gives Balder's <b>expected happiness
+                                        from answering</b>.
+                                        </p>
+
+                                        <p>
+                                        We can compare this with the happiness
+                                        from walking away with 500,000 kroner.
+                                        "
                                         )
                                     )
                                 ),
@@ -1280,6 +1397,8 @@ server <- function(input, output, session) {
 
             )
         }
+
+
 
     })
 
@@ -1455,9 +1574,9 @@ server <- function(input, output, session) {
         EU_quit <- u(0.5)
 
         decision <- if (EU_play > EU_quit) {
-            "Optimal strategy is Play"
+            "Given these assumptions, answering maximises expected happiness."
         } else {
-            "Optimal strategy is Quit"
+            "Given these assumptions, walking away maximises expected happiness."
         }
 
         HTML(
