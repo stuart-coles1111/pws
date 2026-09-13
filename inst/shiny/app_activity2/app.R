@@ -392,31 +392,33 @@ ui <- page_navbar(
                     "
                 <b>How to use this activity</b><br><br>
 
-                The activity is designed primarily for use in <b>group meetings</b>.
-                The different stages provide opportunities for discussion,
-                comparison of intuitions, and examination of the assumptions
-                behind different probability arguments.
+                The activity is designed primarily for use as part of a
+                <b>group meeting</b>, but the activity itself is worked
+                through individually. Each participant can explore the
+                questions and interactive elements at their own pace,
+                forming their own conclusions before seeing the next stage.
 
                 <br><br>
 
-                It can also be used <b>individually</b>. If working alone,
-                pause at each stage and consider what you think the answer
-                should be, and why, before moving on. The aim is not simply
-                to obtain the final answer, but to explore the reasoning
-                that leads to it.
+                Once participants have worked through the activity, the
+                questions provide a basis for <b>group discussion</b>.
+                Comparing different intuitions and arguments is an
+                important part of the activity, particularly when the
+                conclusions depend on assumptions about what Balder knows
+                and what he does not know.
                 "
                 )
             )
         ),
 
         individual = tagList(
-            h4("If you are working individually"),
+            h4("Working through the activity"),
             tags$ol(
                 tags$li(
-                    "Work through the activity at your own pace."
+                    "Work through the activity individually, even when the activity is being used as part of a group meeting."
                 ),
                 tags$li(
-                    "Before revealing the next step, try to decide what you think the answer should be and formulate your own reasoning."
+                    "Before revealing the next step, pause and decide what you think the answer should be and formulate your own reasoning."
                 ),
                 tags$li(
                     "Pay attention to the assumptions being made about the information Balder has and about the things he does not know."
@@ -428,19 +430,19 @@ ui <- page_navbar(
         ),
 
         group = tagList(
-            h4("If you are working in a group"),
+            h4("Discussing the activity as a group"),
             tags$ol(
                 tags$li(
-                    "Discuss the initial 50-50 argument before moving to the next stage. Why does it seem reasonable?"
+                    "After working through the activity, compare your answers and reasoning with the other participants."
                 ),
                 tags$li(
-                    "Ask what Balder's information actually tells us, and what it leaves unknown."
+                    "Discuss why the initial 50-50 argument seems convincing, and whether everyone interpreted Balder's information in the same way."
                 ),
                 tags$li(
-                    "Compare the different probability arguments and discuss the assumptions on which they depend."
+                    "Consider which assumptions are being made when moving from Balder's information to a probability model."
                 ),
                 tags$li(
-                    "In the final section, discuss whether the probability of winning is enough to determine what Balder should do."
+                    "Discuss whether the probability of winning is enough to determine what Balder should do."
                 ),
                 tags$li(
                     "Consider how different attitudes towards gains and losses might lead to different decisions."
