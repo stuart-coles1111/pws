@@ -245,7 +245,7 @@ ui <- page_navbar(
 
             p("The activity comprises a 10-question quiz. When answering each question, participants must give a best guess (G) for the answer, as well as
               a measure of accuracy (S) for their best guess. Accuracy of estimates can be defined in different ways: here, it is defined so that if T is the true
-              answer to a question, P(G - S < T < G + S) = 0.5. In other words, particpants choose S such that they believe there to be a 50% chance that the true value
+              answer to a question, P(G - S < T < G + S) = 0.95. In other words, particpants choose S such that they believe there to be a 95% chance that the true value
               lies within a distance S of their best guess."),
 
             p("By default, the questions in the quiz are sports-based. They can, however, be replaced by country-related questions, or with a user-supplied set of questions
