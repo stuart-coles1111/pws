@@ -181,7 +181,14 @@ ui <- page_navbar(
 
     title = "🎯 Activity 4: Quiz Time",
 
-    theme = pws_theme(),
+    theme = bs_theme(
+        version = 5,
+        bootswatch = "minty",
+        primary = "#7B9ACC",
+        bg = "#F7F7FB",
+        fg = "#2E3440",
+        base_font = font_google("Inter")
+    ),
 
     header = tagList(
 
@@ -210,37 +217,9 @@ ui <- page_navbar(
                 text-align:center;
             }
 
-            .btn{
+            .sidebar .btn{
                 width:100%;
             }
-
-            .sidebar-section{
-    background:#FAFBFC;
-    border:1px solid #E3E8EF;
-    border-radius:10px;
-    padding:12px;
-    margin-bottom:28px;
-            }
-
-.card-style{
-    background:white;
-    border-radius:16px;
-    padding:22px;
-    margin-bottom:18px;
-    box-shadow:0 3px 12px rgba(0,0,0,0.08);
-}
-
-.sidebar-title{
-    font-size:16px;
-    font-weight:700;
-    color:#7B9ACC;
-}
-
-.sidebar-subtitle{
-    font-size:0.85rem;
-    color:#6C757D;
-    margin-bottom:12px;
-}
 
         "))
         ),
@@ -265,8 +244,9 @@ ui <- page_navbar(
             p("This activity explores the importance of both accuracy and the quantification of uncertainty in estimation."),
 
             p("The activity comprises a 10-question quiz. When answering each question, participants must give a best guess (G) for the answer, as well as
-              a measure of accuracy (S) for their best guess. Participants also specify an uncertainty measure (S) for each estimate. In this activity, S is defined so that if T denotes the true answer,
-              then P(G−S<T<G+S)=0.5. In other words, participants choose S so that they believe there is a 50% probability that the true answer lies within S units of their best estimate."),
+              a measure of accuracy (S) for their best guess. Accuracy of estimates can be defined in different ways: here, it is defined so that if T is the true
+              answer to a question, P(G - S < T < G + S) = 0.5. In other words, particpants choose S such that they believe there to be a 50% chance that the true value
+              lies within a distance S of their best guess."),
 
             p("By default, the questions in the quiz are sports-based. They can, however, be replaced by country-related questions, or with a user-supplied set of questions
               and answers. See the discussion in Section ?.? of Playing With Statistics for details."),
@@ -276,41 +256,43 @@ ui <- page_navbar(
         ),
 
         individual = tagList(
-            p("The individual activity uses the default sports quiz and is designed to allow participants to compare their results with those obtained from Smartodds employees."),
-
+            p("The app is designed for easy individual entry of quiz answers (G) and accuracy estimates (S)."),
             tags$ol(
-                tags$li("Complete the quiz by entering your values of G and S for each question directly into the app interface."),
-                tags$li("Examine your score for each question in the Score Explorer."),
-                tags$li("Compare your results with the answers provided by Smartodds employees.")
-            )
+                tags$li("Complete the sports quiz by entering your values of G and S for each question directly into the app interface."),
+                tags$li("Examine your score for each question in the Score Explorer"),
+                tags$li("Upload the answers provided by Smartodds employees. How do your scores compare to theirs?")
+            ),
+
         ),
 
         group = tagList(
 
-            p("The activity is ideally suited to a group meeting, with participants answering questions individually or working in teams."),
+            p("The activity is ideally suited to a group meeting with particpants answering questions individually or in teams."),
 
-            p("By default, the app uses a sports-themed quiz. This can be replaced by a countries-themed quiz or by a user-supplied set of questions and answers."),
+            p("By default, the front page of the app shows questions with a sports theme. These can be substituted with questions with a 'countries' theme, which
+              are also provided, or with a set of self-written questions and answers."),
 
-            p("Participant responses can be entered manually or uploaded from a CSV file. Templates for entering question sets and participant responses can be created directly from the app."),
+            p("Though team answers can be entered manually from the front page, it is more efficient to save team answers in a csv file which can be uploaded directly into the app."),
 
-            p("Once participant responses have been entered, the app can be used to:"),
+            p("A template for entering team scores in a csv file can be downloaded directly from the app"),
+
+            p("Once the csv file containing team answers has been uploaded, the app can be used to:"),
 
             tags$ol(
-                tags$li("Examine scores for each question."),
-                tags$li("Compare total scores across teams.")
-            ),
-
-            p("The results provide a natural opportunity to discuss the importance of making the best possible estimate (G) while also giving an honest assessment of the associated uncertainty (S).")
+                tags$li("Compare resul"),
+                tags$li("Enter a best estimate (G)."),
+                tags$li("Enter uncertainty (S)."),
+                tags$li("Submit forecasts in the Activity tab.")
+            )
         ),
 
         question = tagList(
-            p("TThe activity demonstrates the importance of making estimates that are as accurate as possible, while also providing an honest assessment of the uncertainty associated with those estimates.
-              With this in mind:"),
+
             tags$ul(
-                tags$li("What methods can be used for determining uncertainty in an estimate?"),
-                tags$li("What approaches can be used when members of a team have different estimates or different views about uncertainty?"),
-                tags$li("With limited resources, is it better to improve the estimate itself or the assessment of its uncertainty?"),
-                tags$li("Does the answer depend on the scoring rule being used?")
+                tags$li("What happens when forecasts are too confident?"),
+                tags$li("Why are some forecasts heavily penalised?"),
+                tags$li("How should uncertainty be communicated?"),
+                tags$li("Can wider uncertainty sometimes help?")
             )
         )
     ),
@@ -329,194 +311,103 @@ ui <- page_navbar(
 
                 class = "card-style",
 
-                # =====================================================
-                # QUESTION SET
-                # =====================================================
-
                 div(
+                    style = "font-weight:600; margin-bottom:8px;",
+                    "Question theme"
+                ),
 
-                    class = "sidebar-section",
+                selectInput(
+                    "question_set",
+                    NULL,
+                    choices = c(
+                        "Sports" = "sports",
+                        "Countries" = "countries",
+                        "Upload my own..." = "upload"
+                    ),
+                    selected = "sports"
+                ),
 
-                    div(class = "sidebar-title", "📋 Question set"),
+                conditionalPanel(
+                    condition = "input.question_set == 'upload'",
 
-                    div(
-                        class = "sidebar-subtitle",
-                        "Choose a built-in quiz or upload your own."
+                    downloadButton(
+                        "download_question_template",
+                        "Download question template"
                     ),
 
-                    selectInput(
-                        "question_set",
-                        NULL,
-                        choices = c(
-                            "Sports" = "sports",
-                            "Countries" = "countries",
-                            "Upload my own..." = "upload"
-                        ),
-                        selected = "sports"
-                    ),
-
-                    conditionalPanel(
-
-                        condition = "input.question_set == 'upload'",
-
-                        downloadButton(
-                            "download_question_template",
-                            "Create question template",
-                            class = "btn-outline-primary"
-                        ),
-
-                        br(), br(),
-
-                        fileInput(
-                            "upload_questions",
-                            "Upload question CSV"
-                        )
+                    fileInput(
+                        "upload_questions",
+                        "Upload question CSV"
                     )
                 ),
 
-                # =====================================================
-                # PARTICIPANT DATA
-                # =====================================================
+                div(style = "margin-top:20px;"),
 
                 div(
+                    style = "font-weight:600; margin-bottom:8px;",
+                    "Team data"
+                ),
 
-                    class = "sidebar-section",
+                selectInput(
+                    "participant_data",
+                    NULL,
+                    choices = c(
+                        "None" = "none",
+                        "Smartodds sample" = "smartodds",
+                        "Upload my own..." = "upload"
+                    ),
+                    selected = "none"
+                ),
 
-                    div(class = "sidebar-title", "👥 Participant data"),
+                div(style = "margin-top:20px;"),
+
+                conditionalPanel(
+                    condition = "input.participant_data == 'upload'",
 
                     div(
-                        class = "sidebar-subtitle",
-                        "Load saved responses or enter them manually."
+                        style = "font-weight:600; margin-bottom:8px;",
+                        "CSV template"
                     ),
 
-                    selectInput(
-                        "participant_data",
-                        NULL,
-                        choices = c(
-                            "None" = "none",
-                            "Smartodds sample" = "smartodds",
-                            "Upload my own..." = "upload"
-                        ),
-                        selected = "none"
+                    numericInput(
+                        "num_teams",
+                        "Number of teams",
+                        10,
+                        1,
+                        100
                     ),
 
-                    conditionalPanel(
+                    downloadButton(
+                        "download_template",
+                        "Download team template"
+                    ),
 
-                        condition = "input.participant_data == 'upload'",
-
-                        numericInput(
-                            "num_teams",
-                            "Number of teams",
-                            10,
-                            1,
-                            100
-                        ),
-
-                        downloadButton(
-                            "download_template",
-                            "Create participant template",
-                            class = "btn-outline-primary"
-                        ),
-
-                        br(), br(),
-
-                        fileInput(
-                            "upload_csv",
-                            "Upload participant CSV"
-                        )
+                    fileInput(
+                        "upload_csv",
+                        "Upload participant CSV"
                     )
                 ),
 
-                # =====================================================
-                # MANUAL ENTRY
-                # =====================================================
+                div(style = "margin-top:20px;"),
 
                 div(
+                    style = "font-weight:600; margin-bottom:8px;",
+                    "Manual entry"
+                ),
 
-                    class = "sidebar-section",
+                textInput(
+                    "team_name",
+                    "Team name",
+                    "Team 1"
+                ),
 
-                    div(class = "sidebar-title", "✍ Manual entry"),
-
-                    div(
-                        class = "sidebar-subtitle",
-                        "Enter one team's responses directly."
-                    ),
-
-                    textInput(
-                        "team_name",
-                        "Team name",
-                        "Team 1"
-                    ),
-
-                    actionButton(
-                        "save_team",
-                        "Save team answers",
-                        class = "btn-primary"
-                    )
+                actionButton(
+                    "save_team",
+                    "Save team answers",
+                    class = "btn-primary"
                 )
             ),
 
-            accordion(
-
-                open = FALSE,
-
-                accordion_panel(
-
-                    title = "📖 Scoring Rules",
-
-                    p(
-                        "For each question you should provide a best guess (",
-                        tags$strong("G"),
-                        ") and an accuracy measure (",
-                        tags$strong("S"),
-                        ")."
-                    ),
-
-                    p(
-                        "Assuming the true answer is ",
-                        tags$em("T"),
-                        ", choose ",
-                        tags$strong("S"),
-                        " so that, according to your beliefs,"
-                    ),
-
-                    div(
-                        style = "
-                text-align:center;
-                font-size:1.15rem;
-                margin:12px 0 18px 0;
-                font-family:'Times New Roman', serif;
-            ",
-                        HTML("P(G &minus; S &le; T &le; G + S) = 95%")
-                    ),
-
-                    p(
-                        "The score for that question is"
-                    ),
-
-                    div(
-                        style = "
-                text-align:center;
-                font-size:1.15rem;
-                margin:12px 0 18px 0;
-                font-family:'Times New Roman', serif;
-            ",
-                        HTML("Score = log&nbsp;f(T)")
-                    ),
-
-                    p(
-                        "where ",
-                        tags$em("f"),
-                        " is the probability density function of a random variable with mean ",
-                        tags$strong("G"),
-                        " and standard deviation determined by ",
-                        tags$strong("S"),
-                        ", as described in Chapter 4 of ",
-                        tags$em("Playing With Statistics"),
-                        "."
-                    )
-                )
-            ),
             navset_tab(
 
                 nav_panel("Q and A", uiOutput("question_ui")),
@@ -623,16 +514,6 @@ ui <- page_navbar(
 
 server <- function(input, output, session){
 
-    empty_team_data <- function() {
-
-        tibble(
-            team = character(),
-            question = integer(),
-            G = numeric(),
-            S = numeric()
-        )
-
-    }
 
     # =======================================================
     # QUESTIONS DATABASE
@@ -652,9 +533,6 @@ server <- function(input, output, session){
         questions(
             load_question_set(input$question_set)
         )
-
-        # Remove all previously loaded team data
-        team_data(empty_team_data())
 
     }, ignoreInit = TRUE)
 
@@ -704,7 +582,13 @@ server <- function(input, output, session){
     # =======================================================
 
     team_data <- reactiveVal(
-        empty_team_data()
+
+        tibble(
+            team = character(),
+            question = integer(),
+            G = numeric(),
+            S = numeric()
+        )
     )
 
     # =======================================================
@@ -931,14 +815,6 @@ server <- function(input, output, session){
 
     })
 
-    observeEvent(input$participant_data, {
-
-        req(input$participant_data == "none")
-
-        team_data(empty_team_data())
-
-    })
-
     observe({
 
         if (input$question_set == "sports") {
@@ -1014,7 +890,7 @@ server <- function(input, output, session){
             session,
             "explore_team",
             choices = teams,
-            selected = if(length(teams) > 0) teams[1] else character(0)
+            selected = teams[1]
         )
     })
 
