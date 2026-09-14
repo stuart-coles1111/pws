@@ -4,7 +4,7 @@
 \alias{dice_mean_series}
 \title{Analyse running means from sequences of dice throws}
 \usage{
-dice_mean_series(n_rolls = 1000, nrep = 9, ncol = 3)
+dice_mean_series(n_rolls = 1000, nrep = 4)
 }
 \arguments{
 \item{n_rolls}{Maximum number of dice rolls}

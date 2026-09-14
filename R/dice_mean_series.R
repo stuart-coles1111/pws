@@ -13,25 +13,67 @@
 #'
 #' @export
 #'
-dice_mean_series <- function(n_rolls = 1000,
-                             nrep = 9,
-                             ncol = 3) {
-    df <- c()
+dice_mean_series <- function(
+        n_rolls = 1000,
+        nrep = 4
+) {
+
+    df <- data.frame()
+
     for (i in 1:nrep) {
-        x <- sample(1:6, n_rolls, replace = T)
-        m <- cumsum(x) / (1:n_rolls)
-        df <- rbind(df, data.frame(
-            run = i,
-            Roll = 1:n_rolls,
-            Mean = m
-        ))
+
+        x <- sample(
+            1:6,
+            n_rolls,
+            replace = TRUE
+        )
+
+        m <- cumsum(x) / seq_along(x)
+
+        df <- rbind(
+            df,
+            data.frame(
+                run = i,
+                Roll = seq_along(x),
+                Mean = m
+            )
+        )
     }
-    ggplot2::ggplot(df, ggplot2::aes(Roll, Mean)) +
+
+    # Choose a sensible number of columns automatically
+    ncol <- ceiling(sqrt(nrep))
+
+    ggplot2::ggplot(
+        df,
+        ggplot2::aes(Roll, Mean)
+    ) +
+
         ggplot2::geom_line() +
-        ggplot2::geom_abline(intercept = 3.5, slope = 0,colour = "indianred4") +
-        ggplot2::ylim(1, 6)  +
-        ggplot2::facet_wrap(. ~ run, labeller = ggplot2::labeller(number = labels),  ncol = ncol) +
-        ggplot2::theme(strip.text.x = ggplot2::element_blank()) +
-        ggplot2::xlab("Roll Number") +
-        ggplot2::ylab("Rolling Mean Score")
+
+        ggplot2::geom_hline(
+            yintercept = 3.5,
+            colour = "indianred4"
+        ) +
+
+        ggplot2::coord_cartesian(
+            ylim = c(1, 6)
+        ) +
+
+        ggplot2::facet_wrap(
+            ~run,
+            ncol = ncol
+        ) +
+
+        ggplot2::theme_minimal(base_size = 13) +
+
+        ggplot2::theme(
+            strip.text = ggplot2::element_text(
+                face = "bold"
+            )
+        ) +
+
+        ggplot2::labs(
+            x = "Roll number",
+            y = "Rolling mean"
+        )
 }
