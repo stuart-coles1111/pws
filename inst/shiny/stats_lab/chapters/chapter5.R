@@ -590,6 +590,24 @@ chapter5_server <- function(id){
             rv$stage <- "simulated"
         })
 
+
+        # =====================================================
+        # Reset simulated estimates when method changes
+        # =====================================================
+
+        observeEvent(input$boot_method, {
+
+            req(rv$dice)
+
+            rv$bootstrap_p <- NULL
+            rv$p_hat <- NULL
+            rv$se <- NULL
+            rv$ci_active <- FALSE
+            rv$stage <- "rolled"
+
+        })
+
+
         # =====================================================
         # CI activation button
         # =====================================================
@@ -639,6 +657,7 @@ chapter5_server <- function(id){
             paste0(round(100 * input$conf), "%")
         })
 
+
         # =====================================================
         # Generated R code panel
         # =====================================================
@@ -647,77 +666,128 @@ chapter5_server <- function(id){
 
             if (input$topic == "Inference") {
 
+                if (input$boot_method == "true_p") {
+
+                    bootstrap_code <- paste0(
+                        "# Process Simulation (exact)\n",
+                        "bootstrap_p <- replicate(\n",
+                        "    ", input$B, ",\n",
+                        "    {\n",
+                        "        d <- sample(\n",
+                        "            1:6,\n",
+                        "            size = length(dice),\n",
+                        "            replace = TRUE,\n",
+                        "            prob = c(\n",
+                        "                rep((1 - ", input$p_true, ")/5, 5),\n",
+                        "                ", input$p_true, "\n",
+                        "            )\n",
+                        "        )\n",
+                        "        mean(d == 6)\n",
+                        "    }\n",
+                        ")"
+                    )
+
+                } else if (input$boot_method == "est_p") {
+
+                    bootstrap_code <- paste0(
+                        "# Process Simulation (approx)\n",
+                        "p_hat <- mean(dice == 6)\n\n",
+                        "bootstrap_p <- replicate(\n",
+                        "    ", input$B, ",\n",
+                        "    {\n",
+                        "        d <- sample(\n",
+                        "            1:6,\n",
+                        "            size = length(dice),\n",
+                        "            replace = TRUE,\n",
+                        "            prob = c(\n",
+                        "                rep((1 - p_hat)/5, 5),\n",
+                        "                p_hat\n",
+                        "            )\n",
+                        "        )\n",
+                        "        mean(d == 6)\n",
+                        "    }\n",
+                        ")"
+                    )
+
+                } else {
+
+                    bootstrap_code <- paste0(
+                        "# Resampling\n",
+                        "bootstrap_p <- replicate(\n",
+                        "    ", input$B, ",\n",
+                        "    mean(sample(dice, replace = TRUE) == 6)\n",
+                        ")"
+                    )
+                }
+
                 code <- paste0(
-                    "## One-dice inference investigation
+                    "## One-dice inference investigation\n\n",
 
-# Generate observed dice rolls
-set.seed(", input$seed, ")
+                    "# Generate observed dice rolls\n",
+                    "set.seed(", input$seed, ")\n\n",
 
-dice <- sample(
-    1:6,
-    size = ", input$n, ",
-    replace = TRUE,
-    prob = c(
-        rep((1 - ", input$p_true, ")/5, 5),
-        ", input$p_true, "
-    )
-)
+                    "dice <- sample(\n",
+                    "    1:6,\n",
+                    "    size = ", input$n, ",\n",
+                    "    replace = TRUE,\n",
+                    "    prob = c(\n",
+                    "        rep((1 - ", input$p_true, ")/5, 5),\n",
+                    "        ", input$p_true, "\n",
+                    "    )\n",
+                    ")\n\n",
 
-# Estimate probability of rolling a six
-p_hat <- mean(dice == 6)
+                    "# Estimate probability of rolling a six\n",
+                    "p_hat <- mean(dice == 6)\n\n",
 
-# Bootstrap distribution
-bootstrap_p <- replicate(
-    ", input$B, ",
-    mean(sample(dice, replace = TRUE) == 6)
-)
+                    bootstrap_code,
+                    "\n\n",
 
-# Bootstrap standard error
-se <- sd(bootstrap_p)
+                    "# Bootstrap standard error\n",
+                    "se <- sd(bootstrap_p)\n\n",
 
-# Confidence interval
-z <- qnorm(1 - (1 - ", input$conf, ")/2)
+                    "# Confidence interval\n",
+                    "z <- qnorm(1 - (1 - ", input$conf, ")/2)\n\n",
 
-c(
-    p_hat - z * se,
-    p_hat + z * se
-)"
+                    "c(\n",
+                    "    p_hat - z * se,\n",
+                    "    p_hat + z * se\n",
+                    ")"
                 )
 
             } else {
 
                 code <- paste0(
-                    "## Regression investigation
+                    "## Regression investigation\n\n",
 
-# Select seasons
-data <- subset(
-    pws::PL_points,
-    season <= '", input$end_season, "'
-)
+                    "# Select seasons\n",
+                    "data <- subset(\n",
+                    "    pws::PL_points,\n",
+                    "    season <= '", input$end_season, "'\n",
+                    ")\n\n",
 
-# Fit regression model
+                    "# Fit regression model\n\n",
 
-model <- lm(
-    points_half2 ~ points_half1,
-    data = data
-)
+                    "model <- lm(\n",
+                    "    points_half2 ~ points_half1,\n",
+                    "    data = data\n",
+                    ")\n\n",
 
-# Prediction at selected point
+                    "# Prediction at selected point\n\n",
 
-predict(
-    model,
-    newdata = data.frame(
-        points_half1 = ", input$x_split, "
-    ),
-    interval = 'confidence',
-    level = ", input$conf_reg, "
-)"
+                    "predict(\n",
+                    "    model,\n",
+                    "    newdata = data.frame(\n",
+                    "        points_half1 = ", input$x_split, "\n",
+                    "    ),\n",
+                    "    interval = 'confidence',\n",
+                    "    level = ", input$conf_reg, "\n",
+                    ")"
                 )
-
             }
 
             code
         })
+
 
 # =====================================================
 # Dice plot
