@@ -701,7 +701,7 @@ button:disabled {
 
                                     tags$li(
                                         "The process continues using the value of each selected card.
-                            Picture cards (J, Q, K) have value 10."
+                            Picture cards (J, Q, K) have the value chosen in the sidebar (default 10)."
                                     ),
 
                                     tags$li(
