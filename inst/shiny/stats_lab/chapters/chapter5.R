@@ -12,6 +12,7 @@ pal_lav  <- "#CDB4DB"
 pal_red  <- "#D9534F"
 pal_blue_soft <- "#A9BFE3"
 
+
 # =========================================================
 # UI
 # =========================================================
@@ -20,6 +21,7 @@ chapter5_ui <- function(id){
 
     ns <- NS(id)
     useShinyjs()
+
 
     # =====================================================
     # Sidebar
@@ -46,6 +48,7 @@ chapter5_ui <- function(id){
             ),
             selected = "Inference"
         ),
+
 
         # -------------------------------------------------
         # Inference controls
@@ -79,7 +82,7 @@ chapter5_ui <- function(id){
 
             numericInput(
                 ns("B"),
-                "Number of simulations for inference",
+                "Number of simulated estimates",
                 value = 1000,
                 min = 100
             ),
@@ -95,13 +98,15 @@ chapter5_ui <- function(id){
 
             selectInput(
                 ns("boot_method"),
-                "Estimate simulation method",
+                "How should new samples be generated?",
                 choices = c(
-                    "Process Simulation (exact)" = "true_p",
-                    "Process Simulation (approx)" = "est_p",
+                    "Exact process simulation" = "true_p",
+                    "Approximate process simulation" = "est_p",
                     "Resampling" = "resample"
                 )
             ),
+
+            br(),
 
             actionButton(
                 ns("roll"),
@@ -119,8 +124,27 @@ chapter5_ui <- function(id){
                 ns("ci"),
                 "Confidence Interval",
                 class = "btn-secondary"
+            ),
+
+            actionButton(
+                ns("restart"),
+                "Restart Experiment",
+                class = "btn-warning"
+            ),
+
+            br(),
+            br(),
+
+            p(
+                style = "
+                    font-size: 0.85em;
+                    color: #777;
+                    margin-top: 5px;
+                ",
+                "The observed dice remain fixed while you repeat the simulation."
             )
         ),
+
 
         # -------------------------------------------------
         # Regression controls
@@ -173,6 +197,7 @@ chapter5_ui <- function(id){
         )
     )
 
+
     # =====================================================
     # Overview
     # =====================================================
@@ -182,20 +207,20 @@ chapter5_ui <- function(id){
         card(
 
             style = "
-        border-radius: 16px;
-        border: none;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        padding: 10px;
-        ",
+                border-radius: 16px;
+                border: none;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+                padding: 10px;
+            ",
 
             card_header(
                 div(
                     "📊 Basics of statistical inference",
                     style = "
-                font-size: 1.4rem;
-                font-weight: 700;
-                color: #2c3e50;
-                "
+                        font-size: 1.4rem;
+                        font-weight: 700;
+                        color: #2c3e50;
+                    "
                 )
             ),
 
@@ -244,8 +269,7 @@ chapter5_ui <- function(id){
             ),
 
             p(
-                "The display includes:
-                "
+                "The display includes:"
             ),
 
             tags$ul(
@@ -257,7 +281,7 @@ chapter5_ui <- function(id){
                 ),
                 tags$li(
                     "A summary of the inference"
-                ),
+                )
             ),
 
             p(
@@ -282,25 +306,29 @@ chapter5_ui <- function(id){
             p(
                 "Sidebar options allow you to vary the subset of data analysed, the prediction point, and the confidence level used for the confidence band."
             ),
+
             hr(),
 
             h5("What to observe"),
 
-            p("For each example, notice how the size of confidence intervals or bands are affected by the choie of sample size and the level of
-              confidence chosen."),
+            p(
+                "For each example, notice how the size of confidence intervals or bands are affected by the choice of sample size and the level of confidence chosen."
+            ),
 
-            p("Notice also whether the numerical summaries of analyses are more or less effective in conveying information than the graphical summaries."),
+            p(
+                "Notice also whether the numerical summaries of analyses are more or less effective in conveying information than the graphical summaries."
+            ),
 
             hr(),
 
             div(
 
                 style = "
-            background-color:#f8f9fa;
-            border-left:5px solid #7B9ACC;
-            padding:12px;
-            border-radius:8px;
-            ",
+                    background-color:#f8f9fa;
+                    border-left:5px solid #7B9ACC;
+                    padding:12px;
+                    border-radius:8px;
+                ",
 
                 h5("Questions to investigate"),
 
@@ -335,12 +363,10 @@ chapter5_ui <- function(id){
                         "Are confidence intervals the same width at all prediction points?"
                     )
                 )
-
             )
-
         )
-
     )
+
 
     # =====================================================
     # Generated Code
@@ -354,16 +380,19 @@ chapter5_ui <- function(id){
 
             tags$pre(
                 style = "
-                background:#F8F9FA;
-                padding:15px;
-                border-radius:10px;
-                font-size:15px;
+                    background:#F8F9FA;
+                    padding:15px;
+                    border-radius:10px;
+                    font-size:15px;
                 ",
 
-                textOutput(ns("generated_code"))
+                textOutput(
+                    ns("generated_code")
+                )
             )
         )
     )
+
 
     # =====================================================
     # Results
@@ -383,7 +412,9 @@ chapter5_ui <- function(id){
                     6,
 
                     card(
-                        card_header("Observed dice outcomes"),
+                        card_header(
+                            "Observed data — fixed until experiment is restarted"
+                        ),
 
                         plotOutput(
                             ns("dice_plot"),
@@ -396,7 +427,9 @@ chapter5_ui <- function(id){
                     6,
 
                     card(
-                        card_header("Estimator distribution"),
+                        card_header(
+                            "Simulated estimates"
+                        ),
 
                         plotOutput(
                             ns("bootstrap_plot"),
@@ -408,8 +441,11 @@ chapter5_ui <- function(id){
 
             br(),
 
-            uiOutput(ns("inference_results"))
+            uiOutput(
+                ns("inference_results")
+            )
         ),
+
 
         conditionalPanel(
             condition = sprintf(
@@ -418,7 +454,10 @@ chapter5_ui <- function(id){
             ),
 
             card(
-                card_header("Regression model"),
+
+                card_header(
+                    "Regression model"
+                ),
 
                 plotOutput(
                     ns("reg_plot"),
@@ -428,12 +467,11 @@ chapter5_ui <- function(id){
 
             br(),
 
-            uiOutput(ns("regression_results"))
+            uiOutput(
+                ns("regression_results")
+            )
         )
     )
-
-
-
 
 
     # =====================================================
@@ -461,60 +499,137 @@ chapter5_ui <- function(id){
 }
 
 
+
 # =========================================================
 # SERVER
 # =========================================================
+
 chapter5_server <- function(id){
 
     moduleServer(id, function(input, output, session){
 
+
+        # =====================================================
+        # Reactive state
+        # =====================================================
+
         rv <- reactiveValues(
+
+            # -------------------------------------------------
+            # Observed data
+            # -------------------------------------------------
+            #
+            # This is the experiment itself.
+            # It remains fixed until Restart Experiment
+            # followed by Roll Dice.
+            #
+
             dice = NULL,
+
+
+            # -------------------------------------------------
+            # True probability used for the current experiment
+            # -------------------------------------------------
+
+            p_true_used = NULL,
+
+
+            # -------------------------------------------------
+            # Current simulated estimator distribution
+            # -------------------------------------------------
+
             bootstrap_p = NULL,
+
+
+            # -------------------------------------------------
+            # Estimate from the observed data
+            # -------------------------------------------------
+
             p_hat = NULL,
+
+
+            # -------------------------------------------------
+            # Standard error from the current simulation
+            # -------------------------------------------------
+
             se = NULL,
-            ci_active = FALSE,
-            stage = "new"
+
+
+            # -------------------------------------------------
+            # Whether the confidence interval is displayed
+            # -------------------------------------------------
+
+            ci_active = FALSE
         )
+
+
+
+        # =====================================================
+        # Button states
+        # =====================================================
 
         observe({
 
-            req(input$topic == "Inference")
+            req(
+                input$topic == "Inference"
+            )
 
-            if (rv$stage == "new") {
+            if (is.null(rv$dice)) {
+
+                # ---------------------------------------------
+                # No experiment yet
+                # ---------------------------------------------
 
                 enable("roll")
                 disable("bootstrap")
                 disable("ci")
+                disable("restart")
 
-            } else if (rv$stage == "rolled") {
+            } else {
 
+                # ---------------------------------------------
+                # An experiment exists
+                # ---------------------------------------------
+
+                # The dice cannot be rerolled until the
+                # experiment is restarted.
                 disable("roll")
+
+                # A new simulation can always be performed.
                 enable("bootstrap")
-                disable("ci")
 
-            } else if (rv$stage == "simulated") {
+                # The experiment can be restarted at any time.
+                enable("restart")
 
-                disable("roll")
-                disable("bootstrap")
-                enable("ci")
+                # CI is only available after estimates have
+                # been simulated.
+                if (is.null(rv$bootstrap_p)) {
 
-            } else if (rv$stage == "complete") {
+                    disable("ci")
 
-                enable("roll")
-                disable("bootstrap")
-                disable("ci")
+                } else {
 
+                    enable("ci")
+                }
             }
-
         })
+
+
+
         # =====================================================
-        # Inference: roll dice
+        # Inference: Roll Dice
         # =====================================================
 
         observeEvent(input$roll, {
 
-            new_seed <- sample(1:999, 1)
+            # -------------------------------------------------
+            # Generate a seed for this particular experiment
+            # -------------------------------------------------
+
+            new_seed <- sample(
+                1:999,
+                1
+            )
 
             updateNumericInput(
                 session,
@@ -522,592 +637,1199 @@ chapter5_server <- function(id){
                 value = new_seed
             )
 
-            set.seed(new_seed)
+            set.seed(
+                new_seed
+            )
+
+
+            # -------------------------------------------------
+            # Store the true probability used for THIS
+            # experiment.
+            #
+            # This value remains fixed even if the user later
+            # moves the p_true slider.
+            # -------------------------------------------------
+
+            rv$p_true_used <- input$p_true
+
+
+            # -------------------------------------------------
+            # Generate observed dice
+            # -------------------------------------------------
 
             rv$dice <- sample(
+
                 1:6,
+
                 size = input$n,
+
                 replace = TRUE,
+
                 prob = c(
-                    rep((1-input$p_true)/5,5),
-                    input$p_true
+
+                    rep(
+                        (1 - rv$p_true_used) / 5,
+                        5
+                    ),
+
+                    rv$p_true_used
                 )
             )
 
+
+            # -------------------------------------------------
+            # Calculate the estimate from the observed data
+            #
+            # This belongs to the observed sample and does
+            # not depend on any simulation method.
+            # -------------------------------------------------
+
+            rv$p_hat <- mean(
+                rv$dice == 6
+            )
+
+
+            # -------------------------------------------------
+            # Clear anything belonging to a previous
+            # simulation.
+            # -------------------------------------------------
+
             rv$bootstrap_p <- NULL
-            rv$p_hat <- NULL
             rv$se <- NULL
             rv$ci_active <- FALSE
-
-            rv$stage <- "rolled"
-
         })
 
 
+
         # =====================================================
-        # Bootstrap
+        # Restart Experiment
+        # =====================================================
+
+        observeEvent(input$restart, {
+
+            # -------------------------------------------------
+            # Clear the observed experiment
+            # -------------------------------------------------
+
+            rv$dice <- NULL
+
+            rv$p_true_used <- NULL
+
+            # -------------------------------------------------
+            # Clear the simulated results
+            # -------------------------------------------------
+
+            rv$bootstrap_p <- NULL
+
+            rv$p_hat <- NULL
+
+            rv$se <- NULL
+
+            rv$ci_active <- FALSE
+        })
+
+
+
+        # =====================================================
+        # Simulate Estimates
         # =====================================================
 
         observeEvent(input$bootstrap, {
 
-            req(rv$dice)
+            req(
+                rv$dice
+            )
 
-            n <- length(rv$dice)
+            n <- length(
+                rv$dice
+            )
 
-            rv$bootstrap_p <- replicate(input$B, {
 
-                if (input$boot_method == "true_p") {
+            rv$bootstrap_p <- replicate(
 
-                    d <- sample(
-                        1:6,
-                        size = n,
-                        replace = TRUE,
-                        prob = c(rep((1 - input$p_true)/5, 5), input$p_true)
+                input$B,
+
+                {
+
+                    # =========================================
+                    # Exact process simulation
+                    # =========================================
+                    #
+                    # Generate a new sample from the actual
+                    # process, using the true probability that
+                    # generated the observed data.
+                    #
+
+                    if (
+                        input$boot_method == "true_p"
+                    ) {
+
+                        d <- sample(
+
+                            1:6,
+
+                            size = n,
+
+                            replace = TRUE,
+
+                            prob = c(
+
+                                rep(
+                                    (1 - rv$p_true_used) / 5,
+                                    5
+                                ),
+
+                                rv$p_true_used
+                            )
+                        )
+
+
+                        # =========================================
+                        # Approximate process simulation
+                        # =========================================
+                        #
+                        # Generate a new sample from a process
+                        # whose probability has been estimated
+                        # from the observed data.
+                        #
+
+                    } else if (
+                        input$boot_method == "est_p"
+                    ) {
+
+                        d <- sample(
+
+                            1:6,
+
+                            size = n,
+
+                            replace = TRUE,
+
+                            prob = c(
+
+                                rep(
+                                    (1 - rv$p_hat) / 5,
+                                    5
+                                ),
+
+                                rv$p_hat
+                            )
+                        )
+
+
+                        # =========================================
+                        # Resampling
+                        # =========================================
+                        #
+                        # Generate a new sample by sampling with
+                        # replacement from the observed data.
+                        #
+
+                    } else {
+
+                        d <- sample(
+
+                            rv$dice,
+
+                            size = n,
+
+                            replace = TRUE
+                        )
+                    }
+
+
+                    # -----------------------------------------
+                    # Estimate p from the simulated sample
+                    # -----------------------------------------
+
+                    mean(
+                        d == 6
                     )
-
-                } else if (input$boot_method == "est_p") {
-
-                    p_hat <- mean(rv$dice == 6)
-
-                    d <- sample(
-                        1:6,
-                        size = n,
-                        replace = TRUE,
-                        prob = c(rep((1 - p_hat)/5, 5), p_hat)
-                    )
-
-                } else {
-
-                    d <- sample(rv$dice, size = n, replace = TRUE)
                 }
+            )
 
-                mean(d == 6)
-            })
 
-            rv$p_hat <- mean(rv$dice == 6)
-            rv$se <- sd(rv$bootstrap_p)
+            # -------------------------------------------------
+            # Standard error of the simulated estimates
+            # -------------------------------------------------
 
-            rv$stage <- "simulated"
+            rv$se <- sd(
+                rv$bootstrap_p
+            )
+
+
+            # -------------------------------------------------
+            # A new simulation means that any old CI should
+            # no longer be displayed.
+            # -------------------------------------------------
+
+            rv$ci_active <- FALSE
         })
 
 
+
         # =====================================================
-        # Reset simulated estimates when method changes
+        # Changing the simulation method
         # =====================================================
 
         observeEvent(input$boot_method, {
 
-            req(rv$dice)
+            req(
+                rv$dice
+            )
+
+            # -------------------------------------------------
+            # Keep the observed data!
+            #
+            # Only clear the current simulated distribution.
+            # -------------------------------------------------
 
             rv$bootstrap_p <- NULL
-            rv$p_hat <- NULL
-            rv$se <- NULL
-            rv$ci_active <- FALSE
-            rv$stage <- "rolled"
 
+            rv$se <- NULL
+
+            rv$ci_active <- FALSE
         })
 
 
+
         # =====================================================
-        # CI activation button
+        # Changing the number of simulations
+        # =====================================================
+
+        observeEvent(input$B, {
+
+            req(
+                rv$dice
+            )
+
+            # -------------------------------------------------
+            # If B changes, the existing simulation no longer
+            # corresponds to the selected number of simulations.
+            #
+            # The observed data remain unchanged.
+            # -------------------------------------------------
+
+            rv$bootstrap_p <- NULL
+
+            rv$se <- NULL
+
+            rv$ci_active <- FALSE
+        })
+
+
+
+        # =====================================================
+        # Confidence Interval button
         # =====================================================
 
         observeEvent(input$ci, {
 
-            req(rv$bootstrap_p)
+            req(
+                rv$bootstrap_p
+            )
 
             rv$ci_active <- TRUE
-
-            rv$stage <- "complete"
-
         })
 
+
+
         # =====================================================
-        # Reactive CI (only if activated)
+        # Confidence interval calculation
         # =====================================================
 
         ci_inference <- reactive({
 
-            req(rv$bootstrap_p, rv$p_hat, rv$se)
-            req(rv$ci_active)
+            req(
+                rv$bootstrap_p,
+                rv$p_hat,
+                rv$se
+            )
 
-            z <- qnorm(1 - (1 - input$conf) / 2)
+            req(
+                rv$ci_active
+            )
+
+
+            z <- qnorm(
+                1 - (1 - input$conf) / 2
+            )
+
 
             c(
+
                 rv$p_hat - z * rv$se,
+
                 rv$p_hat + z * rv$se
             )
         })
 
-        # =====================================================
-        # Outputs
-        # =====================================================
-
-        output$p_hat_display <- renderText({
-            req(rv$p_hat)
-            round(rv$p_hat, 3)
-        })
-
-        output$se_display <- renderText({
-            req(rv$se)
-            round(rv$se, 4)
-        })
-
-        output$conf_display <- renderText({
-            paste0(round(100 * input$conf), "%")
-        })
 
 
         # =====================================================
-        # Generated R code panel
+        # Generated R code
         # =====================================================
 
         output$generated_code <- renderText({
 
-            if (input$topic == "Inference") {
+            if (
+                input$topic == "Inference"
+            ) {
 
-                if (input$boot_method == "true_p") {
+                # -------------------------------------------------
+                # Use the probability that actually generated
+                # the current experiment.
+                # -------------------------------------------------
 
-                    bootstrap_code <- paste0(
-                        "# Process Simulation (exact)\n",
-                        "bootstrap_p <- replicate(\n",
-                        "    ", input$B, ",\n",
-                        "    {\n",
-                        "        d <- sample(\n",
-                        "            1:6,\n",
-                        "            size = length(dice),\n",
-                        "            replace = TRUE,\n",
-                        "            prob = c(\n",
-                        "                rep((1 - ", input$p_true, ")/5, 5),\n",
-                        "                ", input$p_true, "\n",
-                        "            )\n",
-                        "        )\n",
-                        "        mean(d == 6)\n",
-                        "    }\n",
-                        ")"
-                    )
+                if (
+                    !is.null(rv$p_true_used)
+                ) {
 
-                } else if (input$boot_method == "est_p") {
+                    p_used <- rv$p_true_used
 
-                    bootstrap_code <- paste0(
-                        "# Process Simulation (approx)\n",
-                        "p_hat <- mean(dice == 6)\n\n",
-                        "bootstrap_p <- replicate(\n",
-                        "    ", input$B, ",\n",
-                        "    {\n",
-                        "        d <- sample(\n",
-                        "            1:6,\n",
-                        "            size = length(dice),\n",
-                        "            replace = TRUE,\n",
-                        "            prob = c(\n",
-                        "                rep((1 - p_hat)/5, 5),\n",
-                        "                p_hat\n",
-                        "            )\n",
-                        "        )\n",
-                        "        mean(d == 6)\n",
-                        "    }\n",
-                        ")"
+                } else {
+
+                    p_used <- input$p_true
+                }
+
+
+                # -------------------------------------------------
+                # Use the number of observations in the actual
+                # experiment if one exists.
+                # -------------------------------------------------
+
+                if (
+                    !is.null(rv$dice)
+                ) {
+
+                    n_used <- length(
+                        rv$dice
                     )
 
                 } else {
 
+                    n_used <- input$n
+                }
+
+
+                # -------------------------------------------------
+                # Simulation code
+                # -------------------------------------------------
+
+                if (
+                    input$boot_method == "true_p"
+                ) {
+
                     bootstrap_code <- paste0(
-                        "# Resampling\n",
+
+                        "# Exact process simulation\n",
+
                         "bootstrap_p <- replicate(\n",
+
                         "    ", input$B, ",\n",
+
+                        "    {\n",
+
+                        "        d <- sample(\n",
+
+                        "            1:6,\n",
+
+                        "            size = length(dice),\n",
+
+                        "            replace = TRUE,\n",
+
+                        "            prob = c(\n",
+
+                        "                rep((1 - ", p_used, ")/5, 5),\n",
+
+                        "                ", p_used, "\n",
+
+                        "            )\n",
+
+                        "        )\n",
+
+                        "        mean(d == 6)\n",
+
+                        "    }\n",
+
+                        ")"
+                    )
+
+
+                } else if (
+                    input$boot_method == "est_p"
+                ) {
+
+                    bootstrap_code <- paste0(
+
+                        "# Approximate process simulation\n",
+
+                        "p_hat <- mean(dice == 6)\n\n",
+
+                        "bootstrap_p <- replicate(\n",
+
+                        "    ", input$B, ",\n",
+
+                        "    {\n",
+
+                        "        d <- sample(\n",
+
+                        "            1:6,\n",
+
+                        "            size = length(dice),\n",
+
+                        "            replace = TRUE,\n",
+
+                        "            prob = c(\n",
+
+                        "                rep((1 - p_hat)/5, 5),\n",
+
+                        "                p_hat\n",
+
+                        "            )\n",
+
+                        "        )\n",
+
+                        "        mean(d == 6)\n",
+
+                        "    }\n",
+
+                        ")"
+                    )
+
+
+                } else {
+
+                    bootstrap_code <- paste0(
+
+                        "# Resampling\n",
+
+                        "bootstrap_p <- replicate(\n",
+
+                        "    ", input$B, ",\n",
+
                         "    mean(sample(dice, replace = TRUE) == 6)\n",
+
                         ")"
                     )
                 }
 
+
+                # -------------------------------------------------
+                # Complete generated code
+                # -------------------------------------------------
+
                 code <- paste0(
+
                     "## One-dice inference investigation\n\n",
 
                     "# Generate observed dice rolls\n",
+
                     "set.seed(", input$seed, ")\n\n",
 
                     "dice <- sample(\n",
+
                     "    1:6,\n",
-                    "    size = ", input$n, ",\n",
+
+                    "    size = ", n_used, ",\n",
+
                     "    replace = TRUE,\n",
+
                     "    prob = c(\n",
-                    "        rep((1 - ", input$p_true, ")/5, 5),\n",
-                    "        ", input$p_true, "\n",
+
+                    "        rep((1 - ", p_used, ")/5, 5),\n",
+
+                    "        ", p_used, "\n",
+
                     "    )\n",
+
                     ")\n\n",
 
                     "# Estimate probability of rolling a six\n",
+
                     "p_hat <- mean(dice == 6)\n\n",
 
                     bootstrap_code,
+
                     "\n\n",
 
                     "# Bootstrap standard error\n",
+
                     "se <- sd(bootstrap_p)\n\n",
 
                     "# Confidence interval\n",
+
                     "z <- qnorm(1 - (1 - ", input$conf, ")/2)\n\n",
 
                     "c(\n",
+
                     "    p_hat - z * se,\n",
+
                     "    p_hat + z * se\n",
+
                     ")"
                 )
 
+
             } else {
 
+                # =================================================
+                # Regression code
+                # =================================================
+
                 code <- paste0(
+
                     "## Regression investigation\n\n",
 
                     "# Select seasons\n",
+
                     "data <- subset(\n",
+
                     "    pws::PL_points,\n",
+
                     "    season <= '", input$end_season, "'\n",
+
                     ")\n\n",
 
                     "# Fit regression model\n\n",
 
                     "model <- lm(\n",
+
                     "    points_half2 ~ points_half1,\n",
+
                     "    data = data\n",
+
                     ")\n\n",
 
                     "# Prediction at selected point\n\n",
 
                     "predict(\n",
+
                     "    model,\n",
+
                     "    newdata = data.frame(\n",
+
                     "        points_half1 = ", input$x_split, "\n",
+
                     "    ),\n",
+
                     "    interval = 'confidence',\n",
+
                     "    level = ", input$conf_reg, "\n",
+
                     ")"
                 )
             }
+
 
             code
         })
 
 
-# =====================================================
-# Dice plot
-# =====================================================
 
-output$dice_plot <- renderPlot({
+        # =====================================================
+        # Dice plot
+        # =====================================================
 
-    req(rv$dice)
+        output$dice_plot <- renderPlot({
 
-    df <- data.frame(
-        face = factor(rv$dice, levels = 1:6)
-    )
-
-    ggplot(df, aes(face)) +
-
-        geom_bar(
-            aes(fill = face == "6"),
-            colour = "white",
-            linewidth = 0.4
-        ) +
-
-        scale_fill_manual(
-            values = c(
-                "FALSE" = "#A9BFE3",  # soft blue (non-6)
-                "TRUE"  = "#D9534F"   # highlight red (6)
-            ),
-            guide = "none"
-        ) +
-
-        theme_minimal(base_size = 14) +
-
-        labs(
-            x = "Face",
-            y = "Frequency"
-        )
-})
-
-# =====================================================
-# Bootstrap plot (CI only after activation)
-# =====================================================
-
-output$bootstrap_plot <- renderPlot({
-
-    req(rv$bootstrap_p)
-
-    df <- data.frame(p = rv$bootstrap_p)
-
-    p <- ggplot(df, aes(p)) +
-        geom_histogram(
-            bins = 30,
-            fill = pal_lav,
-            colour = "white"
-        ) +
-        theme_minimal(base_size = 14) +
-        labs(x = expression(hat(p)), y = "Frequency")
-
-    if (isTRUE(rv$ci_active)) {
-
-        ci <- ci_inference()
-
-        p <- p +
-            annotate(
-                "rect",
-                xmin = ci[1],
-                xmax = ci[2],
-                ymin = 0,
-                ymax = Inf,
-                alpha = 0.15,
-                fill = pal_red
-            ) +
-            geom_vline(
-                xintercept = ci,
-                colour = pal_red,
-                linewidth = 1.2
+            req(
+                rv$dice
             )
-    }
-
-    p
-})
-
-# =====================================================
-# Inference summary UI
-# =====================================================
-
-output$inference_results <- renderUI({
-
-    req(input$topic == "Inference")
 
 
-    if (is.null(rv$dice)) {
+            df <- data.frame(
 
-        return(
-        )
-
-    }
-
-    if (is.null(rv$p_hat)) {
-
-        return(
-        )
-
-    }
-
-    card(
-        card_header("Inference Summary"),
-
-        p(
-            strong("Estimated p: "),
-            round(rv$p_hat,3)
-        ),
-
-        p(
-            strong("Bootstrap SE: "),
-            round(rv$se,4)
-        ),
-
-        if (rv$ci_active) {
-
-            p(
-                strong("Confidence Interval: "),
-                paste0(
-                    "[",
-                    round(ci_inference()[1],3),
-                    ", ",
-                    round(ci_inference()[2],3),
-                    "]"
+                face = factor(
+                    rv$dice,
+                    levels = 1:6
                 )
             )
 
-        }
-    )
 
-})
-# =====================================================
-# Regression (unchanged)
-# =====================================================
+            ggplot(
+                df,
+                aes(face)
+            ) +
 
-reg_data <- reactive({
+                geom_bar(
 
-    seasons <- unique(pws::PL_points$season)
+                    aes(
+                        fill = face == "6"
+                    ),
 
-    end_index <- match(input$end_season, seasons)
+                    colour = "white",
 
-    pws::PL_points[
-        pws::PL_points$season %in% seasons[1:end_index],
-    ]
-})
+                    linewidth = 0.4
+                ) +
 
-reg_fit <- reactive({
-    lm(points_half2 ~ points_half1, data = reg_data())
-})
+                scale_fill_manual(
 
-prediction <- reactive({
+                    values = c(
 
-    predict(
-        reg_fit(),
-        newdata = data.frame(points_half1 = input$x_split),
-        interval = "confidence",
-        level = input$conf_reg
-    )
-})
+                        "FALSE" = "#A9BFE3",
 
-plot_predictions <- reactive({
+                        "TRUE" = "#D9534F"
+                    ),
 
-    fit <- reg_fit()
-    df <- reg_data()
+                    guide = "none"
+                ) +
 
-    grid <- data.frame(
-        points_half1 = seq(
-            min(df$points_half1, na.rm = TRUE),
-            max(df$points_half1, na.rm = TRUE),
-            length.out = 100
-        )
-    )
+                theme_minimal(
+                    base_size = 14
+                ) +
 
-    preds <- predict(
-        fit,
-        newdata = grid,
-        interval = "confidence",
-        level = input$conf_reg
-    )
+                labs(
 
-    cbind(grid, preds)
-})
+                    x = "Face",
 
-output$reg_plot <- renderPlot({
+                    y = "Frequency"
+                )
+        })
 
-    df <- reg_data()
 
-    plot_df <- plot_predictions()
 
-    pr <- prediction()
+        # =====================================================
+        # Simulated estimates plot
+        # =====================================================
 
-    ggplot(
+        output$bootstrap_plot <- renderPlot({
 
-        df,
-
-        aes(
-            points_half1,
-            points_half2
-        )
-
-    ) +
-
-        # observations
-        geom_point(
-            colour = pal_blue
-        ) +
-
-        # confidence band
-        geom_ribbon(
-
-            data = plot_df,
-
-            aes(
-                x = points_half1,
-                ymin = lwr,
-                ymax = upr
-            ),
-
-            fill = pal_lav,
-
-            alpha = 0.20,
-
-            inherit.aes = FALSE
-        ) +
-
-        # regression line
-        geom_line(
-
-            data = plot_df,
-
-            aes(
-                x = points_half1,
-                y = fit
-            ),
-
-            colour = pal_lav,
-
-            linewidth = 1.2,
-
-            inherit.aes = FALSE
-        ) +
-
-        # vertical prediction line
-        geom_vline(
-
-            xintercept = input$x_split,
-
-            colour = pal_red,
-
-            linetype = "dashed",
-
-            linewidth = 0.8
-        ) +
-
-        # horizontal prediction line
-        geom_hline(
-
-            yintercept = as.numeric(pr[1, "fit"]),
-
-            colour = pal_red,
-
-            linetype = "dashed",
-
-            linewidth = 0.8
-        ) +
-
-        # prediction point
-
-        annotate(
-            "point",
-            x = input$x_split,
-            y = as.numeric(pr[1, "fit"]),
-            colour = pal_red,
-            size = 4
-        ) +
-
-        theme_minimal(
-
-            base_size = 14
-        ) +
-
-        labs(
-
-            x = "Points (Half 1)",
-
-            y = "Points (Half 2)"
-        )
-})
-
-output$regression_results <- renderUI({
-
-    fit <- reg_fit()
-    pr <- prediction()
-
-    card(
-
-        card_header("Regression Summary"),
-
-        p(strong("Observations: "), nrow(reg_data())),
-
-        p(strong("Slope: "), round(coef(fit)[2], 3)),
-
-        p(strong("Intercept: "), round(coef(fit)[1], 1)),
-
-        p(strong("Prediction: "), round(pr[1, "fit"], 1)),
-
-        p(
-            strong("Confidence Interval: "),
-            paste0(
-                "[",
-                round(pr[1, "lwr"], 1),
-                ", ",
-                round(pr[1, "upr"], 1),
-                "]"
+            req(
+                rv$bootstrap_p
             )
-        )
-    )
-})
+
+
+            df <- data.frame(
+                p = rv$bootstrap_p
+            )
+
+
+            p <- ggplot(
+                df,
+                aes(p)
+            ) +
+
+                geom_histogram(
+
+                    bins = 30,
+
+                    fill = pal_lav,
+
+                    colour = "white"
+                ) +
+
+                theme_minimal(
+                    base_size = 14
+                ) +
+
+                labs(
+
+                    x = expression(hat(p)),
+
+                    y = "Frequency"
+                )
+
+
+            # -------------------------------------------------
+            # Add confidence interval only after the user
+            # presses the CI button.
+            # -------------------------------------------------
+
+            if (
+                isTRUE(rv$ci_active)
+            ) {
+
+                ci <- ci_inference()
+
+
+                p <- p +
+
+                    annotate(
+
+                        "rect",
+
+                        xmin = ci[1],
+
+                        xmax = ci[2],
+
+                        ymin = 0,
+
+                        ymax = Inf,
+
+                        alpha = 0.15,
+
+                        fill = pal_red
+                    ) +
+
+                    geom_vline(
+
+                        xintercept = ci,
+
+                        colour = pal_red,
+
+                        linewidth = 1.2
+                    )
+            }
+
+
+            p
+        })
+
+
+
+        # =====================================================
+        # Inference summary
+        # =====================================================
+
+        output$inference_results <- renderUI({
+
+            req(
+                input$topic == "Inference"
+            )
+
+
+            # -------------------------------------------------
+            # No experiment yet
+            # -------------------------------------------------
+
+            if (
+                is.null(rv$dice)
+            ) {
+
+                return(NULL)
+            }
+
+
+            # -------------------------------------------------
+            # The estimate is always available once the dice
+            # have been rolled.
+            # -------------------------------------------------
+
+            card(
+
+                card_header(
+                    "Inference Summary"
+                ),
+
+
+                p(
+
+                    strong(
+                        "Estimated p: "
+                    ),
+
+                    round(
+                        rv$p_hat,
+                        3
+                    )
+                ),
+
+
+                # -------------------------------------------------
+                # Standard error appears once estimates have
+                # been simulated.
+                # -------------------------------------------------
+
+                if (
+                    !is.null(rv$se)
+                ) {
+
+                    p(
+
+                        strong(
+                            "Simulation SE: "
+                        ),
+
+                        round(
+                            rv$se,
+                            4
+                        )
+                    )
+                },
+
+
+                # -------------------------------------------------
+                # CI appears only after CI button is pressed.
+                # -------------------------------------------------
+
+                if (
+                    isTRUE(rv$ci_active)
+                ) {
+
+                    p(
+
+                        strong(
+                            "Confidence Interval: "
+                        ),
+
+                        paste0(
+
+                            "[",
+
+                            round(
+                                ci_inference()[1],
+                                3
+                            ),
+
+                            ", ",
+
+                            round(
+                                ci_inference()[2],
+                                3
+                            ),
+
+                            "]"
+                        )
+                    )
+                }
+            )
+        })
+
+
+
+        # =====================================================
+        # Regression
+        # =====================================================
+
+        reg_data <- reactive({
+
+            seasons <- unique(
+                pws::PL_points$season
+            )
+
+
+            end_index <- match(
+
+                input$end_season,
+
+                seasons
+            )
+
+
+            pws::PL_points[
+
+                pws::PL_points$season %in%
+                    seasons[1:end_index],
+
+            ]
+        })
+
+
+        reg_fit <- reactive({
+
+            lm(
+
+                points_half2 ~ points_half1,
+
+                data = reg_data()
+            )
+        })
+
+
+        prediction <- reactive({
+
+            predict(
+
+                reg_fit(),
+
+                newdata = data.frame(
+
+                    points_half1 =
+                        input$x_split
+                ),
+
+                interval = "confidence",
+
+                level = input$conf_reg
+            )
+        })
+
+
+        plot_predictions <- reactive({
+
+            fit <- reg_fit()
+
+            df <- reg_data()
+
+
+            grid <- data.frame(
+
+                points_half1 = seq(
+
+                    min(
+                        df$points_half1,
+                        na.rm = TRUE
+                    ),
+
+                    max(
+                        df$points_half1,
+                        na.rm = TRUE
+                    ),
+
+                    length.out = 100
+                )
+            )
+
+
+            preds <- predict(
+
+                fit,
+
+                newdata = grid,
+
+                interval = "confidence",
+
+                level = input$conf_reg
+            )
+
+
+            cbind(
+                grid,
+                preds
+            )
+        })
+
+
+        output$reg_plot <- renderPlot({
+
+            df <- reg_data()
+
+            plot_df <- plot_predictions()
+
+            pr <- prediction()
+
+
+            ggplot(
+
+                df,
+
+                aes(
+                    points_half1,
+                    points_half2
+                )
+
+            ) +
+
+
+                # ---------------------------------------------
+            # Observations
+            # ---------------------------------------------
+
+            geom_point(
+                colour = pal_blue
+            ) +
+
+
+                # ---------------------------------------------
+            # Confidence band
+            # ---------------------------------------------
+
+            geom_ribbon(
+
+                data = plot_df,
+
+                aes(
+
+                    x = points_half1,
+
+                    ymin = lwr,
+
+                    ymax = upr
+                ),
+
+                fill = pal_lav,
+
+                alpha = 0.20,
+
+                inherit.aes = FALSE
+            ) +
+
+
+                # ---------------------------------------------
+            # Regression line
+            # ---------------------------------------------
+
+            geom_line(
+
+                data = plot_df,
+
+                aes(
+
+                    x = points_half1,
+
+                    y = fit
+                ),
+
+                colour = pal_lav,
+
+                linewidth = 1.2,
+
+                inherit.aes = FALSE
+            ) +
+
+
+                # ---------------------------------------------
+            # Vertical prediction line
+            # ---------------------------------------------
+
+            geom_vline(
+
+                xintercept = input$x_split,
+
+                colour = pal_red,
+
+                linetype = "dashed",
+
+                linewidth = 0.8
+            ) +
+
+
+                # ---------------------------------------------
+            # Horizontal prediction line
+            # ---------------------------------------------
+
+            geom_hline(
+
+                yintercept =
+                    as.numeric(
+                        pr[1, "fit"]
+                    ),
+
+                colour = pal_red,
+
+                linetype = "dashed",
+
+                linewidth = 0.8
+            ) +
+
+
+                # ---------------------------------------------
+            # Prediction point
+            # ---------------------------------------------
+
+            annotate(
+
+                "point",
+
+                x = input$x_split,
+
+                y = as.numeric(
+                    pr[1, "fit"]
+                ),
+
+                colour = pal_red,
+
+                size = 4
+            ) +
+
+
+                theme_minimal(
+                    base_size = 14
+                ) +
+
+
+                labs(
+
+                    x = "Points (Half 1)",
+
+                    y = "Points (Half 2)"
+                )
+        })
+
+
+        output$regression_results <- renderUI({
+
+            fit <- reg_fit()
+
+            pr <- prediction()
+
+
+            card(
+
+                card_header(
+                    "Regression Summary"
+                ),
+
+
+                p(
+
+                    strong(
+                        "Observations: "
+                    ),
+
+                    nrow(
+                        reg_data()
+                    )
+                ),
+
+
+                p(
+
+                    strong(
+                        "Slope: "
+                    ),
+
+                    round(
+                        coef(fit)[2],
+                        3
+                    )
+                ),
+
+
+                p(
+
+                    strong(
+                        "Intercept: "
+                    ),
+
+                    round(
+                        coef(fit)[1],
+                        1
+                    )
+                ),
+
+
+                p(
+
+                    strong(
+                        "Prediction: "
+                    ),
+
+                    round(
+                        pr[1, "fit"],
+                        1
+                    )
+                ),
+
+
+                p(
+
+                    strong(
+                        "Confidence Interval: "
+                    ),
+
+                    paste0(
+
+                        "[",
+
+                        round(
+                            pr[1, "lwr"],
+                            1
+                        ),
+
+                        ", ",
+
+                        round(
+                            pr[1, "upr"],
+                            1
+                        ),
+
+                        "]"
+                    )
+                )
+            )
+        })
 
     })
 }
