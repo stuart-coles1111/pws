@@ -1446,7 +1446,7 @@ chapter6_server <- function(id){
 
                     card_header("Key result"),
 
-                    h4(
+                    h6(
                         sprintf(
                             paste0(
                                 "Minimum number of invitees required for there ",
