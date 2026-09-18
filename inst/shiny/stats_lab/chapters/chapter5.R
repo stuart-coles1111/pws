@@ -67,7 +67,7 @@ chapter5_ui <- function(id){
             numericInput(
                 ns("n"),
                 "Number of dice rolls",
-                value = 50,
+                value = 1000,
                 min = 10
             ),
 
@@ -80,21 +80,13 @@ chapter5_ui <- function(id){
                 step = 0.01
             ),
 
-            numericInput(
-                ns("B"),
-                "Number of simulated estimates",
-                value = 1000,
-                min = 100
+            actionButton(
+                ns("roll"),
+                "Roll Dice",
+                class = "btn-primary"
             ),
 
-            sliderInput(
-                ns("conf"),
-                "Confidence level",
-                min = 0.80,
-                max = 0.999,
-                value = 0.95,
-                step = 0.001
-            ),
+            hr(),
 
             selectInput(
                 ns("boot_method"),
@@ -106,12 +98,11 @@ chapter5_ui <- function(id){
                 )
             ),
 
-            br(),
-
-            actionButton(
-                ns("roll"),
-                "Roll Dice",
-                class = "btn-primary"
+            numericInput(
+                ns("B"),
+                "Number of simulated estimates",
+                value = 5000,
+                min = 100
             ),
 
             actionButton(
@@ -120,11 +111,30 @@ chapter5_ui <- function(id){
                 class = "btn-info"
             ),
 
+            hr(),
+
+            sliderInput(
+                ns("conf"),
+                "Confidence level",
+                min = 0.80,
+                max = 0.999,
+                value = 0.95,
+                step = 0.001
+            ),
+
+
+
+            br(),
+
+
+
             actionButton(
                 ns("ci"),
                 "Confidence Interval",
                 class = "btn-secondary"
             ),
+
+            hr(),
 
             actionButton(
                 ns("restart"),

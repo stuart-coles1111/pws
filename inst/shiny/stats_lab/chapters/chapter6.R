@@ -1,12 +1,169 @@
+# =========================================================
+# Chapter 6 - Birthday problem functions
+# =========================================================
+
+
+# ---------------------------------------------------------
+# Classic birthday problem
+# ---------------------------------------------------------
+# Probability that at least two people in a group of n
+# share a birthday, assuming 365 equally likely birthdays.
+# ---------------------------------------------------------
+
 bp <- function(n) {
-    p <- 1
-    if (n > 1) {
-        for (i in 1:n)
-            p <- p * (365 - i + 1) / 365
+
+    if (n <= 1) {
+        return(0)
     }
-    1 - p
+
+    p_no_match <- prod(
+        (365 - (0:(n - 1))) / 365
+    )
+
+    1 - p_no_match
 }
 
+
+# ---------------------------------------------------------
+# Poisson approximation
+# ---------------------------------------------------------
+# Probability that at least m people share a birthday
+# somewhere among the 365 possible birthdays.
+#
+# For any particular birthday:
+#
+#   X ~ Poisson(lambda)
+#
+# where
+#
+#   lambda = n / 365
+#
+# We approximate the probability that every birthday has
+# fewer than m people by
+#
+#   P(X < m)^365
+#
+# and therefore
+#
+#   P(at least one birthday has m or more people)
+#       = 1 - P(X < m)^365
+# ---------------------------------------------------------
+
+birthday_poisson <- function(n, m) {
+
+    lambda <- n / 365
+
+    p_less_m <- ppois(
+        m - 1,
+        lambda
+    )
+
+    1 - p_less_m^365
+}
+
+
+# ---------------------------------------------------------
+# Exact calculation
+# ---------------------------------------------------------
+# Calculates the probability that at least m people share
+# a birthday using dynamic programming.
+#
+# The calculation tracks the number of people allocated
+# across birthdays while ensuring that no birthday contains
+# m or more people.
+#
+# The calculation is performed using log-probabilities to
+# reduce numerical problems for larger values of n.
+# ---------------------------------------------------------
+
+birthday_dp <- function(n, m) {
+
+    # If m > n, it is impossible for m people to share
+    # a birthday.
+    if (m > n) {
+        return(0)
+    }
+
+    # If m <= 1, at least one birthday must contain
+    # at least one person.
+    if (m <= 1) {
+        return(1)
+    }
+
+    # We calculate the probability that no birthday contains
+    # m or more people.
+    #
+    # A state represents the number of people allocated so far.
+    #
+    # We work with scaled weights rather than probabilities.
+    # For a particular birthday, allocating k people contributes
+    # 1 / k! to the coefficient.
+
+    dp <- numeric(n + 1)
+
+    dp[1] <- 1
+
+    for (b in 1:365) {
+
+        new_dp <- numeric(n + 1)
+
+        for (j in 0:n) {
+
+            current <- dp[j + 1]
+
+            if (current == 0) {
+                next
+            }
+
+            max_k <- min(
+                m - 1,
+                n - j
+            )
+
+            for (k in 0:max_k) {
+
+                new_dp[j + k + 1] <-
+                    new_dp[j + k + 1] +
+                    current / factorial(k)
+            }
+        }
+
+        dp <- new_dp
+
+        # Once we have allocated 365 birthdays, there is no
+        # need to continue.
+        if (b == 365) {
+            break
+        }
+    }
+
+    coefficient <- dp[n + 1]
+
+    if (coefficient <= 0 || !is.finite(coefficient)) {
+        return(NA_real_)
+    }
+
+    # Probability of a particular allocation pattern is
+    #
+    # n! / 365^n
+    #
+    # multiplied by the coefficient calculated above.
+
+    log_p_no_match <-
+        lgamma(n + 1) -
+        n * log(365) +
+        log(coefficient)
+
+    p_no_match <- exp(log_p_no_match)
+
+    # Protect against tiny numerical errors.
+    p_no_match <- min(
+        max(p_no_match, 0),
+        1
+    )
+
+    1 - p_no_match
+}
 
 
 # =========================================================
@@ -238,6 +395,7 @@ chapter6_ui <- function(id){
 
     )
 
+
     # =======================================================
     # Overview
     # =======================================================
@@ -267,7 +425,7 @@ chapter6_ui <- function(id){
             p(
                 strong("Main idea: "),
                 "Statistical conclusions depend not only on calculations, but also on how questions are asked and how data are generated. ",
-                "The same data can appear surprising, convincing, or misleading depending on the context in which they are considered."
+                "The way in which data are obtained and the context in which they are analysed can affect what conclusions can reasonably be drawn."
             ),
 
             p(
@@ -280,7 +438,7 @@ chapter6_ui <- function(id){
             h5("Three contexts"),
 
             p(
-                "This module explores three examples that illustrate how probability and statistical reasoning can be affected by context:"
+                "This module explores three examples that illustrate how probability and statistical reasoning depend on context:"
             ),
 
             tags$ul(
@@ -294,27 +452,34 @@ chapter6_ui <- function(id){
             h5("Your options"),
 
             p(
-                "The birthday problem includes both the classic version and a non-classic version discussed in Playing With Statistics."
+                "The birthday problem includes both the classic version and a non-classic version discussed in ",
+                em("Playing With Statistics"),
+                "."
             ),
 
             tags$ul(
                 tags$li(
-                    "The classic version allows you to explore how the probability of a shared birthday changes as the group size increases."
+                    tags$strong("The classic version: "),
+                    "explore how the probability of a shared birthday changes as the group size increases."
                 ),
+
                 tags$li(
-                    "The non-classic version explores how different ways of framing the question lead to very different probabilities."
+                    tags$strong("The non-classic version: "),
+                    "explore how different ways of framing a question can lead to very different probabilities."
                 )
             ),
 
             p(
-                "The ITV jinx investigation allows you to repeat the analysis from Playing With Statistics, ",
-                "or explore similar comparisons using your own data. The aim is to investigate how much evidence is needed ",
-                "before we can distinguish a genuine effect from random variation."
+                "The ITV jinx investigation allows you to repeat the analysis from ",
+                em("Playing With Statistics"),
+                ", or explore similar comparisons using your own data. ",
+                "The aim is to investigate how much evidence is needed before a difference between groups ",
+                "can be distinguished from random variation."
             ),
 
             p(
-                "The data dredging example explores how searching through many possible relationships can produce apparently convincing ",
-                "patterns even when no real relationship exists."
+                "The data-dredging example explores how searching through many possible relationships ",
+                "can produce apparently convincing patterns even when no real relationship exists."
             ),
 
             hr(),
@@ -323,26 +488,32 @@ chapter6_ui <- function(id){
 
             p(
                 "The birthday problem and the ITV jinx example are included because they appear in ",
-                em("Playing With Statistics."),
-                "The birthday problem is primarily a probability puzzle, while the ITV example is often presented as a standard hypothesis-testing exercise."
+                em("Playing With Statistics"),
+                ". The birthday problem is primarily a probability puzzle, ",
+                "while the ITV example is often presented as a standard hypothesis-testing exercise."
             ),
 
             p(
                 "Viewed in isolation, neither example fully illustrates the central message of this chapter. ",
-                "The key issue is not simply how to calculate probabilities or p-values, but how the broader context influences the interpretation of those calculations."
+                "The key issue is not simply how to calculate probabilities or p-values, ",
+                "but how the broader context influences the interpretation of those calculations."
             ),
 
             p(
-                "The ITV example is particularly revealing. A conventional statistical analysis may suggest evidence of a difference between broadcasters. ",
-                "However, the data were examined precisely because an apparent pattern had already been noticed. ",
-                "When a question is motivated by an observed pattern, that selection process becomes part of the context and should be taken into account when drawing conclusions."
+                "The ITV example is particularly revealing. A conventional statistical analysis may suggest ",
+                "evidence of a difference between broadcasters. However, the data were examined precisely because ",
+                "an apparent pattern had already been noticed. When a question is motivated by an observed pattern, ",
+                "that selection process becomes part of the context and should be taken into account when interpreting the evidence."
             ),
 
             p(
-                "Statistical methods can only answer the questions we ask. Understanding why those questions were asked, and how the data came to our attention, is often just as important as performing the calculations themselves."
+                "Statistical methods can answer the questions we ask, but they cannot tell us whether we asked ",
+                "the right question in the first place. Understanding why a question was asked, how the data were obtained, ",
+                "and what other analyses might have been possible is often just as important as performing the calculations themselves."
             ),
 
             hr(),
+
             div(
                 style = "
             background-color:#f8f9fa;
@@ -353,34 +524,43 @@ chapter6_ui <- function(id){
 
                 h5("Questions to investigate"),
 
-                p("For the birthday problems:"),
+                p(
+                    tags$strong("For the birthday problems:")
+                ),
 
                 tags$ul(
                     tags$li(
                         "For the classical problem, are there probability thresholds where the required number of people seems surprising?"
                     ),
+
                     tags$li(
                         "For the non-classical problem, how do group size and the number of matching birthdays affect the relative probabilities of the different scenarios?"
                     )
                 ),
 
-                p("For the ITV jinx problem:"),
+                p(
+                    tags$strong("For the ITV jinx problem:")
+                ),
 
                 tags$ul(
                     tags$li(
                         "How much data are needed before there is convincing evidence of a difference between groups?"
                     ),
+
                     tags$li(
                         "How easily can random variation create the appearance of an effect?"
                     )
                 ),
 
-                p("For data dredging:"),
+                p(
+                    tags$strong("For data dredging:")
+                ),
 
                 tags$ul(
                     tags$li(
                         "How does increasing the sample size affect the results?"
                     ),
+
                     tags$li(
                         "How does searching through more possible predictors increase the chance of finding an apparently meaningful relationship?"
                     )
@@ -388,6 +568,8 @@ chapter6_ui <- function(id){
             )
         )
     )
+
+
     # =======================================================
     # Code
     # =======================================================
@@ -395,18 +577,30 @@ chapter6_ui <- function(id){
     code_panel <- div(
 
         card(
-            card_header("Genrated R code"),
+
+            card_header("Generated R code"),
+
+            p(
+                style = "
+            color:#666;
+            margin-bottom:10px;
+        ",
+                "The following R code reproduces the calculation shown above."
+            ),
 
             tags$pre(
                 style="
-                    background:#F8F9FA;
-                    padding:15px;
-                    border-radius:10px;
-                ",
+                background:#F8F9FA;
+                padding:15px;
+                border-radius:10px;
+                white-space:pre-wrap;
+            ",
                 textOutput(ns("generated_code"))
             )
         )
     )
+
+
 
     # =======================================================
     # Results
@@ -423,6 +617,7 @@ chapter6_ui <- function(id){
 
         uiOutput(ns("results_panel"))
     )
+
 
     # =======================================================
     # Learn
@@ -503,12 +698,13 @@ chapter6_ui <- function(id){
                 p(
                     strong("Structure can be an illusion."),
                     br(),
-                    "Statistical tools are powerful, but they do not distinguish between real patterns and patterns created by randomness.
-                 Interpretation matters as much as calculation."
+                    "Statistical tools are powerful, but they do not distinguish between real patterns and patterns created by randomness. ",
+                    "Interpretation matters as much as calculation."
                 )
             )
         )
     )
+
 
     chapter_page_ui(
         id = id,
@@ -520,6 +716,7 @@ chapter6_ui <- function(id){
         learn = learn_panel
     )
 }
+
 
 # =========================================================
 # Chapter 6 Server
@@ -536,7 +733,6 @@ chapter6_server <- function(id){
         # Auto-switch to Results tab on experiment change
         # -------------------------------------------------
 
-
         observeEvent(input$demo, {
 
             summary_visible(FALSE)
@@ -548,7 +744,7 @@ chapter6_server <- function(id){
             )
 
 
-            if (input$demo %in% c(
+            if(input$demo %in% c(
                 "Assessing the ITV jinx",
                 "Data Dredging"
             )) {
@@ -562,6 +758,11 @@ chapter6_server <- function(id){
             }
 
         }, ignoreInit = TRUE)
+
+
+        # -------------------------------------------------
+        # Hide data-dredging summary when inputs change
+        # -------------------------------------------------
 
         observeEvent(
             list(
@@ -582,30 +783,52 @@ chapter6_server <- function(id){
             ignoreInit = TRUE
         )
 
+
+        # -------------------------------------------------
+        # Keep company size above team size
+        # -------------------------------------------------
+
         observeEvent(input$team_small, {
 
-            if(input$team_large <= input$team_small){
+            required_min <- input$team_small + 1
+
+            if(input$team_large < required_min){
 
                 updateSliderInput(
                     session,
                     "team_large",
-                    value = input$team_small + 10,
-                    min = input$team_small + 1
+                    value = required_min,
+                    min = required_min
+                )
+
+            } else {
+
+                updateSliderInput(
+                    session,
+                    "team_large",
+                    min = required_min
                 )
 
             }
 
         })
 
+
         # -------------------------------------------------
-        # Reactive analysis (no Run button)
+        # Show data-dredging summary
         # -------------------------------------------------
 
         observeEvent(input$show_summary, {
             summary_visible(TRUE)
         })
 
+
+        # -------------------------------------------------
+        # Reactive analysis
+        # -------------------------------------------------
+
         analysis <- reactive({
+
 
             # =================================================
             # Birthday Problem
@@ -614,17 +837,27 @@ chapter6_server <- function(id){
             if(input$demo == "Birthday Problem"){
 
 
-                if(input$birthday_type == "classic"){
+                # -------------------------------------------------
+                # Classic birthday problem
+                # -------------------------------------------------
 
+                if(input$birthday_type == "classic"){
 
                     nmax <- 60
 
                     df <- data.frame(
                         N = 1:nmax,
-                        P = sapply(1:nmax,bp)
+                        P = sapply(
+                            1:nmax,
+                            bp
+                        )
                     )
 
-                    required_n <- df$N[which(df$P >= input$p_level)[1]]
+                    required_n <- df$N[
+                        which(
+                            df$P >= input$p_level
+                        )[1]
+                    ]
 
 
                     list(
@@ -637,63 +870,140 @@ chapter6_server <- function(id){
                 } else {
 
 
+                    # -------------------------------------------------
+                    # Non-classic birthday problem
+                    # -------------------------------------------------
+
                     m <- input$match_size
+
                     n1 <- input$team_small
-                    n2 <- max(input$team_large, n1 + 1)
+
+                    n2 <- max(
+                        input$team_large,
+                        n1 + 1
+                    )
+
+
+                    # -------------------------------------------------
+                    # Simple probability scenarios
+                    # -------------------------------------------------
 
                     k1 <- 365^m
 
-                    k2 <- 365^(m-1)
+                    k2 <- 365^(m - 1)
 
 
-                    if(input$birthday_method=="dp"){
+                    # -------------------------------------------------
+                    # Calculate probabilities
+                    # -------------------------------------------------
 
-                        p1 <- birthday_dp(n1,m)
-                        p2 <- birthday_dp(n2,m)
+                    if(input$birthday_method == "dp"){
+
+                        p1 <- birthday_dp(
+                            n1,
+                            m
+                        )
+
+                        p2 <- birthday_dp(
+                            n2,
+                            m
+                        )
 
                     } else {
 
-                        p1 <- birthday_poisson(n1,m)
-                        p2 <- birthday_poisson(n2,m)
+                        p1 <- birthday_poisson(
+                            n1,
+                            m
+                        )
+
+                        p2 <- birthday_poisson(
+                            n2,
+                            m
+                        )
 
                     }
 
 
+                    # -------------------------------------------------
+                    # Results data frame
+                    # -------------------------------------------------
+
                     data <- data.frame(
 
                         Scenario = factor(
+
                             c(
-                                paste(m, "specific people,\nspecific date"),
-                                paste(m, "specific people,\nany date"),
-                                paste("Any", m, "in group of", n1),
-                                paste("Any", m, "in group of", n2)
+                                paste(
+                                    m,
+                                    "specific people,\nspecific date"
+                                ),
+
+                                paste(
+                                    m,
+                                    "specific people,\nany date"
+                                ),
+
+                                paste(
+                                    "Any",
+                                    m,
+                                    "in group of",
+                                    n1
+                                ),
+
+                                paste(
+                                    "Any",
+                                    m,
+                                    "in group of",
+                                    n2
+                                )
                             ),
+
                             levels = c(
-                                paste(m, "specific people,\nspecific date"),
-                                paste(m, "specific people,\nany date"),
-                                paste("Any", m, "in group of", n1),
-                                paste("Any", m, "in group of", n2)
+
+                                paste(
+                                    m,
+                                    "specific people,\nspecific date"
+                                ),
+
+                                paste(
+                                    m,
+                                    "specific people,\nany date"
+                                ),
+
+                                paste(
+                                    "Any",
+                                    m,
+                                    "in group of",
+                                    n1
+                                ),
+
+                                paste(
+                                    "Any",
+                                    m,
+                                    "in group of",
+                                    n2
+                                )
                             )
                         ),
 
                         k = c(
                             k1,
                             k2,
-                            1/p1,
-                            1/p2
+                            1 / p1,
+                            1 / p2
                         )
                     )
 
 
                     list(
 
-                        type="birthday_context",
+                        type = "birthday_context",
 
-                        data=data,
+                        data = data,
 
-                        probabilities=c(
-                            1/k1,
-                            1/k2,
+                        probabilities = c(
+                            1 / k1,
+                            1 / k2,
                             p1,
                             p2
                         )
@@ -704,30 +1014,50 @@ chapter6_server <- function(id){
 
             }
 
+
             # =================================================
             # Difference in Proportions
             # =================================================
 
-            else if(input$demo == "Assessing the ITV jinx"){
+            else if(
+                input$demo == "Assessing the ITV jinx"
+            ){
 
                 set.seed(input$seed)
 
                 p1 <- input$count1 / input$trial1
+
                 p2 <- input$count2 / input$trial2
 
                 nsim <- 5000
 
-                s1 <- rbinom(nsim, input$trial1, p1) / input$trial1
-                s2 <- rbinom(nsim, input$trial2, p2) / input$trial2
+                s1 <- rbinom(
+                    nsim,
+                    input$trial1,
+                    p1
+                ) / input$trial1
+
+                s2 <- rbinom(
+                    nsim,
+                    input$trial2,
+                    p2
+                ) / input$trial2
 
                 d <- s1 - s2
 
                 se <- sd(d)
+
                 m <- mean(d)
 
-                qv <- qnorm((1 + input$alpha)/2)
+                qv <- qnorm(
+                    (1 + input$alpha) / 2
+                )
 
-                ci <- c(m - qv * se, m + qv * se)
+                ci <- c(
+                    m - qv * se,
+                    m + qv * se
+                )
+
 
                 list(
                     type = "prop",
@@ -738,6 +1068,7 @@ chapter6_server <- function(id){
                 )
             }
 
+
             # =================================================
             # Data dredging
             # =================================================
@@ -746,21 +1077,44 @@ chapter6_server <- function(id){
 
                 set.seed(input$seed_dredge)
 
-                y <- rnorm(input$n_data, 0, 5)
+                y <- rnorm(
+                    input$n_data,
+                    0,
+                    5
+                )
 
                 x <- matrix(
-                    rnorm(input$n_var * input$n_data, 0, 10),
+                    rnorm(
+                        input$n_var * input$n_data,
+                        0,
+                        10
+                    ),
                     nrow = input$n_var
                 )
 
-                pvals <- sapply(1:input$n_var, function(i){
-                    summary(lm(y ~ x[i, ]))$coeff[2, 4]
-                })
+
+                pvals <- sapply(
+                    1:input$n_var,
+                    function(i){
+
+                        summary(
+                            lm(
+                                y ~ x[i, ]
+                            )
+                        )$coefficients[2, 4]
+
+                    }
+                )
+
 
                 best <- which.min(pvals)
+
                 xx <- x[best, ]
 
-                fit <- lm(y ~ xx)
+                fit <- lm(
+                    y ~ xx
+                )
+
 
                 list(
                     type = "dredge",
@@ -772,6 +1126,7 @@ chapter6_server <- function(id){
             }
 
         })
+
 
         # =====================================================
         # Code display
@@ -785,7 +1140,9 @@ chapter6_server <- function(id){
 
                     paste0(
                         "birthday_classic(\n",
-                        "    threshold = ", input$p_level, "\n",
+                        "    threshold = ",
+                        input$p_level,
+                        "\n",
                         ")"
                     )
 
@@ -793,7 +1150,9 @@ chapter6_server <- function(id){
 
                     paste0(
                         "birthday_context(\n",
-                        "    matches = ", input$match_size, ",\n",
+                        "    matches = ",
+                        input$match_size,
+                        ",\n",
                         "    groups = c(",
                         input$team_small,
                         ", ",
@@ -807,7 +1166,9 @@ chapter6_server <- function(id){
 
                 }
 
-            } else if(input$demo == "Assessing the ITV jinx") {
+            } else if(
+                input$demo == "Assessing the ITV jinx"
+            ) {
 
                 paste0(
                     "difference_in_proportions(\n",
@@ -833,12 +1194,14 @@ chapter6_server <- function(id){
                     ",\n",
                     "    n_predictors = ",
                     input$n_var,
-                    "\n)"
+                    "\n",
+                    ")"
                 )
 
             }
 
         })
+
 
         # =====================================================
         # Plot
@@ -855,7 +1218,10 @@ chapter6_server <- function(id){
 
             if(a$type == "birthday"){
 
-                ggplot(a$data, aes(N, P)) +
+                ggplot(
+                    a$data,
+                    aes(N, P)
+                ) +
 
                     geom_line(
                         colour = "#7B9ACC",
@@ -889,7 +1255,9 @@ chapter6_server <- function(id){
                     theme_minimal(
                         base_size = 14
                     ) +
+
                     theme(
+
                         axis.title.x = element_text(
                             size = 16,
                             face = "bold"
@@ -907,6 +1275,7 @@ chapter6_server <- function(id){
                         axis.text.y = element_text(
                             size = 14
                         )
+
                     )
 
             }
@@ -916,9 +1285,12 @@ chapter6_server <- function(id){
             # Context-dependent birthday problem
             # =====================================================
 
-            else if(a$type == "birthday_context"){
+            else if(
+                a$type == "birthday_context"
+            ){
 
                 plot_data <- a$data
+
 
                 if(input$birthday_scale == "prob"){
 
@@ -928,12 +1300,16 @@ chapter6_server <- function(id){
 
                 } else {
 
-                    plot_data$value <- -log10(a$probabilities)
+                    plot_data$value <- log10(
+                        pmax(
+                            a$probabilities,
+                            .Machine$double.xmin
+                        )
+                    )
 
-                    ylab <- "-log10(Probability)"
+                    ylab <- "log(Probability)"
 
                 }
-
 
                 ggplot(
                     plot_data,
@@ -953,11 +1329,17 @@ chapter6_server <- function(id){
                         colour = "#7B9ACC"
                     ) +
 
+                    labs(
+                        y = ylab,
+                        x = NULL
+                    ) +
+
                     theme_minimal(
                         base_size = 14
                     ) +
 
                     theme(
+
                         axis.title.x = element_text(
                             size = 16,
                             face = "bold"
@@ -977,6 +1359,7 @@ chapter6_server <- function(id){
                         axis.text.y = element_text(
                             size = 14
                         )
+
                     )
 
             }
@@ -1032,6 +1415,7 @@ chapter6_server <- function(id){
 
                     geom_smooth(
                         method = "lm",
+                        formula = y ~ x,
                         colour = "red"
                     ) +
 
@@ -1041,6 +1425,8 @@ chapter6_server <- function(id){
             }
 
         })
+
+
         # =====================================================
         # Results panel
         # =====================================================
@@ -1049,9 +1435,15 @@ chapter6_server <- function(id){
 
             a <- analysis()
 
+
+            # =================================================
+            # Classic birthday problem
+            # =================================================
+
             if(a$type == "birthday"){
 
                 card(
+
                     card_header("Key result"),
 
                     h4(
@@ -1061,18 +1453,31 @@ chapter6_server <- function(id){
                                 "to be a probability of at least %.0f%% that ",
                                 "2 or more people share the same birthday is %d."
                             ),
+
                             100 * input$p_level,
+
                             a$required_n
                         )
                     )
+
                 )
 
-            } else if(a$type == "birthday_context"){
+            }
 
+
+            # =================================================
+            # Context birthday problem
+            # =================================================
+
+            else if(
+                a$type == "birthday_context"
+            ){
 
                 card(
 
-                    card_header("How surprising is the event?"),
+                    card_header(
+                        "How surprising is the event?"
+                    ),
 
                     p(
                         "The probability depends strongly on how the question is framed."
@@ -1108,7 +1513,9 @@ chapter6_server <- function(id){
 
                                     tags$td(
                                         format(
-                                            round(a$data$k[i]),
+                                            round(
+                                                a$data$k[i]
+                                            ),
                                             big.mark = ","
                                         )
                                     )
@@ -1130,18 +1537,20 @@ chapter6_server <- function(id){
 
                             "How are these probabilities calculated?",
 
-                            h5("Exact dynamic programming approach"),
-
-                            p(
-                                "The exact calculation treats birthdays as 365 possible boxes.
-            It tracks the probability that people can be allocated to these
-            boxes without any box reaching the chosen group size."
+                            h5(
+                                "Exact dynamic programming approach"
                             ),
 
                             p(
-                                "The calculation keeps only states where no birthday has yet
-            reached m people. At the end, the probability of interest is found
-            by subtracting this probability from 1."
+                                "The exact calculation treats birthdays as 365 possible boxes. ",
+                                "It tracks the probability that people can be allocated to these ",
+                                "boxes without any box reaching the chosen group size."
+                            ),
+
+                            p(
+                                "The calculation keeps only states where no birthday has yet ",
+                                "reached m people. At the end, the probability of interest is found ",
+                                "by subtracting this probability from 1."
                             ),
 
                             withMathJax(),
@@ -1152,11 +1561,13 @@ chapter6_server <- function(id){
 
                             hr(),
 
-                            h5("Poisson approximation"),
+                            h5(
+                                "Poisson approximation"
+                            ),
 
                             p(
-                                "The approximation treats the number of people sharing any one
-            birthday as approximately Poisson distributed."
+                                "The approximation treats the number of people sharing any one ",
+                                "birthday as approximately Poisson distributed."
                             ),
 
                             p(
@@ -1168,15 +1579,15 @@ chapter6_server <- function(id){
                             ),
 
                             p(
-                                "The probability that every birthday has fewer than m people is
-            approximated by multiplying the probability for one birthday
-            across all 365 birthdays."
+                                "The probability that every birthday has fewer than m people is ",
+                                "approximated by multiplying the probability for one birthday ",
+                                "across all 365 birthdays."
                             ),
 
                             p(
-                                "$$P(\\text{at least }m)
-            \\approx
-            1-[P(X<m)]^{365}$$"
+                                "$$P(\\text{at least }m)",
+                                "\\approx",
+                                "1-[P(X<m)]^{365}$$"
                             )
 
                         )
@@ -1184,58 +1595,94 @@ chapter6_server <- function(id){
 
                 )
 
-            } else if(a$type == "prop"){
+            }
 
-                inside <- 0 >= a$ci[1] && 0 <= a$ci[2]
 
-                sig_level <- 100 * (1 - input$alpha)
+            # =================================================
+            # Difference in proportions
+            # =================================================
 
-                conclusion <- if (inside) {
+            else if(a$type == "prop"){
+
+                inside <-
+                    0 >= a$ci[1] &&
+                    0 <= a$ci[2]
+
+                sig_level <-
+                    100 * (1 - input$alpha)
+
+
+                conclusion <- if(inside) {
+
                     sprintf(
                         "No evidence of an ITV jinx at the %.1f%% significance level.",
                         sig_level
                     )
+
                 } else {
+
                     sprintf(
                         "Some evidence of an ITV jinx at the %.1f%% significance level.",
                         sig_level
                     )
+
                 }
 
+
                 card(
-                    card_header("Difference in proportions"),
 
-                    p(sprintf(
-                        "Estimated difference (p1 - p2): %.3f",
-                        a$estimate
-                    )),
+                    card_header(
+                        "Difference in proportions"
+                    ),
 
-                    p(sprintf(
-                        "SE: %.4f",
-                        a$se
-                    )),
+                    p(
+                        sprintf(
+                            "Estimated difference (p1 - p2): %.3f",
+                            a$estimate
+                        )
+                    ),
 
-                    p(sprintf(
-                        "%.0f%% Confidence interval: [%.3f, %.3f]",
-                        100 * input$alpha,
-                        a$ci[1],
-                        a$ci[2]
-                    )),
+                    p(
+                        sprintf(
+                            "SE: %.4f",
+                            a$se
+                        )
+                    ),
+
+                    p(
+                        sprintf(
+                            "%.0f%% Confidence interval: [%.3f, %.3f]",
+                            100 * input$alpha,
+                            a$ci[1],
+                            a$ci[2]
+                        )
+                    ),
 
                     hr(),
 
                     strong(conclusion)
+
                 )
 
-            } else {
+            }
 
-                if (!summary_visible()) {
+
+            # =================================================
+            # Data dredging
+            # =================================================
+
+            else {
+
+                if(!summary_visible()) {
                     return(NULL)
                 }
 
+
                 card(
 
-                    card_header("Data dredging result"),
+                    card_header(
+                        "Data dredging result"
+                    ),
 
                     p(
                         "The graph shows the strongest apparent relationship between Y and the ",
@@ -1247,24 +1694,28 @@ chapter6_server <- function(id){
                     ),
 
                     tags$ul(
+
                         tags$li(
                             sprintf(
                                 "Gradient estimate: %.3f",
-                                a$coef[2,1]
+                                a$coef[2, 1]
                             )
                         ),
+
                         tags$li(
                             sprintf(
                                 "Standard error: %.3f",
-                                a$coef[2,2]
+                                a$coef[2, 2]
                             )
                         ),
+
                         tags$li(
                             sprintf(
                                 "Smallest p-value: %.5f",
                                 a$minp
                             )
                         )
+
                     ),
 
                     hr(),
@@ -1285,9 +1736,13 @@ chapter6_server <- function(id){
                         "often looks meaningful even when every variable is completely unrelated. ",
                         "Data dredging turns random variation into apparently convincing evidence."
                     )
+
                 )
+
             }
+
         })
 
     })
 }
+
