@@ -469,7 +469,7 @@ rules_accordion <- function(id){
 
 ui <- page_navbar(
 
-    title = "🎿 Activity 6: The WOrld Record Ski Jump",
+    title = "🎿 Activity 6: The World Record Ski Jump",
 
     theme = pws_theme(),
 
@@ -634,6 +634,14 @@ body{
     border:2px solid rgba(230,57,70,0.35);
 }
 
+/* Button 3 panels should not receive dynamic step shading */
+#train_jump_panel,
+#comp_jump_panel{
+    background-color:white;
+    box-shadow:none;
+    border: none;
+}
+
 .step-instruction{
     font-size:16px;
     font-weight:600;
@@ -641,6 +649,7 @@ body{
     margin-top:12px;
     margin-bottom:4px;
 }
+
 
 
 /* =========================
@@ -1456,10 +1465,6 @@ server <- function(input, output, session){
         ndata <- input$train_data_rows
 
         if(ndata > 0){
-
-            print(rv$weight)
-            print(rv$mu)
-            print(rv$sd)
 
             rv$d1 <- pws:::mski_sim(
                 ndata,
