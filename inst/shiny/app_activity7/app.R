@@ -960,17 +960,29 @@ server <- function(input, output, session){
         rv$colours_assigned <- FALSE
         rv$player_colours <- NULL
         rv$display_names <- NULL
+        rv$current_players <- NULL
+        rv$round <- 1
+
+        rv$estimation_df <- NULL
+        rv$winner_probs <- NULL
+        rv$pars_df <- NULL
+        rv$estimated <- FALSE
+        rv$sim_preview <- NULL
+        rv$sim_ready <- FALSE
+        rv$confetti <- FALSE
         rv$started <- FALSE
+        rv$model_estimated <- FALSE
+        rv$probabilities_calculated <- FALSE
+        rv$analysis_ready <- FALSE
+        rv$fit <- NULL
+        rv$demo_data_ready <- FALSE
 
         shinyjs::enable("nrounds")
-
-        rv$started <- FALSE
 
         enable("assign_colours")
         disable("start")
 
     })
-
 
     observeEvent(
         {
