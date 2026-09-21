@@ -9,6 +9,7 @@ suppressPackageStartupMessages({
 # HELPER FUNCTIONS
 # =========================================================
 
+
 activity7_round_sim <- function(
         home_player,
         away_player,
@@ -24,19 +25,31 @@ activity7_round_sim <- function(
 
     total_home_wins <- numeric(length(home_player))
 
-    for(i in seq_along(home_player)) {
+    for (i in seq_along(home_player)) {
 
         home_probs <- prob_list[[home_player[i]]]
         away_probs <- prob_list[[away_player[i]]]
 
-        home_score <- sample(1:6, n_games_per_match, TRUE, home_probs)
-        away_score <- sample(1:6, n_games_per_match, TRUE, away_probs)
+        home_score <- sample(
+            1:6,
+            n_games_per_match,
+            replace = TRUE,
+            prob = home_probs
+        )
+
+        away_score <- sample(
+            1:6,
+            n_games_per_match,
+            replace = TRUE,
+            prob = away_probs
+        )
 
         total_home_wins[i] <- sum(home_score >= away_score)
     }
 
     total_home_wins
 }
+
 
 activity7_round_sim_using_fits <- function(
         pars,
@@ -45,18 +58,30 @@ activity7_round_sim_using_fits <- function(
         n_games_per_match = 5
 ) {
 
-    colours <- c("blue","red","yellow","green")
+    # IMPORTANT:
+    # This ordering must agree with activity7_neg_log_lik()
+    colours <- c("blue", "red", "green", "yellow")
 
     home_ind <- match(home_player, colours)
     away_ind <- match(away_player, colours)
 
+    # Blue is the reference colour.
     pars <- c(0, pars)
 
-    bin_p <- pars[5] + pars[home_ind] - pars[away_ind]
-    bin_p <- exp(bin_p) / (1 + exp(bin_p))
+    logit_p <-
+        pars[5] +
+        pars[home_ind] -
+        pars[away_ind]
 
-    rbinom(length(home_player), n_games_per_match, bin_p)
+    bin_p <- plogis(logit_p)
+
+    rbinom(
+        length(home_player),
+        size = n_games_per_match,
+        prob = bin_p
+    )
 }
+
 
 activity7_neg_log_lik <- function(
         p,
@@ -64,17 +89,29 @@ activity7_neg_log_lik <- function(
         n_games_per_match = 5
 ) {
 
-    colours <- c("blue","red","yellow","green")
+    colours <- c("blue", "red", "green", "yellow")
 
     home_ind <- match(dice_history$home_colours, colours)
     away_ind <- match(dice_history$away_colours, colours)
 
-    pars <- c(0,p)
+    # Blue is the reference colour.
+    pars <- c(0, p)
 
-    bin_p <- pars[5] + pars[home_ind] - pars[away_ind]
-    bin_p <- exp(bin_p)/(1+exp(bin_p))
+    logit_p <-
+        pars[5] +
+        pars[home_ind] -
+        pars[away_ind]
 
-    -sum(dbinom(dice_history$results, n_games_per_match, bin_p, log=TRUE))
+    bin_p <- plogis(logit_p)
+
+    -sum(
+        dbinom(
+            dice_history$results,
+            size = n_games_per_match,
+            prob = bin_p,
+            log = TRUE
+        )
+    )
 }
 
 # =========================================================
@@ -779,6 +816,7 @@ server <- function(input, output, session){
     start_tournament <- function(){
 
         req(rv$colours_assigned)
+
         disable("assign_colours")
 
         rv$sim_ready <- FALSE
@@ -796,30 +834,21 @@ server <- function(input, output, session){
         disable("estimate_model")
         disable("calc_probs")
 
-        set.seed(input$seed)
-
         nplayers <- 2^input$nrounds
 
-        nm <- player_names()
+        # The tournament draw is random.
+        #
+        # We deliberately randomise the player positions here.
+        # This is part of the tournament rules and should not be
+        # removed merely to reproduce the old demo function.
+        set.seed(input$seed)
 
-        if (input$mode %in% c("human", "sim") && !is.null(nm)) {
+        rv$current_players <- sample(seq_len(nplayers))
 
-            nm <- sample(nm)
-
-        } else {
-
-            nm <- paste("Player", 1:nplayers)
-
-        }
-
-
-        rv$current_players <- sample(1:nplayers)
         rv$round <- 1
         rv$confetti <- FALSE
         rv$started <- TRUE
-
     }
-
 
     fixtures_df <- reactive({
         req(rv$current_players)
@@ -878,24 +907,26 @@ server <- function(input, output, session){
 
         } else {
 
-            nm <- paste("Player", 1:nplayers)
-
+            nm <- paste("Player", seq_len(nplayers))
         }
 
         rv$display_names <- nm
 
         rv$player_colours <- setNames(
-            sample(rep(colours, length.out = nplayers)),
-            1:nplayers
+            sample(
+                rep(
+                    colours,
+                    length.out = nplayers
+                )
+            ),
+            seq_len(nplayers)
         )
 
         rv$colours_assigned <- TRUE
 
         enable("start")
         disable("assign_colours")
-
     })
-
     observeEvent(input$simulate_results, {
 
         req(rv$current_players)
@@ -1152,7 +1183,7 @@ server <- function(input, output, session){
 
     observeEvent(input$mode, {
 
-        if(input$mode == "demo"){
+        if (input$mode == "demo") {
 
             updateNumericInput(
                 session,
@@ -1172,15 +1203,30 @@ server <- function(input, output, session){
                 value = 2
             )
 
+            # Demo uses a fixed internal seed so that the
+            # guided example is reproducible.
+            updateNumericInput(
+                session,
+                "seed",
+                value = 999
+            )
+
             shinyjs::disable("nrounds")
             shinyjs::disable("games")
             shinyjs::disable("estimate_round")
+
+            # Hide the seed control in demo mode.
+            shinyjs::hide("seed")
 
         } else {
 
             shinyjs::enable("nrounds")
             shinyjs::enable("games")
             shinyjs::enable("estimate_round")
+
+            # Show the seed control in other modes.
+            shinyjs::show("seed")
+            shinyjs::enable("seed")
 
         }
 
@@ -1200,8 +1246,8 @@ server <- function(input, output, session){
         req(!rv$model_estimated)
 
         fit <- optim(
-            c(0,0,0,0),
-            activity7_neg_log_lik,
+            par = c(0, 0, 0, 0),
+            fn = activity7_neg_log_lik,
             dice_history = rv$estimation_df,
             n_games_per_match = input$games
         )
@@ -1216,16 +1262,17 @@ server <- function(input, output, session){
                 "yellow",
                 "home advantage"
             ),
-            value = sprintf("%.3f", c(0, fit$par))
+            value = sprintf(
+                "%.3f",
+                c(0, fit$par)
+            )
         )
 
         rv$model_estimated <- TRUE
 
         disable("estimate_model")
         enable("calc_probs")
-
     })
-
     observeEvent(input$calc_probs, {
 
         req(rv$fit)
@@ -1233,31 +1280,40 @@ server <- function(input, output, session){
         req(rv$model_estimated)
         req(!rv$probabilities_calculated)
 
+        # Use a separate, reproducible RNG stream for the
+        # Monte Carlo prediction.
+        #
+        # This means the winner probabilities depend on:
+        #   - the tournament state
+        #   - the fitted model
+        #   - the user-selected seed
+        #
+        # They do not depend on how many random operations
+        # happened earlier in the Shiny session.
+        set.seed(input$seed + 100000)
+
         winner_vec <- replicate(nsim, {
 
             players <- rv$current_players
 
-            repeat {
+            while (length(players) > 1) {
 
                 n <- length(players)
 
-                if(n == 1)
-                    break
-
-                h <- players[seq(1,n,2)]
-                a <- players[seq(2,n,2)]
+                home <- players[seq(1, n, by = 2)]
+                away <- players[seq(2, n, by = 2)]
 
                 res <- activity7_round_sim_using_fits(
                     rv$fit$par,
-                    rv$player_colours[h],
-                    rv$player_colours[a],
-                    input$games
+                    rv$player_colours[home],
+                    rv$player_colours[away],
+                    n_games_per_match = input$games
                 )
 
                 players <- ifelse(
-                    res >= (input$games+1)/2,
-                    h,
-                    a
+                    res >= (input$games + 1) / 2,
+                    home,
+                    away
                 )
             }
 
@@ -1276,13 +1332,10 @@ server <- function(input, output, session){
         rv$winner_probs <- tab
 
         rv$probabilities_calculated <- TRUE
-
         rv$analysis_ready <- FALSE
 
         disable("calc_probs")
-
     })
-
     observeEvent(input$show_data, {
 
         rv$demo_data_ready <- TRUE
