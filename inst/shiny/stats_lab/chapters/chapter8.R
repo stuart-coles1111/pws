@@ -299,9 +299,11 @@ make_dynamic <- function(
 
     for (r in seq_len(n_rounds)) {
 
-        teams_dynamic[[paste0("a_round_", r)]] <- NA_real_
+        teams_dynamic[[paste0("a_round_", r)]] <-
+            NA_real_
 
-        teams_dynamic[[paste0("b_round_", r)]] <- NA_real_
+        teams_dynamic[[paste0("b_round_", r)]] <-
+            NA_real_
 
     }
 
@@ -531,9 +533,7 @@ dynamic_league_sim <- function(
         df,
 
         schedule[, 1],
-
         schedule[, 2],
-
         schedule[, 3],
 
         tau,
@@ -606,9 +606,7 @@ dynamic_league_sim <- function(
             df_out,
 
             desc(tot),
-
             desc(gd),
-
             desc(gf)
 
         )[[1]]
@@ -1160,18 +1158,18 @@ chapter8_ui <- function(id) {
         ),
 
 
+        # -------------------------------------------------
+        # MODEL RESULTS
+        # -------------------------------------------------
+
         card(
 
             card_header(
-                "Final League Positions (Static Model)"
+                "Final League Positions"
             ),
 
-            plotOutput(
-
-                ns("static_plot"),
-
-                height = 650
-
+            uiOutput(
+                ns("model_tabs")
             )
 
         ),
@@ -1180,40 +1178,12 @@ chapter8_ui <- function(id) {
         br(),
 
 
-        card(
+        # -------------------------------------------------
+        # COMPARISON
+        # -------------------------------------------------
 
-            card_header(
-                "Final League Positions (Dynamic Model)"
-            ),
-
-            plotOutput(
-
-                ns("dynamic_plot"),
-
-                height = 650
-
-            )
-
-        ),
-
-
-        br(),
-
-
-        card(
-
-            card_header(
-                "Static vs Dynamic Comparison"
-            ),
-
-            plotOutput(
-
-                ns("comparison_plot"),
-
-                height = 400
-
-            )
-
+        uiOutput(
+            ns("comparison_panel")
         )
 
     )
@@ -1374,7 +1344,9 @@ chapter8_ui <- function(id) {
 chapter8_server <- function(id) {
 
     moduleServer(
+
         id,
+
         function(input, output, session) {
 
 
@@ -1476,7 +1448,9 @@ chapter8_server <- function(id) {
 
 
             observeEvent(
+
                 input$data_source,
+
                 {
 
                     tau <- switch(
@@ -1518,6 +1492,7 @@ chapter8_server <- function(id) {
                     }
 
                 }
+
             )
 
 
@@ -1569,37 +1544,22 @@ chapter8_server <- function(id) {
 
             observe({
 
-                if (
+                both_available <-
 
                     !is.null(static_sim()) &&
 
                     !is.null(dynamic_sim())
 
-                ) {
 
-                    updateActionButton(
+                updateActionButton(
 
-                        session,
+                    session,
 
-                        "run_compare",
+                    "run_compare",
 
-                        disabled = FALSE
+                    disabled = !both_available
 
-                    )
-
-                } else {
-
-                    updateActionButton(
-
-                        session,
-
-                        "run_compare",
-
-                        disabled = TRUE
-
-                    )
-
-                }
+                )
 
             })
 
@@ -2095,6 +2055,160 @@ chapter8_server <- function(id) {
 
 
             # =================================================
+            # MODEL RESULT TABS
+            # =================================================
+
+            output$model_tabs <- renderUI({
+
+                static_available <-
+                    !is.null(
+                        static_sim()
+                    )
+
+
+                dynamic_available <-
+                    !is.null(
+                        dynamic_sim()
+                    )
+
+
+                # -------------------------------------------------
+                # Nothing available yet
+                # -------------------------------------------------
+
+                if (
+
+                    !static_available &&
+
+                    !dynamic_available
+
+                ) {
+
+                    div(
+
+                        style = "
+                        padding: 30px;
+                        text-align: center;
+                        color: #6c757d;
+                        ",
+
+                        h5(
+                            "No simulation results yet"
+                        ),
+
+                        p(
+                            "Run the static or dynamic model using the controls in the sidebar."
+                        )
+
+                    )
+
+
+                } else {
+
+                    tabs <- list()
+
+
+                    # ---------------------------------------------
+                    # STATIC MODEL TAB
+                    # ---------------------------------------------
+
+                    if (
+                        static_available
+                    ) {
+
+                        tabs <- append(
+
+                            tabs,
+
+                            list(
+
+                                nav_panel(
+
+                                    "Static model",
+
+                                    plotOutput(
+
+                                        session$ns(
+                                            "static_plot"
+                                        ),
+
+                                        height = 650
+
+                                    )
+
+                                )
+
+                            )
+
+                        )
+
+                    }
+
+
+                    # ---------------------------------------------
+                    # DYNAMIC MODEL TAB
+                    # ---------------------------------------------
+
+                    if (
+                        dynamic_available
+                    ) {
+
+                        tabs <- append(
+
+                            tabs,
+
+                            list(
+
+                                nav_panel(
+
+                                    "Dynamic model",
+
+                                    plotOutput(
+
+                                        session$ns(
+                                            "dynamic_plot"
+                                        ),
+
+                                        height = 650
+
+                                    )
+
+                                )
+
+                            )
+
+                        )
+
+                    }
+
+
+                    do.call(
+
+                        navset_tab,
+
+                        c(
+
+                            list(
+
+                                id =
+                                    session$ns(
+                                        "model_tabs_nav"
+                                    )
+
+                            ),
+
+                            tabs
+
+                        )
+
+                    )
+
+                }
+
+            })
+
+
+            # =================================================
             # STATIC PLOT
             # =================================================
 
@@ -2111,7 +2225,7 @@ chapter8_server <- function(id) {
 
                     static_sim(),
 
-                    4
+                    rows = 4
 
                 )
 
@@ -2135,7 +2249,43 @@ chapter8_server <- function(id) {
 
                     dynamic_sim(),
 
-                    4
+                    rows = 4
+
+                )
+
+            })
+
+
+            # =================================================
+            # COMPARISON PANEL
+            # =================================================
+
+            output$comparison_panel <- renderUI({
+
+                req(
+
+                    static_sim(),
+
+                    dynamic_sim()
+
+                )
+
+
+                card(
+
+                    card_header(
+                        "Static vs Dynamic Comparison"
+                    ),
+
+                    plotOutput(
+
+                        session$ns(
+                            "comparison_plot"
+                        ),
+
+                        height = 400
+
+                    )
 
                 )
 
@@ -2207,11 +2357,13 @@ chapter8_server <- function(id) {
                     geom_bar(
 
                         aes(
+
                             y =
                                 after_stat(
                                     count /
                                         sum(count)
                                 )
+
                         ),
 
                         position = "dodge"
@@ -2317,4 +2469,3 @@ chapter8_server <- function(id) {
     )
 
 }
-
