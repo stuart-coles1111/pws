@@ -704,6 +704,41 @@ server <- function(input, output, session){
 
     nsim <- 1000
 
+    demo_names <- c(
+        "Alan",
+        "Anna",
+        "Celine",
+        "Chris",
+        "Cristina",
+        "David",
+        "Dawn",
+        "Ellie",
+        "Eric",
+        "Francois",
+        "Georgina",
+        "Greta",
+        "Haniya",
+        "Helen",
+        "Ian",
+        "Jack",
+        "Jamila",
+        "Karen",
+        "Leo",
+        "Lucy",
+        "Marina",
+        "Mike",
+        "Nancy",
+        "Nick",
+        "Pete",
+        "Rosie",
+        "Steve",
+        "Sue",
+        "Una",
+        "Viv",
+        "Will",
+        "Zainab"
+    )
+
     demo_scores <- list(
         c(3,4,2,2,3,5,1,2,0,3,4,1,2,4,4,5),
         c(4,4,2,3,1,0,5,3),
@@ -901,8 +936,14 @@ server <- function(input, output, session){
 
         nm <- player_names()
 
-        if (input$mode %in% c("human", "sim") && !is.null(nm)) {
+        if (input$mode == "demo") {
 
+            # Use fixed names for the reproducible demo.
+            nm <- demo_names[seq_len(nplayers)]
+
+        } else if (input$mode %in% c("human", "sim") && !is.null(nm)) {
+
+            # Randomise uploaded player names as part of the tournament draw.
             nm <- sample(nm)
 
         } else {
@@ -1901,16 +1942,23 @@ server <- function(input, output, session){
             )
 
     })
+
     output$win_probs <- renderTable({
 
         req(rv$winner_probs)
 
         ids <- as.numeric(names(rv$winner_probs))
 
-        data.frame(
+        df <- data.frame(
             Player = rv$display_names[ids],
-            Probability = sprintf("%.3f", as.numeric(rv$winner_probs))
+            Probability = as.numeric(rv$winner_probs)
         )
+
+        df <- df[order(-df$Probability, df$Player), ]
+
+        df$Probability <- sprintf("%.3f", df$Probability)
+
+        df
     })
 
     output$win_prob_plot <- renderPlot({
@@ -1924,7 +1972,7 @@ server <- function(input, output, session){
             Probability = as.numeric(rv$winner_probs)
         )
 
-        df <- df[order(df$Probability, decreasing = TRUE), ]
+        df <- df[order(df$Probability, df$Player), ]
 
         ggplot(
             df,
@@ -1941,8 +1989,8 @@ server <- function(input, output, session){
                 y = "Probability"
             ) +
             theme_minimal(base_size = 13)
-
     })
+
     output$analysis_status <- renderText({
 
         if(!rv$analysis_ready)
