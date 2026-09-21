@@ -559,7 +559,7 @@ table.dataTable tbody tr:hover {
                 ),
 
                 tags$li(
-                    p("Repeat the activity under different scenarios. Does the rating dispersion parameter (set in the Scenario panel) affect either the way probabilities are estimated or the betting strategy adopted?")
+                    p("Repeat the activity under different scenarios. Does the rating dispersion parameter (set in the History panel) affect either the way probabilities are estimated or the betting strategy adopted?")
                 )
 
             )
@@ -647,21 +647,21 @@ table.dataTable tbody tr:hover {
 
                     accordion_panel(
 
-                        title = "🎲 Scenario",
+                        title = "🎲 History",
 
                         div(
                             id = "scenario_controls",
 
                             p(
-                                "Choose the horse rating scenario used by the simulator."
+                                "Choose the horse rating history used by the simulator."
                             ),
 
                             radioButtons(
                                 "scenario_type",
-                                "Scenario",
+                                "History",
                                 choices = c(
-                                    "Default Scenario" = "default",
-                                    "Generate New Scenario" = "generate",
+                                    "Default History" = "default",
+                                    "Generate New History" = "generate",
                                     "Upload Ratings" = "upload"
                                 ),
                                 selected = "default"
@@ -1370,13 +1370,29 @@ server <- function(input, output, session) {
 
         content = function(file) {
 
+            history <- values$historical_results
+
+            # Ensure the exported column names are exactly:
+            # race, 1st, 2nd, 3rd, 4th, 5th, 6th
+            names(history) <- c(
+                "race",
+                "1st",
+                "2nd",
+                "3rd",
+                "4th",
+                "5th",
+                "6th"
+            )
+
             write.csv(
-                values$historical_results,
+                history,
                 file,
                 row.names = FALSE
             )
         }
     )
+
+
 
 
     # =======================================================
