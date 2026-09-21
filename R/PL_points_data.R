@@ -1,6 +1,6 @@
 #' Premier League Points per Team per Game
 #'
-#' Points obtained by each team in Premier League fixtures from season 1995/96 to 2023/24
+#' Points obtained by each team in Premier League fixtures from season 1995/96 to 2025/26
 #'
 #' @format
 #' A data frame with 11400 rows and 4 columns

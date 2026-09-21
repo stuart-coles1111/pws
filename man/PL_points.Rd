@@ -16,7 +16,7 @@ The columns give season, team, first-half-season points, second-half-season poin
 PL_points
 }
 \description{
-Points obtained by each team in Premier League fixtures from season 1995/96 to 2023/24
+Points obtained by each team in Premier League fixtures from season 1995/96 to 2025/26
 }
 \examples{
 mean(PL_points$points_half1) # Mean number of points in first half of season
