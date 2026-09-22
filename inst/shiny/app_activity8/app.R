@@ -513,31 +513,25 @@ table.dataTable tbody tr:hover {
             ),
 
             p(
-                "The activity uses a pool betting market built around a series of simulated horse races."
+                "The app provides a team-based pool betting framework based on a series of simulated horse races."
             ),
 
             p(
-                "Each race is simulated using underlying horse abilities together with a random component, so stronger horses are more likely—but not certain—to win."
+                "Once bets are placed, team banks, pool size and notional prices are automatically updated."
             ),
 
-            p(
-                "Teams start with a bank of $10000 and the pool for each race is initiated with $100 per horse."
-            ),
+            p("By default, commission is levied at an increasing rate throughout the betting period to a maximum of 20%. This level can
+              be changed in the race settings, or switched off by setting the level to zero."),
 
-            p(
-                "By default, commission on bets increases throughout the betting period, reaching a maximum of 20% immediately before the race. This level can be changed in the Race Settings panel, or switched off entirely by setting the maximum commission to zero."
-            ),
-
-            p(
-                "Once bets are placed, team banks, pool sizes and notional prices are updated automatically."
-            )
+            p("The pool is initiated with $100 per horse.")
 
         ),
+
 
         individual = tagList(
 
             p(
-                "This activity was originally designed for group participation. However, a single-player mode has been introduced to enable individual participation."
+                "This activity was originally designed for group participation. However, a single player mode has been introduced to enable individual participation."
             ),
 
             tags$ol(
@@ -547,11 +541,11 @@ table.dataTable tbody tr:hover {
                 ),
 
                 tags$li(
-                    p("Select Single Player Mode in Race Controls. In this mode, bets placed by other teams are simulated.")
+                    p("Set single player mode in Race Controls. In this mode, bets placed by other teams are simulated.")
                 ),
 
                 tags$li(
-                    p("Experiment with betting early—to minimise commission—or betting later, when notional prices may better reflect the views of other participants.")
+                    p("Experiment by betting early—to minimise commission—or betting late, so that notional prices are more accurate.")
                 ),
 
                 tags$li(
@@ -559,63 +553,49 @@ table.dataTable tbody tr:hover {
                 ),
 
                 tags$li(
-                    p("Repeat the activity under different scenarios. Does the rating dispersion parameter (set in the History panel) affect either the way probabilities are estimated or the betting strategy adopted?")
+                    p("Repeat everything for different scenarios. Does the parameter have any effect on either your strategy for calculating probabilities or placing bets?")
                 )
 
             )
 
         ),
 
+
         group = tagList(
-
-            p(
-                "The activity is designed for group participation at a live meeting, with participants divided into 10 teams. The team finishing with the most money after a fixed number of races—10 by default—is the winner."
-            ),
-
-            p(
-                "Before the activity begins, teams can use historical race data to estimate win probabilities for future races. The app can be used to generate these historical data, which can then be distributed to teams in advance of the meeting."
-            ),
-
-            p(
-                "Horse abilities can either be fixed at default values or randomly generated. Full details are provided in Chapter 8 of Playing With Statistics."
-            ),
-
-            p(
-                "Following the activity, a number of issues can be discussed, including:"
-            ),
 
             tags$ol(
 
                 tags$li(
-                    "Which teams had the most effective strategy for estimating probabilities and placing bets?"
+                    "Compare strategies across participants."
                 ),
 
                 tags$li(
-                    "Was it helpful to adjust betting strategies dynamically, either within races or across races?"
+                    "Analyse risk and reward."
                 ),
 
                 tags$li(
-                    "Would it have been possible or helpful to update estimated win probabilities in light of the new race data generated during the activity?"
+                    "Discuss randomness in outcomes."
                 )
 
             )
 
         ),
+
 
         question = tagList(
 
             tags$ul(
 
                 tags$li(
-                    p("When estimating race win probabilities, how can the complete information about placings from previous races be utilised?")
+                    "Can strategies beat randomness?"
                 ),
 
                 tags$li(
-                    p("What strategies are available for choosing bet placements? Are some more effective than others?")
+                    "What drives long-term winnings?"
                 ),
 
                 tags$li(
-                    "Which is more important in this activity: accurately estimating race win probabilities, or adopting an effective betting strategy?"
+                    "Is success skill or luck?"
                 )
 
             )
@@ -647,21 +627,21 @@ table.dataTable tbody tr:hover {
 
                     accordion_panel(
 
-                        title = "🎲 History",
+                        title = "🎲 Scenario",
 
                         div(
                             id = "scenario_controls",
 
                             p(
-                                "Choose the horse rating history used by the simulator."
+                                "Choose the horse rating scenario used by the simulator."
                             ),
 
                             radioButtons(
                                 "scenario_type",
-                                "History",
+                                "Scenario",
                                 choices = c(
-                                    "Default History" = "default",
-                                    "Generate New History" = "generate",
+                                    "Default Scenario" = "default",
+                                    "Generate New Scenario" = "generate",
                                     "Upload Ratings" = "upload"
                                 ),
                                 selected = "default"
@@ -709,7 +689,7 @@ table.dataTable tbody tr:hover {
 
                             hr(),
 
-                            h4("Current History"),
+                            h4("Current Scenario"),
 
                             textOutput(
                                 "scenario_status"
@@ -818,69 +798,9 @@ table.dataTable tbody tr:hover {
 
             # MAIN CONTENT GOES HERE (no main=)
 
-
-
             div(
 
                 class="card-style",
-
-                accordion(
-
-                    open = FALSE,
-
-                    accordion_panel(
-
-                        title = "📖 Rules of Play",
-
-                        tags$ol(
-
-                            tags$li(
-                                "Each team begins with a bank of $10000."
-                            ),
-
-                            tags$li(
-                                "For every race, a betting pool is created with an initial stake of $100 on each horse."
-                            ),
-
-                            tags$li(
-                                "Teams may place bets on one or more horses during the betting period."
-                            ),
-
-                            tags$li(
-                                "As bets are placed, pool sizes and notional prices are updated automatically."
-                            ),
-
-                            tags$li(
-                                "Notional prices are shown on the basis of a stake size of $100."
-                            ),
-
-                            tags$li(
-                                "By default, commission increases throughout the betting period, reaching a maximum level immediately before the race begins."
-                            ),
-
-                            tags$li(
-                                "When betting closes, the race is simulated and the winning horse is determined."
-                            ),
-
-                            tags$li(
-                                "Winning bets are paid according to the final pool sizes after commission has been deducted."
-                            ),
-
-                            tags$li(
-                                "The process is repeated for the selected number of races."
-                            ),
-
-                            tags$li(
-                                "The team with the largest bank at the end of the final race is the winner."
-                            )
-
-                        )
-
-                    )
-
-                ),
-
-                br(),
 
                 tabsetPanel(
 
@@ -949,11 +869,32 @@ server <- function(input, output, session) {
 
     race_run <- shiny::reactiveVal(value = 0)
 
+
     # =======================================================
     # TIMER
     # =======================================================
 
+
     remaining_time <- shiny::reactiveVal(NULL)
+
+    timer_active <- shiny::reactiveVal(FALSE)
+
+    # Keep the displayed timer synchronised with the sidebar
+    # before the first race starts.
+    observeEvent(input$allowed_time, {
+
+        if (!timer_active() && race_run() == 0) {
+            remaining_time(input$allowed_time)
+        }
+
+    })
+
+    output$timer <- shiny::renderText({
+        paste0(remaining_time(), " s")
+    })
+
+
+
 
     timer_active <- shiny::reactiveVal(FALSE)
 
@@ -970,9 +911,11 @@ server <- function(input, output, session) {
 
             if (timer_active()) {
 
-                remaining_time(remaining_time() - 1)
+                remaining_time(
+                    max(0, remaining_time() - 1)
+                )
 
-                if (remaining_time() < 1) {
+                if (remaining_time() == 0) {
 
                     timer_active(FALSE)
                     betting_closed(TRUE)
@@ -1003,15 +946,8 @@ server <- function(input, output, session) {
         })
     })
 
-    observe({
 
-        if (!timer_active()) {
 
-            remaining_time(input$allowed_time)
-
-        }
-
-    })
 
     shiny::observeEvent(input$start_timer, {
 
@@ -1370,29 +1306,13 @@ server <- function(input, output, session) {
 
         content = function(file) {
 
-            history <- values$historical_results
-
-            # Ensure the exported column names are exactly:
-            # race, 1st, 2nd, 3rd, 4th, 5th, 6th
-            names(history) <- c(
-                "race",
-                "1st",
-                "2nd",
-                "3rd",
-                "4th",
-                "5th",
-                "6th"
-            )
-
             write.csv(
-                history,
+                values$historical_results,
                 file,
                 row.names = FALSE
             )
         }
     )
-
-
 
 
     # =======================================================
@@ -1507,7 +1427,7 @@ server <- function(input, output, session) {
 
         }
 
-        "Default history"
+        "Default scenario"
 
     })
 
@@ -1639,12 +1559,6 @@ server <- function(input, output, session) {
                 values$total_stake_net[horse, team] +
                 round(real_stake * (1 - commission), -2)
         }
-
-        showNotification(
-            "Bet successfully entered",
-            type = "message",
-            duration = 2
-        )
     })
 
     # =======================================================
@@ -1695,13 +1609,6 @@ server <- function(input, output, session) {
                 values$total_stake_net[horse, team] -
                 round(stake * (1 - commission), -2)
         }
-
-        showNotification(
-            "Bet successfully deleted",
-            type = "error",
-            duration = 2
-        )
-
     })
 
     output$pool_page <- renderUI({
@@ -2351,6 +2258,8 @@ server <- function(input, output, session) {
         betting_closed(FALSE)
 
         counter_race(current_race + 1)
+
+        remaining_time(input$allowed_time)
 
         values$current_pool <- pool
         values$current_pool_adj <- pool
