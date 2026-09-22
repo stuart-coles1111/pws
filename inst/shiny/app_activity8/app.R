@@ -709,7 +709,7 @@ table.dataTable tbody tr:hover {
 
                             hr(),
 
-                            h4("Current Scenario"),
+                            h4("Current History"),
 
                             textOutput(
                                 "scenario_status"
@@ -1507,7 +1507,7 @@ server <- function(input, output, session) {
 
         }
 
-        "Default scenario"
+        "Default history"
 
     })
 
