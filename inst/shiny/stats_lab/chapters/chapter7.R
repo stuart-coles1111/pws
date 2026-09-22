@@ -1,14 +1,19 @@
 # =========================================================
+
 # CHAPTER 7
+
 # MODELS
-# =========================================================
-
 
 # =========================================================
+
+# =========================================================
+
 # TWO-DICE GAME
+
 # =========================================================
 
 double_dice_game_sim <- function(n, p) {
+
 
     dice_number <- sample(
         1:2,
@@ -29,10 +34,12 @@ double_dice_game_sim <- function(n, p) {
     }
 
     score
+
+
 }
 
-
 dd_ests <- function(game_score_data){
+
 
     data_tab <- table(
         factor(game_score_data, levels = 1:9)
@@ -62,15 +69,16 @@ dd_ests <- function(game_score_data){
         data_cut_tab[3] /
             (2 * (data_cut_tab[1] + data_cut_tab[3]))
     )
-}
 
+
+}
 
 m0_lik <- function(data, ests){
     length(data) * log(9)
 }
 
-
 m1_lik <- function(data, ests){
+
 
     probs <- pmax(
         ests[1:9],
@@ -87,10 +95,12 @@ m1_lik <- function(data, ests){
     -sum(
         data_tab * log(probs)
     )
+
+
 }
 
-
 m2_lik <- function(data, ests){
+
 
     probs <- pmax(
         ests[10:12] / 3,
@@ -116,10 +126,12 @@ m2_lik <- function(data, ests){
     -sum(
         data_cut_tab * log(probs)
     )
+
+
 }
 
-
 m3_lik <- function(data, ests){
+
 
     p1 <- max(
         ests[13] / 3,
@@ -152,10 +164,12 @@ m3_lik <- function(data, ests){
             data_cut_tab[2] * log(1/6) +
             data_cut_tab[3] * log(p3)
     )
+
+
 }
 
-
 dd_all_lik <- function(data, ests){
+
 
     c(
         m0_lik(data, ests),
@@ -163,10 +177,12 @@ dd_all_lik <- function(data, ests){
         m2_lik(data, ests),
         m3_lik(data, ests)
     )
+
+
 }
 
-
 cv_lik <- function(data, K = 5){
+
 
     ll <- rep(
         Inf,
@@ -212,13 +228,15 @@ cv_lik <- function(data, K = 5){
     }
 
     ll
-}
 
+
+}
 
 double_dice_game_model_check <- function(
         data,
         seed = NULL
 ){
+
 
     if(!is.null(seed))
         set.seed(seed)
@@ -259,10 +277,12 @@ double_dice_game_model_check <- function(
     )
 
     t(df)
+
+
 }
 
-
 mod_ests <- function(x){
+
 
     r1 <- (
         x[1] +
@@ -326,11 +346,14 @@ mod_ests <- function(x){
         p_D = p_D,
         p_P = p_P
     )
+
+
 }
 
-
 # =========================================================
+
 # FOOTBALL MODEL CALCULATOR
+
 # =========================================================
 
 football_match_means <- function(
@@ -340,6 +363,7 @@ football_match_means <- function(
         beta_away,
         tau
 ){
+
 
     list(
 
@@ -357,13 +381,15 @@ football_match_means <- function(
             )
 
     )
-}
 
+
+}
 
 football_score_matrix <- function(
         mu_home,
         mu_away
 ){
+
 
     hp <- c(
         dpois(
@@ -423,14 +449,77 @@ football_score_matrix <- function(
     )
 
     df
+
+
 }
 
+# =========================================================
+
+# FOOTBALL 1/X/2 PROBABILITIES
 
 # =========================================================
+
+football_match_win_probs <- function(
+        mu_home,
+        mu_away,
+        score_max = 20
+){
+
+
+    home_probs <- dpois(
+        0:score_max,
+        mu_home
+    )
+
+    away_probs <- dpois(
+        0:score_max,
+        mu_away
+    )
+
+    score_probs <- outer(
+        home_probs,
+        away_probs,
+        "*"
+    )
+
+    home_win_prob <-
+        sum(
+            score_probs[
+                row(score_probs) >
+                    col(score_probs)
+            ]
+        )
+
+    away_win_prob <-
+        sum(
+            score_probs[
+                row(score_probs) <
+                    col(score_probs)
+            ]
+        )
+
+    draw_prob <-
+        sum(
+            diag(score_probs)
+        )
+
+    c(
+        home_win = home_win_prob,
+        draw = draw_prob,
+        away_win = away_win_prob
+    )
+
+
+}
+
+# =========================================================
+
 # CHAPTER 7 UI
+
 # =========================================================
 
 chapter7_ui <- function(id){
+
 
     library(shinyjs)
 
@@ -688,21 +777,21 @@ chapter7_ui <- function(id){
         card(
 
             style = "
-            border-radius: 16px;
-            border: none;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            padding: 10px;
-            ",
+        border-radius: 16px;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        padding: 10px;
+        ",
 
             card_header(
 
                 div(
                     "🧩 Comparing Statistical Models",
                     style = "
-                    font-size: 1.4rem;
-                    font-weight: 700;
-                    color: #2c3e50;
-                    "
+                font-size: 1.4rem;
+                font-weight: 700;
+                color: #2c3e50;
+                "
                 )
             ),
 
@@ -804,11 +893,11 @@ chapter7_ui <- function(id){
             div(
 
                 style = "
-                background-color: #f8f9fa;
-                border-left: 5px solid #7B9ACC;
-                padding: 12px;
-                border-radius: 8px;
-                ",
+            background-color: #f8f9fa;
+            border-left: 5px solid #7B9ACC;
+            padding: 12px;
+            border-radius: 8px;
+            ",
 
                 h5("Questions to investigate"),
 
@@ -969,28 +1058,43 @@ chapter7_ui <- function(id){
             condition = "input.activity == 'football'",
             ns = ns,
 
-            card(
+            navset_tab(
 
-                card_header(
-                    "Scoreline Probability Matrix"
+                nav_panel(
+
+                    "Score probabilities",
+
+                    br(),
+
+                    card(
+
+                        card_header(
+                            "Scoreline Probability Matrix"
+                        ),
+
+                        plotOutput(
+                            ns("score_matrix"),
+                            height = 500
+                        )
+                    )
                 ),
 
-                plotOutput(
-                    ns("score_matrix"),
-                    height = 500
-                )
-            ),
+                nav_panel(
 
-            br(),
+                    "Match summary",
 
-            card(
+                    br(),
 
-                card_header(
-                    "Match Summary"
-                ),
+                    card(
 
-                uiOutput(
-                    ns("match_summary")
+                        card_header(
+                            "Match Summary"
+                        ),
+
+                        uiOutput(
+                            ns("match_summary")
+                        )
+                    )
                 )
             )
         )
@@ -1006,21 +1110,21 @@ chapter7_ui <- function(id){
         card(
 
             style = "
-            border-radius: 16px;
-            border: none;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            padding: 10px;
-            ",
+        border-radius: 16px;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        padding: 10px;
+        ",
 
             card_header(
 
                 div(
                     "What should you have learned?",
                     style = "
-                    font-size: 1.3rem;
-                    font-weight: 700;
-                    color: #2c3e50;
-                    "
+                font-size: 1.3rem;
+                font-weight: 700;
+                color: #2c3e50;
+                "
                 )
             ),
 
@@ -1076,11 +1180,11 @@ chapter7_ui <- function(id){
             div(
 
                 style = "
-                background-color: #f8f9fa;
-                border-left: 5px solid #28a745;
-                padding: 12px;
-                border-radius: 8px;
-                ",
+            background-color: #f8f9fa;
+            border-left: 5px solid #28a745;
+            padding: 12px;
+            border-radius: 8px;
+            ",
 
                 p(
 
@@ -1120,14 +1224,18 @@ chapter7_ui <- function(id){
             learn = learn_panel
         )
     )
+
+
 }
 
-
 # =========================================================
+
 # CHAPTER 7 SERVER
+
 # =========================================================
 
 chapter7_server <- function(id){
+
 
     moduleServer(
         id,
@@ -1203,7 +1311,15 @@ chapter7_server <- function(id){
                         ")\n\n",
 
                         "dpois(0:5, mu_home)\n",
-                        "dpois(0:5, mu_away)\n"
+                        "dpois(0:5, mu_away)\n\n",
+
+                        "# 1/X/2 probabilities\n",
+
+                        "match_win_probs(\n",
+                        "  c(alpha_home, beta_home),\n",
+                        "  c(alpha_away, beta_away),\n",
+                        "  tau\n",
+                        ")"
 
                     )
 
@@ -2015,11 +2131,11 @@ chapter7_server <- function(id){
                         div(
 
                             style = "
-                            padding: 10px;
-                            background-color: #e8f4ea;
-                            border-radius: 6px;
-                            font-weight: 600;
-                            ",
+                        padding: 10px;
+                        background-color: #e8f4ea;
+                        border-radius: 6px;
+                        font-weight: 600;
+                        ",
 
                             "Using fitted 2025/26 model parameters and 2025/26 fixtures"
                         )
@@ -2031,11 +2147,11 @@ chapter7_server <- function(id){
                         div(
 
                             style = "
-                            padding: 10px;
-                            background-color: #e8eef8;
-                            border-radius: 6px;
-                            font-weight: 600;
-                            ",
+                        padding: 10px;
+                        background-color: #e8eef8;
+                        border-radius: 6px;
+                        font-weight: 600;
+                        ",
 
                             "Using fitted 2024/25 model parameters and 2025/26 fixtures"
                         )
@@ -2050,11 +2166,11 @@ chapter7_server <- function(id){
                         div(
 
                             style = "
-                            padding: 10px;
-                            background-color: #fff3cd;
-                            border-radius: 6px;
-                            font-weight: 600;
-                            ",
+                        padding: 10px;
+                        background-color: #fff3cd;
+                        border-radius: 6px;
+                        font-weight: 600;
+                        ",
 
                             "Using uploaded data",
 
@@ -2122,6 +2238,26 @@ chapter7_server <- function(id){
             })
 
 
+            football_win_probs_reactive <- reactive({
+
+                mu <-
+                    football_match_means_reactive()
+
+                football_match_win_probs(
+
+                    mu_home =
+                        mu$home,
+
+                    mu_away =
+                        mu$away
+                )
+            })
+
+
+            # =================================================
+            # FOOTBALL SCORE MATRIX
+            # =================================================
+
             output$score_matrix <- renderPlot({
 
                 df <-
@@ -2173,6 +2309,13 @@ chapter7_server <- function(id){
 
                     labs(
 
+                        title =
+                            paste(
+                                input$team1,
+                                "vs",
+                                input$team2
+                            ),
+
                         x = "Away goals",
 
                         y = "Home goals",
@@ -2185,6 +2328,13 @@ chapter7_server <- function(id){
                     ) +
 
                     theme(
+
+                        plot.title =
+                            element_text(
+                                size = 20,
+                                face = "bold",
+                                hjust = 0.5
+                            ),
 
                         axis.title =
                             element_text(
@@ -2200,6 +2350,10 @@ chapter7_server <- function(id){
             })
 
 
+            # =================================================
+            # FOOTBALL MATCH SUMMARY
+            # =================================================
+
             output$match_summary <- renderUI({
 
                 mu <-
@@ -2208,6 +2362,9 @@ chapter7_server <- function(id){
                 df <-
                     football_score_matrix_reactive()
 
+                probs <-
+                    football_win_probs_reactive()
+
                 best <-
                     df[
                         which.max(df$Prob),
@@ -2215,9 +2372,11 @@ chapter7_server <- function(id){
 
                 tags$div(
 
-                    style = "padding:10px;",
+                    style = "
+                padding: 20px;
+                ",
 
-                    h5(
+                    h4(
                         "Expected goals"
                     ),
 
@@ -2250,16 +2409,106 @@ chapter7_server <- function(id){
                         )
                     ),
 
-                    h5(
+                    hr(),
+
+                    h4(
+                        "1 / X / 2 probabilities"
+                    ),
+
+                    layout_columns(
+
+                        card(
+
+                            style = "
+                        text-align: center;
+                        background-color: #e8f4ea;
+                        ",
+
+                            h5(
+                                paste(
+                                    "1 —",
+                                    input$team1
+                                )
+                            ),
+
+                            h3(
+
+                                scales::percent(
+                                    probs["home_win"],
+                                    accuracy = 0.1
+                                )
+                            )
+                        ),
+
+                        card(
+
+                            style = "
+                        text-align: center;
+                        background-color: #f8f9fa;
+                        ",
+
+                            h5(
+                                "X — Draw"
+                            ),
+
+                            h3(
+
+                                scales::percent(
+                                    probs["draw"],
+                                    accuracy = 0.1
+                                )
+                            )
+                        ),
+
+                        card(
+
+                            style = "
+                        text-align: center;
+                        background-color: #e8eef8;
+                        ",
+
+                            h5(
+                                paste(
+                                    "2 —",
+                                    input$team2
+                                )
+                            ),
+
+                            h3(
+
+                                scales::percent(
+                                    probs["away_win"],
+                                    accuracy = 0.1
+                                )
+                            )
+                        ),
+
+                        col_widths = c(
+                            4,
+                            4,
+                            4
+                        )
+                    ),
+
+                    hr(),
+
+                    h4(
                         "Most likely score"
                     ),
 
                     p(
 
-                        paste0(
-                            best$Home,
-                            " – ",
-                            best$Away
+                        style = "
+                    font-size: 1.2rem;
+                    ",
+
+                        strong(
+
+                            paste0(
+                                best$Home,
+                                " – ",
+                                best$Away
+                            )
                         ),
 
                         br(),
@@ -2270,11 +2519,16 @@ chapter7_server <- function(id){
                         )
                     ),
 
-                    h5(
+                    h4(
                         "Total expected goals"
                     ),
 
                     p(
+
+                        style = "
+                    font-size: 1.2rem;
+                    ",
+
                         round(
                             mu$home +
                                 mu$away,
@@ -2331,4 +2585,6 @@ chapter7_server <- function(id){
                 )
         }
     )
+
+
 }
