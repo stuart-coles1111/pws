@@ -1,10 +1,13 @@
 # =========================================================
+
 # CHAPTER 8: COMPLEXITY
-# =========================================================
-
 
 # =========================================================
+
+# =========================================================
+
 # PLOTTING
+
 # =========================================================
 
 league_position_plot <- function(
@@ -13,6 +16,7 @@ league_position_plot <- function(
         rows = 4,
         scales = "fixed"
 ) {
+
 
     df_out <- data.frame(
         position = NULL
@@ -94,11 +98,14 @@ league_position_plot <- function(
                     face = "bold"
                 )
         )
+
+
 }
 
-
 # =========================================================
+
 # STATIC SIMULATION CORE
+
 # =========================================================
 
 season_sim <- function(
@@ -107,6 +114,7 @@ season_sim <- function(
         team_a,
         tau
 ) {
+
 
     mu_h <- exp(
 
@@ -187,14 +195,16 @@ season_sim <- function(
         g_h,
         g_a
     )
-}
 
+
+}
 
 league_sim <- function(
         df,
         schedule,
         tau
 ) {
+
 
     results <- season_sim(
 
@@ -274,11 +284,14 @@ league_sim <- function(
         )[[1]]
 
     )
+
+
 }
 
-
 # =========================================================
+
 # DYNAMIC MODEL
+
 # =========================================================
 
 make_dynamic <- function(
@@ -286,6 +299,7 @@ make_dynamic <- function(
         ro = 0.9,
         sigma = 0.1
 ) {
+
 
     n_teams <- nrow(teams)
 
@@ -370,8 +384,9 @@ make_dynamic <- function(
 
 
     teams_dynamic
-}
 
+
+}
 
 dynamic_season_sim <- function(
         df,
@@ -382,6 +397,7 @@ dynamic_season_sim <- function(
         ro = 0.9,
         sigma = 0.1
 ) {
+
 
     teams_dynamic <- make_dynamic(
 
@@ -518,8 +534,9 @@ dynamic_season_sim <- function(
         g_a
 
     )
-}
 
+
+}
 
 dynamic_league_sim <- function(
         df,
@@ -527,6 +544,7 @@ dynamic_league_sim <- function(
         tau,
         sigma = 0.1
 ) {
+
 
     results <- dynamic_season_sim(
 
@@ -612,14 +630,18 @@ dynamic_league_sim <- function(
         )[[1]]
 
     )
+
+
 }
 
-
 # =========================================================
+
 # UI
+
 # =========================================================
 
 chapter8_ui <- function(id) {
+
 
     ns <- NS(id)
 
@@ -841,8 +863,16 @@ chapter8_ui <- function(id) {
         hr(),
 
 
+
+        # =====================================================
+        # COMPARISON
+        # =====================================================
+
         h5("Comparison"),
 
+        p(
+            "Compare probability distributions based on the static and dynamic models."
+        ),
 
         selectInput(
 
@@ -855,20 +885,6 @@ chapter8_ui <- function(id) {
             selected = "Arsenal"
 
         ),
-
-
-        actionButton(
-
-            ns("run_compare"),
-
-            "Compare static vs dynamic",
-
-            class = "btn-warning",
-
-            disabled = TRUE
-
-        ),
-
 
         hr(),
 
@@ -895,11 +911,11 @@ chapter8_ui <- function(id) {
         card(
 
             style = "
-            border-radius: 16px;
-            border: none;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            padding: 10px;
-            ",
+        border-radius: 16px;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        padding: 10px;
+        ",
 
             card_header(
 
@@ -908,10 +924,10 @@ chapter8_ui <- function(id) {
                     "🕸️ Studying Complexity in a Football Model",
 
                     style = "
-                    font-size: 1.4rem;
-                    font-weight: 700;
-                    color: #2c3e50;
-                    "
+                font-size: 1.4rem;
+                font-weight: 700;
+                color: #2c3e50;
+                "
 
                 )
 
@@ -1074,11 +1090,11 @@ chapter8_ui <- function(id) {
             div(
 
                 style = "
-                background-color: #f8f9fa;
-                border-left: 5px solid #7B9ACC;
-                padding: 12px;
-                border-radius: 8px;
-                ",
+            background-color: #f8f9fa;
+            border-left: 5px solid #7B9ACC;
+            padding: 12px;
+            border-radius: 8px;
+            ",
 
                 h5("Questions to investigate"),
 
@@ -1147,6 +1163,7 @@ chapter8_ui <- function(id) {
     )
 
 
+
     # =====================================================
     # RESULTS PANEL
     # =====================================================
@@ -1156,7 +1173,6 @@ chapter8_ui <- function(id) {
         uiOutput(
             ns("sim_banner")
         ),
-
 
         # -------------------------------------------------
         # MODEL RESULTS
@@ -1172,21 +1188,11 @@ chapter8_ui <- function(id) {
                 ns("model_tabs")
             )
 
-        ),
-
-
-        br(),
-
-
-        # -------------------------------------------------
-        # COMPARISON
-        # -------------------------------------------------
-
-        uiOutput(
-            ns("comparison_panel")
         )
 
     )
+
+
 
 
     # =====================================================
@@ -1198,11 +1204,11 @@ chapter8_ui <- function(id) {
         card(
 
             style = "
-            border-radius: 16px;
-            border: none;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            padding: 10px;
-            ",
+        border-radius: 16px;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        padding: 10px;
+        ",
 
             card_header(
 
@@ -1211,10 +1217,10 @@ chapter8_ui <- function(id) {
                     "What should you have learned?",
 
                     style = "
-                    font-size: 1.3rem;
-                    font-weight: 700;
-                    color: #2c3e50;
-                    "
+                font-size: 1.3rem;
+                font-weight: 700;
+                color: #2c3e50;
+                "
 
                 )
 
@@ -1285,11 +1291,11 @@ chapter8_ui <- function(id) {
                 div(
 
                     style = "
-                    background-color: #f8f9fa;
-                    border-left: 5px solid #28a745;
-                    padding: 12px;
-                    border-radius: 8px;
-                    ",
+                background-color: #f8f9fa;
+                border-left: 5px solid #28a745;
+                padding: 12px;
+                border-radius: 8px;
+                ",
 
                     p(
 
@@ -1334,14 +1340,17 @@ chapter8_ui <- function(id) {
 
     )
 
+
 }
 
-
 # =========================================================
+
 # SERVER
+
 # =========================================================
 
 chapter8_server <- function(id) {
+
 
     moduleServer(
 
@@ -1361,7 +1370,9 @@ chapter8_server <- function(id) {
 
             rv <- reactiveValues(
 
-                sim_running = FALSE
+                sim_running = FALSE,
+
+                data_error = NULL
 
             )
 
@@ -1379,23 +1390,352 @@ chapter8_server <- function(id) {
                 )
 
 
-                if (
-                    !all(
-                        required %in%
+                missing_columns <-
+                    setdiff(
+                        required,
                         names(df)
                     )
+
+
+                if (
+                    length(missing_columns) > 0
                 ) {
 
                     stop(
 
-                        "Parameters file must contain: teams, alpha, beta"
+                        paste0(
+
+                            "Parameters file must contain the following columns: ",
+
+                            paste(
+                                required,
+                                collapse = ", "
+                            ),
+
+                            ". Missing: ",
+
+                            paste(
+                                missing_columns,
+                                collapse = ", "
+                            )
+
+                        )
 
                     )
 
                 }
 
 
+                if (
+                    nrow(df) == 0
+                ) {
+
+                    stop(
+                        "The parameters file contains no team records."
+                    )
+
+                }
+
+
+                if (
+                    any(
+                        is.na(df$teams) |
+                        trimws(df$teams) == ""
+                    )
+                ) {
+
+                    stop(
+                        "The parameters file contains blank team names."
+                    )
+
+                }
+
+
+                if (
+                    anyDuplicated(df$teams)
+                ) {
+
+                    duplicates <-
+                        unique(
+                            df$teams[
+                                duplicated(df$teams)
+                            ]
+                        )
+
+
+                    stop(
+
+                        paste0(
+
+                            "The parameters file contains duplicate team names: ",
+
+                            paste(
+                                duplicates,
+                                collapse = ", "
+                            )
+
+                        )
+
+                    )
+
+                }
+
+
+                if (
+                    any(
+                        is.na(df$alpha) |
+                        !is.numeric(df$alpha)
+                    )
+                ) {
+
+                    stop(
+                        "The alpha column must contain numeric values with no missing values."
+                    )
+
+                }
+
+
+                if (
+                    any(
+                        is.na(df$beta) |
+                        !is.numeric(df$beta)
+                    )
+                ) {
+
+                    stop(
+                        "The beta column must contain numeric values with no missing values."
+                    )
+
+                }
+
+
                 df
+
+            }
+
+
+            # =================================================
+            # VALIDATE SCHEDULE
+            # =================================================
+
+            validate_schedule <- function(schedule) {
+
+                required <- c(
+                    "Round",
+                    "Home.Team",
+                    "Away.Team"
+                )
+
+
+                missing_columns <-
+                    setdiff(
+                        required,
+                        names(schedule)
+                    )
+
+
+                if (
+                    length(missing_columns) > 0
+                ) {
+
+                    stop(
+
+                        paste0(
+
+                            "Schedule file must contain the following columns: ",
+
+                            paste(
+                                required,
+                                collapse = ", "
+                            ),
+
+                            ". Missing: ",
+
+                            paste(
+                                missing_columns,
+                                collapse = ", "
+                            )
+
+                        )
+
+                    )
+
+                }
+
+
+                if (
+                    nrow(schedule) == 0
+                ) {
+
+                    stop(
+                        "The schedule file contains no fixtures."
+                    )
+
+                }
+
+
+                if (
+                    any(
+                        is.na(schedule$Home.Team) |
+                        trimws(schedule$Home.Team) == ""
+                    )
+                ) {
+
+                    stop(
+                        "The schedule contains blank home-team names."
+                    )
+
+                }
+
+
+                if (
+                    any(
+                        is.na(schedule$Away.Team) |
+                        trimws(schedule$Away.Team) == ""
+                    )
+                ) {
+
+                    stop(
+                        "The schedule contains blank away-team names."
+                    )
+
+                }
+
+
+                schedule
+
+            }
+
+
+            # =================================================
+            # VALIDATE TEAM MATCH BETWEEN FILES
+            # =================================================
+
+            validate_team_match <- function(
+        teams,
+        schedule
+            ) {
+
+                parameter_teams <-
+                    unique(
+                        trimws(
+                            teams$teams
+                        )
+                    )
+
+
+                schedule_teams <-
+                    unique(
+                        c(
+                            trimws(
+                                schedule$Home.Team
+                            ),
+                            trimws(
+                                schedule$Away.Team
+                            )
+                        )
+                    )
+
+
+                missing_parameters <-
+                    setdiff(
+                        schedule_teams,
+                        parameter_teams
+                    )
+
+
+                unused_parameters <-
+                    setdiff(
+                        parameter_teams,
+                        schedule_teams
+                    )
+
+
+                if (
+
+                    length(missing_parameters) == 0 &&
+
+                    length(unused_parameters) == 0
+
+                ) {
+
+                    return(TRUE)
+
+                }
+
+
+                message_parts <- character(0)
+
+
+                if (
+                    length(missing_parameters) > 0
+                ) {
+
+                    message_parts <-
+                        c(
+
+                            message_parts,
+
+                            paste0(
+
+                                "The following teams appear in the schedule but have no parameter values: ",
+
+                                paste(
+                                    missing_parameters,
+                                    collapse = ", "
+                                ),
+
+                                "."
+
+                            )
+
+                        )
+
+                }
+
+
+                if (
+                    length(unused_parameters) > 0
+                ) {
+
+                    message_parts <-
+                        c(
+
+                            message_parts,
+
+                            paste0(
+
+                                "The following teams appear in the parameter file but not in the schedule: ",
+
+                                paste(
+                                    unused_parameters,
+                                    collapse = ", "
+                                ),
+
+                                "."
+
+                            )
+
+                        )
+
+                }
+
+
+                stop(
+
+                    paste(
+
+                        c(
+                            "The team names in the parameter file and schedule do not match.",
+                            message_parts,
+                            "Please make sure that every team in the schedule has a corresponding row in the parameter file and that the names are spelled identically."
+                        ),
+
+                        collapse = "\n\n"
+
+                    )
+
+                )
 
             }
 
@@ -1443,6 +1783,188 @@ chapter8_server <- function(id) {
                     )
 
                 }
+
+            })
+
+
+            schedule_data <- reactive({
+
+                source <- input$data_source
+
+
+                if (source == "current") {
+
+                    PL26_schedule
+
+
+                } else if (source == "previous") {
+
+                    PL25_schedule
+
+
+                } else if (source == "upload") {
+
+                    req(
+                        input$schedule_file
+                    )
+
+
+                    validate_schedule(
+
+                        read.csv(
+
+                            input$schedule_file$datapath,
+
+                            stringsAsFactors = FALSE
+
+                        )
+
+                    )
+
+                }
+
+            })
+
+
+            # =================================================
+            # VALIDATED INPUT DATA
+            # =================================================
+
+            validated_data <- reactive({
+
+                teams <-
+                    teams_data()
+
+
+                schedule <-
+                    schedule_data()
+
+
+                validate_team_match(
+
+                    teams,
+
+                    schedule
+
+                )
+
+
+                list(
+
+                    teams = teams,
+
+                    schedule = schedule
+
+                )
+
+            })
+
+
+            # =================================================
+            # DISPLAY UPLOAD VALIDATION ERROR
+            # =================================================
+
+            output$data_validation <- renderUI({
+
+                if (
+                    input$data_source != "upload"
+                ) {
+
+                    return(NULL)
+
+                }
+
+
+                if (
+                    is.null(input$pars_file) ||
+                    is.null(input$schedule_file)
+                ) {
+
+                    return(NULL)
+
+                }
+
+
+                result <- tryCatch(
+
+                    {
+
+                        validated_data()
+
+                        NULL
+
+                    },
+
+                    error = function(e) {
+
+                        div(
+
+                            style = "
+                        margin-top: 10px;
+                        padding: 12px;
+                        background-color: #f8d7da;
+                        border: 1px solid #f5c2c7;
+                        color: #842029;
+                        border-radius: 6px;
+                        ",
+
+                            strong(
+                                "Data validation error"
+                            ),
+
+                            br(),
+
+                            HTML(
+                                gsub(
+                                    "\n\n",
+                                    "<br><br>",
+                                    e$message
+                                )
+                            )
+
+                        )
+
+                    }
+
+                )
+
+
+                result
+
+            })
+
+
+            # =================================================
+            # UPLOAD VALIDATION MESSAGE IN SIDEBAR
+            # =================================================
+
+            insertUI(
+
+                selector = paste0(
+                    "#",
+                    session$ns("schedule_file")
+                ),
+
+                where = "afterEnd",
+
+                ui = uiOutput(
+                    session$ns(
+                        "data_validation"
+                    )
+                ),
+
+                immediate = TRUE
+
+            )
+
+
+            # =================================================
+            # TAU
+            # =================================================
+
+            tau_data <- reactive({
+
+                input$tau
 
             })
 
@@ -1496,86 +2018,52 @@ chapter8_server <- function(id) {
             )
 
 
-            schedule_data <- reactive({
-
-                source <- input$data_source
-
-
-                if (source == "current") {
-
-                    PL26_schedule
-
-
-                } else if (source == "previous") {
-
-                    PL25_schedule
-
-
-                } else if (source == "upload") {
-
-                    req(
-                        input$schedule_file
-                    )
-
-
-                    read.csv(
-
-                        input$schedule_file$datapath,
-
-                        stringsAsFactors = FALSE
-
-                    )
-
-                }
-
-            })
-
-
-            tau_data <- reactive({
-
-                input$tau
-
-            })
-
-
-            # =================================================
-            # UPDATE COMPARISON BUTTON
-            # =================================================
-
-            observe({
-
-                both_available <-
-
-                    !is.null(static_sim()) &&
-
-                    !is.null(dynamic_sim())
-
-
-                updateActionButton(
-
-                    session,
-
-                    "run_compare",
-
-                    disabled = !both_available
-
-                )
-
-            })
-
-
             # =================================================
             # UPDATE TEAM SELECTOR
             # =================================================
 
-            observeEvent(
+            observe({
 
-                teams_data(),
+                req(
+                    input$data_source
+                )
 
-                {
 
-                    teams <-
+                result <- tryCatch(
+
+                    {
+
                         teams_data()$teams
+
+                    },
+
+                    error = function(e) {
+
+                        NULL
+
+                    }
+
+                )
+
+
+                if (
+                    !is.null(result) &&
+                    length(result) > 0
+                ) {
+
+                    current_team <-
+                        input$comparison_team
+
+
+                    if (
+                        is.null(current_team) ||
+                        !current_team %in% result
+                    ) {
+
+                        current_team <-
+                            result[1]
+
+                    }
 
 
                     updateSelectInput(
@@ -1584,16 +2072,66 @@ chapter8_server <- function(id) {
 
                         "comparison_team",
 
-                        choices = teams,
+                        choices = result,
 
-                        selected = teams[1]
+                        selected = current_team
 
                     )
 
                 }
 
-            )
+            })
 
+            # =================================================
+            # KEEP CURRENT MODEL TAB WHEN COMPARISON TEAM CHANGES
+            # =================================================
+
+            observeEvent(
+
+                input$comparison_team,
+
+                {
+
+                    current_tab <-
+                        input$model_tabs_nav
+
+
+                    # If the user is currently looking at the
+                    # comparison tab, restore it after the
+                    # comparison plot is redrawn.
+
+                    if (
+                        identical(
+                            current_tab,
+                            "comparison"
+                        )
+                    ) {
+
+                        session$onFlushed(
+
+                            function() {
+
+                                bslib::nav_select(
+
+                                    "model_tabs_nav",
+
+                                    selected = "comparison"
+
+                                )
+
+                            },
+
+                            once = TRUE
+
+                        )
+
+                    }
+
+                },
+
+                ignoreInit = TRUE
+
+            )
 
             # =================================================
             # DATA SOURCE DISPLAY
@@ -1612,11 +2150,11 @@ chapter8_server <- function(id) {
                     div(
 
                         style = "
-                        padding: 10px;
-                        background-color: #e8f4ea;
-                        border-radius: 6px;
-                        font-weight: 600;
-                        ",
+                    padding: 10px;
+                    background-color: #e8f4ea;
+                    border-radius: 6px;
+                    font-weight: 600;
+                    ",
 
                         "Using fitted 2025/26 model parameters and 2025/26 fixtures"
 
@@ -1630,11 +2168,11 @@ chapter8_server <- function(id) {
                     div(
 
                         style = "
-                        padding: 10px;
-                        background-color: #e8eef8;
-                        border-radius: 6px;
-                        font-weight: 600;
-                        ",
+                    padding: 10px;
+                    background-color: #e8eef8;
+                    border-radius: 6px;
+                    font-weight: 600;
+                    ",
 
                         "Using fitted 2024/25 model parameters and 2025/26 fixtures"
 
@@ -1652,11 +2190,11 @@ chapter8_server <- function(id) {
                     div(
 
                         style = "
-                        padding: 10px;
-                        background-color: #fff3cd;
-                        border-radius: 6px;
-                        font-weight: 600;
-                        ",
+                    padding: 10px;
+                    background-color: #fff3cd;
+                    border-radius: 6px;
+                    font-weight: 600;
+                    ",
 
                         "Using uploaded data",
 
@@ -1695,7 +2233,43 @@ chapter8_server <- function(id) {
 
                     dynamic_sim(NULL)
 
+                    rv$sim_running <-
+                        FALSE
+
                 }
+
+            )
+
+
+            # =================================================
+            # RESET SIMULATIONS WHEN UPLOADED FILES CHANGE
+            # =================================================
+
+            observeEvent(
+
+                list(
+                    input$pars_file,
+                    input$schedule_file
+                ),
+
+                {
+
+                    if (
+                        input$data_source == "upload"
+                    ) {
+
+                        static_sim(NULL)
+
+                        dynamic_sim(NULL)
+
+                        rv$sim_running <-
+                            FALSE
+
+                    }
+
+                },
+
+                ignoreInit = TRUE
 
             )
 
@@ -1773,13 +2347,13 @@ chapter8_server <- function(id) {
                     div(
 
                         style = "
-                        padding: 12px;
-                        margin-bottom: 10px;
-                        background-color: #fff3cd;
-                        border: 1px solid #ffeeba;
-                        border-radius: 6px;
-                        font-weight: 600;
-                        ",
+                    padding: 12px;
+                    margin-bottom: 10px;
+                    background-color: #fff3cd;
+                    border: 1px solid #ffeeba;
+                    border-radius: 6px;
+                    font-weight: 600;
+                    ",
 
                         "Simulations in Progress"
 
@@ -1895,6 +2469,38 @@ chapter8_server <- function(id) {
 
                 {
 
+                    data <- tryCatch(
+
+                        validated_data(),
+
+                        error = function(e) {
+
+                            showNotification(
+
+                                e$message,
+
+                                type = "error",
+
+                                duration = 8
+
+                            )
+
+                            NULL
+
+                        }
+
+                    )
+
+
+                    if (
+                        is.null(data)
+                    ) {
+
+                        return()
+
+                    }
+
+
                     rv$sim_running <- TRUE
 
 
@@ -1905,13 +2511,13 @@ chapter8_server <- function(id) {
                         input$n_sim
 
                     teams <-
-                        teams_data()
+                        data$teams
 
                     tau <-
                         tau_data()
 
                     sched <-
-                        schedule_data()
+                        data$schedule
 
 
                     later::later(
@@ -1952,9 +2558,22 @@ chapter8_server <- function(id) {
                                 sims
                             )
 
-
                             rv$sim_running <-
                                 FALSE
+
+                            # Disable static simulation button after completion
+                            updateActionButton(
+                                session,
+                                "run_static",
+                                disabled = TRUE
+                            )
+
+                            # Automatically switch to the Static model tab
+                            bslib::nav_select(
+                                "model_tabs_nav",
+                                "Static model",
+                                session = session
+                            )
 
                         },
 
@@ -1977,6 +2596,38 @@ chapter8_server <- function(id) {
 
                 {
 
+                    data <- tryCatch(
+
+                        validated_data(),
+
+                        error = function(e) {
+
+                            showNotification(
+
+                                e$message,
+
+                                type = "error",
+
+                                duration = 8
+
+                            )
+
+                            NULL
+
+                        }
+
+                    )
+
+
+                    if (
+                        is.null(data)
+                    ) {
+
+                        return()
+
+                    }
+
+
                     rv$sim_running <- TRUE
 
 
@@ -1990,13 +2641,13 @@ chapter8_server <- function(id) {
                         input$sigma
 
                     teams <-
-                        teams_data()
+                        data$teams
 
                     tau <-
                         tau_data()
 
                     sched <-
-                        schedule_data()
+                        data$schedule
 
 
                     later::later(
@@ -2039,9 +2690,22 @@ chapter8_server <- function(id) {
                                 sims
                             )
 
-
                             rv$sim_running <-
                                 FALSE
+
+                            # Disable dynamic simulation button after completion
+                            updateActionButton(
+                                session,
+                                "run_dynamic",
+                                disabled = TRUE
+                            )
+
+                            # Automatically switch to the Dynamic model tab
+                            bslib::nav_select(
+                                "model_tabs_nav",
+                                "Dynamic model",
+                                session = session
+                            )
 
                         },
 
@@ -2072,140 +2736,185 @@ chapter8_server <- function(id) {
                     )
 
 
+                comparison_available <-
+                    static_available &&
+                    dynamic_available
+
+
                 # -------------------------------------------------
-                # Nothing available yet
+                # STATIC MODEL PANEL
                 # -------------------------------------------------
 
-                if (
+                static_panel <- nav_panel(
 
-                    !static_available &&
+                    "Static model",
 
-                    !dynamic_available
+                    if (static_available) {
 
-                ) {
+                        plotOutput(
 
-                    div(
-
-                        style = "
-                        padding: 30px;
-                        text-align: center;
-                        color: #6c757d;
-                        ",
-
-                        h5(
-                            "No simulation results yet"
-                        ),
-
-                        p(
-                            "Run the static or dynamic model using the controls in the sidebar."
-                        )
-
-                    )
-
-
-                } else {
-
-                    tabs <- list()
-
-
-                    # ---------------------------------------------
-                    # STATIC MODEL TAB
-                    # ---------------------------------------------
-
-                    if (
-                        static_available
-                    ) {
-
-                        tabs <- append(
-
-                            tabs,
-
-                            list(
-
-                                nav_panel(
-
-                                    "Static model",
-
-                                    plotOutput(
-
-                                        session$ns(
-                                            "static_plot"
-                                        ),
-
-                                        height = 650
-
-                                    )
-
-                                )
-
-                            )
-
-                        )
-
-                    }
-
-
-                    # ---------------------------------------------
-                    # DYNAMIC MODEL TAB
-                    # ---------------------------------------------
-
-                    if (
-                        dynamic_available
-                    ) {
-
-                        tabs <- append(
-
-                            tabs,
-
-                            list(
-
-                                nav_panel(
-
-                                    "Dynamic model",
-
-                                    plotOutput(
-
-                                        session$ns(
-                                            "dynamic_plot"
-                                        ),
-
-                                        height = 650
-
-                                    )
-
-                                )
-
-                            )
-
-                        )
-
-                    }
-
-
-                    do.call(
-
-                        navset_tab,
-
-                        c(
-
-                            list(
-
-                                id =
-                                    session$ns(
-                                        "model_tabs_nav"
-                                    )
-
+                            session$ns(
+                                "static_plot"
                             ),
 
-                            tabs
+                            height = 650
 
                         )
 
+                    } else {
+
+                        div(
+
+                            style = "
+                height: 650px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                color: #6c757d;
+                ",
+
+                            h5(
+                                "No static simulation results yet"
+                            ),
+
+                            p(
+                                "Run the static model using the control in the sidebar."
+                            )
+
+                        )
+
+                    }
+
+                )
+
+
+                # -------------------------------------------------
+                # DYNAMIC MODEL PANEL
+                # -------------------------------------------------
+
+                dynamic_panel <- nav_panel(
+
+                    "Dynamic model",
+
+                    if (dynamic_available) {
+
+                        plotOutput(
+
+                            session$ns(
+                                "dynamic_plot"
+                            ),
+
+                            height = 650
+
+                        )
+
+                    } else {
+
+                        div(
+
+                            style = "
+                height: 650px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                color: #6c757d;
+                ",
+
+                            h5(
+                                "No dynamic simulation results yet"
+                            ),
+
+                            p(
+                                "Run the dynamic model using the control in the sidebar."
+                            )
+
+                        )
+
+                    }
+
+                )
+
+
+                # -------------------------------------------------
+                # COMPARISON PANEL
+                # -------------------------------------------------
+
+                comparison_panel <- nav_panel(
+
+                    "Comparison",
+
+                    if (comparison_available) {
+
+                        plotOutput(
+
+                            session$ns(
+                                "comparison_plot"
+                            ),
+
+                            height = 400
+
+                        )
+
+                    } else {
+
+                        div(
+
+                            style = "
+                height: 400px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                color: #6c757d;
+                ",
+
+                            h5(
+                                "Comparison not available yet"
+                            ),
+
+                            p(
+                                "Run both the static and dynamic models to compare their probability distributions."
+                            )
+
+                        )
+
+                    }
+
+                )
+
+
+                # -------------------------------------------------
+                # THREE TABS
+                # -------------------------------------------------
+
+                do.call(
+
+                    navset_tab,
+
+                    list(
+
+                        id =
+                            session$ns(
+                                "model_tabs_nav"
+                            ),
+
+                        static_panel,
+
+                        dynamic_panel,
+
+                        comparison_panel
+
                     )
 
-                }
+                )
 
             })
+
 
 
             # =================================================
@@ -2256,41 +2965,6 @@ chapter8_server <- function(id) {
             })
 
 
-            # =================================================
-            # COMPARISON PANEL
-            # =================================================
-
-            output$comparison_panel <- renderUI({
-
-                req(
-
-                    static_sim(),
-
-                    dynamic_sim()
-
-                )
-
-
-                card(
-
-                    card_header(
-                        "Static vs Dynamic Comparison"
-                    ),
-
-                    plotOutput(
-
-                        session$ns(
-                            "comparison_plot"
-                        ),
-
-                        height = 400
-
-                    )
-
-                )
-
-            })
-
 
             # =================================================
             # COMPARISON PLOT
@@ -2315,7 +2989,6 @@ chapter8_server <- function(id) {
 
                 s <-
                     static_sim()[team, ]
-
 
                 d <-
                     dynamic_sim()[team, ]
@@ -2391,6 +3064,15 @@ chapter8_server <- function(id) {
 
                     labs(
 
+                        title =
+                            paste(
+                                "Static vs Dynamic:",
+                                team
+                            ),
+
+                        subtitle =
+                            "Distribution of simulated final league positions",
+
                         x =
                             "League Position",
 
@@ -2408,6 +3090,18 @@ chapter8_server <- function(id) {
 
                     theme(
 
+                        plot.title =
+                            element_text(
+                                size = 20,
+                                face = "bold"
+                            ),
+
+                        plot.subtitle =
+                            element_text(
+                                size = 15,
+                                color = "#6c757d"
+                            ),
+
                         axis.title =
                             element_text(
                                 size = 18,
@@ -2417,11 +3111,17 @@ chapter8_server <- function(id) {
                         axis.text =
                             element_text(
                                 size = 14
+                            ),
+
+                        legend.text =
+                            element_text(
+                                size = 14
                             )
 
                     )
 
             })
+
 
 
             # =================================================
@@ -2440,6 +3140,19 @@ chapter8_server <- function(id) {
 
                     rv$sim_running <-
                         FALSE
+
+                    # Re-enable both simulation buttons
+                    updateActionButton(
+                        session,
+                        "run_static",
+                        disabled = FALSE
+                    )
+
+                    updateActionButton(
+                        session,
+                        "run_dynamic",
+                        disabled = FALSE
+                    )
 
 
                     new_seed <-
@@ -2467,5 +3180,6 @@ chapter8_server <- function(id) {
         }
 
     )
+
 
 }
