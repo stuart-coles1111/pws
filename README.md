@@ -1,62 +1,32 @@
-# pws
+# Playing With Statistics
 
-This package accompanies the book *[Playing With Statistics]*.
+This repository contains the R package and supporting material for:
 
-It provides datasets and helper functions used throughout the book.
+**Stuart Coles, *Playing With Statistics*, Springer.**
 
----
+The `pws` package provides datasets, functions and simulations used throughout the book.
 
 ## Installation
 
-You can install the development version from GitHub:
+You can install the package directly from GitHub using:
 
 ```r
 install.packages("remotes")
 remotes::install_github("stuart-coles1111/pws")
 ```
 
----
+## Book corrections and feedback
 
-## Data
+If you find an error in the book, have a problem with the accompanying R code or package, or have a suggestion or comment, please let me know by [opening an issue](../../issues).
 
-### `PL_goals`
+When reporting a book correction, please give the chapter and page number where possible, together with a brief description of the problem.
 
-A dataset containing English Premier League match results from the 1992–1993 season onward.
+Corrections will be reviewed and, where appropriate, incorporated into subsequent versions of the book or accompanying materials.
 
-**Variables:**
+## Versions
 
-* `season`: Season in "YYYY-YYYY" format
-* `date`: Match date
-* `home_team`: Home team
-* `away_team`: Away team
-* `home_goals`: Goals scored by home team
-* `away_goals`: Goals scored by away team
+Released versions of the package will be listed under [Releases](../../releases). The version corresponding to the first published edition of the book will be identified clearly so that the software used with the book can be reproduced.
 
----
+## Licence
 
-## Example
-
-```r
-library(pws)
-
-head(PL_goals)
-
-# Compute goal difference
-PL_goals$goal_diff <- PL_goals$home_goals - PL_goals$away_goals
-
-# Average home advantage
-mean(PL_goals$goal_diff)
-```
-
----
-
-## Data source
-
-Data in this package are derived from the EngSoccerData R package.
-Original data were compiled by Tony Ladson and contributors.
-
----
-
-## License
-
-This package is licensed under the GPL-3 license.
+See `LICENSE.md` for details.
