@@ -203,8 +203,15 @@ chapter5_ui <- function(id){
                 max = 0.99,
                 value = 0.95,
                 step = 0.01
+            ),
+
+            checkboxInput(
+                ns("show_diagonal"),
+                "Show diagonal reference line (y = x)",
+                value = FALSE
             )
         )
+
     )
 
 
@@ -1610,7 +1617,7 @@ chapter5_server <- function(id){
             pr <- prediction()
 
 
-            ggplot(
+            p <- ggplot(
 
                 df,
 
@@ -1622,7 +1629,7 @@ chapter5_server <- function(id){
             ) +
 
 
-                # ---------------------------------------------
+            # ---------------------------------------------
             # Observations
             # ---------------------------------------------
 
@@ -1631,7 +1638,7 @@ chapter5_server <- function(id){
             ) +
 
 
-                # ---------------------------------------------
+            # ---------------------------------------------
             # Confidence band
             # ---------------------------------------------
 
@@ -1653,10 +1660,36 @@ chapter5_server <- function(id){
                 alpha = 0.20,
 
                 inherit.aes = FALSE
-            ) +
+            )
 
 
-                # ---------------------------------------------
+            # ---------------------------------------------
+            # Optional diagonal reference line
+            # ---------------------------------------------
+
+            if (isTRUE(input$show_diagonal)) {
+
+                p <- p +
+
+                    geom_abline(
+
+                        slope = 1,
+
+                        intercept = 0,
+
+                        colour = "#777777",
+
+                        linetype = "dashed",
+
+                        linewidth = 0.9
+                    )
+            }
+
+
+            p <- p +
+
+
+            # ---------------------------------------------
             # Regression line
             # ---------------------------------------------
 
@@ -1679,7 +1712,7 @@ chapter5_server <- function(id){
             ) +
 
 
-                # ---------------------------------------------
+            # ---------------------------------------------
             # Vertical prediction line
             # ---------------------------------------------
 
@@ -1695,7 +1728,7 @@ chapter5_server <- function(id){
             ) +
 
 
-                # ---------------------------------------------
+            # ---------------------------------------------
             # Horizontal prediction line
             # ---------------------------------------------
 
@@ -1714,7 +1747,7 @@ chapter5_server <- function(id){
             ) +
 
 
-                # ---------------------------------------------
+            # ---------------------------------------------
             # Prediction point
             # ---------------------------------------------
 
@@ -1745,7 +1778,11 @@ chapter5_server <- function(id){
 
                     y = "Points (Half 2)"
                 )
+
+
+            p
         })
+
 
 
         output$regression_results <- renderUI({

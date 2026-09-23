@@ -21,7 +21,10 @@ If you find an error in the book, have a problem with the accompanying R code or
 
 When reporting a book correction, please give the chapter and page number where possible, together with a brief description of the problem.
 
+Confirmed corrections are recorded in [`CORRECTIONS.md`](CORRECTIONS.md).
+
 Corrections will be reviewed and, where appropriate, incorporated into subsequent versions of the book or accompanying materials.
+
 
 ## Versions
 
