@@ -526,7 +526,7 @@ button:disabled {
 
             p("This activity is based on a card trick that has surprising connections to probability and statistics."),
 
-            p("You choose a card at random, hidden from the magician, and then follow a simple rule to generate a sequence of cards as the magician turns the deck over."),
+            p("You choose a card at random, hidden from the magician, and then follow a simple rule to generate a sequence of cards as the magician turns the pack over."),
 
             p("Once all the cards have been revealed, the magician attempts to predict the final card in your sequence."),
 
@@ -684,7 +684,7 @@ button:disabled {
 
                                     tags$li(
                                         "The Player selects a card at random and remembers it.
-                            The card is then returned to the deck and the Magician shuffles."
+                            The card is then returned to the pack and the Magician shuffles."
                                     ),
 
                                     tags$li(
@@ -705,7 +705,7 @@ button:disabled {
                                     ),
 
                                     tags$li(
-                                        "The final card reached before the deck runs out is the Player's
+                                        "The final card reached before the pack runs out is the Player's
                             Magic Card."
                                     )
                                 ),
@@ -1024,7 +1024,7 @@ server <- function(input, output, session){
             grid.newpage()
 
             grid.text(
-                "Choose a card from the deck above",
+                "Choose a card from the pack",
                 gp = gpar(
                     fontsize = 22,
                     fontface = "bold",
