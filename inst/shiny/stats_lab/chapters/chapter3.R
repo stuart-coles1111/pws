@@ -654,7 +654,7 @@ chapter3_ui <- function(id){
 
         id = id,
 
-        title = "⚖ Chapter 3: Expectation",
+        title = "⚖ Module 3: Expectation",
 
         sidebar = sidebar_controls,
 

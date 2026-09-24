@@ -145,7 +145,7 @@ chapter2_ui <- function(id){
                 strong("Main idea: "),
                 "This module extends the statistical toolkit by allowing exploration of, ",
                 "and calculation from, the standard probability distributions introduced ",
-                "in Playing With Statistics."
+                "in *Playing With Statistics*."
             ),
 
             hr(),
@@ -175,7 +175,7 @@ chapter2_ui <- function(id){
 
             p(
                 "Each of these distributions is discussed in detail in Chapter 2 ",
-                "of Playing With Statistics."
+                "of *Playing With Statistics*."
             ),
 
             hr(),
@@ -333,7 +333,7 @@ chapter2_ui <- function(id){
 
     chapter_page_ui(
         id = id,
-        title = "🌗 Chapter 2: Probability",
+        title = "🌗 Module 2: Probability",
         sidebar = sidebar_controls,
         overview = overview_panel,
         code = code_panel,

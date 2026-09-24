@@ -1326,7 +1326,7 @@ chapter8_ui <- function(id) {
 
         id = id,
 
-        title = "🕸️ Chapter 8: Complexity",
+        title = "🕸️ Module 8: Complexity",
 
         sidebar = sidebar_controls,
 

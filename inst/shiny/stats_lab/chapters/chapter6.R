@@ -494,7 +494,7 @@ chapter6_ui <- function(id){
             ),
 
             p(
-                "Viewed in isolation, neither example fully illustrates the central message of this chapter. ",
+                "Viewed in isolation, neither example fully illustrates the central message of Chapter 6 of Playing WIth Statistics.. ",
                 "The key issue is not simply how to calculate probabilities or p-values, ",
                 "but how the broader context influences the interpretation of those calculations."
             ),
@@ -708,7 +708,7 @@ chapter6_ui <- function(id){
 
     chapter_page_ui(
         id = id,
-        title = "🔍 Chapter 6: Context",
+        title = "🔍 Module 6: Context",
         sidebar = sidebar_controls,
         overview = overview_panel,
         code = code_panel,

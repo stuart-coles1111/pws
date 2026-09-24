@@ -19,7 +19,7 @@ chapter4_ui <- function(id){
 
     sidebar_controls <- sidebar(
 
-        h4("Chapter 4 Explorer"),
+        h4("Model Settings"),
 
         # -------------------------------------------------
         # TRUE VALUE
@@ -127,7 +127,7 @@ chapter4_ui <- function(id){
 
             card_header(
                 div(
-                    "Chapter 4: Bayesian Updating",
+                    "Module 4: Bayesian Updating",
                     style = "
                     font-size: 1.4rem;
                     font-weight: 700;
@@ -138,7 +138,7 @@ chapter4_ui <- function(id){
 
             p(
                 strong(
-                    "This chapter provides an interactive exploration of Bayesian updating."
+                    "This module provides an interactive exploration of Bayesian updating."
                 )
             ),
 
@@ -302,7 +302,7 @@ chapter4_ui <- function(id){
 
         id = id,
 
-        title = "Chapter 4: Bayesian Updating",
+        title = "📉 Module 4: Bayesian Updating",
 
         sidebar = sidebar_controls,
 

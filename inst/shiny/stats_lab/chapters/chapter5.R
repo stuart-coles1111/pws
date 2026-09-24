@@ -243,7 +243,7 @@ chapter5_ui <- function(id){
 
             p(
                 strong("Main idea: "),
-                "Chapter 5 of Playing With Statistics discusses general principles of statistics, focusing on some of the main themes of statistical inference and modelling."
+                "Chapter 5 of *Playing With Statistics* discusses general principles of statistics, focusing on some of the main themes of statistical inference and modelling."
             ),
 
             hr(),
@@ -251,7 +251,7 @@ chapter5_ui <- function(id){
             h5("Topics"),
 
             p(
-                "The module provides tools to explore two topics from Chapter 5 of Playing With Statistics:"
+                "The module provides tools to explore two topics from Chapter 5 of *Playing With Statistics*:"
             ),
 
             tags$ul(
@@ -499,7 +499,7 @@ chapter5_ui <- function(id){
 
         id = id,
 
-        title = "📊 Chapter 5: Statistics",
+        title = "📊 Module 5: Statistics",
 
         sidebar = sidebar_controls,
 

@@ -532,13 +532,13 @@ chapter7_ui <- function(id){
 
     sidebar_controls <- sidebar(
 
-        h4("Chapter 7 activities"),
+        h4("Chapter 7 investigations"),
 
         radioButtons(
 
             ns("activity"),
 
-            "Activity",
+            "Investigate:",
 
             choices = c(
                 "Two-Dice Models" = "dice",
@@ -1211,7 +1211,7 @@ chapter7_ui <- function(id){
 
             id = id,
 
-            title = "🧩 Chapter 7: Models",
+            title = "🧩 Module 7: Models",
 
             sidebar = sidebar_controls,
 

@@ -112,7 +112,7 @@ chapter1_ui <- function(id){
             tags$ul(
 
                 tags$li(
-                    "The top row shows the probability distribution for the number of chances per game and the probability density function (introduced fully in Chapter 2 of Playing With Statistics) for the conversion probability. These graphs will always be consistent with your chosen input values."
+                    "The top row shows the probability distribution for the number of chances per game and the probability density function (introduced fully in Chapter 2 of *Playing With Statistics*) for the conversion probability. These graphs will always be consistent with your chosen input values."
                 ),
 
                 tags$li(
@@ -267,7 +267,7 @@ chapter1_ui <- function(id){
 
     chapter_page_ui(
         id = id,
-        title = "🎲 Chapter 1: Randomness",
+        title = "🎲 Module 1: Randomness",
         sidebar = sidebar_controls,
         overview = overview_panel,
         code = code_panel,
