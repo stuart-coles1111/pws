@@ -26,7 +26,6 @@ stats_toolkit_ui <- function(id) {
             "Data source",
             choices = c(
                 "Enter data (x)" = "vector",
-                "Use sports example data" = "sports",
                 "Use mtcars example data" = "mtcars",
                 "Upload CSV" = "csv"
             ),
@@ -53,30 +52,6 @@ stats_toolkit_ui <- function(id) {
             downloadButton(
                 ns("download_mtcars"),
                 "Download mtcars CSV"
-            )
-
-        ),
-
-
-        # ---------------------------------------------------------
-        # Sports download
-        # ---------------------------------------------------------
-
-        conditionalPanel(
-
-            condition = sprintf(
-                "input['%s']=='sports'",
-                ns("data_source")
-            ),
-
-            p(
-                "Use the built-in sports dataset as an example ",
-                "of a CSV data file."
-            ),
-
-            downloadButton(
-                ns("download_sports"),
-                "Download sports CSV"
             )
 
         ),
@@ -195,36 +170,6 @@ stats_toolkit_ui <- function(id) {
         ),
 
 
-        # ---------------------------------------------------------
-        # Subsetting
-        # ---------------------------------------------------------
-
-        conditionalPanel(
-
-            condition = sprintf(
-                "input['%s'] != 'vector'",
-                ns("data_source")
-            ),
-
-            h5("Subset data"),
-
-            selectInput(
-                ns("subset_col"),
-                "Categorical variable",
-                choices = c("None" = ""),
-                selected = ""
-            ),
-
-            selectInput(
-                ns("subset_value"),
-                "Subset category",
-                choices = c("All" = ""),
-                selected = ""
-            )
-
-        ),
-
-
         hr(),
 
 
@@ -245,7 +190,8 @@ stats_toolkit_ui <- function(id) {
             selectInput(
                 ns("summary_col"),
                 "Numerical variable",
-                choices = NULL
+                choices = NULL,
+                selected = NULL
             )
 
         ),
@@ -270,9 +216,6 @@ stats_toolkit_ui <- function(id) {
 
         # ---------------------------------------------------------
         # Graph type
-        #
-        # Appears immediately below the Display checkboxes
-        # when Graphical display is selected.
         # ---------------------------------------------------------
 
         conditionalPanel(
@@ -353,10 +296,6 @@ stats_toolkit_ui <- function(id) {
         # Relationship analysis
         # ---------------------------------------------------------
 
-        # ---------------------------------------------------------
-        # Relationship analysis
-        # ---------------------------------------------------------
-
         conditionalPanel(
 
             condition = sprintf(
@@ -379,6 +318,7 @@ stats_toolkit_ui <- function(id) {
 
         ),
 
+
         # ---------------------------------------------------------
         # Scatterplot controls
         # ---------------------------------------------------------
@@ -394,13 +334,15 @@ stats_toolkit_ui <- function(id) {
             selectInput(
                 ns("x_col"),
                 "X column",
-                choices = NULL
+                choices = NULL,
+                selected = NULL
             ),
 
             selectInput(
                 ns("y_col"),
                 "Y column",
-                choices = NULL
+                choices = NULL,
+                selected = NULL
             ),
 
             sliderInput(
@@ -477,30 +419,26 @@ stats_toolkit_ui <- function(id) {
                 ),
 
                 tags$li(
-                    strong("Use sports example data: "),
-                    "use the built-in sports dataset as an example of a ",
-                    "multi-variable CSV dataset."
-                ),
-
-                tags$li(
                     strong("Use mtcars example data: "),
                     "use the built-in mtcars dataset immediately, without ",
                     "uploading a file. This is a small dataset containing ",
-                    "several variables describing different car models."
+                    "several numerical variables describing different car ",
+                    "models."
                 ),
 
                 tags$li(
                     strong("Upload CSV: "),
                     "download a CSV template if required, enter or edit your ",
-                    "data, and then upload the completed file."
+                    "data, and then upload the completed file. The columns ",
+                    "should contain numerical data."
                 )
 
             ),
 
 
             p(
-                "When using sports, mtcars or an uploaded CSV file, the ",
-                "available variables are shown in the variable selectors ",
+                "When using mtcars or an uploaded CSV file, the available ",
+                "numerical variables are shown in the variable selectors ",
                 "in the Analysis Settings."
             ),
 
@@ -540,16 +478,16 @@ stats_toolkit_ui <- function(id) {
 
                 tags$li(
                     strong("Scatterplot: "),
-                    "when using sports, mtcars or an uploaded CSV file, ",
-                    "select an X variable and a Y variable to investigate ",
+                    "when using mtcars or an uploaded CSV file, select ",
+                    "an X variable and a Y variable to investigate ",
                     "their relationship."
                 ),
 
                 tags$li(
                     strong("Regression line: "),
                     "when using a scatterplot, optionally add a fitted ",
-                    "linear regression line. The regression results are then ",
-                    "displayed alongside the scatterplot."
+                    "linear regression line. The regression results are ",
+                    "then displayed alongside the scatterplot."
                 )
 
             ),
@@ -557,8 +495,6 @@ stats_toolkit_ui <- function(id) {
 
             hr(),
 
-
-            h5("Things to observe"),
 
             h5("Things to observe"),
 
@@ -773,25 +709,23 @@ stats_toolkit_ui <- function(id) {
 
 
                 p(
-                    "In the original R version of ",
+                    "The original R version of ",
                     strong("mtcars"),
-                    ", the names of the cars are stored as row names ",
-                    "rather than as a separate variable. The CSV file ",
-                    "used in this app does not include those row names, ",
-                    "so it contains the 11 variables listed above."
-                ),
-
-
-                p(
-                    "For variables such as ",
+                    " contains 32 observations on 11 numerical ",
+                    "variables. Variables such as ",
                     strong("vs"),
                     " and ",
                     strong("am"),
-                    ", the numerical values represent categories ",
-                    "rather than quantities. For example, ",
-                    strong("am"),
-                    " uses 0 for automatic transmission and 1 for ",
-                    "manual transmission."
+                    " use numerical codes to represent categories, ",
+                    "but they remain numerical columns in the dataset ",
+                    "and are therefore treated as numerical variables ",
+                    "by this toolkit."
+                ),
+
+                p(
+                    "The CSV file used in this app does not include the ",
+                    "original row names, so it contains the 11 variables ",
+                    "listed above."
                 )
 
             )
@@ -799,276 +733,6 @@ stats_toolkit_ui <- function(id) {
         )
 
     )
-
-
-
-    # =========================================================
-    # SPORTS INFORMATION
-    # =========================================================
-
-    sports_info <- conditionalPanel(
-
-        condition = sprintf(
-            "input['%s']=='sports'",
-            ns("data_source")
-        ),
-
-        accordion(
-
-            id = ns("sports_info"),
-
-            open = FALSE,
-
-            accordion_panel(
-
-                "📖 About the sports dataset",
-
-                p(
-                    "This dataset contains individual-level measurements ",
-                    "from 40-m sprint testing of athletes from a range of ",
-                    "sports. It provides an example of a real-world ",
-                    "multivariable dataset that can be used to explore ",
-                    "distributions, group differences, and relationships ",
-                    "between numerical variables."
-                ),
-
-                p(
-                    "The dataset contains 666 40-m sprint tests on male ",
-                    "and female athletes from multiple sports. The data ",
-                    "were collected from more than 600 Norwegian athletes ",
-                    "performing 40-m sprint tests under highly controlled ",
-                    "conditions as part of training monitoring."
-                ),
-
-                h5("The variables"),
-
-                tags$ul(
-
-                    tags$li(
-                        strong("ID"),
-                        " — Individual identifier."
-                    ),
-
-                    tags$li(
-                        strong("Sport"),
-                        " — The sport in which the individual competes."
-                    ),
-
-                    tags$li(
-                        strong("Sex"),
-                        " — Sex of the individual, recorded as M or F."
-                    ),
-
-                    tags$li(
-                        strong("Age"),
-                        " — Age in years at the time of testing."
-                    ),
-
-                    tags$li(
-                        strong("Bodymass"),
-                        " — Body mass in kilograms."
-                    ),
-
-                    tags$li(
-                        strong("Time10m"),
-                        " — Time to reach 10 metres from the start ",
-                        "of the sprint, in seconds."
-                    ),
-
-                    tags$li(
-                        strong("Time20m"),
-                        " — Time to reach 20 metres from the start ",
-                        "of the sprint, in seconds."
-                    ),
-
-                    tags$li(
-                        strong("Time30m"),
-                        " — Time to reach 30 metres from the start ",
-                        "of the sprint, in seconds."
-                    ),
-
-                    tags$li(
-                        strong("Time40m"),
-                        " — Time to reach 40 metres from the start ",
-                        "of the sprint, in seconds."
-                    ),
-
-                    tags$li(
-                        strong("F0"),
-                        " — Theoretical maximal horizontal force, ",
-                        "expressed relative to body mass (N/kg)."
-                    ),
-
-                    tags$li(
-                        strong("V0"),
-                        " — Theoretical maximal velocity (m/s)."
-                    ),
-
-                    tags$li(
-                        strong("Pmax"),
-                        " — Maximal mechanical power relative to body ",
-                        "mass (W/kg)."
-                    ),
-
-                    tags$li(
-                        strong("FVSlope"),
-                        " — Slope of the force–velocity relationship."
-                    ),
-
-                    tags$li(
-                        strong("RFmax"),
-                        " — Maximum ratio of horizontal force to total ",
-                        "force."
-                    ),
-
-                    tags$li(
-                        strong("DRF"),
-                        " — Decrease in the ratio of horizontal force ",
-                        "to total force as running velocity increases."
-                    )
-
-                ),
-
-                h5("The sprint measurements"),
-
-                p(
-                    "The variables Time10m, Time20m, Time30m and Time40m ",
-                    "are cumulative sprint times. They describe how long ",
-                    "an individual took to reach each distance from the ",
-                    "start of the sprint."
-                ),
-
-                p(
-                    "For example, Time20m is the total time taken to reach ",
-                    "20 metres, rather than the time taken to run only the ",
-                    "10-metre section between 10 and 20 metres."
-                ),
-
-                p(
-                    "These variables can be used to investigate questions ",
-                    "such as whether athletes who reach 20 metres quickly ",
-                    "also tend to reach 40 metres quickly, or how sprint ",
-                    "performance varies between sports or between the ",
-                    "recorded sex categories."
-                ),
-
-                h5("Force–velocity and power measures"),
-
-                p(
-                    "The variables F0, V0, Pmax, FVSlope, RFmax and DRF ",
-                    "describe different aspects of force production, ",
-                    "running velocity, mechanical power and the ",
-                    "force–velocity relationship."
-                ),
-
-                p(
-                    "These are numerical variables that can be explored ",
-                    "using summary statistics, histograms, boxplots and ",
-                    "scatterplots."
-                ),
-
-                h5("A note about the original data"),
-
-                p(
-                    "The original dataset is named ",
-                    strong("Sprinttest_Olympiatoppen.tab"),
-                    " and is provided as a tab-delimited data file."
-                ),
-
-                p(
-                    "The original file contains 15 variables and 667 ",
-                    "rows. The repository describes the file as containing ",
-                    "data from 666 40-m sprint tests; the additional row is ",
-                    "the units row included in the original file."
-                ),
-
-                p(
-                    "When preparing the data for use in this toolkit, the ",
-                    "units row is removed because it is not an individual ",
-                    "observation. The required variables are then retained ",
-                    "and the numerical measurement variables are converted ",
-                    "to numeric values."
-                ),
-
-                h5("Source and reference"),
-
-                p(
-                    "The data were obtained from the DataverseNO repository ",
-                    "at the University of Agder."
-                ),
-
-                p(
-                    strong(
-                        "Haugen, T., Seiler, S., & Breitschadel, F. (2020). "
-                    ),
-                    em(
-                        "40m sprint mechanics dataset male and female athletes ",
-                        "UiA/Olympiatoppen"
-                    ),
-                    ". DataverseNO. ",
-                    "https://doi.org/10.18710/PJONBM"
-                ),
-
-                p(
-                    "The dataset was produced by the Norwegian Olympic ",
-                    "Federation and distributed through the University of ",
-                    "Agder's research data repository."
-                ),
-
-                p(
-                    "The dataset is available under a Creative Commons ",
-                    "CC0 1.0 Universal Public Domain Dedication."
-                ),
-
-                p(
-                    "A related publication using the dataset is:"
-                ),
-
-                p(
-                    strong(
-                        "Haugen, T. A., Breitschädel, F., & Seiler, S. (2019). "
-                    ),
-                    em(
-                        "Sprint Mechanical Properties in Handball and ",
-                        "Basketball Players"
-                    ),
-                    ". ",
-                    em(
-                        "International Journal of Sports Physiology and ",
-                        "Performance, 14"
-                    ),
-                    "(10), 1388–1394. ",
-                    "doi:10.1123/ijspp.2019-0180."
-                ),
-
-                h5("Using the dataset in this toolkit"),
-
-                p(
-                    "Try selecting ",
-                    strong("Sport"),
-                    " or ",
-                    strong("Sex"),
-                    " as the categorical variable and use the subset ",
-                    "controls to explore particular groups of individuals."
-                ),
-
-                p(
-                    "You can then use the numerical variable selector to ",
-                    "investigate age, body mass, sprint times, or the ",
-                    "force–velocity variables using summary statistics, ",
-                    "histograms, boxplots and scatterplots."
-                )
-
-            )
-
-        )
-
-    )
-
-
-
-
-
 
 
     # =========================================================
@@ -1078,8 +742,6 @@ stats_toolkit_ui <- function(id) {
     results_panel <- div(
 
         mtcars_info,
-
-        sports_info,
 
         card(
 
@@ -1169,7 +831,8 @@ stats_toolkit_server <- function(id) {
             # =====================================================
             # Raw dataframe
             #
-            # This is deliberately independent of subsetting.
+            # This is deliberately independent of the analysis
+            # variable selections.
             # =====================================================
 
             raw_data <- reactive({
@@ -1181,7 +844,12 @@ stats_toolkit_server <- function(id) {
                 # mtcars
                 # -------------------------------------------------
 
-                if (identical(input$data_source, "mtcars")) {
+                if (
+                    identical(
+                        input$data_source,
+                        "mtcars"
+                    )
+                ) {
 
                     mtcars_file <- system.file(
                         "extdata",
@@ -1205,42 +873,11 @@ stats_toolkit_server <- function(id) {
                         need(
                             is.data.frame(df),
                             "The mtcars data could not be loaded."
-                        )
-                    )
+                        ),
 
-                    return(df)
-
-                }
-
-
-                # -------------------------------------------------
-                # Sports
-                # -------------------------------------------------
-
-                if (identical(input$data_source, "sports")) {
-
-                    sports_file <- system.file(
-                        "extdata",
-                        "sports_data.csv",
-                        package = "pws"
-                    )
-
-                    validate(
                         need(
-                            nzchar(sports_file),
-                            "sports_data.csv could not be found."
-                        )
-                    )
-
-                    df <- readr::read_csv(
-                        sports_file,
-                        show_col_types = FALSE
-                    )
-
-                    validate(
-                        need(
-                            is.data.frame(df),
-                            "The sports data could not be loaded."
+                            ncol(df) > 0,
+                            "The mtcars dataset contains no variables."
                         )
                     )
 
@@ -1279,6 +916,11 @@ stats_toolkit_server <- function(id) {
                     need(
                         is.data.frame(df),
                         "The uploaded file could not be read."
+                    ),
+
+                    need(
+                        ncol(df) > 0,
+                        "The uploaded CSV contains no variables."
                     )
                 )
 
@@ -1382,42 +1024,6 @@ stats_toolkit_server <- function(id) {
 
 
             # =====================================================
-            # Download sports
-            # =====================================================
-
-            output$download_sports <- downloadHandler(
-
-                filename = function() {
-                    "sports_data.csv"
-                },
-
-                content = function(file) {
-
-                    sports_file <- system.file(
-                        "extdata",
-                        "sports_data.csv",
-                        package = "pws"
-                    )
-
-                    validate(
-                        need(
-                            nzchar(sports_file),
-                            "sports_data.csv could not be found in the package."
-                        )
-                    )
-
-                    file.copy(
-                        sports_file,
-                        file,
-                        overwrite = TRUE
-                    )
-
-                }
-
-            )
-
-
-            # =====================================================
             # Generate simulated vector data
             # =====================================================
 
@@ -1471,9 +1077,6 @@ stats_toolkit_server <- function(id) {
             # =====================================================
             # Reset dependent inputs whenever the DATA SOURCE
             # changes.
-            #
-            # This is the key protection against the sports -> mtcars
-            # stale-input problem.
             # =====================================================
 
             observeEvent(
@@ -1482,75 +1085,53 @@ stats_toolkit_server <- function(id) {
 
                 {
 
-                    source <- input$data_source
-
-
                     # -------------------------------------------------
-                    # Clear subset immediately.
-                    #
-                    # The old sports category may not exist in mtcars.
-                    # -------------------------------------------------
-
-                    updateSelectInput(
-                        session,
-                        "subset_col",
-                        choices = c("None" = ""),
-                        selected = ""
-                    )
-
-                    updateSelectInput(
-                        session,
-                        "subset_value",
-                        choices = c("All" = ""),
-                        selected = ""
-                    )
-
-
-                    # -------------------------------------------------
-                    # Clear variable selectors while the new data
-                    # are being loaded.
-                    # -------------------------------------------------
-
-                    updateSelectInput(
-                        session,
-                        "summary_col",
-                        choices = character(0),
-                        selected = character(0)
-                    )
-
-                    updateSelectInput(
-                        session,
-                        "x_col",
-                        choices = character(0),
-                        selected = character(0)
-                    )
-
-                    updateSelectInput(
-                        session,
-                        "y_col",
-                        choices = character(0),
-                        selected = character(0)
-                    )
-
-
-
-                    # -------------------------------------------------
-                    # Reset scatterplot selection whenever the dataset
-                    # changes.
-                    #
-                    # Scatterplot is available for dataframe datasets,
-                    # but is always returned to its default unchecked
-                    # state when switching datasets.
+                    # Clear variable selectors when switching away
+                    # from dataframe data.
                     # -------------------------------------------------
 
                     if (
-                        source %in%
+                        !input$data_source %in%
                         c(
                             "csv",
-                            "mtcars",
-                            "sports"
+                            "mtcars"
                         )
                     ) {
+
+                        updateSelectInput(
+                            session,
+                            "summary_col",
+                            choices = character(0),
+                            selected = character(0)
+                        )
+
+                        updateSelectInput(
+                            session,
+                            "x_col",
+                            choices = character(0),
+                            selected = character(0)
+                        )
+
+                        updateSelectInput(
+                            session,
+                            "y_col",
+                            choices = character(0),
+                            selected = character(0)
+                        )
+
+                        updateCheckboxGroupInput(
+                            session,
+                            "scatter_action",
+                            choices = character(0),
+                            selected = character(0)
+                        )
+
+                    } else {
+
+                        # -------------------------------------------------
+                        # Make sure Scatterplot is available for
+                        # dataframe sources.
+                        # -------------------------------------------------
 
                         updateCheckboxGroupInput(
                             session,
@@ -1561,16 +1142,8 @@ stats_toolkit_server <- function(id) {
                             selected = character(0)
                         )
 
-                    } else {
-
-                        updateCheckboxGroupInput(
-                            session,
-                            "scatter_action",
-                            choices = character(0),
-                            selected = character(0)
-                        )
-
                     }
+
 
                     updateCheckboxInput(
                         session,
@@ -1587,10 +1160,6 @@ stats_toolkit_server <- function(id) {
 
             # =====================================================
             # Data used for analysis
-            #
-            # IMPORTANT:
-            # Subsetting is defensive. A stale input can never
-            # produce a zero-length logical row index.
             # =====================================================
 
             toolkit_data <- reactive({
@@ -1663,79 +1232,45 @@ stats_toolkit_server <- function(id) {
                     need(
                         is.data.frame(df),
                         "No dataframe is available."
+                    ),
+
+                    need(
+                        nrow(df) > 0,
+                        "The dataset contains no observations."
+                    ),
+
+                    need(
+                        ncol(df) > 0,
+                        "The dataset contains no variables."
                     )
                 )
 
 
                 # -------------------------------------------------
-                # DEFENSIVE SUBSETTING
+                # All dataframe columns are expected to be numerical.
                 # -------------------------------------------------
 
-                subset_col <- input$subset_col
-                subset_value <- input$subset_value
-
-
-                use_subset <- (
-
-                    !is.null(subset_col) &&
-
-                        length(subset_col) == 1 &&
-
-                        !is.na(subset_col) &&
-
-                        nzchar(subset_col) &&
-
-                        subset_col %in% names(df) &&
-
-                        !is.null(subset_value) &&
-
-                        length(subset_value) == 1 &&
-
-                        !is.na(subset_value) &&
-
-                        nzchar(subset_value)
-
-                )
-
-
-                if (use_subset) {
-
-                    column_values <- df[[subset_col]]
-
-                    keep <- (
-
-                        !is.na(column_values) &
-
-                            as.character(column_values) ==
-                            as.character(subset_value)
-
+                non_numeric <- names(df)[
+                    !vapply(
+                        df,
+                        is.numeric,
+                        logical(1)
                     )
-
-
-                    # -------------------------------------------------
-                    # Additional protection:
-                    # the row index must have exactly nrow(df) values.
-                    # -------------------------------------------------
-
-                    if (
-                        length(keep) == nrow(df)
-                    ) {
-
-                        df <- df[
-                            keep,
-                            ,
-                            drop = FALSE
-                        ]
-
-                    }
-
-                }
+                ]
 
 
                 validate(
                     need(
-                        nrow(df) > 0,
-                        "No observations remain after subsetting."
+                        length(non_numeric) == 0,
+                        paste0(
+                            "All columns must be numerical. ",
+                            "The following columns are not numerical: ",
+                            paste(
+                                non_numeric,
+                                collapse = ", "
+                            ),
+                            "."
+                        )
                     )
                 )
 
@@ -1749,324 +1284,174 @@ stats_toolkit_server <- function(id) {
 
 
             # =====================================================
-            # Populate variable selectors from CURRENT raw dataset
-            # =====================================================
-
-            observe({
-
-                req(
-                    input$data_source %in%
-                        c("csv", "mtcars", "sports")
-                )
-
-                df <- raw_data()
-
-                req(
-                    is.data.frame(df),
-                    ncol(df) > 0
-                )
-
-
-                # -------------------------------------------------
-                # Numerical columns
-                # -------------------------------------------------
-
-                numeric_cols <- names(df)[
-                    vapply(
-                        df,
-                        is.numeric,
-                        logical(1)
-                    )
-                ]
-
-
-                # -------------------------------------------------
-                # Categorical columns
-                # -------------------------------------------------
-
-                categorical_cols <- names(df)[
-                    vapply(
-
-                        df,
-
-                        function(x) {
-
-                            if (
-                                is.character(x) ||
-                                is.factor(x) ||
-                                is.logical(x)
-                            ) {
-                                return(TRUE)
-                            }
-
-                            if (is.numeric(x)) {
-
-                                n_unique <- length(
-                                    unique(
-                                        na.omit(x)
-                                    )
-                                )
-
-                                return(
-                                    n_unique <= 10
-                                )
-                            }
-
-                            FALSE
-                        },
-
-                        logical(1)
-                    )
-                ]
-
-
-                # -------------------------------------------------
-                # Preserve valid existing selections
-                # -------------------------------------------------
-
-                current_subset_col <- isolate(
-                    input$subset_col
-                )
-
-                current_summary <- isolate(
-                    input$summary_col
-                )
-
-                current_x <- isolate(
-                    input$x_col
-                )
-
-                current_y <- isolate(
-                    input$y_col
-                )
-
-
-                # -------------------------------------------------
-                # Categorical variable selector
-                # -------------------------------------------------
-
-                subset_choices <- c(
-                    "None" = "",
-                    setNames(
-                        categorical_cols,
-                        categorical_cols
-                    )
-                )
-
-                selected_subset_col <- if (
-                    !is.null(current_subset_col) &&
-                    length(current_subset_col) == 1 &&
-                    current_subset_col %in% categorical_cols
-                ) {
-                    current_subset_col
-                } else {
-                    ""
-                }
-
-                updateSelectInput(
-                    session,
-                    "subset_col",
-                    choices = subset_choices,
-                    selected = selected_subset_col
-                )
-
-
-                # -------------------------------------------------
-                # Numerical variable selector
-                # -------------------------------------------------
-
-                selected_summary <- if (
-                    length(numeric_cols) > 0 &&
-                    !is.null(current_summary) &&
-                    length(current_summary) == 1 &&
-                    current_summary %in% numeric_cols
-                ) {
-                    current_summary
-                } else if (
-                    length(numeric_cols) > 0
-                ) {
-                    numeric_cols[1]
-                } else {
-                    character(0)
-                }
-
-                updateSelectInput(
-                    session,
-                    "summary_col",
-                    choices = numeric_cols,
-                    selected = selected_summary
-                )
-
-
-                # -------------------------------------------------
-                # X variable
-                # -------------------------------------------------
-
-                selected_x <- if (
-                    length(numeric_cols) > 0 &&
-                    !is.null(current_x) &&
-                    length(current_x) == 1 &&
-                    current_x %in% numeric_cols
-                ) {
-                    current_x
-                } else if (
-                    length(numeric_cols) > 0
-                ) {
-                    numeric_cols[1]
-                } else {
-                    character(0)
-                }
-
-                updateSelectInput(
-                    session,
-                    "x_col",
-                    choices = numeric_cols,
-                    selected = selected_x
-                )
-
-
-                # -------------------------------------------------
-                # Y variable
-                # -------------------------------------------------
-
-                selected_y <- if (
-                    length(numeric_cols) >= 2 &&
-                    !is.null(current_y) &&
-                    length(current_y) == 1 &&
-                    current_y %in% numeric_cols
-                ) {
-                    current_y
-                } else if (
-                    length(numeric_cols) >= 2
-                ) {
-                    numeric_cols[2]
-                } else if (
-                    length(numeric_cols) == 1
-                ) {
-                    numeric_cols[1]
-                } else {
-                    character(0)
-                }
-
-                updateSelectInput(
-                    session,
-                    "y_col",
-                    choices = numeric_cols,
-                    selected = selected_y
-                )
-
-            })
-
-            # =====================================================
-            # Populate subset values from selected categorical
-            # variable
+            # Populate numerical variable selectors
+            #
+            # IMPORTANT:
+            # This observer now directly assigns valid defaults.
+            #
+            # Summary variable = first numerical column
+            # X variable       = first numerical column
+            # Y variable       = second numerical column
+            #
+            # Existing valid selections are preserved when possible.
             # =====================================================
 
             observeEvent(
 
-                input$subset_col,
+                toolkit_data(),
 
                 {
 
-                    req(
-                        input$data_source %in%
-                            c(
-                                "csv",
-                                "mtcars",
-                                "sports"
-                            )
-                    )
-
-                    df <- raw_data()
+                    dat <- toolkit_data()
 
                     req(
-                        is.data.frame(df)
+                        identical(
+                            dat$type,
+                            "dataframe"
+                        )
+                    )
+
+                    df <- dat$data
+
+                    req(
+                        is.data.frame(df),
+                        ncol(df) > 0
                     )
 
 
-                    subset_col <- input$subset_col
+                    numeric_cols <- names(df)[
+                        vapply(
+                            df,
+                            is.numeric,
+                            logical(1)
+                        )
+                    ]
+
+
+                    req(
+                        length(numeric_cols) > 0
+                    )
 
 
                     # -------------------------------------------------
-                    # No categorical variable selected
+                    # Current selections
+                    # -------------------------------------------------
+
+                    current_summary <- input$summary_col
+                    current_x <- input$x_col
+                    current_y <- input$y_col
+
+
+                    # -------------------------------------------------
+                    # Summary variable
+                    #
+                    # Keep the current selection if it is valid.
+                    # Otherwise use the first numerical column.
                     # -------------------------------------------------
 
                     if (
-                        is.null(subset_col) ||
-                        length(subset_col) != 1 ||
-                        !nzchar(subset_col) ||
-                        !subset_col %in% names(df)
+                        !is.null(current_summary) &&
+                        length(current_summary) == 1 &&
+                        current_summary %in% numeric_cols
                     ) {
 
-                        updateSelectInput(
-                            session,
-                            "subset_value",
-                            choices = c(
-                                "All" = ""
-                            ),
-                            selected = ""
-                        )
+                        selected_summary <- current_summary
 
-                        return()
-                    }
-
-
-                    # -------------------------------------------------
-                    # Get values from selected column
-                    # -------------------------------------------------
-
-                    values <- unique(
-                        as.character(
-                            df[[subset_col]]
-                        )
-                    )
-
-                    values <- values[
-                        !is.na(values)
-                    ]
-
-                    values <- sort(
-                        values
-                    )
-
-
-                    # -------------------------------------------------
-                    # Build choices
-                    # -------------------------------------------------
-
-                    value_choices <- c(
-                        "All" = "",
-                        setNames(
-                            values,
-                            values
-                        )
-                    )
-
-
-                    # -------------------------------------------------
-                    # Preserve current value if it still exists
-                    # -------------------------------------------------
-
-                    current_value <- isolate(
-                        input$subset_value
-                    )
-
-                    selected_value <- if (
-                        !is.null(current_value) &&
-                        length(current_value) == 1 &&
-                        current_value %in% values
-                    ) {
-                        current_value
                     } else {
-                        ""
+
+                        selected_summary <- numeric_cols[1]
+
                     }
 
 
                     updateSelectInput(
+
                         session,
-                        "subset_value",
-                        choices = value_choices,
-                        selected = selected_value
+
+                        "summary_col",
+
+                        choices = numeric_cols,
+
+                        selected = selected_summary
+
+                    )
+
+
+                    # -------------------------------------------------
+                    # X variable
+                    #
+                    # Keep the current selection if valid.
+                    # Otherwise use the first numerical column.
+                    # -------------------------------------------------
+
+                    if (
+                        !is.null(current_x) &&
+                        length(current_x) == 1 &&
+                        current_x %in% numeric_cols
+                    ) {
+
+                        selected_x <- current_x
+
+                    } else {
+
+                        selected_x <- numeric_cols[1]
+
+                    }
+
+
+                    updateSelectInput(
+
+                        session,
+
+                        "x_col",
+
+                        choices = numeric_cols,
+
+                        selected = selected_x
+
+                    )
+
+
+                    # -------------------------------------------------
+                    # Y variable
+                    #
+                    # Keep the current selection if valid.
+                    # Otherwise use the second numerical column.
+                    #
+                    # If there is only one column, use that column.
+                    # -------------------------------------------------
+
+                    if (
+                        !is.null(current_y) &&
+                        length(current_y) == 1 &&
+                        current_y %in% numeric_cols
+                    ) {
+
+                        selected_y <- current_y
+
+                    } else if (
+                        length(numeric_cols) >= 2
+                    ) {
+
+                        selected_y <- numeric_cols[2]
+
+                    } else {
+
+                        selected_y <- numeric_cols[1]
+
+                    }
+
+
+                    updateSelectInput(
+
+                        session,
+
+                        "y_col",
+
+                        choices = numeric_cols,
+
+                        selected = selected_y
+
                     )
 
                 },
@@ -2075,6 +1460,50 @@ stats_toolkit_server <- function(id) {
 
             )
 
+
+            # =====================================================
+            # Regression results UI
+            # =====================================================
+
+            output$regression_results <- renderUI({
+
+                if (
+                    !isTRUE(input$add_lm)
+                ) {
+
+                    return(
+
+                        div(
+
+                            style = "
+                                color: #6c757d;
+                                padding: 20px;
+                                text-align: center;
+                            ",
+
+                            p(
+                                "Regression results will appear here ",
+                                "when a regression line is selected."
+                            )
+
+                        )
+
+                    )
+
+                }
+
+
+                tagList(
+
+                    h5("Coefficients"),
+
+                    tableOutput(
+                        ns("regression_coefficients")
+                    )
+
+                )
+
+            })
 
 
             # =====================================================
@@ -2098,8 +1527,6 @@ stats_toolkit_server <- function(id) {
 
                 # =====================================================
                 # SCATTERPLOT MODE
-                #
-                # Show scatterplot and regression results side by side.
                 # =====================================================
 
                 if (
@@ -2107,8 +1534,7 @@ stats_toolkit_server <- function(id) {
                     input$data_source %in%
                     c(
                         "csv",
-                        "mtcars",
-                        "sports"
+                        "mtcars"
                     ) &&
 
                     scatter_selected
@@ -2157,50 +1583,6 @@ stats_toolkit_server <- function(id) {
                     )
 
                 }
-
-                # =====================================================
-                # Regression results UI
-                # =====================================================
-
-                output$regression_results <- renderUI({
-
-                    if (
-                        !isTRUE(input$add_lm)
-                    ) {
-
-                        return(
-
-                            div(
-
-                                style = "
-                    color: #6c757d;
-                    padding: 20px;
-                    text-align: center;
-                ",
-
-                                p(
-                                    "Regression results will appear here ",
-                                    "when a regression line is selected."
-                                )
-
-                            )
-
-                        )
-
-                    }
-
-
-                    tagList(
-
-                        h5("Coefficients"),
-
-                        tableOutput(
-                            ns("regression_coefficients")
-                        )
-
-                    )
-
-                })
 
 
                 # =====================================================
@@ -2373,6 +1755,7 @@ stats_toolkit_server <- function(id) {
 
             })
 
+
             # =====================================================
             # Summary statistics
             # =====================================================
@@ -2418,7 +1801,6 @@ stats_toolkit_server <- function(id) {
 
                     x <- dat$data[[input$summary_col]]
 
-
                 }
 
 
@@ -2430,8 +1812,8 @@ stats_toolkit_server <- function(id) {
                     ),
 
                     need(
-                        length(x) > 0,
-                        "No data are available."
+                        sum(!is.na(x)) > 0,
+                        "No numerical observations are available."
                     )
 
                 )
@@ -2512,14 +1894,22 @@ stats_toolkit_server <- function(id) {
                 )
 
 
-                layout_columns(
+                do.call(
 
-                    col_widths = rep(
-                        4,
-                        length(boxes)
-                    ),
+                    layout_columns,
 
-                    !!!boxes
+                    c(
+
+                        list(
+                            col_widths = rep(
+                                4,
+                                length(boxes)
+                            )
+                        ),
+
+                        boxes
+
+                    )
 
                 )
 
@@ -2533,6 +1923,7 @@ stats_toolkit_server <- function(id) {
             output$tool_hist <- renderPlot({
 
                 dat <- toolkit_data()
+
 
                 if (
                     identical(
@@ -2637,7 +2028,7 @@ stats_toolkit_server <- function(id) {
 
                     need(
                         is.numeric(x),
-                        "Boxplot requires numeric data."
+                        "Boxplot requires numerical data."
                     ),
 
                     need(
@@ -2795,11 +2186,10 @@ stats_toolkit_server <- function(id) {
 
             })
 
+
             # =====================================================
             # Regression line coefficients
             # =====================================================
-
-
 
             output$regression_coefficients <- renderTable({
 
@@ -2807,8 +2197,7 @@ stats_toolkit_server <- function(id) {
                     input$data_source %in%
                         c(
                             "csv",
-                            "mtcars",
-                            "sports"
+                            "mtcars"
                         )
                 )
 
@@ -2835,15 +2224,18 @@ stats_toolkit_server <- function(id) {
                     input$y_col
                 )
 
+
                 validate(
 
                     need(
-                        input$x_col %in% names(dat$data),
+                        input$x_col %in%
+                            names(dat$data),
                         "Please select a valid X variable."
                     ),
 
                     need(
-                        input$y_col %in% names(dat$data),
+                        input$y_col %in%
+                            names(dat$data),
                         "Please select a valid Y variable."
                     )
 
@@ -2932,9 +2324,6 @@ stats_toolkit_server <- function(id) {
             })
 
 
-
-
-
             # =====================================================
             # Generated R code
             # =====================================================
@@ -2945,11 +2334,13 @@ stats_toolkit_server <- function(id) {
                     input$data_source
                 )
 
+
                 actions <- input$toolkit_action
 
                 if (is.null(actions)) {
                     actions <- character(0)
                 }
+
 
                 # -------------------------------------------------
                 # DATA
@@ -2970,6 +2361,7 @@ stats_toolkit_server <- function(id) {
                     ) {
 
                         data_code <- paste(
+
                             "# Generate simulated data",
 
                             paste0(
@@ -2991,15 +2383,13 @@ stats_toolkit_server <- function(id) {
 
                             "",
 
-                            paste(
-                                "x <- rpois(",
-                                "    nsim,",
-                                "    lambda",
-                                ")",
-                                sep = "\n"
-                            ),
+                            "x <- rpois(",
+                            "    nsim,",
+                            "    lambda",
+                            ")",
 
                             sep = "\n"
+
                         )
 
                     } else {
@@ -3012,13 +2402,24 @@ stats_toolkit_server <- function(id) {
                         )
 
                         data_code <- paste0(
+
                             "x <- c(",
+
                             paste(
                                 shown_vals,
                                 collapse = ", "
                             ),
-                            if (length(vals) > 20) ", ..." else "",
+
+                            if (
+                                length(vals) > 20
+                            ) {
+                                ", ..."
+                            } else {
+                                ""
+                            },
+
                             ")"
+
                         )
 
                     }
@@ -3031,22 +2432,13 @@ stats_toolkit_server <- function(id) {
                 ) {
 
                     data_code <- paste(
+
                         "# Load the mtcars example data",
+
                         'data <- read.csv("mtcars.csv")',
-                        sep = "\n"
-                    )
 
-                } else if (
-                    identical(
-                        input$data_source,
-                        "sports"
-                    )
-                ) {
-
-                    data_code <- paste(
-                        "# Load the sports example data",
-                        'data <- read.csv("sports_data.csv")',
                         sep = "\n"
+
                     )
 
                 } else {
@@ -3059,23 +2451,30 @@ stats_toolkit_server <- function(id) {
                         "my_data.csv"
                     }
 
+
                     data_code <- paste(
+
                         "# Load uploaded CSV data",
+
                         paste0(
                             "data <- read.csv(",
                             shQuote(file_name),
                             ")"
                         ),
+
                         sep = "\n"
+
                     )
 
                 }
+
 
                 # -------------------------------------------------
                 # ANALYSIS
                 # -------------------------------------------------
 
                 analysis_code <- character(0)
+
 
                 # -------------------------------------------------
                 # Summary statistics
@@ -3142,76 +2541,113 @@ stats_toolkit_server <- function(id) {
 
                             varname <- input$summary_col
 
+
                             if (
                                 !is.null(varname) &&
                                 length(varname) == 1 &&
                                 nzchar(varname)
                             ) {
 
+                                variable <- paste0(
+                                    "data$`",
+                                    varname,
+                                    "`"
+                                )
+
+
                                 if ("Mean" %in% stats) {
+
                                     analysis_code <- c(
                                         analysis_code,
+
                                         paste0(
-                                            "mean(data$`",
-                                            varname,
-                                            "`, na.rm = TRUE)"
+                                            "mean(",
+                                            variable,
+                                            ", na.rm = TRUE)"
                                         )
+
                                     )
+
                                 }
+
 
                                 if ("Median" %in% stats) {
+
                                     analysis_code <- c(
                                         analysis_code,
+
                                         paste0(
-                                            "median(data$`",
-                                            varname,
-                                            "`, na.rm = TRUE)"
+                                            "median(",
+                                            variable,
+                                            ", na.rm = TRUE)"
                                         )
+
                                     )
+
                                 }
+
 
                                 if ("SD" %in% stats) {
+
                                     analysis_code <- c(
                                         analysis_code,
+
                                         paste0(
-                                            "sd(data$`",
-                                            varname,
-                                            "`, na.rm = TRUE)"
+                                            "sd(",
+                                            variable,
+                                            ", na.rm = TRUE)"
                                         )
+
                                     )
+
                                 }
+
 
                                 if ("Variance" %in% stats) {
+
                                     analysis_code <- c(
                                         analysis_code,
+
                                         paste0(
-                                            "var(data$`",
-                                            varname,
-                                            "`, na.rm = TRUE)"
+                                            "var(",
+                                            variable,
+                                            ", na.rm = TRUE)"
                                         )
+
                                     )
+
                                 }
+
 
                                 if ("Min" %in% stats) {
+
                                     analysis_code <- c(
                                         analysis_code,
+
                                         paste0(
-                                            "min(data$`",
-                                            varname,
-                                            "`, na.rm = TRUE)"
+                                            "min(",
+                                            variable,
+                                            ", na.rm = TRUE)"
                                         )
+
                                     )
+
                                 }
 
+
                                 if ("Max" %in% stats) {
+
                                     analysis_code <- c(
                                         analysis_code,
+
                                         paste0(
-                                            "max(data$`",
-                                            varname,
-                                            "`, na.rm = TRUE)"
+                                            "max(",
+                                            variable,
+                                            ", na.rm = TRUE)"
                                         )
+
                                     )
+
                                 }
 
                             }
@@ -3222,12 +2658,20 @@ stats_toolkit_server <- function(id) {
 
                 }
 
+
                 # -------------------------------------------------
                 # Histogram
                 # -------------------------------------------------
 
                 if (
-                    "Histogram" %in% actions
+
+                    "Graphical display" %in% actions &&
+
+                    identical(
+                        input$graph_type,
+                        "histogram"
+                    )
+
                 ) {
 
                     if (
@@ -3238,22 +2682,31 @@ stats_toolkit_server <- function(id) {
                     ) {
 
                         analysis_code <- c(
+
                             analysis_code,
+
                             paste0(
                                 "hist(x, breaks = ",
                                 input$hist_bins,
                                 ")"
                             )
+
                         )
 
                     } else if (
+
                         !is.null(input$summary_col) &&
+
                         length(input$summary_col) == 1 &&
+
                         nzchar(input$summary_col)
+
                     ) {
 
                         analysis_code <- c(
+
                             analysis_code,
+
                             paste0(
                                 "hist(data$`",
                                 input$summary_col,
@@ -3261,18 +2714,27 @@ stats_toolkit_server <- function(id) {
                                 input$hist_bins,
                                 ")"
                             )
+
                         )
 
                     }
 
                 }
 
+
                 # -------------------------------------------------
                 # Boxplot
                 # -------------------------------------------------
 
                 if (
-                    "Boxplot" %in% actions
+
+                    "Graphical display" %in% actions &&
+
+                    identical(
+                        input$graph_type,
+                        "boxplot"
+                    )
+
                 ) {
 
                     if (
@@ -3288,49 +2750,67 @@ stats_toolkit_server <- function(id) {
                         )
 
                     } else if (
+
                         !is.null(input$summary_col) &&
+
                         length(input$summary_col) == 1 &&
+
                         nzchar(input$summary_col)
+
                     ) {
 
                         analysis_code <- c(
+
                             analysis_code,
+
                             paste0(
                                 "boxplot(data$`",
                                 input$summary_col,
                                 "`)"
                             )
+
                         )
 
                     }
 
                 }
 
+
                 # -------------------------------------------------
                 # Scatterplot
                 # -------------------------------------------------
 
                 if (
+
                     input$data_source %in%
                     c(
                         "csv",
-                        "mtcars",
-                        "sports"
+                        "mtcars"
                     ) &&
+
                     "Scatterplot" %in%
                     (input$scatter_action %||% character(0))
+
                 ) {
 
                     if (
+
                         !is.null(input$x_col) &&
+
                         length(input$x_col) == 1 &&
+
                         nzchar(input$x_col) &&
+
                         !is.null(input$y_col) &&
+
                         length(input$y_col) == 1 &&
+
                         nzchar(input$y_col)
+
                     ) {
 
                         analysis_code <- c(
+
                             analysis_code,
 
                             paste0(
@@ -3338,15 +2818,20 @@ stats_toolkit_server <- function(id) {
                                 input$x_col,
                                 "`, data$`",
                                 input$y_col,
-                                "`, pch = 19)"
+                                "`, pch = 19, cex = ",
+                                input$point_size,
+                                ")"
                             )
+
                         )
+
 
                         if (
                             isTRUE(input$add_lm)
                         ) {
 
                             analysis_code <- c(
+
                                 analysis_code,
 
                                 paste0(
@@ -3360,6 +2845,7 @@ stats_toolkit_server <- function(id) {
                                 "abline(model)",
 
                                 "summary(model)"
+
                             )
 
                         }
@@ -3367,6 +2853,7 @@ stats_toolkit_server <- function(id) {
                     }
 
                 }
+
 
                 # -------------------------------------------------
                 # FINAL CODE
@@ -3377,25 +2864,38 @@ stats_toolkit_server <- function(id) {
                 ) {
 
                     paste(
+
                         "# Data",
+
                         data_code,
+
                         "",
+
                         "# Select an analysis to generate R code.",
+
                         sep = "\n"
+
                     )
 
                 } else {
 
                     paste(
+
                         "# Data",
+
                         data_code,
+
                         "",
+
                         "# Analysis",
+
                         paste(
                             analysis_code,
                             collapse = "\n"
                         ),
+
                         sep = "\n"
+
                     )
 
                 }
@@ -3403,6 +2903,7 @@ stats_toolkit_server <- function(id) {
             })
 
         }
+
     )
 
 }
