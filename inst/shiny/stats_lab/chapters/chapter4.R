@@ -165,9 +165,10 @@ chapter4_ui <- function(id){
                 value using a normal distribution."
             ),
 
-            withMathJax(
-                p(
-                    "\\(\\mu \\sim N(\\mu_0,\\sigma_0^2)\\)"
+            p(
+                tags$span(
+                    style = "font-family: serif; font-style: italic;",
+                    "μ ~ N(μ₀, σ₀²)"
                 )
             ),
 
