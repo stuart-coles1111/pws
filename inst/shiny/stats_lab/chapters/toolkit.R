@@ -267,6 +267,56 @@ stats_toolkit_ui <- function(id) {
             selected = "Summary statistics"
         ),
 
+
+        # ---------------------------------------------------------
+        # Graph type
+        #
+        # Appears immediately below the Display checkboxes
+        # when Graphical display is selected.
+        # ---------------------------------------------------------
+
+        conditionalPanel(
+
+            condition = sprintf(
+                "input['%s'].indexOf('Graphical display') > -1",
+                ns("toolkit_action")
+            ),
+
+            selectInput(
+                ns("graph_type"),
+                "Graph type",
+                choices = c(
+                    "Histogram" = "histogram",
+                    "Boxplot" = "boxplot"
+                ),
+                selected = "histogram"
+            ),
+
+
+            # ---------------------------------------------------------
+            # Histogram controls
+            # ---------------------------------------------------------
+
+            conditionalPanel(
+
+                condition = sprintf(
+                    "input['%s'] == 'histogram'",
+                    ns("graph_type")
+                ),
+
+                sliderInput(
+                    ns("hist_bins"),
+                    "Histogram bins",
+                    min = 1,
+                    max = 50,
+                    value = 10
+                )
+
+            )
+
+        ),
+
+
         # ---------------------------------------------------------
         # Summary statistics selection
         # ---------------------------------------------------------
@@ -298,50 +348,10 @@ stats_toolkit_ui <- function(id) {
 
         ),
 
+
         # ---------------------------------------------------------
-        # Graph type
+        # Relationship analysis
         # ---------------------------------------------------------
-
-        conditionalPanel(
-
-            condition = sprintf(
-                "input['%s'].indexOf('Graphical display') > -1",
-                ns("toolkit_action")
-            ),
-
-            selectInput(
-                ns("graph_type"),
-                "Graph type",
-                choices = c(
-                    "Histogram" = "histogram",
-                    "Boxplot" = "boxplot"
-                ),
-                selected = "histogram"
-            ),
-
-            # ---------------------------------------------------------
-            # Histogram controls
-            # ---------------------------------------------------------
-
-            conditionalPanel(
-
-                condition = sprintf(
-                    "input['%s'] == 'histogram'",
-                    ns("graph_type")
-                ),
-
-                sliderInput(
-                    ns("hist_bins"),
-                    "Histogram bins",
-                    min = 1,
-                    max = 50,
-                    value = 10
-                )
-
-            )
-
-        ),
-
 
         # ---------------------------------------------------------
         # Relationship analysis
@@ -791,6 +801,7 @@ stats_toolkit_ui <- function(id) {
     )
 
 
+
     # =========================================================
     # SPORTS INFORMATION
     # =========================================================
@@ -814,18 +825,19 @@ stats_toolkit_ui <- function(id) {
 
                 p(
                     "This dataset contains individual-level measurements ",
-                    "from sprint testing of athletes from a range of sports. ",
-                    "It provides an example of a real-world multivariable ",
-                    "dataset that can be used to explore distributions, ",
-                    "group differences, and relationships between numerical ",
-                    "variables."
+                    "from 40-m sprint testing of athletes from a range of ",
+                    "sports. It provides an example of a real-world ",
+                    "multivariable dataset that can be used to explore ",
+                    "distributions, group differences, and relationships ",
+                    "between numerical variables."
                 ),
 
                 p(
-                    "The data contain measurements for 666 individuals. ",
-                    "The variables include sport, sex, age, body mass, ",
-                    "sprint times over different distances, and several ",
-                    "force–velocity and power-related measures."
+                    "The dataset contains 666 40-m sprint tests on male ",
+                    "and female athletes from multiple sports. The data ",
+                    "were collected from more than 600 Norwegian athletes ",
+                    "performing 40-m sprint tests under highly controlled ",
+                    "conditions as part of training monitoring."
                 ),
 
                 h5("The variables"),
@@ -858,30 +870,33 @@ stats_toolkit_ui <- function(id) {
                     ),
 
                     tags$li(
-                        strong("X10m"),
-                        " — Time to complete the first 10 metres of the sprint, ",
-                        "in seconds."
+                        strong("Time10m"),
+                        " — Time to reach 10 metres from the start ",
+                        "of the sprint, in seconds."
                     ),
 
                     tags$li(
-                        strong("X20m"),
-                        " — Time to complete 20 metres, in seconds."
+                        strong("Time20m"),
+                        " — Time to reach 20 metres from the start ",
+                        "of the sprint, in seconds."
                     ),
 
                     tags$li(
-                        strong("X30m"),
-                        " — Time to complete 30 metres, in seconds."
+                        strong("Time30m"),
+                        " — Time to reach 30 metres from the start ",
+                        "of the sprint, in seconds."
                     ),
 
                     tags$li(
-                        strong("X40m"),
-                        " — Time to complete 40 metres, in seconds."
+                        strong("Time40m"),
+                        " — Time to reach 40 metres from the start ",
+                        "of the sprint, in seconds."
                     ),
 
                     tags$li(
                         strong("F0"),
-                        " — Theoretical maximal horizontal force, expressed ",
-                        "relative to body mass (N/kg)."
+                        " — Theoretical maximal horizontal force, ",
+                        "expressed relative to body mass (N/kg)."
                     ),
 
                     tags$li(
@@ -891,7 +906,8 @@ stats_toolkit_ui <- function(id) {
 
                     tags$li(
                         strong("Pmax"),
-                        " — Maximal mechanical power relative to body mass (W/kg)."
+                        " — Maximal mechanical power relative to body ",
+                        "mass (W/kg)."
                     ),
 
                     tags$li(
@@ -901,15 +917,14 @@ stats_toolkit_ui <- function(id) {
 
                     tags$li(
                         strong("RFmax"),
-                        " — Maximum ratio of horizontal force to total force, ",
-                        "expressed as a percentage."
+                        " — Maximum ratio of horizontal force to total ",
+                        "force."
                     ),
 
                     tags$li(
                         strong("DRF"),
-                        " — Decrease in the ratio of horizontal force to total ",
-                        "force as running velocity increases, expressed as a ",
-                        "percentage."
+                        " — Decrease in the ratio of horizontal force ",
+                        "to total force as running velocity increases."
                     )
 
                 ),
@@ -917,43 +932,113 @@ stats_toolkit_ui <- function(id) {
                 h5("The sprint measurements"),
 
                 p(
-                    "The variables X10m, X20m, X30m and X40m are cumulative ",
-                    "sprint times. They therefore describe how long an ",
-                    "individual took to reach each distance from the start ",
-                    "of the sprint."
+                    "The variables Time10m, Time20m, Time30m and Time40m ",
+                    "are cumulative sprint times. They describe how long ",
+                    "an individual took to reach each distance from the ",
+                    "start of the sprint."
+                ),
+
+                p(
+                    "For example, Time20m is the total time taken to reach ",
+                    "20 metres, rather than the time taken to run only the ",
+                    "10-metre section between 10 and 20 metres."
                 ),
 
                 p(
                     "These variables can be used to investigate questions ",
                     "such as whether athletes who reach 20 metres quickly ",
                     "also tend to reach 40 metres quickly, or how sprint ",
-                    "performance varies between sports."
+                    "performance varies between sports or between the ",
+                    "recorded sex categories."
                 ),
 
                 h5("Force–velocity and power measures"),
 
                 p(
                     "The variables F0, V0, Pmax, FVSlope, RFmax and DRF ",
-                    "describe different aspects of the relationship between ",
-                    "force production and running velocity. They provide ",
-                    "additional numerical variables that can be explored ",
-                    "using summary statistics and scatterplots."
+                    "describe different aspects of force production, ",
+                    "running velocity, mechanical power and the ",
+                    "force–velocity relationship."
                 ),
 
-                h5("A note about the data"),
+                p(
+                    "These are numerical variables that can be explored ",
+                    "using summary statistics, histograms, boxplots and ",
+                    "scatterplots."
+                ),
+
+                h5("A note about the original data"),
 
                 p(
-                    "The original data file is a tab-separated file named ",
+                    "The original dataset is named ",
                     strong("Sprinttest_Olympiatoppen.tab"),
-                    ". The version used in this Statistics Toolkit has ",
-                    "been converted to CSV format for use within the app."
+                    " and is provided as a tab-delimited data file."
                 ),
 
                 p(
-                    "The original file contains a first row giving the units ",
-                    "of measurement for the variables. This units row is not ",
-                    "an individual observation and should therefore be removed ",
-                    "when preparing the data for analysis."
+                    "The original file contains 15 variables and 667 ",
+                    "rows. The repository describes the file as containing ",
+                    "data from 666 40-m sprint tests; the additional row is ",
+                    "the units row included in the original file."
+                ),
+
+                p(
+                    "When preparing the data for use in this toolkit, the ",
+                    "units row is removed because it is not an individual ",
+                    "observation. The required variables are then retained ",
+                    "and the numerical measurement variables are converted ",
+                    "to numeric values."
+                ),
+
+                h5("Source and reference"),
+
+                p(
+                    "The data were obtained from the DataverseNO repository ",
+                    "at the University of Agder."
+                ),
+
+                p(
+                    strong(
+                        "Haugen, T., Seiler, S., & Breitschadel, F. (2020). "
+                    ),
+                    em(
+                        "40m sprint mechanics dataset male and female athletes ",
+                        "UiA/Olympiatoppen"
+                    ),
+                    ". DataverseNO. ",
+                    "https://doi.org/10.18710/PJONBM"
+                ),
+
+                p(
+                    "The dataset was produced by the Norwegian Olympic ",
+                    "Federation and distributed through the University of ",
+                    "Agder's research data repository."
+                ),
+
+                p(
+                    "The dataset is available under a Creative Commons ",
+                    "CC0 1.0 Universal Public Domain Dedication."
+                ),
+
+                p(
+                    "A related publication using the dataset is:"
+                ),
+
+                p(
+                    strong(
+                        "Haugen, T. A., Breitschädel, F., & Seiler, S. (2019). "
+                    ),
+                    em(
+                        "Sprint Mechanical Properties in Handball and ",
+                        "Basketball Players"
+                    ),
+                    ". ",
+                    em(
+                        "International Journal of Sports Physiology and ",
+                        "Performance, 14"
+                    ),
+                    "(10), 1388–1394. ",
+                    "doi:10.1123/ijspp.2019-0180."
                 ),
 
                 h5("Using the dataset in this toolkit"),
@@ -979,6 +1064,9 @@ stats_toolkit_ui <- function(id) {
         )
 
     )
+
+
+
 
 
 
