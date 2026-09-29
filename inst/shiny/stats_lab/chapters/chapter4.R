@@ -127,7 +127,7 @@ chapter4_ui <- function(id){
 
             card_header(
                 div(
-                    "Module 4: Bayesian Updating",
+                    "Module 4: Uncertainty",
                     style = "
                     font-size: 1.4rem;
                     font-weight: 700;
@@ -181,7 +181,7 @@ chapter4_ui <- function(id){
 
             hr(),
 
-            h5("How to use the Bayesian explorer"),
+            h5("How to use the Explorer"),
 
             tags$ol(
 
@@ -303,7 +303,7 @@ chapter4_ui <- function(id){
 
         id = id,
 
-        title = "📉 Module 4: Bayesian Updating",
+        title = "📉 Module 4: Uncertainty",
 
         sidebar = sidebar_controls,
 
