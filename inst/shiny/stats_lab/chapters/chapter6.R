@@ -397,7 +397,9 @@ chapter6_ui <- function(id){
 
 
     # =======================================================
+
     # Overview
+
     # =======================================================
 
     overview_panel <- div(
@@ -405,169 +407,472 @@ chapter6_ui <- function(id){
         card(
 
             style = "
-        border-radius: 16px;
-        border: none;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        padding: 10px;
+    border-radius: 16px;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    padding: 10px;
     ",
 
-            card_header(
-                div(
-                    "🔍 Context in statistical design and analysis",
-                    style = "
+            # =================================================
+            # BIRTHDAY PROBLEM
+            # =================================================
+
+            conditionalPanel(
+
+                condition = sprintf(
+                    "input['%s'] == 'Birthday Problem'",
+                    ns("demo")
+                ),
+
+                card_header(
+                    div(
+                        "Module 6: The birthday problem",
+                        style = "
                 font-size: 1.4rem;
                 font-weight: 700;
                 color: #2c3e50;
-            "
-                )
-            ),
-
-            p(
-                strong("Main idea: "),
-                "Statistical conclusions depend not only on calculations, but also on how questions are asked and how data are generated. ",
-                "The way in which data are obtained and the context in which they are analysed can affect what conclusions can reasonably be drawn."
-            ),
-
-            p(
-                "Good statistical analysis therefore requires understanding the process that produced the data, ",
-                "whether from a designed experiment, an observational study, or a random sample from a population of interest."
-            ),
-
-            hr(),
-
-            h5("Three contexts"),
-
-            p(
-                "This module explores three examples that illustrate how probability and statistical reasoning depend on context:"
-            ),
-
-            tags$ul(
-                tags$li("The birthday problem"),
-                tags$li("A potential ITV jinx when showing England games"),
-                tags$li("The problem of data dredging")
-            ),
-
-            hr(),
-
-            h5("Your options"),
-
-            p(
-                "The birthday problem includes both the classic version and a non-classic version discussed in ",
-                em("Playing With Statistics"),
-                "."
-            ),
-
-            tags$ul(
-                tags$li(
-                    tags$strong("The classic version: "),
-                    "explore how the probability of a shared birthday changes as the group size increases."
+                "
+                    )
                 ),
 
-                tags$li(
-                    tags$strong("The non-classic version: "),
-                    "explore how different ways of framing a question can lead to very different probabilities."
-                )
-            ),
+                p(
+                    strong(
+                        "This example explores how the probability of a shared birthday depends on how the question is defined."
+                    )
+                ),
 
-            p(
-                "The ITV jinx investigation allows you to repeat the analysis from ",
-                em("Playing With Statistics"),
-                ", or explore similar comparisons using your own data. ",
-                "The aim is to investigate how much evidence is needed before a difference between groups ",
-                "can be distinguished from random variation."
-            ),
+                p(
+                    "The birthday problem is a useful illustration of how quickly probabilities can change ",
+                    "when the event being considered is defined differently. ",
+                    "It also shows why apparently surprising probabilities need to be interpreted carefully."
+                ),
 
-            p(
-                "The data-dredging example explores how searching through many possible relationships ",
-                "can produce apparently convincing patterns even when no real relationship exists."
-            ),
+                hr(),
 
-            hr(),
+                h5("Classic birthday problem"),
 
-            h5("A note on context"),
+                p(
+                    "The classic problem asks how many people are needed before there is a specified probability ",
+                    "that at least two people share the same birthday."
+                ),
 
-            p(
-                "The birthday problem and the ITV jinx example are included because they appear in ",
-                em("Playing With Statistics"),
-                ". The birthday problem is primarily a probability puzzle, ",
-                "while the ITV example is often presented as a standard hypothesis-testing exercise."
-            ),
+                p(
+                    "The calculation assumes 365 equally likely birthdays. ",
+                    "For a group of n people, we can first calculate the probability that everybody has a different ",
+                    "birthday and then subtract this from 1."
+                ),
 
-            p(
-                "Viewed in isolation, neither example fully illustrates the central message of Chapter 6 of Playing WIth Statistics.. ",
-                "The key issue is not simply how to calculate probabilities or p-values, ",
-                "but how the broader context influences the interpretation of those calculations."
-            ),
+                p(
+                    "Use the probability threshold in the sidebar to investigate how the required group size changes ",
+                    "when we change the probability we are interested in."
+                ),
 
-            p(
-                "The ITV example is particularly revealing. A conventional statistical analysis may suggest ",
-                "evidence of a difference between broadcasters. However, the data were examined precisely because ",
-                "an apparent pattern had already been noticed. When a question is motivated by an observed pattern, ",
-                "that selection process becomes part of the context and should be taken into account when interpreting the evidence."
-            ),
+                hr(),
 
-            p(
-                "Statistical methods can answer the questions we ask, but they cannot tell us whether we asked ",
-                "the right question in the first place. Understanding why a question was asked, how the data were obtained, ",
-                "and what other analyses might have been possible is often just as important as performing the calculations themselves."
-            ),
+                h5("Non-classic birthday problem"),
 
-            hr(),
+                p(
+                    "The second investigation changes the question. ",
+                    "Instead of asking whether two particular people share a birthday, we can ask whether ",
+                    "any group of people contains a specified number who share a birthday."
+                ),
 
-            div(
-                style = "
-            background-color:#f8f9fa;
-            border-left:5px solid #7B9ACC;
-            padding:12px;
-            border-radius:8px;
-        ",
+                p(
+                    "For example, we might ask whether any four people in a group of 20 share the same birthday. ",
+                    "This is a different event from asking whether four particular people share a particular date."
+                ),
+
+                p(
+                    "The Explorer allows you to compare these differently defined events and see how much the ",
+                    "probability changes."
+                ),
+
+                hr(),
+
+                h5("Calculation methods"),
+
+                p(
+                    "For the non-classic problem, the probability can be calculated using either ",
+                    strong("dynamic programming"),
+                    " or a ",
+                    strong("Poisson approximation"),
+                    "."
+                ),
+
+                p(
+                    "The dynamic programming method calculates the probability more directly by tracking how ",
+                    "people can be distributed across the 365 possible birthdays without any birthday reaching ",
+                    "the specified group size."
+                ),
+
+                p(
+                    "The Poisson method provides a faster approximation. ",
+                    "It treats the number of people associated with an individual birthday as approximately ",
+                    "Poisson distributed."
+                ),
+
+                hr(),
+
+                h5("How to use the Explorer"),
+
+                tags$ol(
+
+                    tags$li(
+                        "Choose either the classic or non-classic birthday problem."
+                    ),
+
+                    tags$li(
+                        "For the classic problem, choose the probability threshold."
+                    ),
+
+                    tags$li(
+                        "For the non-classic problem, choose how many people must share a birthday."
+                    ),
+
+                    tags$li(
+                        "Choose the group sizes and, for the non-classic problem, the calculation method."
+                    ),
+
+                    tags$li(
+                        "Compare the resulting probabilities and consider how the definition of the event affects the answer."
+                    )
+                ),
+
+                hr(),
 
                 h5("Questions to investigate"),
 
-                p(
-                    tags$strong("For the birthday problems:")
+                div(
+                    style = "
+            background-color: #f8f9fa;
+            border-left: 5px solid #7B9ACC;
+            padding: 12px;
+            border-radius: 8px;
+            ",
+
+                    tags$ul(
+
+                        tags$li(
+                            "How many people are needed for a 50% chance of a shared birthday?"
+                        ),
+
+                        tags$li(
+                            "How does the required group size change when the probability threshold changes?"
+                        ),
+
+                        tags$li(
+                            "How different are the probabilities when the event is defined in different ways?"
+                        ),
+
+                        tags$li(
+                            "How does the Poisson approximation compare with the exact calculation?"
+                        ),
+
+                        tags$li(
+                            "Why can changing the wording of a probability question produce such a large change in the answer?"
+                        )
+                    )
+                )
+            ),
+
+
+            # =================================================
+            # ASSESSING THE ITV JINX
+            # =================================================
+
+            conditionalPanel(
+
+                condition = sprintf(
+                    "input['%s'] == 'Assessing the ITV jinx'",
+                    ns("demo")
                 ),
 
-                tags$ul(
-                    tags$li(
-                        "For the classical problem, are there probability thresholds where the required number of people seems surprising?"
-                    ),
-
-                    tags$li(
-                        "For the non-classical problem, how do group size and the number of matching birthdays affect the relative probabilities of the different scenarios?"
+                card_header(
+                    div(
+                        "Module 6: Assessing the ITV jinx",
+                        style = "
+                font-size: 1.4rem;
+                font-weight: 700;
+                color: #2c3e50;
+                "
                     )
                 ),
 
                 p(
-                    tags$strong("For the ITV jinx problem:")
-                ),
-
-                tags$ul(
-                    tags$li(
-                        "How much data are needed before there is convincing evidence of a difference between groups?"
-                    ),
-
-                    tags$li(
-                        "How easily can random variation create the appearance of an effect?"
+                    strong(
+                        "This example investigates an apparent difference in England's win rates under two broadcasters."
                     )
                 ),
 
                 p(
-                    tags$strong("For data dredging:")
+                    "The example compares the proportion of matches won by England when games were shown ",
+                    "by the BBC and by ITV."
                 ),
 
-                tags$ul(
+                p(
+                    "An observed difference between two proportions does not necessarily mean that the two ",
+                    "underlying probabilities are genuinely different. ",
+                    "Samples vary from one set of observations to another, so some difference can arise simply ",
+                    "through random variation."
+                ),
+
+                hr(),
+
+                h5("Comparing two proportions"),
+
+                p(
+                    "The Explorer uses the observed numbers of England wins and matches for the two broadcasters ",
+                    "to calculate the difference between the two observed proportions."
+                ),
+
+                p(
+                    "It then simulates repeated samples under the observed proportions. ",
+                    "This provides a way of visualising how much the difference between the two groups can vary ",
+                    "from one sample to another."
+                ),
+
+                p(
+                    "A confidence interval is used to represent uncertainty around the estimated difference."
+                ),
+
+                hr(),
+
+                h5("Interpreting the result"),
+
+                p(
+                    "If the interval includes zero, a difference of zero remains compatible with the simulated ",
+                    "sampling variation represented by the analysis."
+                ),
+
+                p(
+                    "If the interval does not include zero, the observed difference is further from zero than ",
+                    "would be expected under the uncertainty represented by this calculation."
+                ),
+
+                p(
+                    "This does not by itself establish why the difference occurred. ",
+                    "Other factors, such as which matches were shown, when they were played, or how the broadcaster ",
+                    "was selected, may also be relevant to the interpretation."
+                ),
+
+                hr(),
+
+                h5("How to use the Explorer"),
+
+                tags$ol(
+
                     tags$li(
-                        "How does increasing the sample size affect the results?"
+                        "Enter the number of matches shown by each broadcaster."
                     ),
 
                     tags$li(
-                        "How does searching through more possible predictors increase the chance of finding an apparently meaningful relationship?"
+                        "Enter the number of England wins for each broadcaster."
+                    ),
+
+                    tags$li(
+                        "Choose the confidence level."
+                    ),
+
+                    tags$li(
+                        "Choose a random seed if you want to reproduce a particular simulation."
+                    ),
+
+                    tags$li(
+                        "Examine the distribution of simulated differences and the resulting confidence interval."
+                    )
+                ),
+
+                hr(),
+
+                h5("Questions to investigate"),
+
+                div(
+                    style = "
+            background-color: #f8f9fa;
+            border-left: 5px solid #7B9ACC;
+            padding: 12px;
+            border-radius: 8px;
+            ",
+
+                    tags$ul(
+
+                        tags$li(
+                            "How large is the observed difference between the two broadcasters?"
+                        ),
+
+                        tags$li(
+                            "How much variation occurs in the simulated differences?"
+                        ),
+
+                        tags$li(
+                            "What happens when the confidence level is changed?"
+                        ),
+
+                        tags$li(
+                            "What does it mean if the confidence interval contains zero?"
+                        ),
+
+                        tags$li(
+                            "Why should an observed association be interpreted in the context of how the data were obtained?"
+                        )
+                    )
+                )
+            ),
+
+
+            # =================================================
+            # DATA DREDGING
+            # =================================================
+
+            conditionalPanel(
+
+                condition = sprintf(
+                    "input['%s'] == 'Data Dredging'",
+                    ns("demo")
+                ),
+
+                card_header(
+                    div(
+                        "Module 6: Data dredging",
+                        style = "
+                font-size: 1.4rem;
+                font-weight: 700;
+                color: #2c3e50;
+                "
+                    )
+                ),
+
+                p(
+                    strong(
+                        "This example demonstrates how searching through many possible relationships can produce apparently interesting results by chance."
+                    )
+                ),
+
+                p(
+                    "In this simulation, the response variable and all candidate predictor variables are ",
+                    "generated independently. ",
+                    "There is therefore no underlying relationship between them."
+                ),
+
+                p(
+                    "However, the Explorer examines many candidate predictors and selects the one producing ",
+                    "the smallest p-value."
+                ),
+
+                p(
+                    "Because random data contain random fluctuations, some predictors will appear more strongly ",
+                    "related to the response than others. ",
+                    "When many predictors are examined, it becomes increasingly likely that at least one will ",
+                    "produce an apparently impressive result."
+                ),
+
+                hr(),
+
+                h5("Searching for patterns"),
+
+                p(
+                    "The important point is that the strongest-looking relationship is selected ",
+                    "after many possible relationships have been examined."
+                ),
+
+                p(
+                    "The resulting regression line can therefore look convincing even though the data were ",
+                    "generated without any real association."
+                ),
+
+                p(
+                    "This illustrates why a small p-value does not automatically mean that a genuine relationship ",
+                    "has been discovered."
+                ),
+
+                hr(),
+
+                h5("Multiple comparisons"),
+
+                p(
+                    "Every statistical test gives randomness another opportunity to produce an unusual result."
+                ),
+
+                p(
+                    "If only one predictor is tested, an unusually small p-value is relatively unusual. ",
+                    "If dozens or hundreds of predictors are tested, however, there are many opportunities for ",
+                    "one of them to produce a small p-value simply by chance."
+                ),
+
+                p(
+                    "Selecting the most interesting result from a large collection of analyses can therefore ",
+                    "give a misleading impression of the strength of the evidence."
+                ),
+
+                hr(),
+
+                h5("How to use the Explorer"),
+
+                tags$ol(
+
+                    tags$li(
+                        "Choose the number of observations."
+                    ),
+
+                    tags$li(
+                        "Choose the number of candidate predictors."
+                    ),
+
+                    tags$li(
+                        "Choose a random seed if you want to reproduce a particular simulation."
+                    ),
+
+                    tags$li(
+                        "Press the Summary button to display the regression statistics for the selected relationship."
+                    ),
+
+                    tags$li(
+                        "Repeat the experiment with different numbers of candidate predictors and different seeds."
+                    )
+                ),
+
+                hr(),
+
+                h5("Questions to investigate"),
+
+                div(
+                    style = "
+            background-color: #f8f9fa;
+            border-left: 5px solid #7B9ACC;
+            padding: 12px;
+            border-radius: 8px;
+            ",
+
+                    tags$ul(
+
+                        tags$li(
+                            "What happens to the smallest p-value when the number of predictors is increased?"
+                        ),
+
+                        tags$li(
+                            "Can a statistically significant relationship appear when the variables are completely independent?"
+                        ),
+
+                        tags$li(
+                            "Why does searching through many predictors increase the chance of finding an apparently unusual result?"
+                        ),
+
+                        tags$li(
+                            "What happens when the experiment is repeated with a different random seed?"
+                        ),
+
+                        tags$li(
+                            "Why is it important to know how many analyses were performed before interpreting a statistical result?"
+                        )
                     )
                 )
             )
         )
+
+
     )
+
+
 
 
     # =======================================================

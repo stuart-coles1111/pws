@@ -541,7 +541,7 @@ chapter7_ui <- function(id){
             "Investigate:",
 
             choices = c(
-                "Two-Dice Models" = "dice",
+                "The Two-Dice Game" = "dice",
                 "Football Model Calculator" = "football"
             ),
 
@@ -769,161 +769,457 @@ chapter7_ui <- function(id){
 
 
     # =====================================================
-    # OVERVIEW
+    # MODULE 7 OVERVIEW
     # =====================================================
 
     overview_panel <- div(
 
-        card(
+        # =================================================
+        # TWO-DICE OVERVIEW
+        # =================================================
 
-            style = "
-        border-radius: 16px;
-        border: none;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        padding: 10px;
-        ",
+        conditionalPanel(
 
-            card_header(
+            condition = "input.activity == 'dice'",
+            ns = ns,
 
-                div(
-                    "🧩 Comparing Statistical Models",
-                    style = "
-                font-size: 1.4rem;
-                font-weight: 700;
-                color: #2c3e50;
-                "
-                )
-            ),
-
-            p(
-                strong("Main idea: "),
-                "This module allows you to explore statistical models in two different settings. ",
-                "The Two-Dice Game illustrates how competing models can describe the same data, ",
-                "while the Football Model Calculator shows how a statistical model can be used ",
-                "to calculate probabilities for an individual football match."
-            ),
-
-            hr(),
-
-            h5("Background"),
-
-            p(
-                "The Two-Dice Game provides a simple setting in which several statistical ",
-                "models can be compared. Each model makes different assumptions about how ",
-                "the observed scores were generated."
-            ),
-
-            tags$ul(
-
-                tags$li(
-                    strong("Model N (Null): "),
-                    "all scores are assumed to be equally likely."
-                ),
-
-                tags$li(
-                    strong("Model S (Saturated): "),
-                    "each score has its own estimated probability."
-                ),
-
-                tags$li(
-                    strong("Model D (Data-driven): "),
-                    "probabilities are based on patterns observed in the data."
-                ),
-
-                tags$li(
-                    strong("Model P (Process-driven): "),
-                    "probabilities are derived from the known mechanism that generated the data."
-                )
-
-            ),
-
-            hr(),
-
-            h5("Football model"),
-
-            p(
-                "The Football Model Calculator uses a Poisson model for the number of ",
-                "goals scored by each team. Expected goals depend on the attacking strength ",
-                "of one team, the defensive strength of the other team, and home advantage."
-            ),
-
-            p(
-                "You can use fitted Premier League parameters, or upload your own team ",
-                "parameters. Select two teams to examine the probability of different scorelines."
-            ),
-
-            hr(),
-
-            h5("Your options"),
-
-            tags$ul(
-
-                tags$li(
-                    strong("Two-Dice Models: "),
-                    "simulate data, fit competing models, and compare their diagnostics."
-                ),
-
-                tags$li(
-                    strong("Football Model Calculator: "),
-                    "select two teams and explore their expected goals and scoreline probabilities."
-                )
-
-            ),
-
-            hr(),
-
-            h5("A note on model comparison"),
-
-            p(
-                "When comparing models, the model that fits the data best is not always ",
-                "the most useful model."
-            ),
-
-            p(
-                "Some models achieve excellent fit simply because they contain many parameters. ",
-                "Others fit slightly less well but provide a clearer explanation of the underlying process."
-            ),
-
-            p(
-                "A central goal of statistical modelling is therefore to balance accuracy and simplicity."
-            ),
-
-            hr(),
-
-            div(
+            card(
 
                 style = "
-            background-color: #f8f9fa;
-            border-left: 5px solid #7B9ACC;
-            padding: 12px;
-            border-radius: 8px;
+            border-radius: 16px;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 10px;
             ",
 
-                h5("Questions to investigate"),
+                card_header(
+
+                    div(
+                        "🎲 The Two-Dice Game: Comparing Statistical Assumptions",
+                        style = "
+                    font-size: 1.4rem;
+                    font-weight: 700;
+                    color: #2c3e50;
+                    "
+                    )
+                ),
+
+                p(
+                    strong("Main idea: "),
+                    "A statistical model is a simplified description of how data might have been generated. ",
+                    "Different models make different assumptions about the same observations. ",
+                    "In this investigation, you will use a simple dice game to see how those assumptions ",
+                    "change the probabilities a model assigns to the possible outcomes."
+                ),
+
+                hr(),
+
+                h5("The Two-Dice Game"),
+
+                p(
+                    "The game uses two dice with different sets of possible scores:"
+                ),
 
                 tags$ul(
 
                     tags$li(
-                        "How do the different Two-Dice models describe the same data?"
+                        strong("Red dice: "),
+                        "has sides labelled 1 to 6."
                     ),
 
                     tags$li(
-                        "How do model assumptions affect predicted probabilities?"
+                        strong("Blue dice: "),
+                        "has sides labelled 4 to 9."
                     ),
 
                     tags$li(
-                        "How does a football model turn team strengths into probabilities for a match?"
-                    ),
-
-                    tags$li(
-                        "Why can several different scorelines all have substantial probability?"
+                        strong("Dice selection: "),
+                        "the red dice is selected with probability ",
+                        strong("p"),
+                        ", while the blue dice is selected with probability ",
+                        strong("1 − p"),
+                        "."
                     )
 
+                ),
+
+                p(
+                    "After a number of plays, you observe a collection of scores from 1 to 9. ",
+                    "Your task is to think about how those observations could be modelled."
+                ),
+
+                hr(),
+
+                h5("Four ways to model the scores"),
+
+                tags$ul(
+
+                    tags$li(
+                        strong("Model N — Null: "),
+                        "assumes that all nine scores are equally likely."
+                    ),
+
+                    tags$li(
+                        strong("Model S — Saturated: "),
+                        "estimates a separate probability for every possible score."
+                    ),
+
+                    tags$li(
+                        strong("Model D — Data-driven: "),
+                        "groups the scores into three regions and estimates probabilities from the observed data."
+                    ),
+
+                    tags$li(
+                        strong("Model P — Process-driven: "),
+                        "uses the structure of the dice game to construct a probability distribution."
+                    )
+
+                ),
+
+                p(
+                    "These models differ in how much structure they impose. ",
+                    "The saturated model is very flexible because it estimates each score separately. ",
+                    "The process-driven model makes stronger assumptions because it uses knowledge about ",
+                    "how the game itself works."
+                ),
+
+                hr(),
+
+                h5("Your investigation"),
+
+                tags$ol(
+
+                    tags$li(
+                        strong("Simulate: "),
+                        "choose the probability of selecting the red dice and generate a set of game outcomes."
+                    ),
+
+                    tags$li(
+                        strong("Fit models: "),
+                        "estimate the probabilities associated with the different models."
+                    ),
+
+                    tags$li(
+                        strong("Compare: "),
+                        "look at how the fitted models describe the observed score distribution."
+                    ),
+
+                    tags$li(
+                        strong("Test generalisation: "),
+                        "compare in-sample performance with cross-validation and leave-one-out diagnostics."
+                    )
+
+                ),
+
+                hr(),
+
+                h5("Why compare models?"),
+
+                p(
+                    "A model can describe the data we have observed very closely without necessarily ",
+                    "being a useful description of how new data will behave."
+                ),
+
+                p(
+                    "This is particularly important for flexible models. ",
+                    "A model with many parameters has more freedom to adapt to the observed data, ",
+                    "but that flexibility can also make it easier to capture random variation."
+                ),
+
+                p(
+                    "Cross-validation provides a way to investigate this distinction. ",
+                    "Instead of evaluating a model only on the observations used to estimate it, ",
+                    "we repeatedly fit the model using part of the data and evaluate it on observations ",
+                    "that were held out."
+                ),
+
+                hr(),
+
+                div(
+
+                    style = "
+                background-color: #f8f9fa;
+                border-left: 5px solid #7B9ACC;
+                padding: 12px;
+                border-radius: 8px;
+                ",
+
+                    h5("Questions to investigate"),
+
+                    tags$ul(
+
+                        tags$li(
+                            "How can several different models describe the same observations?"
+                        ),
+
+                        tags$li(
+                            "What assumptions does each model make?"
+                        ),
+
+                        tags$li(
+                            "What happens when a model becomes more flexible?"
+                        ),
+
+                        tags$li(
+                            "Does the model that fits the observed data most closely also perform best on unseen data?"
+                        ),
+
+                        tags$li(
+                            "What can we learn about a model by knowing how the data were generated?"
+                        )
+
+                    )
+                )
+            )
+        ),
+
+
+        # =================================================
+        # FOOTBALL OVERVIEW
+        # =================================================
+
+        conditionalPanel(
+
+            condition = "input.activity == 'football'",
+            ns = ns,
+
+            card(
+
+                style = "
+            border-radius: 16px;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 10px;
+            ",
+
+                card_header(
+
+                    div(
+                        "⚽ Football Model: From Team Strengths to Match Probabilities",
+                        style = "
+                    font-size: 1.4rem;
+                    font-weight: 700;
+                    color: #2c3e50;
+                    "
+                    )
+                ),
+
+                p(
+                    strong("Main idea: "),
+                    "A statistical model allows us to turn assumptions about a system into ",
+                    "quantitative predictions. In this investigation, a football model uses ",
+                    "team attack, team defence, and home advantage to calculate expected goals ",
+                    "and probabilities for different match outcomes."
+                ),
+
+                hr(),
+
+                h5("What is the model trying to describe?"),
+
+                p(
+                    "Football scores are counts: a team scores 0, 1, 2, 3 goals, and so on. ",
+                    "The model uses a Poisson distribution to represent the number of goals ",
+                    "expected from each team."
+                ),
+
+                p(
+                    "The model first calculates an expected number of goals for each team. ",
+                    "These expected values then determine probabilities for individual scorelines."
+                ),
+
+                hr(),
+
+                h5("The model parameters"),
+
+                tags$ul(
+
+                    tags$li(
+                        strong("Attack (α): "),
+                        "represents the attacking strength of a team."
+                    ),
+
+                    tags$li(
+                        strong("Defence (β): "),
+                        "represents the defensive component used when modelling the opposition's scoring."
+                    ),
+
+                    tags$li(
+                        strong("Home advantage (τ): "),
+                        "adjusts the expected goals of the home team."
+                    )
+
+                ),
+
+                p(
+                    "For a particular fixture, the expected goals are calculated from these components:"
+                ),
+
+                div(
+
+                    style = "
+                background-color: #f8f9fa;
+                padding: 15px;
+                border-radius: 8px;
+                margin: 10px 0;
+                text-align: center;
+                font-size: 1.05rem;
+                ",
+
+                    tags$code(
+                        "μ_home = exp(τ + α_home − β_away)"
+                    ),
+
+                    br(),
+                    br(),
+
+                    tags$code(
+                        "μ_away = exp(α_away − β_home)"
+                    )
+                ),
+
+                p(
+                    "The important idea is that these parameters are not themselves probabilities. ",
+                    "They are model components that are combined to produce expected goal rates."
+                ),
+
+                hr(),
+
+                h5("From expected goals to score probabilities"),
+
+                p(
+                    "Once the expected goals for the two teams have been calculated, ",
+                    "the model can assign probabilities to possible scorelines."
+                ),
+
+                p(
+                    "For example, it can calculate the probability of 0–0, 1–0, 1–1, ",
+                    "2–1, and many other possible outcomes. The score probability matrix ",
+                    "shows these probabilities together so that you can see how the model ",
+                    "distributes probability across possible results."
+                ),
+
+                hr(),
+
+                h5("From scorelines to 1 / X / 2"),
+
+                p(
+                    "The model can also combine the individual scoreline probabilities into ",
+                    "three broader match outcomes:"
+                ),
+
+                tags$ul(
+
+                    tags$li(
+                        strong("1 — Home win: "),
+                        "the home team scores more goals."
+                    ),
+
+                    tags$li(
+                        strong("X — Draw: "),
+                        "both teams score the same number of goals."
+                    ),
+
+                    tags$li(
+                        strong("2 — Away win: "),
+                        "the away team scores more goals."
+                    )
+
+                ),
+
+                p(
+                    "The probability of each outcome is obtained by adding the probabilities ",
+                    "of all scorelines belonging to that outcome."
+                ),
+
+                hr(),
+
+                h5("Explore the model"),
+
+                tags$ol(
+
+                    tags$li(
+                        strong("Choose the data source: "),
+                        "use the supplied Premier League parameters or upload your own team parameters."
+                    ),
+
+                    tags$li(
+                        strong("Choose the teams: "),
+                        "select a home team and an away team."
+                    ),
+
+                    tags$li(
+                        strong("Inspect the parameters: "),
+                        "see the attack and defence values associated with each team."
+                    ),
+
+                    tags$li(
+                        strong("Change the assumptions: "),
+                        "adjust home advantage or the individual model parameters."
+                    ),
+
+                    tags$li(
+                        strong("Examine the consequences: "),
+                        "see how expected goals, scoreline probabilities, and 1/X/2 probabilities change."
+                    )
+
+                ),
+
+                hr(),
+
+                h5("A model is not the same as a guarantee"),
+
+                p(
+                    "The model produces probabilities, not certain outcomes. ",
+                    "A scoreline with a relatively high probability can still fail to occur, ",
+                    "because individual football matches contain substantial randomness."
+                ),
+
+                p(
+                    "The purpose of the calculator is therefore to make the model's assumptions ",
+                    "and consequences visible. Changing a parameter lets you investigate how a ",
+                    "different set of assumptions would change the resulting probability distribution."
+                ),
+
+                hr(),
+
+                div(
+
+                    style = "
+                background-color: #f8f9fa;
+                border-left: 5px solid #7B9ACC;
+                padding: 12px;
+                border-radius: 8px;
+                ",
+
+                    h5("Questions to investigate"),
+
+                    tags$ul(
+
+                        tags$li(
+                            "How do attack and defence parameters affect expected goals?"
+                        ),
+
+                        tags$li(
+                            "What effect does home advantage have on the predicted score distribution?"
+                        ),
+
+                        tags$li(
+                            "How do expected goals translate into probabilities for individual scorelines?"
+                        ),
+
+                        tags$li(
+                            "How are many possible scorelines combined to obtain 1/X/2 probabilities?"
+                        ),
+
+                        tags$li(
+                            "How sensitive are the model's predictions to changes in its parameters?"
+                        )
+
+                    )
                 )
             )
         )
     )
-
 
     # =====================================================
     # CODE PANEL
@@ -967,7 +1263,7 @@ chapter7_ui <- function(id){
                 accordion_panel(
 
                     title =
-                        "🎲 Rules of the Double Dice Game",
+                        "🎲 Rules of the Two-Dice Game",
 
                     tags$ul(
 

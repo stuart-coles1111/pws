@@ -216,7 +216,9 @@ chapter5_ui <- function(id){
 
 
     # =====================================================
+
     # Overview
+
     # =====================================================
 
     overview_panel <- div(
@@ -224,164 +226,273 @@ chapter5_ui <- function(id){
         card(
 
             style = "
-                border-radius: 16px;
-                border: none;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-                padding: 10px;
-            ",
+        border-radius: 16px;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        padding: 10px;
+    ",
 
-            card_header(
-                div(
-                    "📊 Basics of statistical inference",
-                    style = "
-                        font-size: 1.4rem;
-                        font-weight: 700;
-                        color: #2c3e50;
-                    "
-                )
-            ),
+            # =================================================
+            # STATISTICAL INFERENCE
+            # =================================================
 
-            p(
-                strong("Main idea: "),
-                "Chapter 5 of *Playing With Statistics* discusses general principles of statistics, focusing on some of the main themes of statistical inference and modelling."
-            ),
+            conditionalPanel(
 
-            hr(),
-
-            h5("Topics"),
-
-            p(
-                "The module provides tools to explore two topics from Chapter 5 of *Playing With Statistics*:"
-            ),
-
-            tags$ul(
-                tags$li(
-                    "Statistical inference (using the one-dice game for illustration)"
-                ),
-                tags$li(
-                    "Regression (using points in the Premier League as an example)"
-                )
-            ),
-
-            hr(),
-
-            h5("Your options"),
-
-            p(
-                "Choose to explore either statistical inference or regression."
-            ),
-
-            p(
-                "If you choose statistical inference, you are guided through a simulation and analysis of the one-dice game, including:"
-            ),
-
-            tags$ul(
-                tags$li("Simulation of observed data"),
-                tags$li("Resampling of probability estimates"),
-                tags$li("Calculation of confidence intervals")
-            ),
-
-            p(
-                "Sidebar options allow you to choose the sample size, the method used to generate new estimates, and the confidence level used for intervals."
-            ),
-
-            p(
-                "The display includes:"
-            ),
-
-            tags$ul(
-                tags$li(
-                    "A bar chart of the simulated data"
-                ),
-                tags$li(
-                    "A histogram of the simulated estimates based on those data"
-                ),
-                tags$li(
-                    "A summary of the inference"
-                )
-            ),
-
-            p(
-                "If you choose regression, you calculate a linear regression relationship between points scored in the first and second halves of Premier League seasons. The display shows:"
-            ),
-
-            tags$ul(
-                tags$li(
-                    "A graphical representation of the linear model overlaid on the data"
-                ),
-                tags$li(
-                    "Predictions at any chosen point"
-                ),
-                tags$li(
-                    "A confidence band around the fitted regression line"
-                ),
-                tags$li(
-                    "A numerical summary of the regression model"
-                )
-            ),
-
-            p(
-                "Sidebar options allow you to vary the subset of data analysed, the prediction point, and the confidence level used for the confidence band."
-            ),
-
-            hr(),
-
-            h5("What to observe"),
-
-            p(
-                "For each example, notice how the size of confidence intervals or bands are affected by the choice of sample size and the level of confidence chosen."
-            ),
-
-            p(
-                "Notice also whether the numerical summaries of analyses are more or less effective in conveying information than the graphical summaries."
-            ),
-
-            hr(),
-
-            div(
-
-                style = "
-                    background-color:#f8f9fa;
-                    border-left:5px solid #7B9ACC;
-                    padding:12px;
-                    border-radius:8px;
-                ",
-
-                h5("Questions to investigate"),
-
-                p(
-                    strong("For statistical inference:")
+                condition = sprintf(
+                    "input['%s'] == 'Inference'",
+                    ns("topic")
                 ),
 
-                tags$ul(
-                    tags$li(
-                        "How does the accuracy of estimates depend on the number of simulations?"
-                    ),
-                    tags$li(
-                        "Does the confidence interval always contain the true probability?"
-                    ),
-                    tags$li(
-                        "Does the method used to generate new estimates affect the results?"
+                card_header(
+                    div(
+                        "Module 5: Statistical inference",
+                        style = "
+                    font-size: 1.4rem;
+                    font-weight: 700;
+                    color: #2c3e50;
+                "
                     )
                 ),
 
                 p(
-                    strong("For regression:")
+                    strong(
+                        "This example uses the one-dice game to explore how we can learn about an unknown probability from observed data."
+                    )
+                ),
+
+                p(
+                    "The underlying probability of rolling a six is not necessarily known.
+            We observe a sample of dice rolls and use those observations to estimate
+            the probability."
+                ),
+
+                hr(),
+
+                h5("The one-dice experiment"),
+
+                p(
+                    "You begin by choosing the number of dice rolls and the true probability
+            of rolling a six. When you press ",
+                    strong("Roll Dice"),
+                    ", the app generates one observed sample."
+                ),
+
+                p(
+                    "The observed sample is then kept fixed while you investigate how
+            estimates of the probability behave under repeated simulation."
+                ),
+
+                h5("Simulating estimates"),
+
+                p(
+                    "The app can generate many new estimates using three different approaches:"
                 ),
 
                 tags$ul(
+
                     tags$li(
-                        "What is the effect of fitting the regression model to smaller datasets?"
+                        strong("Exact process simulation: "),
+                        "new samples are generated using the probability that produced the observed data."
                     ),
+
                     tags$li(
-                        "How does changing the confidence level affect the confidence bands?"
+                        strong("Approximate process simulation: "),
+                        "new samples are generated using the probability estimated from the observed data."
                     ),
+
                     tags$li(
-                        "Are confidence intervals the same width at all prediction points?"
+                        strong("Resampling: "),
+                        "new samples are created by sampling with replacement from the observed data."
+                    )
+                ),
+
+                p(
+                    "The resulting estimates are displayed as a distribution. This gives
+            a visual way to investigate how much estimates vary from one sample
+            to another."
+                ),
+
+                hr(),
+
+                h5("Confidence intervals"),
+
+                p(
+                    "The simulated distribution can also be used to construct a confidence
+            interval for the probability estimated from the observed data."
+                ),
+
+                p(
+                    "Changing the confidence level changes the width of the interval.
+            The simulation therefore provides an opportunity to explore the
+            relationship between confidence and uncertainty."
+                ),
+
+                hr(),
+
+                div(
+
+                    style = "
+                background-color:#f8f9fa;
+                border-left:5px solid #7B9ACC;
+                padding:12px;
+                border-radius:8px;
+            ",
+
+                    h5("Questions to investigate"),
+
+                    tags$ul(
+
+                        tags$li(
+                            "How much does the estimated probability vary between samples?"
+                        ),
+
+                        tags$li(
+                            "What happens to the distribution of estimates when the number of observations is increased?"
+                        ),
+
+                        tags$li(
+                            "How do the three methods of generating new estimates differ?"
+                        ),
+
+                        tags$li(
+                            "How does the standard error change as the number of simulated estimates increases?"
+                        ),
+
+                        tags$li(
+                            "What happens to the confidence interval when the confidence level is increased?"
+                        ),
+
+                        tags$li(
+                            "Does a higher confidence level necessarily give a narrower interval?"
+                        )
+                    )
+                )
+            ),
+
+
+            # =================================================
+            # REGRESSION
+            # =================================================
+
+            conditionalPanel(
+
+                condition = sprintf(
+                    "input['%s'] == 'Regression'",
+                    ns("topic")
+                ),
+
+                card_header(
+                    div(
+                        "Module 5: Regression",
+                        style = "
+                    font-size: 1.4rem;
+                    font-weight: 700;
+                    color: #2c3e50;
+                "
+                    )
+                ),
+
+                p(
+                    strong(
+                        "This example uses Premier League points to explore how a regression model can describe and predict the relationship between two variables."
+                    )
+                ),
+
+                p(
+                    "The analysis examines the relationship between the number of points
+            a team has accumulated in the first half of a season and the number
+            of points accumulated in the second half."
+                ),
+
+                hr(),
+
+                h5("Fitting a regression model"),
+
+                p(
+                    "A linear regression model is fitted to the available seasons.
+            The model describes the relationship between points in the first
+            half and points in the second half."
+                ),
+
+                p(
+                    "You can choose how many seasons are included in the analysis.
+            This makes it possible to investigate how the fitted relationship
+            changes when the amount of data is changed."
+                ),
+
+                h5("Predictions"),
+
+                p(
+                    "The prediction tool allows you to choose a particular number of
+            first-half points and obtain the corresponding predicted number
+            of second-half points."
+                ),
+
+                p(
+                    "The prediction is shown graphically on the scatter plot, together
+            with a confidence interval for the mean response at the selected
+            prediction point."
+                ),
+
+                h5("Confidence bands"),
+
+                p(
+                    "The fitted regression line is surrounded by a confidence band.
+            The width of this band reflects uncertainty in the estimated
+            mean relationship."
+                ),
+
+                p(
+                    "You can change the confidence level and observe how this affects
+            the band. You can also display the diagonal line ",
+                    tags$em("y = x"),
+                    " as a reference for comparing first-half and second-half points."
+                ),
+
+                hr(),
+
+                div(
+
+                    style = "
+                background-color:#f8f9fa;
+                border-left:5px solid #7B9ACC;
+                padding:12px;
+                border-radius:8px;
+            ",
+
+                    h5("Questions to investigate"),
+
+                    tags$ul(
+
+                        tags$li(
+                            "How strong is the relationship between first-half and second-half points?"
+                        ),
+
+                        tags$li(
+                            "What happens to the fitted regression line when fewer seasons are included?"
+                        ),
+
+                        tags$li(
+                            "How does changing the confidence level affect the confidence band?"
+                        ),
+
+                        tags$li(
+                            "Why is the confidence band not necessarily the same width across the plot?"
+                        ),
+
+                        tags$li(
+                            "How does the predicted value change as the prediction point is moved?"
+                        ),
+
+                        tags$li(
+                            "What can the diagonal reference line tell us when it is displayed?"
+                        )
                     )
                 )
             )
         )
+
+
     )
 
 

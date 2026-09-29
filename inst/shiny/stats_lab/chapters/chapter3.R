@@ -164,7 +164,9 @@ chapter3_ui <- function(id){
 
 
     # =====================================================
+
     # Overview
+
     # =====================================================
 
     overview_panel <- div(
@@ -172,151 +174,261 @@ chapter3_ui <- function(id){
         card(
 
             style = "
-                border-radius: 16px;
-                border: none;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-                padding: 10px;
-            ",
+        border-radius: 16px;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        padding: 10px;
+    ",
 
-            card_header(
-                div(
-                    "⚖ Understanding expectation",
-                    style = "
-                        font-size: 1.4rem;
-                        font-weight: 700;
-                        color: #2c3e50;
-                    "
-                )
-            ),
+            # =================================================
+            # DICE OVERVIEW
+            # =================================================
 
-            p(
-                strong("Main idea: "),
-                "Expectation describes the average outcome we would anticipate over many repetitions of a random process. It provides a link between a probability model and the long-run behaviour of data."
-            ),
+            conditionalPanel(
 
-            p(
-                "This module explores the idea in two different settings. The first is deliberately simple: repeated rolls of a fair die. The second applies the same ideas to expected goals (xG) in football."
-            ),
-
-            hr(),
-
-            h5("1. Rolling means of dice"),
-
-            p(
-                "A fair six-sided die has theoretical expectation 3.5. No individual roll can equal 3.5, but the average of a large number of rolls tends to get closer to 3.5."
-            ),
-
-            p(
-                "The simulation shows several independent runs of dice rolls. In each run, the rolling mean is calculated after every roll and compared with the theoretical expectation."
-            ),
-
-            p(
-                "This provides a visual way of exploring the relationship between a theoretical expectation and the averages that arise from actual random data."
-            ),
-
-            hr(),
-
-            h5("2. Expected goals (xG)"),
-
-            p(
-                "Expected goals provides an applied example. For an individual chance, an xG value represents the estimated probability that the chance results in a goal. For a collection of chances, the xG values can be added to obtain an expected number of goals."
-            ),
-
-            p(
-                "The simulation uses a simple model in which scoring probability depends on the location and type of a chance. Data are generated from the model, the model is then fitted to those data, and the fitted model can be used to obtain predictions for new chances."
-            ),
-
-            hr(),
-
-            h5("Your options"),
-
-            p(
-                "Choose either example using the controls in the sidebar."
-            ),
-
-            tags$ul(
-
-                tags$li(
-                    strong("Rolling means of dice: "),
-                    "investigate how sample averages behave as the number of observations increases."
+                condition = sprintf(
+                    "input['%s']=='Dice'",
+                    ns("topic")
                 ),
 
-                tags$li(
-                    strong("Expected goals: "),
-                    "investigate how probabilities can be combined and estimated using a statistical model."
-                )
-
-            ),
-
-            hr(),
-
-            h5("What to observe"),
-
-            p(
-                "For the dice example, pay particular attention to what happens to the rolling means as the number of rolls increases. Notice both the tendency towards the theoretical expectation and the fact that random variation does not disappear completely."
-            ),
-
-            p(
-                "For the xG example, compare the patterns in the simulated outcomes with the fitted model. Consider how the amount of data affects the accuracy of the estimated parameters and the resulting predictions."
-            ),
-
-            hr(),
-
-            div(
-
-                style = "
-                    background-color:#f8f9fa;
-                    border-left:5px solid #7B9ACC;
-                    padding:12px;
-                    border-radius:8px;
-                ",
-
-                h5("Questions to investigate"),
+                card_header(
+                    div(
+                        "🎲 Understanding expectation",
+                        style = "
+                    font-size: 1.4rem;
+                    font-weight: 700;
+                    color: #2c3e50;
+                "
+                    )
+                ),
 
                 p(
-                    strong("Rolling means of dice:")
+                    strong("Main idea: "),
+                    "Expectation describes the average outcome we would anticipate over many repetitions of a random process. It provides a link between a probability model and the long-run behaviour of data."
                 ),
 
-                tags$ul(
+                p(
+                    "A simple way to see this idea is to repeatedly roll a fair six-sided die and look at the average of the results."
+                ),
+
+                hr(),
+
+                h5("Rolling means of dice"),
+
+                p(
+                    "A fair six-sided die has a theoretical expectation of 3.5. No individual roll can equal 3.5, but the average of a large number of rolls tends to get closer to 3.5."
+                ),
+
+                p(
+                    "The simulation shows several independent runs of dice rolls. In each run, the rolling mean is calculated after every roll and compared with the theoretical expectation."
+                ),
+
+                p(
+                    "Because each run is random, the rolling means will not follow exactly the same path. The aim is to explore the general tendency rather than expect every simulation to behave identically."
+                ),
+
+                hr(),
+
+                h5("How to use the Explorer"),
+
+                tags$ol(
 
                     tags$li(
-                        "How quickly do the rolling means move towards 3.5?"
+                        "Choose the number of rolls in each run."
                     ),
 
                     tags$li(
-                        "Do all runs behave in the same way?"
+                        "Choose how many independent runs to generate."
                     ),
 
                     tags$li(
-                        "What happens if the number of rolls is much smaller?"
+                        "Press ",
+                        strong("Generate rolling means"),
+                        " to simulate the data."
                     ),
 
                     tags$li(
-                        "Does the rolling mean ever become exactly equal to 3.5?"
+                        "Observe how the rolling means behave as the number of rolls increases."
+                    ),
+
+                    tags$li(
+                        "Compare the different runs and consider their relationship with the theoretical expectation of 3.5."
                     )
 
                 ),
 
-                p(
-                    strong("Expected goals:")
+                hr(),
+
+                div(
+
+                    style = "
+                background-color:#f8f9fa;
+                border-left:5px solid #7B9ACC;
+                padding:12px;
+                border-radius:8px;
+            ",
+
+                    h5("Questions to investigate"),
+
+                    tags$ul(
+
+                        tags$li(
+                            "How quickly do the rolling means move towards 3.5?"
+                        ),
+
+                        tags$li(
+                            "Do all runs behave in the same way?"
+                        ),
+
+                        tags$li(
+                            "What happens if the number of rolls is much smaller?"
+                        ),
+
+                        tags$li(
+                            "Does the rolling mean ever become exactly equal to 3.5?"
+                        ),
+
+                        tags$li(
+                            "Why do the rolling means continue to vary even after many rolls?"
+                        )
+
+                    )
+
+                )
+
+            ),
+
+
+            # =================================================
+            # xG OVERVIEW
+            # =================================================
+
+            conditionalPanel(
+
+                condition = sprintf(
+                    "input['%s']=='xG'",
+                    ns("topic")
                 ),
 
-                tags$ul(
+                card_header(
+                    div(
+                        "⚽ Understanding expectation through xG",
+                        style = "
+                    font-size: 1.4rem;
+                    font-weight: 700;
+                    color: #2c3e50;
+                "
+                    )
+                ),
+
+                p(
+                    strong("Main idea: "),
+                    "Expectation connects probabilities for individual events with the average outcomes we would anticipate across many events."
+                ),
+
+                p(
+                    "Expected goals (xG) provides an applied example of this idea. For an individual chance, an xG value represents an estimated probability that the chance results in a goal."
+                ),
+
+                hr(),
+
+                h5("Expected goals (xG)"),
+
+                p(
+                    "An individual chance might have an xG value of 0.2, for example. This does not mean that the chance produces 0.2 goals. Instead, it represents an estimated 20% probability of scoring."
+                ),
+
+                p(
+                    "Across a collection of chances, xG values can be added together to obtain an expected number of goals. This connects probabilities for individual events with expected outcomes across many events."
+                ),
+
+                p(
+                    "The Explorer uses a simulated dataset in which the probability of scoring depends on characteristics such as the location and type of the chance. The model can then be fitted to the simulated data and used to make predictions for new chances."
+                ),
+
+                hr(),
+
+                h5("How to use the Explorer"),
+
+                tags$ol(
 
                     tags$li(
-                        "How accurately can the model parameters be estimated?"
+                        "Randomise the model parameters if you want to explore a different underlying scoring model."
                     ),
 
                     tags$li(
-                        "How does estimation accuracy depend on sample size?"
+                        "Choose the number of shots to simulate."
                     ),
 
                     tags$li(
-                        "Do the fitted heatmaps reflect the patterns in the observed data?"
+                        "Press ",
+                        strong("Generate data"),
+                        " to create a new simulated dataset."
                     ),
 
                     tags$li(
-                        "How should an xG value be interpreted for an individual chance?"
+                        "Compare the observed patterns in the simulated data."
+                    ),
+
+                    tags$li(
+                        "Press ",
+                        strong("Fit model"),
+                        " to estimate the model parameters from the simulated data."
+                    ),
+
+                    tags$li(
+                        "Use the prediction tool to estimate the scoring probability for a new chance."
+                    )
+
+                ),
+
+                hr(),
+
+                h5("What to observe"),
+
+                p(
+                    "Compare the patterns in the simulated outcomes with the fitted model. Consider how the amount of data affects the stability of the estimated parameters."
+                ),
+
+                p(
+                    "The prediction tool provides another way to explore the model. Changing the location or shot type changes the characteristics of the chance and therefore the estimated probability of scoring."
+                ),
+
+                hr(),
+
+                div(
+
+                    style = "
+                background-color:#f8f9fa;
+                border-left:5px solid #7B9ACC;
+                padding:12px;
+                border-radius:8px;
+            ",
+
+                    h5("Questions to investigate"),
+
+                    tags$ul(
+
+                        tags$li(
+                            "How accurately can the model parameters be estimated?"
+                        ),
+
+                        tags$li(
+                            "How does estimation accuracy depend on sample size?"
+                        ),
+
+                        tags$li(
+                            "Do the fitted heatmaps reflect the patterns in the observed data?"
+                        ),
+
+                        tags$li(
+                            "How should an xG value be interpreted for an individual chance?"
+                        ),
+
+                        tags$li(
+                            "How does the predicted scoring probability change with the location or type of a chance?"
+                        )
+
                     )
 
                 )
