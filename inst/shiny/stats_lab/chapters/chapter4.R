@@ -14,6 +14,7 @@ chapter4_ui <- function(id){
 
     shinyjs::useShinyjs()
 
+
     # =====================================================
     # SIDEBAR
     # =====================================================
@@ -32,6 +33,11 @@ chapter4_ui <- function(id){
             selected = "binom"
         ),
 
+
+        # =================================================
+        # BINOMIAL CONTROLS
+        # =================================================
+
         conditionalPanel(
 
             condition = sprintf(
@@ -45,26 +51,17 @@ chapter4_ui <- function(id){
                 ns("n"),
                 "Number of trials",
                 min = 5,
-                max = 50,
+                max = 100,
                 value = 20,
                 step = 1
             ),
 
             sliderInput(
                 ns("p1"),
-                "Probability of winning: Distribution 1",
+                "Probability of success",
                 min = 0.05,
                 max = 0.95,
                 value = 0.4,
-                step = 0.05
-            ),
-
-            sliderInput(
-                ns("p2"),
-                "Probability of winning: Distribution 2",
-                min = 0.05,
-                max = 0.95,
-                value = 0.1,
                 step = 0.05
             ),
 
@@ -81,8 +78,21 @@ chapter4_ui <- function(id){
                 ns("generate_binom"),
                 "Generate new simulation",
                 class = "btn-primary"
+            ),
+
+            hr(),
+
+            checkboxInput(
+                ns("overlay_binom"),
+                "Overlay theoretical and simulated distributions",
+                value = FALSE
             )
         ),
+
+
+        # =================================================
+        # BAYESIAN CONTROLS
+        # =================================================
 
         conditionalPanel(
 
@@ -150,8 +160,44 @@ chapter4_ui <- function(id){
 
             actionButton(
                 ns("generate_bayes"),
-                "Generate new data",
+                "Simulate new data",
                 class = "btn-primary"
+            ),
+
+            br(),
+            br(),
+
+            actionButton(
+                ns("obtain_posterior"),
+                "Obtain posterior distribution",
+                class = "btn-success"
+            ),
+
+            # Hidden state used to reveal the overlay checkbox
+            div(
+                style = "display:none;",
+
+                checkboxInput(
+                    ns("bayes_posterior_ready"),
+                    "",
+                    value = FALSE
+                )
+            ),
+
+            conditionalPanel(
+
+                condition = sprintf(
+                    "input['%s'] == true",
+                    ns("bayes_posterior_ready")
+                ),
+
+                hr(),
+
+                checkboxInput(
+                    ns("overlay_bayes"),
+                    "Overlay prior and posterior distributions",
+                    value = FALSE
+                )
             ),
 
             hr(),
@@ -169,11 +215,12 @@ chapter4_ui <- function(id){
             )
         ),
 
-        hr(),
 
         # =================================================
         # START OVER
         # =================================================
+
+        hr(),
 
         actionButton(
             ns("start_over"),
@@ -182,7 +229,6 @@ chapter4_ui <- function(id){
             width = "100%"
         )
     )
-
 
 
     # =====================================================
@@ -194,11 +240,15 @@ chapter4_ui <- function(id){
         card(
 
             style = "
-            border-radius: 16px;
-            border: none;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            padding: 10px;
+                border-radius: 16px;
+                border: none;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+                padding: 10px;
             ",
+
+            # =================================================
+            # BINOMIAL
+            # =================================================
 
             conditionalPanel(
 
@@ -211,16 +261,16 @@ chapter4_ui <- function(id){
                     div(
                         "Module 4: Binomial distributions",
                         style = "
-                        font-size: 1.4rem;
-                        font-weight: 700;
-                        color: #2c3e50;
+                            font-size: 1.4rem;
+                            font-weight: 700;
+                            color: #2c3e50;
                         "
                     )
                 ),
 
                 p(
                     strong(
-                        "This example provides an interactive comparison of two binomial distributions."
+                        "This example provides an interactive comparison between a theoretical binomial distribution and data simulated from that distribution."
                     )
                 ),
 
@@ -230,29 +280,53 @@ chapter4_ui <- function(id){
                     trial has the same probability of success."
                 ),
 
+                p(
+                    "The theoretical distribution is determined by the number of
+                    trials and the probability of success. The simulation provides
+                    a particular sample generated from this model."
+                ),
+
                 hr(),
 
-                h5("Theoretical distributions"),
+                h5("Theoretical distribution"),
 
                 p(
-                    "The top row shows the theoretical probability distributions
-                    for the number of wins under the two specified probabilities.
-                    The mean and standard deviation are shown for each distribution."
+                    "The theoretical distribution is calculated directly from
+                    the binomial probability model. It updates automatically
+                    when the model settings are changed."
                 ),
 
                 h5("Simulation"),
 
                 p(
-                    "The bottom row shows one simulated sample from each distribution.
-                    Each time you press ",
+                    "Press ",
                     strong("Generate new simulation"),
-                    ", a new sample is generated."
+                    " to generate the specified number of independent binomial
+                    observations."
                 ),
 
                 p(
-                    "Comparing the simulated samples with the theoretical distributions
-                    illustrates the difference between a probability model and a
-                    particular sample generated from that model."
+                    "The simulated results are displayed as frequency density.
+                    For each possible number of wins, the observed frequency is
+                    divided by the number of simulations. This puts the simulated
+                    distribution on the same scale as the theoretical probabilities."
+                ),
+
+                p(
+                    "Once a simulation has been generated, the model settings are
+                    locked until ",
+                    strong("Start over"),
+                    " is pressed."
+                ),
+
+                h5("Overlay comparison"),
+
+                p(
+                    "After simulation, select ",
+                    strong(
+                        "Overlay theoretical and simulated distributions"
+                    ),
+                    " to display both distributions on the same graph."
                 ),
 
                 hr(),
@@ -266,21 +340,27 @@ chapter4_ui <- function(id){
                     ),
 
                     tags$li(
-                        "Choose the probability of winning for each distribution."
+                        "Choose the probability of success."
                     ),
 
                     tags$li(
-                        "Choose the number of simulated samples."
+                        "Choose the number of simulated observations."
                     ),
 
                     tags$li(
                         "Press ",
                         strong("Generate new simulation"),
-                        " to generate a new sample."
+                        "."
                     ),
 
                     tags$li(
-                        "Compare the simulated results with the corresponding theoretical distributions."
+                        "Compare the simulated frequency density with the
+                        theoretical probabilities."
+                    ),
+
+                    tags$li(
+                        "Try the overlay option after the simulation has
+                        been generated."
                     )
                 ),
 
@@ -288,10 +368,10 @@ chapter4_ui <- function(id){
 
                 div(
                     style = "
-                    background-color: #f8f9fa;
-                    border-left: 5px solid #7B9ACC;
-                    padding: 12px;
-                    border-radius: 8px;
+                        background-color: #f8f9fa;
+                        border-left: 5px solid #7B9ACC;
+                        padding: 12px;
+                        border-radius: 8px;
                     ",
 
                     h5("Questions to investigate"),
@@ -299,32 +379,46 @@ chapter4_ui <- function(id){
                     tags$ul(
 
                         tags$li(
-                            "How do the two theoretical distributions differ?"
+                            "How does the shape of the theoretical distribution
+                            change when the probability of success changes?"
                         ),
 
                         tags$li(
-                            "What happens when the probability of winning is increased?"
+                            "What happens to the theoretical distribution when
+                            the number of trials increases?"
                         ),
 
                         tags$li(
-                            "How closely does a simulated sample resemble its theoretical distribution?"
+                            "How closely does a simulated distribution resemble
+                            the theoretical distribution?"
                         ),
 
                         tags$li(
-                            "What happens when the number of simulations is increased?"
+                            "What happens when the number of simulated
+                            observations is increased?"
                         ),
 
                         tags$li(
-                            "How are the means and standard deviations related to the probability of winning?"
+                            "How do the theoretical and simulated means compare?"
+                        ),
+
+                        tags$li(
+                            "How do the theoretical and simulated standard
+                            deviations compare?"
+                        ),
+
+                        tags$li(
+                            "What can you see more clearly when the distributions
+                            are overlaid?"
                         )
                     )
                 )
             ),
 
 
-            # =====================================================
-            # BAYESIAN UPDATING
-            # =====================================================
+            # =================================================
+            # BAYESIAN
+            # =================================================
 
             conditionalPanel(
 
@@ -337,9 +431,9 @@ chapter4_ui <- function(id){
                     div(
                         "Module 4: Bayesian updating",
                         style = "
-                        font-size: 1.4rem;
-                        font-weight: 700;
-                        color: #2c3e50;
+                            font-size: 1.4rem;
+                            font-weight: 700;
+                            color: #2c3e50;
                         "
                     )
                 ),
@@ -358,7 +452,7 @@ chapter4_ui <- function(id){
                 p(
                     "In this example, the quantity of interest is a single unknown
                     population mean, represented by ",
-                    tags$em("\u03bc"),
+                    tags$em("μ"),
                     ". Before seeing any data, we describe our beliefs about this
                     value using a normal prior distribution."
                 ),
@@ -371,10 +465,26 @@ chapter4_ui <- function(id){
                 ),
 
                 p(
-                    "We then generate observations from a normal distribution centred
-                    on a chosen true value. The posterior distribution combines the
-                    information from the prior with the information contained in
-                    the observations."
+                    "The prior distribution is displayed immediately and changes
+                    dynamically when the prior mean or prior SD is changed."
+                ),
+
+                p(
+                    "Press ",
+                    strong("Simulate new data"),
+                    " to generate observations from the selected true population
+                    mean. The observations are then added to the first graph."
+                ),
+
+                p(
+                    "Once the data have been generated, press ",
+                    strong("Obtain posterior distribution"),
+                    " to calculate and display the posterior distribution."
+                ),
+
+                p(
+                    "The posterior combines the information in the prior with
+                    the information provided by the observed data."
                 ),
 
                 hr(),
@@ -388,27 +498,39 @@ chapter4_ui <- function(id){
                     ),
 
                     tags$li(
-                        "Choose the mean and uncertainty of the prior distribution."
+                        "Choose the mean and SD of the prior distribution."
                     ),
 
                     tags$li(
-                        "Choose the number of observations and their standard deviation."
+                        "Choose the number of observations and their SD."
                     ),
 
                     tags$li(
                         "Press ",
-                        strong("Generate new data"),
-                        " to generate a new sample."
+                        strong("Simulate new data"),
+                        "."
                     ),
 
                     tags$li(
-                        "Compare the prior distribution, the observed data and the resulting posterior distribution."
+                        "Press ",
+                        strong("Obtain posterior distribution"),
+                        "."
+                    ),
+
+                    tags$li(
+                        "Compare the prior and posterior distributions."
+                    ),
+
+                    tags$li(
+                        "After the posterior has been calculated, you can
+                        overlay the prior and posterior distributions."
                     )
                 ),
 
                 p(
-                    "You can also choose whether to display the true population
-                    mean and the mean of the observed data."
+                    "The options to show the true population mean and the mean
+                    of the observed data can be used to add reference lines
+                    to the graphs."
                 ),
 
                 hr(),
@@ -417,10 +539,10 @@ chapter4_ui <- function(id){
 
                 div(
                     style = "
-                    background-color: #f8f9fa;
-                    border-left: 5px solid #7B9ACC;
-                    padding: 12px;
-                    border-radius: 8px;
+                        background-color: #f8f9fa;
+                        border-left: 5px solid #7B9ACC;
+                        padding: 12px;
+                        border-radius: 8px;
                     ",
 
                     tags$ul(
@@ -438,18 +560,24 @@ chapter4_ui <- function(id){
                         ),
 
                         tags$li(
-                            "How does the posterior distribution compare with the prior?"
+                            "How does the posterior distribution compare
+                            with the prior?"
                         ),
 
                         tags$li(
-                            "How does the posterior become more concentrated as information accumulates?"
+                            "How does the posterior become more concentrated
+                            as information accumulates?"
+                        ),
+
+                        tags$li(
+                            "What can you see more clearly when the prior and
+                            posterior distributions are overlaid?"
                         )
                     )
                 )
             )
         )
     )
-
 
 
     # =====================================================
@@ -463,11 +591,11 @@ chapter4_ui <- function(id){
         tags$pre(
 
             style = "
-            background:#f8f9fa;
-            padding:16px;
-            border-radius:8px;
-            font-size:0.85rem;
-            white-space:pre-wrap;
+                background:#f8f9fa;
+                padding:16px;
+                border-radius:8px;
+                font-size:0.85rem;
+                white-space:pre-wrap;
             ",
 
             textOutput(
@@ -483,6 +611,10 @@ chapter4_ui <- function(id){
 
     results_panel <- div(
 
+        # =================================================
+        # BINOMIAL RESULTS
+        # =================================================
+
         conditionalPanel(
 
             condition = sprintf(
@@ -492,19 +624,89 @@ chapter4_ui <- function(id){
 
             card(
 
+                style = "
+                    border-radius: 16px;
+                    border: none;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+                    padding: 10px;
+                ",
+
                 card_header("Binomial comparison"),
 
                 p(
-                    "The first row shows the theoretical distributions.
-                    The second row shows one simulated sample from each distribution."
+                    "The theoretical distribution is shown on the left.
+                    After a simulation has been generated, the simulated
+                    distribution is shown on the right."
                 ),
 
-                plotOutput(
-                    ns("binom_plot"),
-                    height = "650px"
+                fluidRow(
+
+                    column(
+                        6,
+
+                        plotOutput(
+                            ns("binom_theoretical_plot"),
+                            height = "450px"
+                        )
+                    ),
+
+                    column(
+                        6,
+
+                        plotOutput(
+                            ns("binom_simulation_plot"),
+                            height = "450px"
+                        )
+                    )
+                ),
+
+                fluidRow(
+
+                    column(
+                        6,
+
+                        card(
+
+                            style = "
+                                background-color: #f8f9fa;
+                                border: none;
+                                border-radius: 12px;
+                            ",
+
+                            h5("Theoretical distribution"),
+
+                            tableOutput(
+                                ns("binom_theoretical_stats")
+                            )
+                        )
+                    ),
+
+                    column(
+                        6,
+
+                        card(
+
+                            style = "
+                                background-color: #f8f9fa;
+                                border: none;
+                                border-radius: 12px;
+                            ",
+
+                            h5("Simulated distribution"),
+
+                            tableOutput(
+                                ns("binom_simulation_stats")
+                            )
+                        )
+                    )
                 )
             )
         ),
+
+
+        # =================================================
+        # BAYESIAN RESULTS
+        # =================================================
 
         conditionalPanel(
 
@@ -518,13 +720,19 @@ chapter4_ui <- function(id){
                 card_header("Bayesian updating"),
 
                 p(
-                    "The three panels show the prior distribution, the
-                    observed data, and the resulting posterior distribution."
+                    "The upper panel shows the prior distribution and,
+                    once generated, the observed data. The lower panel
+                    shows the posterior distribution after it has been obtained."
                 ),
 
                 plotOutput(
-                    ns("bayes_plot"),
-                    height = "850px"
+                    ns("bayes_prior_data_plot"),
+                    height = "400px"
+                ),
+
+                plotOutput(
+                    ns("bayes_posterior_plot"),
+                    height = "400px"
                 )
             )
         )
@@ -555,6 +763,8 @@ chapter4_ui <- function(id){
 
 
 
+
+
 # =========================================================
 # SERVER
 # =========================================================
@@ -565,19 +775,130 @@ chapter4_server <- function(id){
 
 
         # =================================================
-        # LOCK STATES
+        # STATE
         # =================================================
+
+        binom_values <- reactiveVal(NULL)
+
+        data_values <- reactiveVal(NULL)
+
+        posterior_ready <- reactiveVal(FALSE)
 
         binom_locked <- reactiveVal(FALSE)
 
-        bayes_locked <- reactiveVal(FALSE)
+        bayes_data_locked <- reactiveVal(FALSE)
+
+        bayes_posterior_locked <- reactiveVal(FALSE)
+
+
+        # =================================================
+        # HELPER:
+        # RELIABLY ENABLE / DISABLE SHINY SLIDERS
+        # =================================================
+        #
+        # shinyjs::disable() disables the underlying input,
+        # but the visible ionRangeSlider can sometimes remain
+        # interactive.
+        #
+        # This helper disables both.
+        # =================================================
+
+        set_slider_state <- function(id, enabled = TRUE){
+
+            input_id <- session$ns(id)
+
+            if (enabled) {
+
+                shinyjs::enable(input_id)
+
+                shinyjs::runjs(
+                    sprintf(
+                        "
+                        $('#%s')
+                            .prop('disabled', false)
+                            .closest('.shiny-input-container')
+                            .find('.irs')
+                            .css({
+                                'pointer-events': 'auto',
+                                'opacity': '1'
+                            });
+                        ",
+                        input_id
+                    )
+                )
+
+            } else {
+
+                shinyjs::disable(input_id)
+
+                shinyjs::runjs(
+                    sprintf(
+                        "
+                        $('#%s')
+                            .prop('disabled', true)
+                            .closest('.shiny-input-container')
+                            .find('.irs')
+                            .css({
+                                'pointer-events': 'none',
+                                'opacity': '0.55'
+                            });
+                        ",
+                        input_id
+                    )
+                )
+            }
+        }
+
+
+        # =================================================
+        # INITIAL BUTTON STATES
+        # =================================================
+
+        observe({
+
+            # ---------------------------------------------
+            # Binomial
+            # ---------------------------------------------
+
+            set_slider_state("n", TRUE)
+
+            set_slider_state("p1", TRUE)
+
+            set_slider_state("nsim", TRUE)
+
+            shinyjs::enable(
+                session$ns("generate_binom")
+            )
+
+
+            # ---------------------------------------------
+            # Bayesian
+            # ---------------------------------------------
+
+            set_slider_state("true_mu", TRUE)
+
+            set_slider_state("prior_mean", TRUE)
+
+            set_slider_state("prior_sd", TRUE)
+
+            set_slider_state("n_bayes", TRUE)
+
+            set_slider_state("sigma", TRUE)
+
+            shinyjs::enable(
+                session$ns("generate_bayes")
+            )
+
+            shinyjs::disable(
+                session$ns("obtain_posterior")
+            )
+
+        })
 
 
         # =================================================
         # BINOMIAL SIMULATION
         # =================================================
-
-        binom_values <- reactiveVal(NULL)
 
         observeEvent(
 
@@ -585,40 +906,69 @@ chapter4_server <- function(id){
 
             {
 
-                # Store both the simulation and the parameters
-                # used to generate it.
-
                 n <- input$n
-                p1 <- input$p1
-                p2 <- input$p2
+
+                p <- input$p1
+
                 nsim <- input$nsim
 
-                s1 <- rbinom(
-                    nsim,
-                    n,
-                    p1
+
+                s <- rbinom(
+
+                    n = nsim,
+
+                    size = n,
+
+                    prob = p
+
                 )
 
-                s2 <- rbinom(
-                    nsim,
-                    n,
-                    p2
-                )
 
                 binom_values(
 
                     list(
-                        s1 = s1,
-                        s2 = s2,
+
+                        s = s,
+
                         n = n,
-                        p1 = p1,
-                        p2 = p2,
+
+                        p = p,
+
                         nsim = nsim
+
                     )
 
                 )
 
+
                 binom_locked(TRUE)
+
+
+                # -------------------------------------------------
+                # LOCK BINOMIAL SETTINGS
+                # -------------------------------------------------
+
+                set_slider_state(
+                    "n",
+                    FALSE
+                )
+
+                set_slider_state(
+                    "p1",
+                    FALSE
+                )
+
+                set_slider_state(
+                    "nsim",
+                    FALSE
+                )
+
+
+                # Prevent another simulation until Start over
+
+                shinyjs::disable(
+                    session$ns("generate_binom")
+                )
 
             }
 
@@ -626,363 +976,615 @@ chapter4_server <- function(id){
 
 
         # =================================================
-        # LOCK BINOMIAL CONTROLS
+        # BINOMIAL THEORETICAL PLOT
         # =================================================
 
-        observe({
+        output$binom_theoretical_plot <- renderPlot({
 
-            shinyjs::toggleState(
-                id = session$ns("n"),
-                condition = !binom_locked()
+            n <- input$n
+
+            p <- input$p1
+
+            x <- 0:n
+
+            probability <- dbinom(
+
+                x,
+
+                n,
+
+                p
+
             )
 
-            shinyjs::toggleState(
-                id = session$ns("p1"),
-                condition = !binom_locked()
-            )
 
-            shinyjs::toggleState(
-                id = session$ns("p2"),
-                condition = !binom_locked()
-            )
+            values <- binom_values()
 
-            shinyjs::toggleState(
-                id = session$ns("nsim"),
-                condition = !binom_locked()
-            )
+            y_max <- max(probability)
+
+
+            if (!is.null(values)) {
+
+                simulation_table <- table(
+
+                    factor(
+
+                        values$s,
+
+                        levels = 0:n
+
+                    )
+
+                ) |>
+
+                    as.data.frame()
+
+
+                names(simulation_table) <- c(
+
+                    "x",
+
+                    "frequency"
+
+                )
+
+
+                simulated_density <-
+
+                    simulation_table$frequency /
+
+                    values$nsim
+
+
+                y_max <- max(
+
+                    c(
+
+                        probability,
+
+                        simulated_density
+
+                    )
+
+                )
+
+            }
+
+
+            y_max <- y_max * 1.1
+
+
+            ggplot(
+
+                data.frame(
+
+                    x = x,
+
+                    probability = probability
+
+                ),
+
+                aes(
+
+                    x = x,
+
+                    y = probability
+
+                )
+
+            ) +
+
+                geom_col(
+
+                    fill = "#4C78A8",
+
+                    width = 0.8
+
+                ) +
+
+                labs(
+
+                    title = "Theoretical distribution",
+
+                    subtitle = paste0(
+
+                        "n = ",
+
+                        n,
+
+                        ", p = ",
+
+                        p
+
+                    ),
+
+                    x = "Number of Wins",
+
+                    y = "Frequency density"
+
+                ) +
+
+                scale_x_continuous(
+
+                    breaks = pretty(
+
+                        x,
+
+                        n = 8
+
+                    )
+
+                ) +
+
+                coord_cartesian(
+
+                    ylim = c(
+
+                        0,
+
+                        y_max
+
+                    )
+
+                ) +
+
+                theme_minimal(
+
+                    base_size = 14
+
+                ) +
+
+                theme(
+
+                    plot.title = element_text(
+
+                        size = 14,
+
+                        face = "bold"
+
+                    ),
+
+                    plot.subtitle = element_text(
+
+                        size = 12
+
+                    ),
+
+                    panel.grid.minor = element_blank()
+
+                )
 
         })
 
 
         # =================================================
-        # BINOMIAL PLOT
+        # BINOMIAL SIMULATION PLOT
         # =================================================
 
-        output$binom_plot <- renderPlot({
+        output$binom_simulation_plot <- renderPlot({
 
             values <- binom_values()
 
             req(values)
 
+
+            s <- values$s
+
             n <- values$n
-            p1 <- values$p1
-            p2 <- values$p2
+
+            p <- values$p
+
             nsim <- values$nsim
 
-            s1 <- values$s1
-            s2 <- values$s2
 
+            simulation_table <- table(
 
-            # -------------------------------------------------
-            # THEORETICAL DISTRIBUTIONS
-            # -------------------------------------------------
-
-            x <- 0:n
-
-            pr1 <- dbinom(
-                x,
-                n,
-                p1
-            )
-
-            pr2 <- dbinom(
-                x,
-                n,
-                p2
-            )
-
-            theoretical_max <- max(
-                c(pr1, pr2)
-            )
-
-
-            g1 <- ggplot(
-
-                data.frame(
-                    x = x,
-                    probability = pr1
-                ),
-
-                aes(
-                    x = x,
-                    y = probability
-                )
-
-            ) +
-
-                geom_bar(
-                    stat = "identity",
-                    fill = "lightblue",
-                    width = 0.8
-                ) +
-
-                geom_point(
-                    colour = "steelblue",
-                    size = 2
-                ) +
-
-                ylim(
-                    0,
-                    theoretical_max
-                ) +
-
-                labs(
-                    title = paste0(
-                        "Distribution 1: p = ",
-                        p1,
-                        ", Mean = ",
-                        round(n * p1, 3),
-                        ", SD = ",
-                        round(
-                            sqrt(
-                                n * p1 * (1 - p1)
-                            ),
-                            3
-                        )
-                    ),
-                    x = "Number of Wins",
-                    y = "Probability"
-                ) +
-
-                theme_minimal(
-                    base_size = 14
-                ) +
-
-                theme(
-                    plot.title = element_text(
-                        size = 11,
-                        face = "bold"
-                    )
-                )
-
-
-            g2 <- ggplot(
-
-                data.frame(
-                    x = x,
-                    probability = pr2
-                ),
-
-                aes(
-                    x = x,
-                    y = probability
-                )
-
-            ) +
-
-                geom_bar(
-                    stat = "identity",
-                    fill = "lightblue",
-                    width = 0.8
-                ) +
-
-                geom_point(
-                    colour = "steelblue",
-                    size = 2
-                ) +
-
-                ylim(
-                    0,
-                    theoretical_max
-                ) +
-
-                labs(
-                    title = paste0(
-                        "Distribution 2: p = ",
-                        p2,
-                        ", Mean = ",
-                        round(n * p2, 3),
-                        ", SD = ",
-                        round(
-                            sqrt(
-                                n * p2 * (1 - p2)
-                            ),
-                            3
-                        )
-                    ),
-                    x = "Number of Wins",
-                    y = "Probability"
-                ) +
-
-                theme_minimal(
-                    base_size = 14
-                ) +
-
-                theme(
-                    plot.title = element_text(
-                        size = 11,
-                        face = "bold"
-                    )
-                )
-
-
-            # -------------------------------------------------
-            # SIMULATED DISTRIBUTIONS
-            # -------------------------------------------------
-
-            s1_tab <- table(
                 factor(
-                    s1,
-                    levels = 0:n
-                )
-            ) |>
-                as.data.frame()
 
-            s2_tab <- table(
-                factor(
-                    s2,
+                    s,
+
                     levels = 0:n
+
                 )
+
             ) |>
+
                 as.data.frame()
 
 
-            simulation_max <- max(
+            names(simulation_table) <- c(
+
+                "x",
+
+                "frequency"
+
+            )
+
+
+            simulation_table$x <- as.numeric(
+
+                as.character(
+
+                    simulation_table$x
+
+                )
+
+            )
+
+
+            simulation_table$frequency_density <-
+
+                simulation_table$frequency /
+
+                nsim
+
+
+            theoretical_table <- data.frame(
+
+                x = 0:n,
+
+                probability = dbinom(
+
+                    0:n,
+
+                    n,
+
+                    p
+
+                )
+
+            )
+
+
+            y_max <- max(
+
                 c(
-                    s1_tab$Freq,
-                    s2_tab$Freq
-                )
-            )
 
+                    theoretical_table$probability,
 
-            g3 <- ggplot(
+                    simulation_table$frequency_density
 
-                s1_tab,
-
-                aes(
-                    x = Var1,
-                    y = Freq
                 )
 
-            ) +
+            ) * 1.1
 
-                geom_bar(
-                    stat = "identity",
-                    fill = "lightblue",
-                    width = 0.8
-                ) +
 
-                scale_x_discrete(
-                    drop = FALSE,
-                    breaks = seq(
-                        0,
-                        n,
-                        by = 5
-                    ),
-                    labels = seq(
-                        0,
-                        n,
-                        by = 5
+            if (isTRUE(input$overlay_binom)) {
+
+                ggplot() +
+
+                    geom_col(
+
+                        data = theoretical_table,
+
+                        aes(
+
+                            x = x,
+
+                            y = probability,
+
+                            fill = "Theoretical"
+
+                        ),
+
+                        width = 0.8,
+
+                        alpha = 0.55
+
+                    ) +
+
+                    geom_col(
+
+                        data = simulation_table,
+
+                        aes(
+
+                            x = x,
+
+                            y = frequency_density,
+
+                            fill = "Simulated"
+
+                        ),
+
+                        width = 0.55,
+
+                        alpha = 0.75
+
+                    ) +
+
+                    scale_fill_manual(
+
+                        name = NULL,
+
+                        values = c(
+
+                            "Theoretical" = "#4C78A8",
+
+                            "Simulated" = "#E76F51"
+
+                        )
+
+                    ) +
+
+                    labs(
+
+                        title = "Theoretical and simulated distributions",
+
+                        subtitle = paste0(
+
+                            "n = ",
+
+                            n,
+
+                            ", p = ",
+
+                            p,
+
+                            ", simulations = ",
+
+                            nsim
+
+                        ),
+
+                        x = "Number of Wins",
+
+                        y = "Frequency density"
+
+                    ) +
+
+                    scale_x_continuous(
+
+                        breaks = pretty(
+
+                            0:n,
+
+                            n = 8
+
+                        )
+
+                    ) +
+
+                    coord_cartesian(
+
+                        ylim = c(
+
+                            0,
+
+                            y_max
+
+                        )
+
+                    ) +
+
+                    theme_minimal(
+
+                        base_size = 14
+
+                    ) +
+
+                    theme(
+
+                        plot.title = element_text(
+
+                            size = 14,
+
+                            face = "bold"
+
+                        ),
+
+                        plot.subtitle = element_text(
+
+                            size = 12
+
+                        ),
+
+                        panel.grid.minor = element_blank(),
+
+                        legend.position = "top"
+
                     )
-                ) +
 
-                ylim(
-                    0,
-                    simulation_max
-                ) +
+            } else {
 
-                labs(
-                    title = paste0(
-                        "Simulation 1: n = ",
-                        nsim,
-                        ", Mean = ",
-                        round(mean(s1), 3),
-                        ", SD = ",
-                        round(sd(s1), 3)
-                    ),
-                    x = "Number of Wins",
-                    y = "Frequency"
-                ) +
+                ggplot(
 
-                theme_minimal(
-                    base_size = 14
-                ) +
+                    simulation_table,
 
-                theme(
-                    plot.title = element_text(
-                        size = 11,
-                        face = "bold"
+                    aes(
+
+                        x = x,
+
+                        y = frequency_density
+
                     )
-                )
 
-
-            g4 <- ggplot(
-
-                s2_tab,
-
-                aes(
-                    x = Var1,
-                    y = Freq
-                )
-
-            ) +
-
-                geom_bar(
-                    stat = "identity",
-                    fill = "lightblue",
-                    width = 0.8
                 ) +
 
-                scale_x_discrete(
-                    drop = FALSE,
-                    breaks = seq(
-                        0,
-                        n,
-                        by = 5
-                    ),
-                    labels = seq(
-                        0,
-                        n,
-                        by = 5
+                    geom_col(
+
+                        fill = "#E76F51",
+
+                        width = 0.8
+
+                    ) +
+
+                    labs(
+
+                        title = "Simulated distribution",
+
+                        subtitle = paste0(
+
+                            "n = ",
+
+                            n,
+
+                            ", p = ",
+
+                            p,
+
+                            ", simulations = ",
+
+                            nsim
+
+                        ),
+
+                        x = "Number of Wins",
+
+                        y = "Frequency density"
+
+                    ) +
+
+                    scale_x_continuous(
+
+                        breaks = pretty(
+
+                            0:n,
+
+                            n = 8
+
+                        )
+
+                    ) +
+
+                    coord_cartesian(
+
+                        ylim = c(
+
+                            0,
+
+                            y_max
+
+                        )
+
+                    ) +
+
+                    theme_minimal(
+
+                        base_size = 14
+
+                    ) +
+
+                    theme(
+
+                        plot.title = element_text(
+
+                            size = 14,
+
+                            face = "bold"
+
+                        ),
+
+                        plot.subtitle = element_text(
+
+                            size = 12
+
+                        ),
+
+                        panel.grid.minor = element_blank()
+
                     )
-                ) +
 
-                ylim(
-                    0,
-                    simulation_max
-                ) +
-
-                labs(
-                    title = paste0(
-                        "Simulation 2: n = ",
-                        nsim,
-                        ", Mean = ",
-                        round(mean(s2), 3),
-                        ", SD = ",
-                        round(sd(s2), 3)
-                    ),
-                    x = "Number of Wins",
-                    y = "Frequency"
-                ) +
-
-                theme_minimal(
-                    base_size = 14
-                ) +
-
-                theme(
-                    plot.title = element_text(
-                        size = 11,
-                        face = "bold"
-                    )
-                )
-
-
-            # -------------------------------------------------
-            # COMBINE
-            # -------------------------------------------------
-
-            (g1 | g2) /
-
-                (g3 | g4)
+            }
 
         })
 
 
         # =================================================
-        # BAYESIAN DATA
+        # BINOMIAL SUMMARY
         # =================================================
 
-        data_values <- reactiveVal(NULL)
+        output$binom_theoretical_stats <- renderTable({
+
+            n <- input$n
+
+            p <- input$p1
+
+
+            data.frame(
+
+                Statistic = c(
+
+                    "Mean",
+
+                    "Standard deviation"
+
+                ),
+
+                Value = c(
+
+                    n * p,
+
+                    sqrt(
+
+                        n * p * (1 - p)
+
+                    )
+
+                ),
+
+                check.names = FALSE
+
+            )
+
+        },
+
+        digits = 3,
+
+        striped = FALSE,
+
+        bordered = FALSE,
+
+        spacing = "s"
+
+        )
+
+
+        output$binom_simulation_stats <- renderTable({
+
+            values <- binom_values()
+
+            req(values)
+
+
+            data.frame(
+
+                Statistic = c(
+
+                    "Mean",
+
+                    "Standard deviation"
+
+                ),
+
+                Value = c(
+
+                    mean(values$s),
+
+                    sd(values$s)
+
+                ),
+
+                check.names = FALSE
+
+            )
+
+        },
+
+        digits = 3,
+
+        striped = FALSE,
+
+        bordered = FALSE,
+
+        spacing = "s"
+
+        )
+
+
+        # =================================================
+        # BAYESIAN DATA SIMULATION
+        # =================================================
 
         observeEvent(
 
@@ -990,73 +1592,98 @@ chapter4_server <- function(id){
 
             {
 
-                # Store both the generated data and all
-                # parameters used to generate it.
-
                 true_mu <- input$true_mu
+
                 prior_mean <- input$prior_mean
+
                 prior_sd <- input$prior_sd
+
                 n_bayes <- input$n_bayes
+
                 sigma <- input$sigma
 
+
                 y <- rnorm(
+
                     n_bayes,
+
                     mean = true_mu,
+
                     sd = sigma
+
                 )
+
 
                 data_values(
 
                     list(
+
                         y = y,
+
                         true_mu = true_mu,
+
                         prior_mean = prior_mean,
+
                         prior_sd = prior_sd,
+
                         n_bayes = n_bayes,
+
                         sigma = sigma
+
                     )
 
                 )
 
-                bayes_locked(TRUE)
+
+                bayes_data_locked(TRUE)
+
+
+                # -------------------------------------------------
+                # Lock Bayesian model settings
+                # -------------------------------------------------
+
+                set_slider_state(
+                    "true_mu",
+                    FALSE
+                )
+
+                set_slider_state(
+                    "prior_mean",
+                    FALSE
+                )
+
+                set_slider_state(
+                    "prior_sd",
+                    FALSE
+                )
+
+                set_slider_state(
+                    "n_bayes",
+                    FALSE
+                )
+
+                set_slider_state(
+                    "sigma",
+                    FALSE
+                )
+
+
+                shinyjs::disable(
+                    session$ns("generate_bayes")
+                )
+
+
+                # -------------------------------------------------
+                # Posterior can now be obtained
+                # -------------------------------------------------
+
+                shinyjs::enable(
+                    session$ns("obtain_posterior")
+                )
 
             }
 
         )
-
-
-        # =================================================
-        # LOCK BAYESIAN CONTROLS
-        # =================================================
-
-        observe({
-
-            shinyjs::toggleState(
-                id = session$ns("true_mu"),
-                condition = !bayes_locked()
-            )
-
-            shinyjs::toggleState(
-                id = session$ns("prior_mean"),
-                condition = !bayes_locked()
-            )
-
-            shinyjs::toggleState(
-                id = session$ns("prior_sd"),
-                condition = !bayes_locked()
-            )
-
-            shinyjs::toggleState(
-                id = session$ns("n_bayes"),
-                condition = !bayes_locked()
-            )
-
-            shinyjs::toggleState(
-                id = session$ns("sigma"),
-                condition = !bayes_locked()
-            )
-
-        })
 
 
         # =================================================
@@ -1068,6 +1695,7 @@ chapter4_server <- function(id){
             values <- data_values()
 
             req(values)
+
 
             y <- values$y
 
@@ -1114,86 +1742,234 @@ chapter4_server <- function(id){
 
 
         # =================================================
-        # BAYESIAN PLOT
+        # COMMON BAYESIAN X-AXIS
+        # =================================================
+        #
+        # Both Bayesian panels use this same reactive range.
+        # This guarantees that the upper and lower plots have
+        # exactly the same x-axis.
         # =================================================
 
-        output$bayes_plot <- renderPlot({
+        bayes_x_range <- reactive({
 
             values <- data_values()
 
-            req(values)
 
-            y <- values$y
-
-            post <- posterior()
-
-
-            prior_mean <- values$prior_mean
-
-            prior_sd <- values$prior_sd
-
-            true_mu <- values$true_mu
-
-            sigma <- values$sigma
-
-            post_mean <- post$mean
-
-            post_sd <- post$sd
-
-            data_mean <- post$data_mean
+            prior_mean <- if (is.null(values))
+                input$prior_mean
+            else
+                values$prior_mean
 
 
-            prior_colour <- "#E76F51"
-
-            prior_line_colour <- "#9B2D20"
-
-            data_colour <- "#7B9ACC"
-
-            data_line_colour <- "#F4A261"
-
-            true_colour <- "#2A9D8F"
-
-            posterior_colour <- "#7B9ACC"
-
-            posterior_line_colour <- "#34495E"
+            prior_sd <- if (is.null(values))
+                input$prior_sd
+            else
+                values$prior_sd
 
 
-            curve_width <- 1.5
+            true_mu <- if (is.null(values))
+                input$true_mu
+            else
+                values$true_mu
 
-            reference_width <- 0.8
+
+            sigma <- if (is.null(values))
+                input$sigma
+            else
+                values$sigma
 
 
-            xmin <- min(
-
-                y,
+            candidates_min <- c(
 
                 prior_mean - 4 * prior_sd,
-
-                post_mean - 4 * post_sd,
 
                 true_mu - 4 * sigma
 
             )
 
 
-            xmax <- max(
-
-                y,
+            candidates_max <- c(
 
                 prior_mean + 4 * prior_sd,
-
-                post_mean + 4 * post_sd,
 
                 true_mu + 4 * sigma
 
             )
 
 
+            if (!is.null(values)) {
+
+                y <- values$y
+
+                candidates_min <- c(
+
+                    candidates_min,
+
+                    min(y)
+
+                )
+
+                candidates_max <- c(
+
+                    candidates_max,
+
+                    max(y)
+
+                )
+
+            }
+
+
+            # Include the posterior once it exists
+
+            if (posterior_ready() && !is.null(values)) {
+
+                post <- posterior()
+
+                candidates_min <- c(
+
+                    candidates_min,
+
+                    post$mean - 4 * post$sd
+
+                )
+
+                candidates_max <- c(
+
+                    candidates_max,
+
+                    post$mean + 4 * post$sd
+
+                )
+
+            }
+
+
+            xmin <- min(candidates_min)
+
+            xmax <- max(candidates_max)
+
+
+            c(
+
+                xmin = xmin - 1,
+
+                xmax = xmax + 1
+
+            )
+
+        })
+
+
+        # =================================================
+        # OBTAIN POSTERIOR
+        # =================================================
+
+        observeEvent(
+
+            input$obtain_posterior,
+
+            {
+
+                req(data_values())
+
+
+                posterior_ready(TRUE)
+
+                bayes_posterior_locked(TRUE)
+
+
+                shinyjs::disable(
+
+                    session$ns("obtain_posterior")
+
+                )
+
+
+                # Reveal overlay checkbox
+
+                updateCheckboxInput(
+
+                    session,
+
+                    "bayes_posterior_ready",
+
+                    value = TRUE
+
+                )
+
+            }
+
+        )
+
+
+        # =================================================
+        # BAYESIAN TOP PLOT
+        #
+        # Prior always shown.
+        # Data added after simulation.
+        # =================================================
+
+        output$bayes_prior_data_plot <- renderPlot({
+
+            values <- data_values()
+
+
+            # -------------------------------------------------
+            # Current prior
+            # -------------------------------------------------
+
+            prior_mean <- if (is.null(values))
+                input$prior_mean
+            else
+                values$prior_mean
+
+
+            prior_sd <- if (is.null(values))
+                input$prior_sd
+            else
+                values$prior_sd
+
+
+            # -------------------------------------------------
+            # Data
+            # -------------------------------------------------
+
+            if (!is.null(values)) {
+
+                y <- values$y
+
+                true_mu <- values$true_mu
+
+                data_mean <- mean(y)
+
+            } else {
+
+                y <- numeric(0)
+
+                true_mu <- input$true_mu
+
+                data_mean <- NA
+
+            }
+
+
+            # -------------------------------------------------
+            # Common x-axis
+            # -------------------------------------------------
+
+            axis_range <- bayes_x_range()
+
+            xmin <- axis_range["xmin"]
+
+            xmax <- axis_range["xmax"]
+
+
             x <- seq(
 
-                xmin - 1,
+                xmin,
 
-                xmax + 1,
+                xmax,
 
                 length.out = 1000
 
@@ -1211,6 +1987,284 @@ chapter4_server <- function(id){
             )
 
 
+            # -------------------------------------------------
+            # Colours
+            # -------------------------------------------------
+
+            prior_colour <- "#E76F51"
+
+            prior_line_colour <- "#9B2D20"
+
+            data_colour <- "#7B9ACC"
+
+            data_line_colour <- "#5A6FA3"
+
+            true_colour <- "#2A9D8F"
+
+
+            # -------------------------------------------------
+            # Plot
+            # -------------------------------------------------
+
+            plot <- ggplot(
+
+                data.frame(
+
+                    x = x,
+
+                    density = prior_density
+
+                ),
+
+                aes(
+
+                    x = x,
+
+                    y = density
+
+                )
+
+            ) +
+
+                geom_line(
+
+                    colour = prior_colour,
+
+                    linewidth = 0.9
+
+                ) +
+
+                geom_vline(
+
+                    xintercept = prior_mean,
+
+                    colour = prior_line_colour,
+
+                    linetype = "dashed",
+
+                    linewidth = 0.6
+
+                )
+
+
+            # -------------------------------------------------
+            # Observed data
+            # -------------------------------------------------
+
+            if (length(y) > 0) {
+
+                plot <- plot +
+
+                    geom_rug(
+
+                        data = data.frame(
+
+                            x = y
+
+                        ),
+
+                        aes(
+
+                            x = x
+
+                        ),
+
+                        inherit.aes = FALSE,
+
+                        sides = "b",
+
+                        colour = data_colour,
+
+                        linewidth = 0.7,
+
+                        length = unit(
+
+                            0.08,
+
+                            "npc"
+
+                        )
+
+                    )
+
+            }
+
+
+            # -------------------------------------------------
+            # Data mean
+            # -------------------------------------------------
+
+            if (
+
+                length(y) > 0 &&
+
+                isTRUE(input$show_data_mean)
+
+            ) {
+
+                plot <- plot +
+
+                    geom_vline(
+
+                        xintercept = data_mean,
+
+                        colour = data_line_colour,
+
+                        linetype = "dashed",
+
+                        linewidth = 0.6
+
+                    )
+
+            }
+
+
+            # -------------------------------------------------
+            # True mean
+            # -------------------------------------------------
+
+            if (isTRUE(input$show_true)) {
+
+                plot <- plot +
+
+                    geom_vline(
+
+                        xintercept = true_mu,
+
+                        colour = true_colour,
+
+                        linetype = "dashed",
+
+                        linewidth = 0.6
+
+                    )
+
+            }
+
+
+            plot +
+
+                labs(
+
+                    title = "Prior distribution",
+
+                    subtitle = if (length(y) == 0)
+
+                        "Adjust the prior settings before simulating data"
+
+                    else
+
+                        "Prior distribution with observed data",
+
+                    x = "Value",
+
+                    y = "Density"
+
+                ) +
+
+                coord_cartesian(
+
+                    xlim = c(
+
+                        xmin,
+
+                        xmax
+
+                    )
+
+                ) +
+
+                theme_minimal(
+
+                    base_size = 15
+
+                ) +
+
+                theme(
+
+                    plot.title = element_text(
+
+                        size = 14,
+
+                        face = "bold"
+
+                    ),
+
+                    plot.subtitle = element_text(
+
+                        size = 12
+
+                    ),
+
+                    panel.grid.minor = element_blank()
+
+                )
+
+        })
+
+
+        # =================================================
+        # BAYESIAN POSTERIOR PLOT
+        #
+        # Remains empty until posterior is obtained.
+        # =================================================
+
+        output$bayes_posterior_plot <- renderPlot({
+
+            req(posterior_ready())
+
+            values <- data_values()
+
+            req(values)
+
+
+            post <- posterior()
+
+
+            y <- values$y
+
+            true_mu <- values$true_mu
+
+            post_mean <- post$mean
+
+            post_sd <- post$sd
+
+            data_mean <- post$data_mean
+
+
+            # -------------------------------------------------
+            # SAME X-AXIS AS TOP PLOT
+            # -------------------------------------------------
+
+            axis_range <- bayes_x_range()
+
+            xmin <- axis_range["xmin"]
+
+            xmax <- axis_range["xmax"]
+
+
+            x <- seq(
+
+                xmin,
+
+                xmax,
+
+                length.out = 1000
+
+            )
+
+
+            prior_density <- dnorm(
+
+                x,
+
+                values$prior_mean,
+
+                values$prior_sd
+
+            )
+
+
             posterior_density <- dnorm(
 
                 x,
@@ -1222,240 +2276,127 @@ chapter4_server <- function(id){
             )
 
 
-            # =================================================
-            # PRIOR
-            # =================================================
+            # -------------------------------------------------
+            # Colours
+            # -------------------------------------------------
 
-            prior_plot <- ggplot(
+            prior_colour <- "#E76F51"
 
-                data.frame(
+            posterior_colour <- "#6A4C93"
 
-                    x = x,
+            posterior_line_colour <- "#49336A"
 
-                    density = prior_density
+            data_line_colour <- "#5A6FA3"
 
-                ),
+            true_colour <- "#2A9D8F"
 
-                aes(x, density)
 
-            ) +
+            # -------------------------------------------------
+            # Plot
+            # -------------------------------------------------
 
-                geom_line(
+            if (isTRUE(input$overlay_bayes)) {
 
-                    colour = prior_colour,
+                plot <- ggplot(
 
-                    linewidth = curve_width
+                    data.frame(
+
+                        x = x,
+
+                        prior = prior_density,
+
+                        posterior = posterior_density
+
+                    ),
+
+                    aes(
+
+                        x = x
+
+                    )
 
                 ) +
 
-                geom_vline(
+                    geom_line(
 
-                    xintercept = prior_mean,
+                        aes(
 
-                    colour = prior_line_colour,
+                            y = prior,
 
-                    linetype = "dashed",
+                            colour = "Prior"
 
-                    linewidth = reference_width
+                        ),
 
-                )
+                        linewidth = 0.9
 
+                    ) +
 
-            if (input$show_true) {
+                    geom_line(
 
-                prior_plot <- prior_plot +
+                        aes(
 
-                    geom_vline(
+                            y = posterior,
 
-                        xintercept = true_mu,
+                            colour = "Posterior"
 
-                        colour = true_colour,
+                        ),
 
-                        linetype = "dashed",
+                        linewidth = 0.9
 
-                        linewidth = reference_width
+                    ) +
+
+                    scale_colour_manual(
+
+                        name = NULL,
+
+                        values = c(
+
+                            "Prior" = prior_colour,
+
+                            "Posterior" = posterior_colour
+
+                        )
+
+                    )
+
+            } else {
+
+                plot <- ggplot(
+
+                    data.frame(
+
+                        x = x,
+
+                        density = posterior_density
+
+                    ),
+
+                    aes(
+
+                        x = x,
+
+                        y = density
+
+                    )
+
+                ) +
+
+                    geom_line(
+
+                        colour = posterior_colour,
+
+                        linewidth = 0.9
 
                     )
 
             }
 
 
-            prior_plot <- prior_plot +
-
-                labs(
-
-                    title = "Prior distribution",
-
-                    x = NULL,
-
-                    y = "Density"
-
-                ) +
-
-                theme_minimal(
-
-                    base_size = 15
-
-                ) +
-
-                theme(
-
-                    panel.grid.minor = element_blank()
-
-                )
-
-
-            # =================================================
-            # PRIOR + OBSERVED DATA
-            # =================================================
-
-            data_plot <- ggplot(
-
-                data.frame(
-
-                    x = x,
-
-                    density = prior_density
-
-                ),
-
-                aes(x, density)
-
-            ) +
-
-                geom_line(
-
-                    colour = prior_colour,
-
-                    linewidth = curve_width
-
-                ) +
-
-                geom_rug(
-
-                    data = data.frame(x = y),
-
-                    aes(x = x),
-
-                    inherit.aes = FALSE,
-
-                    sides = "b",
-
-                    colour = data_colour,
-
-                    linewidth = 1.0,
-
-                    length = unit(
-
-                        0.08,
-
-                        "npc"
-
-                    )
-
-                ) +
-
-                geom_vline(
-
-                    xintercept = prior_mean,
-
-                    colour = prior_line_colour,
-
-                    linetype = "dashed",
-
-                    linewidth = reference_width
-
-                )
-
-
-            if (input$show_data_mean) {
-
-                data_plot <- data_plot +
-
-                    geom_vline(
-
-                        xintercept = data_mean,
-
-                        colour = data_line_colour,
-
-                        linetype = "dashed",
-
-                        linewidth = reference_width
-
-                    )
-
-            }
-
-
-            if (input$show_true) {
-
-                data_plot <- data_plot +
-
-                    geom_vline(
-
-                        xintercept = true_mu,
-
-                        colour = true_colour,
-
-                        linetype = "dashed",
-
-                        linewidth = reference_width
-
-                    )
-
-            }
-
-
-            data_plot <- data_plot +
-
-                labs(
-
-                    title = "Prior distribution with observed data",
-
-                    x = NULL,
-
-                    y = "Density"
-
-                ) +
-
-                theme_minimal(
-
-                    base_size = 15
-
-                ) +
-
-                theme(
-
-                    panel.grid.minor = element_blank()
-
-                )
-
-
-            # =================================================
-            # POSTERIOR
-            # =================================================
-
-            posterior_plot <- ggplot(
-
-                data.frame(
-
-                    x = x,
-
-                    density = posterior_density
-
-                ),
-
-                aes(x, density)
-
-            ) +
-
-                geom_line(
-
-                    colour = posterior_colour,
-
-                    linewidth = curve_width
-
-                ) +
+            # -------------------------------------------------
+            # Posterior mean
+            # -------------------------------------------------
+
+            plot <- plot +
 
                 geom_vline(
 
@@ -1465,14 +2406,18 @@ chapter4_server <- function(id){
 
                     linetype = "dashed",
 
-                    linewidth = reference_width
+                    linewidth = 0.6
 
                 )
 
 
-            if (input$show_data_mean) {
+            # -------------------------------------------------
+            # Data mean
+            # -------------------------------------------------
 
-                posterior_plot <- posterior_plot +
+            if (isTRUE(input$show_data_mean)) {
+
+                plot <- plot +
 
                     geom_vline(
 
@@ -1482,16 +2427,20 @@ chapter4_server <- function(id){
 
                         linetype = "dashed",
 
-                        linewidth = reference_width
+                        linewidth = 0.6
 
                     )
 
             }
 
 
-            if (input$show_true) {
+            # -------------------------------------------------
+            # True mean
+            # -------------------------------------------------
 
-                posterior_plot <- posterior_plot +
+            if (isTRUE(input$show_true)) {
+
+                plot <- plot +
 
                     geom_vline(
 
@@ -1501,22 +2450,46 @@ chapter4_server <- function(id){
 
                         linetype = "dashed",
 
-                        linewidth = reference_width
+                        linewidth = 0.6
 
                     )
 
             }
 
 
-            posterior_plot <- posterior_plot +
+            plot +
 
                 labs(
 
                     title = "Posterior distribution",
 
+                    subtitle = paste0(
+
+                        "Posterior mean = ",
+
+                        round(post_mean, 3),
+
+                        ", posterior SD = ",
+
+                        round(post_sd, 3)
+
+                    ),
+
                     x = "Value",
 
                     y = "Density"
+
+                ) +
+
+                coord_cartesian(
+
+                    xlim = c(
+
+                        xmin,
+
+                        xmax
+
+                    )
 
                 ) +
 
@@ -1528,20 +2501,25 @@ chapter4_server <- function(id){
 
                 theme(
 
-                    panel.grid.minor = element_blank()
+                    plot.title = element_text(
+
+                        size = 14,
+
+                        face = "bold"
+
+                    ),
+
+                    plot.subtitle = element_text(
+
+                        size = 12
+
+                    ),
+
+                    panel.grid.minor = element_blank(),
+
+                    legend.position = "top"
 
                 )
-
-
-            # =================================================
-            # COMBINE
-            # =================================================
-
-            prior_plot /
-
-                data_plot /
-
-                posterior_plot
 
         })
 
@@ -1556,101 +2534,256 @@ chapter4_server <- function(id){
 
             {
 
-                # Clear simulations
+                current_example <- input$example
+
+
+                # -------------------------------------------------
+                # Clear stored data
+                # -------------------------------------------------
 
                 binom_values(NULL)
 
                 data_values(NULL)
 
-
-                # Unlock controls
+                posterior_ready(FALSE)
 
                 binom_locked(FALSE)
 
-                bayes_locked(FALSE)
+                bayes_data_locked(FALSE)
+
+                bayes_posterior_locked(FALSE)
 
 
-                # Reset example
+                # -------------------------------------------------
+                # Reset binomial settings
+                # -------------------------------------------------
+
+                updateSliderInput(
+
+                    session,
+
+                    "n",
+
+                    value = 20
+
+                )
+
+                updateSliderInput(
+
+                    session,
+
+                    "p1",
+
+                    value = 0.4
+
+                )
+
+                updateSliderInput(
+
+                    session,
+
+                    "nsim",
+
+                    value = 100
+
+                )
+
+
+                # -------------------------------------------------
+                # Reset Bayesian settings
+                # -------------------------------------------------
+
+                updateSliderInput(
+
+                    session,
+
+                    "true_mu",
+
+                    value = 3
+
+                )
+
+                updateSliderInput(
+
+                    session,
+
+                    "prior_mean",
+
+                    value = 0
+
+                )
+
+                updateSliderInput(
+
+                    session,
+
+                    "prior_sd",
+
+                    value = 2
+
+                )
+
+                updateSliderInput(
+
+                    session,
+
+                    "n_bayes",
+
+                    value = 10
+
+                )
+
+                updateSliderInput(
+
+                    session,
+
+                    "sigma",
+
+                    value = 2
+
+                )
+
+
+                # -------------------------------------------------
+                # Reset checkboxes
+                # -------------------------------------------------
+
+                updateCheckboxInput(
+
+                    session,
+
+                    "show_true",
+
+                    value = FALSE
+
+                )
+
+                updateCheckboxInput(
+
+                    session,
+
+                    "show_data_mean",
+
+                    value = FALSE
+
+                )
+
+                updateCheckboxInput(
+
+                    session,
+
+                    "overlay_binom",
+
+                    value = FALSE
+
+                )
+
+                updateCheckboxInput(
+
+                    session,
+
+                    "overlay_bayes",
+
+                    value = FALSE
+
+                )
+
+                updateCheckboxInput(
+
+                    session,
+
+                    "bayes_posterior_ready",
+
+                    value = FALSE
+
+                )
+
+
+                # -------------------------------------------------
+                # Re-enable binomial controls
+                # -------------------------------------------------
+
+                set_slider_state(
+                    "n",
+                    TRUE
+                )
+
+                set_slider_state(
+                    "p1",
+                    TRUE
+                )
+
+                set_slider_state(
+                    "nsim",
+                    TRUE
+                )
+
+                shinyjs::enable(
+
+                    session$ns("generate_binom")
+
+                )
+
+
+                # -------------------------------------------------
+                # Re-enable Bayesian controls
+                # -------------------------------------------------
+
+                set_slider_state(
+                    "true_mu",
+                    TRUE
+                )
+
+                set_slider_state(
+                    "prior_mean",
+                    TRUE
+                )
+
+                set_slider_state(
+                    "prior_sd",
+                    TRUE
+                )
+
+                set_slider_state(
+                    "n_bayes",
+                    TRUE
+                )
+
+                set_slider_state(
+                    "sigma",
+                    TRUE
+                )
+
+                shinyjs::enable(
+
+                    session$ns("generate_bayes")
+
+                )
+
+
+                # -------------------------------------------------
+                # Posterior button starts disabled
+                # -------------------------------------------------
+
+                shinyjs::disable(
+
+                    session$ns("obtain_posterior")
+
+                )
+
+
+                # -------------------------------------------------
+                # Keep the current example
+                # -------------------------------------------------
 
                 updateRadioButtons(
+
                     session,
+
                     "example",
-                    selected = "binom"
-                )
 
+                    selected = current_example
 
-                # Reset binomial controls
-
-                updateSliderInput(
-                    session,
-                    "n",
-                    value = 20
-                )
-
-                updateSliderInput(
-                    session,
-                    "p1",
-                    value = 0.4
-                )
-
-                updateSliderInput(
-                    session,
-                    "p2",
-                    value = 0.1
-                )
-
-                updateSliderInput(
-                    session,
-                    "nsim",
-                    value = 100
-                )
-
-
-                # Reset Bayesian controls
-
-                updateSliderInput(
-                    session,
-                    "true_mu",
-                    value = 3
-                )
-
-                updateSliderInput(
-                    session,
-                    "prior_mean",
-                    value = 0
-                )
-
-                updateSliderInput(
-                    session,
-                    "prior_sd",
-                    value = 2
-                )
-
-                updateSliderInput(
-                    session,
-                    "n_bayes",
-                    value = 10
-                )
-
-                updateSliderInput(
-                    session,
-                    "sigma",
-                    value = 2
-                )
-
-
-                # Reset checkboxes
-
-                updateCheckboxInput(
-                    session,
-                    "show_true",
-                    value = FALSE
-                )
-
-                updateCheckboxInput(
-                    session,
-                    "show_data_mean",
-                    value = FALSE
                 )
 
             }
@@ -1668,18 +2801,21 @@ chapter4_server <- function(id){
 
                 values <- binom_values()
 
+
                 if (is.null(values)) {
 
                     n <- input$n
-                    p1 <- input$p1
-                    p2 <- input$p2
+
+                    p <- input$p1
+
                     nsim <- input$nsim
 
                 } else {
 
                     n <- values$n
-                    p1 <- values$p1
-                    p2 <- values$p2
+
+                    p <- values$p
+
                     nsim <- values$nsim
 
                 }
@@ -1687,37 +2823,79 @@ chapter4_server <- function(id){
 
                 paste0(
 
-                    "# Generate two binomial samples\n",
+                    "# Binomial model\n\n",
 
                     "n <- ", n, "\n",
 
-                    "p1 <- ", p1, "\n",
-
-                    "p2 <- ", p2, "\n",
+                    "p <- ", p, "\n",
 
                     "nsim <- ", nsim, "\n\n",
 
-                    "s1 <- rbinom(nsim, n, p1)\n",
 
-                    "s2 <- rbinom(nsim, n, p2)\n\n",
+                    "# Generate simulated data\n\n",
 
-                    "# Theoretical probabilities\n",
+                    "simulated <- rbinom(\n",
+
+                    "    n = nsim,\n",
+
+                    "    size = n,\n",
+
+                    "    prob = p\n",
+
+                    ")\n\n",
+
+
+                    "# Theoretical probabilities\n\n",
 
                     "x <- 0:n\n\n",
 
-                    "prob1 <- dbinom(x, n, p1)\n",
+                    "theoretical <- dbinom(\n",
 
-                    "prob2 <- dbinom(x, n, p2)\n\n",
+                    "    x,\n",
 
-                    "# Simulated means and standard deviations\n",
+                    "    size = n,\n",
 
-                    "mean(s1)\n",
+                    "    prob = p\n",
 
-                    "sd(s1)\n\n",
+                    ")\n\n",
 
-                    "mean(s2)\n",
 
-                    "sd(s2)"
+                    "# Simulated frequencies\n\n",
+
+                    "frequencies <- table(\n",
+
+                    "    factor(\n",
+
+                    "        simulated,\n",
+
+                    "        levels = 0:n\n",
+
+                    "    )\n",
+
+                    ")\n\n",
+
+
+                    "# Simulated frequency density\n\n",
+
+                    "frequency_density <- frequencies / nsim\n\n",
+
+
+                    "# Theoretical mean and standard deviation\n\n",
+
+                    "theoretical_mean <- n * p\n",
+
+                    "theoretical_sd <- sqrt(\n",
+
+                    "    n * p * (1 - p)\n",
+
+                    ")\n\n",
+
+
+                    "# Simulated mean and standard deviation\n\n",
+
+                    "simulated_mean <- mean(simulated)\n",
+
+                    "simulated_sd <- sd(simulated)"
 
                 )
 
@@ -1725,20 +2903,29 @@ chapter4_server <- function(id){
 
                 values <- data_values()
 
+
                 if (is.null(values)) {
 
                     true_mu <- input$true_mu
+
                     prior_mean <- input$prior_mean
+
                     prior_sd <- input$prior_sd
+
                     n_bayes <- input$n_bayes
+
                     sigma <- input$sigma
 
                 } else {
 
                     true_mu <- values$true_mu
+
                     prior_mean <- values$prior_mean
+
                     prior_sd <- values$prior_sd
+
                     n_bayes <- values$n_bayes
+
                     sigma <- values$sigma
 
                 }
@@ -1746,7 +2933,7 @@ chapter4_server <- function(id){
 
                 paste0(
 
-                    "# Generate observations\n",
+                    "# Generate observations\n\n",
 
                     "y <- rnorm(\n",
 
@@ -1758,7 +2945,8 @@ chapter4_server <- function(id){
 
                     ")\n\n",
 
-                    "# Prior\n",
+
+                    "# Prior\n\n",
 
                     "prior_mean <- ", prior_mean, "\n",
 
@@ -1766,7 +2954,8 @@ chapter4_server <- function(id){
 
                     "prior_var <- prior_sd^2\n\n",
 
-                    "# Posterior variance\n",
+
+                    "# Posterior variance\n\n",
 
                     "posterior_var <- 1 / (\n",
 
@@ -1776,7 +2965,8 @@ chapter4_server <- function(id){
 
                     ")\n\n",
 
-                    "# Posterior mean\n",
+
+                    "# Posterior mean\n\n",
 
                     "posterior_mean <- posterior_var * (\n",
 
@@ -1786,11 +2976,13 @@ chapter4_server <- function(id){
 
                     ")\n\n",
 
-                    "# Posterior SD\n",
+
+                    "# Posterior SD\n\n",
 
                     "posterior_sd <- sqrt(posterior_var)\n\n",
 
-                    "# Posterior density\n",
+
+                    "# Posterior density\n\n",
 
                     "dnorm(\n",
 
@@ -1810,4 +3002,3 @@ chapter4_server <- function(id){
 
     })
 }
-
