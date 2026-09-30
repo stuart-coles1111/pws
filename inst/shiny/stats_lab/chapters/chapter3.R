@@ -125,7 +125,8 @@ chapter3_ui <- function(id){
             actionButton(
                 ns("fit"),
                 "Fit model",
-                class = "btn-info"
+                class = "btn-info",
+                disabled = TRUE
             ),
 
             hr(),
@@ -146,17 +147,27 @@ chapter3_ui <- function(id){
 
             selectInput(
                 ns("body"),
-                "Shot type",
+                "Attempt type",
                 choices = c(
-                    "Head" = "Head",
-                    "Foot" = "Foot"
+                    "Header" = "Head",
+                    "Shot" = "Foot"
                 )
             ),
 
             actionButton(
                 ns("predict"),
                 "Predict",
-                class = "btn-success"
+                class = "btn-success",
+                disabled = TRUE
+            ),
+
+            br(),
+            br(),
+
+            actionButton(
+                ns("start_over"),
+                "Start over",
+                class = "btn-warning"
             )
         )
 
@@ -164,9 +175,7 @@ chapter3_ui <- function(id){
 
 
     # =====================================================
-
     # Overview
-
     # =====================================================
 
     overview_panel <- div(
@@ -836,79 +845,23 @@ chapter3_server <- function(id){
 
 
             # =================================================
-            # RESET
+            # INITIAL BUTTON STATE
             # =================================================
 
-            observeEvent(
-                input$reset,
-                {
+            # Fit and Predict are initially disabled.
+            # Randomise and Generate data are initially enabled.
 
-                    new_seed <- sample(
-                        1:999,
-                        1
-                    )
-
-                    updateNumericInput(
-                        session,
-                        "seed",
-                        value = new_seed
-                    )
-
-                    updateRadioButtons(
-                        session,
-                        "topic",
-                        selected = "Dice"
-                    )
-
-                    updateNumericInput(
-                        session,
-                        "n_rolls",
-                        value = 1000
-                    )
-
-                    updateNumericInput(
-                        session,
-                        "n_runs",
-                        value = 9
-                    )
-
-                    updateNumericInput(
-                        session,
-                        "n_data",
-                        value = 5000
-                    )
-
-                    updateNumericInput(
-                        session,
-                        "x",
-                        value = 5
-                    )
-
-                    updateNumericInput(
-                        session,
-                        "y",
-                        value = 10
-                    )
-
-                    updateSelectInput(
-                        session,
-                        "body",
-                        selected = "Head"
-                    )
-
-                    true_params(
-                        default_params
-                    )
-
-                    state$dice <- NULL
-
-                    state$xg_data <- NULL
-                    state$xg_model <- NULL
-                    state$xg_plots <- NULL
-                    state$xg_pred <- NULL
-                }
+            updateActionButton(
+                session,
+                "fit",
+                disabled = TRUE
             )
 
+            updateActionButton(
+                session,
+                "predict",
+                disabled = TRUE
+            )
 
 
             # =================================================
@@ -949,8 +902,6 @@ chapter3_server <- function(id){
             )
 
 
-
-
             # =================================================
             # DICE PLOT
             # =================================================
@@ -960,10 +911,6 @@ chapter3_server <- function(id){
                 req(
                     state$dice
                 )
-
-                # Keep the package-generated plot and layout.
-                # Only change the facet labels to "Run 1",
-                # "Run 2", etc.
 
                 state$dice +
                     ggplot2::facet_wrap(
@@ -994,10 +941,6 @@ chapter3_server <- function(id){
 
                 df <- state$dice$data
 
-
-                # Find the final roll actually present in the
-                # generated data, rather than using the current
-                # input$n_rolls value.
 
                 final_roll <- max(
                     df$Roll,
@@ -1069,8 +1012,6 @@ chapter3_server <- function(id){
             })
 
 
-
-
             # =================================================
             # RANDOMISE xG PARAMETERS
             # =================================================
@@ -1135,15 +1076,49 @@ chapter3_server <- function(id){
                     )
 
 
-                    # Clear results based on old parameters
+                    # Clear any existing xG results
 
                     state$xg_data <- NULL
-
                     state$xg_model <- NULL
-
                     state$xg_plots <- NULL
-
                     state$xg_pred <- NULL
+
+
+                    # -------------------------------------------------
+                    # Button state
+                    # -------------------------------------------------
+
+                    # Randomise can only be used once per exercise.
+
+                    updateActionButton(
+                        session,
+                        "randomise",
+                        disabled = TRUE
+                    )
+
+                    # Generate data is still available.
+
+                    updateActionButton(
+                        session,
+                        "run",
+                        disabled = FALSE
+                    )
+
+                    # Fit remains unavailable until data are generated.
+
+                    updateActionButton(
+                        session,
+                        "fit",
+                        disabled = TRUE
+                    )
+
+                    # Prediction remains unavailable until model is fitted.
+
+                    updateActionButton(
+                        session,
+                        "predict",
+                        disabled = TRUE
+                    )
                 }
             )
 
@@ -1159,10 +1134,9 @@ chapter3_server <- function(id){
                     pars <- true_params()
 
 
-                    # Clear old fitted results first
+                    # Clear old fitted results
 
                     state$xg_model <- NULL
-
                     state$xg_pred <- NULL
 
 
@@ -1203,6 +1177,43 @@ chapter3_server <- function(id){
                     state$xg_plots <- pws::xGplot(
                         state$xg_data
                     )
+
+
+                    # -------------------------------------------------
+                    # Button state
+                    # -------------------------------------------------
+
+                    # Data can only be generated once per exercise.
+
+                    updateActionButton(
+                        session,
+                        "run",
+                        disabled = TRUE
+                    )
+
+                    # Randomisation is no longer possible.
+
+                    updateActionButton(
+                        session,
+                        "randomise",
+                        disabled = TRUE
+                    )
+
+                    # The model can now be fitted.
+
+                    updateActionButton(
+                        session,
+                        "fit",
+                        disabled = FALSE
+                    )
+
+                    # Prediction still requires a fitted model.
+
+                    updateActionButton(
+                        session,
+                        "predict",
+                        disabled = TRUE
+                    )
                 }
             )
 
@@ -1219,11 +1230,40 @@ chapter3_server <- function(id){
                         state$xg_data
                     )
 
+
                     state$xg_model <- pws::xGfit(
                         state$xg_data
                     )
 
                     state$xg_pred <- NULL
+
+
+                    # -------------------------------------------------
+                    # Button state
+                    # -------------------------------------------------
+
+                    # The model has now been fitted.
+
+                    updateActionButton(
+                        session,
+                        "fit",
+                        disabled = TRUE
+                    )
+
+                    # Prediction is now available.
+
+                    updateActionButton(
+                        session,
+                        "predict",
+                        disabled = FALSE
+                    )
+
+                    # Generate data remains disabled.
+                    updateActionButton(
+                        session,
+                        "run",
+                        disabled = TRUE
+                    )
                 }
             )
 
@@ -1240,6 +1280,7 @@ chapter3_server <- function(id){
                         state$xg_model
                     )
 
+
                     state$xg_pred <- pws::xGpred(
 
                         state$xg_model,
@@ -1249,6 +1290,127 @@ chapter3_server <- function(id){
                         input$y,
 
                         input$body
+                    )
+                }
+            )
+
+
+            # =================================================
+            # START OVER — xG ONLY
+            # =================================================
+
+            observeEvent(
+                input$start_over,
+                {
+
+                    # -------------------------------------------------
+                    # Keep the user in the xG example.
+                    #
+                    # We deliberately do NOT update input$topic.
+                    # -------------------------------------------------
+
+
+                    # -------------------------------------------------
+                    # Reset seed
+                    # -------------------------------------------------
+
+                    new_seed <- sample(
+                        1:999,
+                        1
+                    )
+
+                    updateNumericInput(
+                        session,
+                        "seed",
+                        value = new_seed
+                    )
+
+
+                    # -------------------------------------------------
+                    # Reset xG controls
+                    # -------------------------------------------------
+
+                    updateNumericInput(
+                        session,
+                        "n_data",
+                        value = 5000
+                    )
+
+                    updateNumericInput(
+                        session,
+                        "x",
+                        value = 5
+                    )
+
+                    updateNumericInput(
+                        session,
+                        "y",
+                        value = 10
+                    )
+
+                    updateSelectInput(
+                        session,
+                        "body",
+                        selected = "Head"
+                    )
+
+
+                    # -------------------------------------------------
+                    # Reset model parameters
+                    # -------------------------------------------------
+
+                    true_params(
+                        default_params
+                    )
+
+
+                    # -------------------------------------------------
+                    # Clear xG results
+                    # -------------------------------------------------
+
+                    state$xg_data <- NULL
+
+                    state$xg_model <- NULL
+
+                    state$xg_plots <- NULL
+
+                    state$xg_pred <- NULL
+
+
+                    # -------------------------------------------------
+                    # Reset button state
+                    # -------------------------------------------------
+
+                    # Randomise is available again.
+
+                    updateActionButton(
+                        session,
+                        "randomise",
+                        disabled = FALSE
+                    )
+
+                    # Generate data is available again.
+
+                    updateActionButton(
+                        session,
+                        "run",
+                        disabled = FALSE
+                    )
+
+                    # Fit requires generated data.
+
+                    updateActionButton(
+                        session,
+                        "fit",
+                        disabled = TRUE
+                    )
+
+                    # Predict requires a fitted model.
+
+                    updateActionButton(
+                        session,
+                        "predict",
+                        disabled = TRUE
                     )
                 }
             )
@@ -1405,7 +1567,6 @@ chapter3_server <- function(id){
             })
 
 
-
             # =================================================
             # GENERATED R CODE
             # =================================================
@@ -1418,7 +1579,6 @@ chapter3_server <- function(id){
 
                 if (input$topic == "Dice") {
 
-                    # Nothing generated yet
                     if (is.null(state$dice)) {
 
                         return(
@@ -1432,9 +1592,6 @@ chapter3_server <- function(id){
                         )
                     }
 
-
-                    # Get the actual seed and number of rolls used
-                    # by the generated simulation.
 
                     used_seed <- input$seed
 
@@ -1482,8 +1639,6 @@ chapter3_server <- function(id){
 
                 pars <- true_params()
 
-
-                # No data generated yet
 
                 if (is.null(state$xg_data)) {
 
@@ -1617,8 +1772,6 @@ chapter3_server <- function(id){
 
                 code
             })
-
-
 
         }
     )

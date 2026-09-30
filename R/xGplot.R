@@ -19,7 +19,7 @@ xGplot <- function(xG_data, plotlim = 60) {
     pl1 <- ggplot2::ggplot(subset(xG_data$data, body == "Foot")) +
         ggplot2::geom_point(ggplot2::aes(x, y, color = goal), size = 0.1) +
         ggplot2::xlim(-plotlim, plotlim) + ggplot2::ylim(0, plotlim) +
-        ggplot2::ggtitle("Foot") +
+        ggplot2::ggtitle("Shot") +
         ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) +
         ggplot2::xlab("x") +
         ggplot2::ylab("y") +
@@ -29,7 +29,7 @@ xGplot <- function(xG_data, plotlim = 60) {
     pl2 <- ggplot2::ggplot(subset(xG_data$data, body == "Head")) +
         ggplot2::geom_point(ggplot2::aes(x, y, color = goal), size = 0.1) +
         ggplot2::xlim(-plotlim, plotlim) + ggplot2::ylim(0, plotlim) +
-        ggplot2::ggtitle("Head") +
+        ggplot2::ggtitle("Header") +
         ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5)) +
         ggplot2::xlab("x") + ggplot2::ylab("y") +
         ggplot2::theme(axis.title = ggplot2::element_text(face="italic")) +
@@ -72,7 +72,9 @@ xGplot <- function(xG_data, plotlim = 60) {
         ggplot2::geom_tile() +
         ggplot2::scale_fill_gradient(low = "white", high = "red")   +
         ggplot2::xlab("x") + ggplot2::ylab("y") +
-        ggplot2::theme(axis.title = ggplot2::element_text(face="italic"))
+        ggplot2::theme(axis.title = ggplot2::element_text(face="italic")) +
+        ggplot2::ggtitle("Shot") +
+        ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
 
 
     p <- outer(x, y, f, body = "Head")
@@ -92,7 +94,10 @@ xGplot <- function(xG_data, plotlim = 60) {
         ggplot2::geom_tile() +
         ggplot2::scale_fill_gradient(low = "white", high = "red")  +
         ggplot2:: xlab("x") + ggplot2::ylab("y") +
-        ggplot2::theme(axis.title = ggplot2::element_text(face="italic"))
+        ggplot2::theme(axis.title = ggplot2::element_text(face="italic")) +
+        ggplot2::ggtitle("Header") +
+        ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
+
 
     list(pl1, pl2, pl3, pl4)
 }
