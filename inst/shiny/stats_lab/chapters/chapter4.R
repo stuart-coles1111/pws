@@ -27,7 +27,7 @@ chapter4_ui <- function(id){
             ns("example"),
             "Choose an example",
             choices = c(
-                "Binomial comparison" = "binom",
+                "Binomial simulation" = "binom",
                 "Bayesian updating" = "bayes"
             ),
             selected = "binom"
@@ -45,7 +45,10 @@ chapter4_ui <- function(id){
                 ns("example")
             ),
 
+            hr(),
+
             h5("Model settings"),
+
 
             sliderInput(
                 ns("n"),
@@ -64,6 +67,10 @@ chapter4_ui <- function(id){
                 value = 0.4,
                 step = 0.05
             ),
+
+            hr(),
+
+            h5("Simulation settings"),
 
             sliderInput(
                 ns("nsim"),
@@ -110,9 +117,9 @@ chapter4_ui <- function(id){
                 ns("example")
             ),
 
-            h5("Model settings"),
+            hr(),
 
-            h5("True population mean"),
+            h5("Population"),
 
             sliderInput(
                 ns("true_mu"),
@@ -1070,7 +1077,7 @@ chapter4_server <- function(id){
 
                 set_slider_state(
                     "nsim",
-                    FALSE
+                    TRUE
                 )
 
             }
