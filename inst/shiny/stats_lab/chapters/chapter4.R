@@ -1073,10 +1073,6 @@ chapter4_server <- function(id){
                     FALSE
                 )
 
-                shinyjs::disable("binom_seed")
-
-                shinyjs::disable("generate_binom")
-
             }
 
         )
