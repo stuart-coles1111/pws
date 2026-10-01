@@ -131,7 +131,7 @@ chapter3_ui <- function(id){
 
             hr(),
 
-            h5("Prediction tool"),
+            h5("xG calculator"),
 
             numericInput(
                 ns("x"),
@@ -156,7 +156,7 @@ chapter3_ui <- function(id){
 
             actionButton(
                 ns("predict"),
-                "Predict",
+                "xG",
                 class = "btn-success",
                 disabled = TRUE
             ),
@@ -386,7 +386,7 @@ chapter3_ui <- function(id){
                     ),
 
                     tags$li(
-                        "Use the prediction tool to estimate the scoring probability for a new chance."
+                        "Use the xG tool to calculate the xG for given covariate values."
                     )
 
                 ),
@@ -400,7 +400,7 @@ chapter3_ui <- function(id){
                 ),
 
                 p(
-                    "The prediction tool provides another way to explore the model. Changing the location or shot type changes the characteristics of the chance and therefore the estimated probability of scoring."
+                    "The xG calculator provides another way to explore the model. Changing the location or shot type changes the characteristics of the chance and therefore the estimated probability of scoring."
                 ),
 
                 hr(),
@@ -535,7 +535,7 @@ chapter3_ui <- function(id){
 
                         br(),
 
-                        h5("Prediction"),
+                        h5("xG calculator"),
 
                         div(
                             style = "
@@ -546,7 +546,7 @@ chapter3_ui <- function(id){
                                 margin-top: 10px;
                             ",
 
-                            h5("⚽ Goal prediction"),
+                            h5("⚽ xG value"),
 
                             textOutput(
                                 ns("pred")
@@ -1561,7 +1561,7 @@ chapter3_server <- function(id){
                 )
 
                 sprintf(
-                    "P(goal) = %.3f",
+                    "xG = %.3f",
                     state$xg_pred
                 )
             })

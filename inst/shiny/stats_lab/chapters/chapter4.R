@@ -74,9 +74,18 @@ chapter4_ui <- function(id){
                 step = 10
             ),
 
+            numericInput(
+                ns("binom_seed"),
+                "Random seed",
+                value = sample(1:999, 1),
+                min = 1,
+                max = 999,
+                step = 1
+            ),
+
             actionButton(
                 ns("generate_binom"),
-                "Generate new simulation",
+                "Simulate sample",
                 class = "btn-primary"
             ),
 
@@ -114,9 +123,18 @@ chapter4_ui <- function(id){
                 step = 0.5
             ),
 
+            sliderInput(
+                ns("sigma"),
+                "True SD",
+                min = 0.5,
+                max = 5,
+                value = 2,
+                step = 0.5
+            ),
+
             hr(),
 
-            h5("Prior"),
+            h5("Prior for Population Mean"),
 
             sliderInput(
                 ns("prior_mean"),
@@ -149,23 +167,26 @@ chapter4_ui <- function(id){
                 step = 1
             ),
 
-            sliderInput(
-                ns("sigma"),
-                "Observation SD",
-                min = 0.5,
-                max = 5,
-                value = 2,
-                step = 0.5
+            numericInput(
+                ns("bayes_seed"),
+                "Random seed",
+                value = sample(1:999, 1),
+                min = 1,
+                max = 999,
+                step = 1
             ),
 
             actionButton(
                 ns("generate_bayes"),
-                "Simulate new data",
+                "Simulate data",
                 class = "btn-primary"
             ),
 
             br(),
-            br(),
+
+            hr(),
+
+            h5("Posterior for Population Mean"),
 
             actionButton(
                 ns("obtain_posterior"),
@@ -307,7 +328,7 @@ chapter4_ui <- function(id){
 
                 p(
                     "The simulated results are displayed as frequency density.
-                    For each possible number of wins, the observed frequency is
+                    For each possible number of successes, the observed frequency is
                     divided by the number of simulations. This puts the simulated
                     distribution on the same scale as the theoretical probabilities."
                 ),
@@ -317,6 +338,14 @@ chapter4_ui <- function(id){
                     locked until ",
                     strong("Start over"),
                     " is pressed."
+                ),
+
+                h5("Random seed"),
+
+                p(
+                    "The random seed controls the simulated sample. Using the
+                    same seed with the same model settings will reproduce the
+                    same simulation."
                 ),
 
                 h5("Overlay comparison"),
@@ -345,6 +374,10 @@ chapter4_ui <- function(id){
 
                     tags$li(
                         "Choose the number of simulated observations."
+                    ),
+
+                    tags$li(
+                        "Choose a random seed, or use the randomly generated seed."
                     ),
 
                     tags$li(
@@ -410,6 +443,11 @@ chapter4_ui <- function(id){
                         tags$li(
                             "What can you see more clearly when the distributions
                             are overlaid?"
+                        ),
+
+                        tags$li(
+                            "What happens when the same random seed is used with
+                            the same model settings?"
                         )
                     )
                 )
@@ -487,6 +525,14 @@ chapter4_ui <- function(id){
                     the information provided by the observed data."
                 ),
 
+                h5("Random seed"),
+
+                p(
+                    "The random seed controls the simulated observations. Using
+                    the same seed with the same model settings will reproduce the
+                    same simulated data."
+                ),
+
                 hr(),
 
                 h5("How to use the Explorer"),
@@ -503,6 +549,10 @@ chapter4_ui <- function(id){
 
                     tags$li(
                         "Choose the number of observations and their SD."
+                    ),
+
+                    tags$li(
+                        "Choose a random seed, or use the randomly generated seed."
                     ),
 
                     tags$li(
@@ -572,6 +622,11 @@ chapter4_ui <- function(id){
                         tags$li(
                             "What can you see more clearly when the prior and
                             posterior distributions are overlaid?"
+                        ),
+
+                        tags$li(
+                            "What happens when the same random seed is used with
+                            the same model settings?"
                         )
                     )
                 )
@@ -762,9 +817,6 @@ chapter4_ui <- function(id){
 }
 
 
-
-
-
 # =========================================================
 # SERVER
 # =========================================================
@@ -793,23 +845,18 @@ chapter4_server <- function(id){
 
         # =================================================
         # HELPER:
-        # RELIABLY ENABLE / DISABLE SHINY SLIDERS
-        # =================================================
-        #
-        # shinyjs::disable() disables the underlying input,
-        # but the visible ionRangeSlider can sometimes remain
-        # interactive.
-        #
-        # This helper disables both.
+        # ENABLE / DISABLE SHINY SLIDERS
         # =================================================
 
         set_slider_state <- function(id, enabled = TRUE){
 
+            # This ID is needed for the JavaScript selector
             input_id <- session$ns(id)
+
 
             if (enabled) {
 
-                shinyjs::enable(input_id)
+                shinyjs::enable(id)
 
                 shinyjs::runjs(
                     sprintf(
@@ -829,7 +876,7 @@ chapter4_server <- function(id){
 
             } else {
 
-                shinyjs::disable(input_id)
+                shinyjs::disable(id)
 
                 shinyjs::runjs(
                     sprintf(
@@ -851,49 +898,63 @@ chapter4_server <- function(id){
 
 
         # =================================================
-        # INITIAL BUTTON STATES
+        # INITIAL CONTROL STATES
         # =================================================
 
-        observe({
+        # We wait until the UI has been sent to the browser.
+        # This is especially important because the Bayesian
+        # controls are inside a conditionalPanel.
 
-            # ---------------------------------------------
-            # Binomial
-            # ---------------------------------------------
+        session$onFlushed(
 
-            set_slider_state("n", TRUE)
+            function(){
 
-            set_slider_state("p1", TRUE)
+                # -----------------------------------------
+                # Binomial initial state
+                # -----------------------------------------
 
-            set_slider_state("nsim", TRUE)
+                set_slider_state("n", TRUE)
 
-            shinyjs::enable(
-                session$ns("generate_binom")
-            )
+                set_slider_state("p1", TRUE)
+
+                set_slider_state("nsim", TRUE)
+
+                shinyjs::enable("binom_seed")
+
+                shinyjs::enable("generate_binom")
 
 
-            # ---------------------------------------------
-            # Bayesian
-            # ---------------------------------------------
+                # -----------------------------------------
+                # Bayesian initial state
+                # -----------------------------------------
 
-            set_slider_state("true_mu", TRUE)
+                set_slider_state("true_mu", TRUE)
 
-            set_slider_state("prior_mean", TRUE)
+                set_slider_state("prior_mean", TRUE)
 
-            set_slider_state("prior_sd", TRUE)
+                set_slider_state("prior_sd", TRUE)
 
-            set_slider_state("n_bayes", TRUE)
+                set_slider_state("n_bayes", TRUE)
 
-            set_slider_state("sigma", TRUE)
+                set_slider_state("sigma", TRUE)
 
-            shinyjs::enable(
-                session$ns("generate_bayes")
-            )
+                shinyjs::enable("bayes_seed")
 
-            shinyjs::disable(
-                session$ns("obtain_posterior")
-            )
+                # Simulate new data:
+                # ENABLED
 
-        })
+                shinyjs::enable("generate_bayes")
+
+                # Obtain posterior:
+                # DISABLED
+
+                shinyjs::disable("obtain_posterior")
+
+            },
+
+            once = TRUE
+
+        )
 
 
         # =================================================
@@ -912,6 +973,19 @@ chapter4_server <- function(id){
 
                 nsim <- input$nsim
 
+                seed <- input$binom_seed
+
+
+                # -----------------------------------------
+                # Set random seed
+                # -----------------------------------------
+
+                set.seed(seed)
+
+
+                # -----------------------------------------
+                # Generate simulation
+                # -----------------------------------------
 
                 s <- rbinom(
 
@@ -924,6 +998,10 @@ chapter4_server <- function(id){
                 )
 
 
+                # -----------------------------------------
+                # Store simulation
+                # -----------------------------------------
+
                 binom_values(
 
                     list(
@@ -934,7 +1012,9 @@ chapter4_server <- function(id){
 
                         p = p,
 
-                        nsim = nsim
+                        nsim = nsim,
+
+                        seed = seed
 
                     )
 
@@ -944,9 +1024,39 @@ chapter4_server <- function(id){
                 binom_locked(TRUE)
 
 
-                # -------------------------------------------------
-                # LOCK BINOMIAL SETTINGS
-                # -------------------------------------------------
+                # -----------------------------------------
+                # Generate next seed
+                # -----------------------------------------
+
+                next_seed <- sample(
+
+                    setdiff(
+
+                        1:999,
+
+                        seed
+
+                    ),
+
+                    1
+
+                )
+
+
+                updateNumericInput(
+
+                    session,
+
+                    "binom_seed",
+
+                    value = next_seed
+
+                )
+
+
+                # -----------------------------------------
+                # Lock binomial settings
+                # -----------------------------------------
 
                 set_slider_state(
                     "n",
@@ -963,12 +1073,9 @@ chapter4_server <- function(id){
                     FALSE
                 )
 
+                shinyjs::disable("binom_seed")
 
-                # Prevent another simulation until Start over
-
-                shinyjs::disable(
-                    session$ns("generate_binom")
-                )
+                shinyjs::disable("generate_binom")
 
             }
 
@@ -998,60 +1105,7 @@ chapter4_server <- function(id){
             )
 
 
-            values <- binom_values()
-
-            y_max <- max(probability)
-
-
-            if (!is.null(values)) {
-
-                simulation_table <- table(
-
-                    factor(
-
-                        values$s,
-
-                        levels = 0:n
-
-                    )
-
-                ) |>
-
-                    as.data.frame()
-
-
-                names(simulation_table) <- c(
-
-                    "x",
-
-                    "frequency"
-
-                )
-
-
-                simulated_density <-
-
-                    simulation_table$frequency /
-
-                    values$nsim
-
-
-                y_max <- max(
-
-                    c(
-
-                        probability,
-
-                        simulated_density
-
-                    )
-
-                )
-
-            }
-
-
-            y_max <- y_max * 1.1
+            y_max <- max(probability) * 1.1
 
 
             ggplot(
@@ -1098,9 +1152,9 @@ chapter4_server <- function(id){
 
                     ),
 
-                    x = "Number of Wins",
+                    x = "Number of Successes",
 
-                    y = "Frequency density"
+                    y = "Probability"
 
                 ) +
 
@@ -1238,18 +1292,29 @@ chapter4_server <- function(id){
 
             y_max <- max(
 
-                c(
-
-                    theoretical_table$probability,
-
-                    simulation_table$frequency_density
-
-                )
+                simulation_table$frequency_density
 
             ) * 1.1
 
 
+            # ---------------------------------------------
+            # Overlay
+            # ---------------------------------------------
+
             if (isTRUE(input$overlay_binom)) {
+
+                overlay_y_max <- max(
+
+                    c(
+
+                        theoretical_table$probability,
+
+                        simulation_table$frequency_density
+
+                    )
+
+                ) * 1.1
+
 
                 ggplot() +
 
@@ -1327,7 +1392,7 @@ chapter4_server <- function(id){
 
                         ),
 
-                        x = "Number of Wins",
+                        x = "Number of Successes",
 
                         y = "Frequency density"
 
@@ -1351,7 +1416,7 @@ chapter4_server <- function(id){
 
                             0,
 
-                            y_max
+                            overlay_y_max
 
                         )
 
@@ -1602,10 +1667,19 @@ chapter4_server <- function(id){
 
                 sigma <- input$sigma
 
+                seed <- input$bayes_seed
+
+
+                # -----------------------------------------
+                # Generate observations
+                # -----------------------------------------
+
+                set.seed(seed)
+
 
                 y <- rnorm(
 
-                    n_bayes,
+                    n = n_bayes,
 
                     mean = true_mu,
 
@@ -1613,6 +1687,10 @@ chapter4_server <- function(id){
 
                 )
 
+
+                # -----------------------------------------
+                # Store generated data
+                # -----------------------------------------
 
                 data_values(
 
@@ -1628,19 +1706,59 @@ chapter4_server <- function(id){
 
                         n_bayes = n_bayes,
 
-                        sigma = sigma
+                        sigma = sigma,
+
+                        seed = seed
 
                     )
 
                 )
 
 
+                # -----------------------------------------
+                # Update state
+                # -----------------------------------------
+
                 bayes_data_locked(TRUE)
 
+                posterior_ready(FALSE)
 
-                # -------------------------------------------------
-                # Lock Bayesian model settings
-                # -------------------------------------------------
+                bayes_posterior_locked(FALSE)
+
+
+                # -----------------------------------------
+                # Generate next seed
+                # -----------------------------------------
+
+                next_seed <- sample(
+
+                    setdiff(
+
+                        1:999,
+
+                        seed
+
+                    ),
+
+                    1
+
+                )
+
+
+                updateNumericInput(
+
+                    session,
+
+                    "bayes_seed",
+
+                    value = next_seed
+
+                )
+
+
+                # -----------------------------------------
+                # LOCK BAYESIAN SLIDERS
+                # -----------------------------------------
 
                 set_slider_state(
                     "true_mu",
@@ -1668,18 +1786,23 @@ chapter4_server <- function(id){
                 )
 
 
-                shinyjs::disable(
-                    session$ns("generate_bayes")
-                )
+                # -----------------------------------------
+                # Lock seed
+                # -----------------------------------------
+
+                shinyjs::disable("bayes_seed")
 
 
-                # -------------------------------------------------
-                # Posterior can now be obtained
-                # -------------------------------------------------
+                # -----------------------------------------
+                # BUTTON STATES
+                #
+                # Simulate new data = DISABLED
+                # Obtain posterior = ENABLED
+                # -----------------------------------------
 
-                shinyjs::enable(
-                    session$ns("obtain_posterior")
-                )
+                shinyjs::disable("generate_bayes")
+
+                shinyjs::enable("obtain_posterior")
 
             }
 
@@ -1743,11 +1866,6 @@ chapter4_server <- function(id){
 
         # =================================================
         # COMMON BAYESIAN X-AXIS
-        # =================================================
-        #
-        # Both Bayesian panels use this same reactive range.
-        # This guarantees that the upper and lower plots have
-        # exactly the same x-axis.
         # =================================================
 
         bayes_x_range <- reactive({
@@ -1820,9 +1938,17 @@ chapter4_server <- function(id){
             }
 
 
-            # Include the posterior once it exists
+            # ---------------------------------------------
+            # Include posterior once it exists
+            # ---------------------------------------------
 
-            if (posterior_ready() && !is.null(values)) {
+            if (
+
+                posterior_ready() &&
+
+                !is.null(values)
+
+            ) {
 
                 post <- posterior()
 
@@ -1874,19 +2000,30 @@ chapter4_server <- function(id){
                 req(data_values())
 
 
+                # -----------------------------------------
+                # Mark posterior as ready
+                # -----------------------------------------
+
                 posterior_ready(TRUE)
 
                 bayes_posterior_locked(TRUE)
 
 
-                shinyjs::disable(
+                # -----------------------------------------
+                # Button is now disabled
+                # -----------------------------------------
 
-                    session$ns("obtain_posterior")
-
-                )
+                shinyjs::disable("obtain_posterior")
 
 
+                # Simulate remains disabled
+
+                shinyjs::disable("generate_bayes")
+
+
+                # -----------------------------------------
                 # Reveal overlay checkbox
+                # -----------------------------------------
 
                 updateCheckboxInput(
 
@@ -1905,9 +2042,6 @@ chapter4_server <- function(id){
 
         # =================================================
         # BAYESIAN TOP PLOT
-        #
-        # Prior always shown.
-        # Data added after simulation.
         # =================================================
 
         output$bayes_prior_data_plot <- renderPlot({
@@ -1915,9 +2049,9 @@ chapter4_server <- function(id){
             values <- data_values()
 
 
-            # -------------------------------------------------
+            # -----------------------------------------
             # Current prior
-            # -------------------------------------------------
+            # -----------------------------------------
 
             prior_mean <- if (is.null(values))
                 input$prior_mean
@@ -1931,9 +2065,9 @@ chapter4_server <- function(id){
                 values$prior_sd
 
 
-            # -------------------------------------------------
+            # -----------------------------------------
             # Data
-            # -------------------------------------------------
+            # -----------------------------------------
 
             if (!is.null(values)) {
 
@@ -1954,9 +2088,9 @@ chapter4_server <- function(id){
             }
 
 
-            # -------------------------------------------------
+            # -----------------------------------------
             # Common x-axis
-            # -------------------------------------------------
+            # -----------------------------------------
 
             axis_range <- bayes_x_range()
 
@@ -1987,9 +2121,9 @@ chapter4_server <- function(id){
             )
 
 
-            # -------------------------------------------------
+            # -----------------------------------------
             # Colours
-            # -------------------------------------------------
+            # -----------------------------------------
 
             prior_colour <- "#E76F51"
 
@@ -2002,9 +2136,9 @@ chapter4_server <- function(id){
             true_colour <- "#2A9D8F"
 
 
-            # -------------------------------------------------
+            # -----------------------------------------
             # Plot
-            # -------------------------------------------------
+            # -----------------------------------------
 
             plot <- ggplot(
 
@@ -2047,9 +2181,9 @@ chapter4_server <- function(id){
                 )
 
 
-            # -------------------------------------------------
+            # -----------------------------------------
             # Observed data
-            # -------------------------------------------------
+            # -----------------------------------------
 
             if (length(y) > 0) {
 
@@ -2090,9 +2224,9 @@ chapter4_server <- function(id){
             }
 
 
-            # -------------------------------------------------
+            # -----------------------------------------
             # Data mean
-            # -------------------------------------------------
+            # -----------------------------------------
 
             if (
 
@@ -2119,9 +2253,9 @@ chapter4_server <- function(id){
             }
 
 
-            # -------------------------------------------------
+            # -----------------------------------------
             # True mean
-            # -------------------------------------------------
+            # -----------------------------------------
 
             if (isTRUE(input$show_true)) {
 
@@ -2205,8 +2339,6 @@ chapter4_server <- function(id){
 
         # =================================================
         # BAYESIAN POSTERIOR PLOT
-        #
-        # Remains empty until posterior is obtained.
         # =================================================
 
         output$bayes_posterior_plot <- renderPlot({
@@ -2232,9 +2364,9 @@ chapter4_server <- function(id){
             data_mean <- post$data_mean
 
 
-            # -------------------------------------------------
-            # SAME X-AXIS AS TOP PLOT
-            # -------------------------------------------------
+            # -----------------------------------------
+            # Same x-axis as top plot
+            # -----------------------------------------
 
             axis_range <- bayes_x_range()
 
@@ -2276,9 +2408,9 @@ chapter4_server <- function(id){
             )
 
 
-            # -------------------------------------------------
+            # -----------------------------------------
             # Colours
-            # -------------------------------------------------
+            # -----------------------------------------
 
             prior_colour <- "#E76F51"
 
@@ -2291,9 +2423,9 @@ chapter4_server <- function(id){
             true_colour <- "#2A9D8F"
 
 
-            # -------------------------------------------------
+            # -----------------------------------------
             # Plot
-            # -------------------------------------------------
+            # -----------------------------------------
 
             if (isTRUE(input$overlay_bayes)) {
 
@@ -2392,9 +2524,9 @@ chapter4_server <- function(id){
             }
 
 
-            # -------------------------------------------------
+            # -----------------------------------------
             # Posterior mean
-            # -------------------------------------------------
+            # -----------------------------------------
 
             plot <- plot +
 
@@ -2411,9 +2543,9 @@ chapter4_server <- function(id){
                 )
 
 
-            # -------------------------------------------------
+            # -----------------------------------------
             # Data mean
-            # -------------------------------------------------
+            # -----------------------------------------
 
             if (isTRUE(input$show_data_mean)) {
 
@@ -2434,9 +2566,9 @@ chapter4_server <- function(id){
             }
 
 
-            # -------------------------------------------------
+            # -----------------------------------------
             # True mean
-            # -------------------------------------------------
+            # -----------------------------------------
 
             if (isTRUE(input$show_true)) {
 
@@ -2537,9 +2669,9 @@ chapter4_server <- function(id){
                 current_example <- input$example
 
 
-                # -------------------------------------------------
-                # Clear stored data
-                # -------------------------------------------------
+                # -----------------------------------------
+                # Clear stored data and state
+                # -----------------------------------------
 
                 binom_values(NULL)
 
@@ -2554,9 +2686,9 @@ chapter4_server <- function(id){
                 bayes_posterior_locked(FALSE)
 
 
-                # -------------------------------------------------
+                # -----------------------------------------
                 # Reset binomial settings
-                # -------------------------------------------------
+                # -----------------------------------------
 
                 updateSliderInput(
 
@@ -2588,10 +2720,26 @@ chapter4_server <- function(id){
 
                 )
 
+                updateNumericInput(
 
-                # -------------------------------------------------
+                    session,
+
+                    "binom_seed",
+
+                    value = sample(
+
+                        1:999,
+
+                        1
+
+                    )
+
+                )
+
+
+                # -----------------------------------------
                 # Reset Bayesian settings
-                # -------------------------------------------------
+                # -----------------------------------------
 
                 updateSliderInput(
 
@@ -2643,10 +2791,26 @@ chapter4_server <- function(id){
 
                 )
 
+                updateNumericInput(
 
-                # -------------------------------------------------
+                    session,
+
+                    "bayes_seed",
+
+                    value = sample(
+
+                        1:999,
+
+                        1
+
+                    )
+
+                )
+
+
+                # -----------------------------------------
                 # Reset checkboxes
-                # -------------------------------------------------
+                # -----------------------------------------
 
                 updateCheckboxInput(
 
@@ -2699,9 +2863,9 @@ chapter4_server <- function(id){
                 )
 
 
-                # -------------------------------------------------
-                # Re-enable binomial controls
-                # -------------------------------------------------
+                # -----------------------------------------
+                # Restore binomial controls
+                # -----------------------------------------
 
                 set_slider_state(
                     "n",
@@ -2718,16 +2882,14 @@ chapter4_server <- function(id){
                     TRUE
                 )
 
-                shinyjs::enable(
+                shinyjs::enable("binom_seed")
 
-                    session$ns("generate_binom")
-
-                )
+                shinyjs::enable("generate_binom")
 
 
-                # -------------------------------------------------
-                # Re-enable Bayesian controls
-                # -------------------------------------------------
+                # -----------------------------------------
+                # Restore Bayesian controls
+                # -----------------------------------------
 
                 set_slider_state(
                     "true_mu",
@@ -2754,27 +2916,24 @@ chapter4_server <- function(id){
                     TRUE
                 )
 
-                shinyjs::enable(
-
-                    session$ns("generate_bayes")
-
-                )
+                shinyjs::enable("bayes_seed")
 
 
-                # -------------------------------------------------
-                # Posterior button starts disabled
-                # -------------------------------------------------
+                # -----------------------------------------
+                # BAYESIAN INITIAL BUTTON STATE
+                #
+                # Simulate new data = ENABLED
+                # Obtain posterior = DISABLED
+                # -----------------------------------------
 
-                shinyjs::disable(
+                shinyjs::enable("generate_bayes")
 
-                    session$ns("obtain_posterior")
-
-                )
+                shinyjs::disable("obtain_posterior")
 
 
-                # -------------------------------------------------
-                # Keep the current example
-                # -------------------------------------------------
+                # -----------------------------------------
+                # Keep current example
+                # -----------------------------------------
 
                 updateRadioButtons(
 
@@ -2810,6 +2969,8 @@ chapter4_server <- function(id){
 
                     nsim <- input$nsim
 
+                    seed <- input$binom_seed
+
                 } else {
 
                     n <- values$n
@@ -2817,6 +2978,8 @@ chapter4_server <- function(id){
                     p <- values$p
 
                     nsim <- values$nsim
+
+                    seed <- values$seed
 
                 }
 
@@ -2829,7 +2992,14 @@ chapter4_server <- function(id){
 
                     "p <- ", p, "\n",
 
-                    "nsim <- ", nsim, "\n\n",
+                    "nsim <- ", nsim, "\n",
+
+                    "seed <- ", seed, "\n\n",
+
+
+                    "# Set random seed\n\n",
+
+                    "set.seed(seed)\n\n",
 
 
                     "# Generate simulated data\n\n",
@@ -2916,6 +3086,8 @@ chapter4_server <- function(id){
 
                     sigma <- input$sigma
 
+                    seed <- input$bayes_seed
+
                 } else {
 
                     true_mu <- values$true_mu
@@ -2928,10 +3100,19 @@ chapter4_server <- function(id){
 
                     sigma <- values$sigma
 
+                    seed <- values$seed
+
                 }
 
 
                 paste0(
+
+                    "# Random seed\n\n",
+
+                    "seed <- ", seed, "\n",
+
+                    "set.seed(seed)\n\n",
+
 
                     "# Generate observations\n\n",
 
@@ -3002,3 +3183,4 @@ chapter4_server <- function(id){
 
     })
 }
+
