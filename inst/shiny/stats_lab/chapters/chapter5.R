@@ -12,6 +12,14 @@ pal_lav  <- "#CDB4DB"
 pal_red  <- "#D9534F"
 pal_blue_soft <- "#A9BFE3"
 
+# Button colours
+pal_roll    <- "#337AB7"   # blue
+pal_est     <- "#5CB85C"   # green
+pal_sim     <- "#8E44AD"   # purple
+pal_ci      <- "#5A6268"   # dark grey
+pal_reveal  <- "#E67E22"   # orange
+pal_restart <- "#D9534F"   # red
+
 
 # =========================================================
 # UI
@@ -71,20 +79,92 @@ chapter5_ui <- function(id){
                 min = 10
             ),
 
-            sliderInput(
-                ns("p_true"),
-                "True probability of rolling a 6",
-                min = 0.05,
-                max = 0.50,
-                value = 0.167,
-                step = 0.01
+
+            # -------------------------------------------------
+            # Choose how the true probability is determined
+            # -------------------------------------------------
+
+            radioButtons(
+                ns("prob_mode"),
+                "Probability of rolling a six:",
+                choices = c(
+                    "Chosen manually" = "fixed",
+                    "Randomised" = "random"
+                ),
+                selected = "fixed"
             ),
+
+
+            conditionalPanel(
+                condition = sprintf(
+                    "input['%s']=='fixed'",
+                    ns("prob_mode")
+                ),
+
+                sliderInput(
+                    ns("p_true"),
+                    "True probability of rolling a 6",
+                    min = 0.05,
+                    max = 0.50,
+                    value = 0.167,
+                    step = 0.01
+                )
+            ),
+
+
+            conditionalPanel(
+                condition = sprintf(
+                    "input['%s']=='random'",
+                    ns("prob_mode")
+                ),
+
+                p(
+                    style = "
+                        font-size: 0.9em;
+                        color: #777;
+                        margin-top: 5px;
+                    ",
+                    "The true probability of rolling a 6 will be chosen randomly."
+                )
+            ),
+
+
+            # -------------------------------------------------
+            # Roll dice
+            # -------------------------------------------------
 
             actionButton(
                 ns("roll"),
                 "Roll Dice",
-                class = "btn-primary"
+                class = "btn-primary",
+                style = paste0(
+                    "background-color:", pal_roll,
+                    "; border-color:", pal_roll, ";"
+                )
             ),
+
+
+            hr(),
+
+
+            # -------------------------------------------------
+            # Estimate probability
+            # -------------------------------------------------
+
+            actionButton(
+                ns("estimate"),
+                "Estimate probability",
+                class = "btn-success",
+                style = paste0(
+                    "background-color:", pal_est,
+                    "; border-color:", pal_est, ";"
+                )
+            ),
+
+
+            # -------------------------------------------------
+            # Simulation method
+            # -------------------------------------------------
 
             hr(),
 
@@ -92,8 +172,7 @@ chapter5_ui <- function(id){
                 ns("boot_method"),
                 "How should new samples be generated?",
                 choices = c(
-                    "Exact process simulation" = "true_p",
-                    "Approximate process simulation" = "est_p",
+                    "Process simulation" = "est_p",
                     "Resampling" = "resample"
                 )
             ),
@@ -108,10 +187,20 @@ chapter5_ui <- function(id){
             actionButton(
                 ns("bootstrap"),
                 "Simulate Estimates",
-                class = "btn-info"
+                class = "btn-info",
+                style = paste0(
+                    "background-color:", pal_sim,
+                    "; border-color:", pal_sim, ";"
+                )
             ),
 
+
             hr(),
+
+
+            # -------------------------------------------------
+            # Confidence interval
+            # -------------------------------------------------
 
             sliderInput(
                 ns("conf"),
@@ -122,24 +211,53 @@ chapter5_ui <- function(id){
                 step = 0.001
             ),
 
-
-
             br(),
-
-
 
             actionButton(
                 ns("ci"),
                 "Confidence Interval",
-                class = "btn-secondary"
+                class = "btn-secondary",
+                style = paste0(
+                    "background-color:", pal_ci,
+                    "; border-color:", pal_ci, ";"
+                )
             ),
 
+
+            # -------------------------------------------------
+            # Reveal true probability
+            # -------------------------------------------------
+
+            br(),
+            br(),
+
+            actionButton(
+                ns("reveal"),
+                "Reveal true probability",
+                class = "btn-warning",
+                style = paste0(
+                    "background-color:", pal_reveal,
+                    "; border-color:", pal_reveal,
+                    "; color:white;"
+                )
+            ),
+
+
             hr(),
+
+
+            # -------------------------------------------------
+            # Restart
+            # -------------------------------------------------
 
             actionButton(
                 ns("restart"),
                 "Restart Experiment",
-                class = "btn-warning"
+                class = "btn-danger",
+                style = paste0(
+                    "background-color:", pal_restart,
+                    "; border-color:", pal_restart, ";"
+                )
             ),
 
             br(),
@@ -151,7 +269,7 @@ chapter5_ui <- function(id){
                     color: #777;
                     margin-top: 5px;
                 ",
-                "The observed dice remain fixed while you repeat the simulation."
+                "The observed dice remain fixed while you investigate the experiment."
             )
         ),
 
@@ -216,9 +334,7 @@ chapter5_ui <- function(id){
 
 
     # =====================================================
-
     # Overview
-
     # =====================================================
 
     overview_panel <- div(
@@ -226,11 +342,11 @@ chapter5_ui <- function(id){
         card(
 
             style = "
-        border-radius: 16px;
-        border: none;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        padding: 10px;
-    ",
+                border-radius: 16px;
+                border: none;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+                padding: 10px;
+            ",
 
             # =================================================
             # STATISTICAL INFERENCE
@@ -247,10 +363,10 @@ chapter5_ui <- function(id){
                     div(
                         "Module 5: Statistical inference",
                         style = "
-                    font-size: 1.4rem;
-                    font-weight: 700;
-                    color: #2c3e50;
-                "
+                            font-size: 1.4rem;
+                            font-weight: 700;
+                            color: #2c3e50;
+                        "
                     )
                 ),
 
@@ -262,8 +378,8 @@ chapter5_ui <- function(id){
 
                 p(
                     "The underlying probability of rolling a six is not necessarily known.
-            We observe a sample of dice rolls and use those observations to estimate
-            the probability."
+                    We observe a sample of dice rolls and use those observations to estimate
+                    the probability."
                 ),
 
                 hr(),
@@ -271,29 +387,35 @@ chapter5_ui <- function(id){
                 h5("The one-dice experiment"),
 
                 p(
-                    "You begin by choosing the number of dice rolls and the true probability
-            of rolling a six. When you press ",
+                    "You begin by choosing the number of dice rolls and deciding whether
+                    the true probability of rolling a six should be chosen by you or
+                    generated randomly. When you press ",
                     strong("Roll Dice"),
                     ", the app generates one observed sample."
                 ),
 
                 p(
-                    "The observed sample is then kept fixed while you investigate how
-            estimates of the probability behave under repeated simulation."
+                    "The true probability is kept hidden when the random option is used.
+                    This allows you to make an estimate without knowing the value that
+                    generated the data."
+                ),
+
+                h5("Estimating the probability"),
+
+                p(
+                    "After observing the dice, you can calculate the estimate of the
+                    probability of rolling a six. The estimate is simply the number of
+                    sixes divided by the total number of rolls."
                 ),
 
                 h5("Simulating estimates"),
 
                 p(
-                    "The app can generate many new estimates using three different approaches:"
+                    "Once the probability has been estimated, the app can generate many
+                    new estimates using two different approaches:"
                 ),
 
                 tags$ul(
-
-                    tags$li(
-                        strong("Exact process simulation: "),
-                        "new samples are generated using the probability that produced the observed data."
-                    ),
 
                     tags$li(
                         strong("Approximate process simulation: "),
@@ -308,8 +430,8 @@ chapter5_ui <- function(id){
 
                 p(
                     "The resulting estimates are displayed as a distribution. This gives
-            a visual way to investigate how much estimates vary from one sample
-            to another."
+                    a visual way to investigate how much estimates vary from one sample
+                    to another."
                 ),
 
                 hr(),
@@ -318,13 +440,13 @@ chapter5_ui <- function(id){
 
                 p(
                     "The simulated distribution can also be used to construct a confidence
-            interval for the probability estimated from the observed data."
+                    interval for the probability estimated from the observed data."
                 ),
 
                 p(
                     "Changing the confidence level changes the width of the interval.
-            The simulation therefore provides an opportunity to explore the
-            relationship between confidence and uncertainty."
+                    The simulation therefore provides an opportunity to explore the
+                    relationship between confidence and uncertainty."
                 ),
 
                 hr(),
@@ -332,11 +454,11 @@ chapter5_ui <- function(id){
                 div(
 
                     style = "
-                background-color:#f8f9fa;
-                border-left:5px solid #7B9ACC;
-                padding:12px;
-                border-radius:8px;
-            ",
+                        background-color:#f8f9fa;
+                        border-left:5px solid #7B9ACC;
+                        padding:12px;
+                        border-radius:8px;
+                    ",
 
                     h5("Questions to investigate"),
 
@@ -351,7 +473,7 @@ chapter5_ui <- function(id){
                         ),
 
                         tags$li(
-                            "How do the three methods of generating new estimates differ?"
+                            "How do the two methods of generating new estimates differ?"
                         ),
 
                         tags$li(
@@ -364,6 +486,10 @@ chapter5_ui <- function(id){
 
                         tags$li(
                             "Does a higher confidence level necessarily give a narrower interval?"
+                        ),
+
+                        tags$li(
+                            "How close is the estimated probability to the true probability?"
                         )
                     )
                 )
@@ -385,10 +511,10 @@ chapter5_ui <- function(id){
                     div(
                         "Module 5: Regression",
                         style = "
-                    font-size: 1.4rem;
-                    font-weight: 700;
-                    color: #2c3e50;
-                "
+                            font-size: 1.4rem;
+                            font-weight: 700;
+                            color: #2c3e50;
+                        "
                     )
                 ),
 
@@ -400,8 +526,8 @@ chapter5_ui <- function(id){
 
                 p(
                     "The analysis examines the relationship between the number of points
-            a team has accumulated in the first half of a season and the number
-            of points accumulated in the second half."
+                    a team has accumulated in the first half of a season and the number
+                    of points accumulated in the second half."
                 ),
 
                 hr(),
@@ -410,41 +536,41 @@ chapter5_ui <- function(id){
 
                 p(
                     "A linear regression model is fitted to the available seasons.
-            The model describes the relationship between points in the first
-            half and points in the second half."
+                    The model describes the relationship between points in the first
+                    half and points in the second half."
                 ),
 
                 p(
                     "You can choose how many seasons are included in the analysis.
-            This makes it possible to investigate how the fitted relationship
-            changes when the amount of data is changed."
+                    This makes it possible to investigate how the fitted relationship
+                    changes when the amount of data is changed."
                 ),
 
                 h5("Predictions"),
 
                 p(
                     "The prediction tool allows you to choose a particular number of
-            first-half points and obtain the corresponding predicted number
-            of second-half points."
+                    first-half points and obtain the corresponding predicted number
+                    of second-half points."
                 ),
 
                 p(
                     "The prediction is shown graphically on the scatter plot, together
-            with a confidence interval for the mean response at the selected
-            prediction point."
+                    with a confidence interval for the mean response at the selected
+                    prediction point."
                 ),
 
                 h5("Confidence bands"),
 
                 p(
                     "The fitted regression line is surrounded by a confidence band.
-            The width of this band reflects uncertainty in the estimated
-            mean relationship."
+                    The width of this band reflects uncertainty in the estimated
+                    mean relationship."
                 ),
 
                 p(
                     "You can change the confidence level and observe how this affects
-            the band. You can also display the diagonal line ",
+                    the band. You can also display the diagonal line ",
                     tags$em("y = x"),
                     " as a reference for comparing first-half and second-half points."
                 ),
@@ -454,11 +580,11 @@ chapter5_ui <- function(id){
                 div(
 
                     style = "
-                background-color:#f8f9fa;
-                border-left:5px solid #7B9ACC;
-                padding:12px;
-                border-radius:8px;
-            ",
+                        background-color:#f8f9fa;
+                        border-left:5px solid #7B9ACC;
+                        padding:12px;
+                        border-radius:8px;
+                    ",
 
                     h5("Questions to investigate"),
 
@@ -491,8 +617,6 @@ chapter5_ui <- function(id){
                 )
             )
         )
-
-
     )
 
 
@@ -643,51 +767,32 @@ chapter5_server <- function(id){
 
         rv <- reactiveValues(
 
-            # -------------------------------------------------
             # Observed data
-            # -------------------------------------------------
-            #
-            # This is the experiment itself.
-            # It remains fixed until Restart Experiment
-            # followed by Roll Dice.
-            #
-
             dice = NULL,
 
-
-            # -------------------------------------------------
-            # True probability used for the current experiment
-            # -------------------------------------------------
-
+            # True probability actually used
             p_true_used = NULL,
 
-
-            # -------------------------------------------------
-            # Current simulated estimator distribution
-            # -------------------------------------------------
-
-            bootstrap_p = NULL,
-
-
-            # -------------------------------------------------
-            # Estimate from the observed data
-            # -------------------------------------------------
-
+            # Estimated probability
             p_hat = NULL,
 
+            # Number of sixes
+            x = NULL,
 
-            # -------------------------------------------------
-            # Standard error from the current simulation
-            # -------------------------------------------------
+            # Number of observations
+            n = NULL,
 
+            # Simulated estimator distribution
+            bootstrap_p = NULL,
+
+            # Standard error
             se = NULL,
 
+            # Confidence interval
+            ci_active = FALSE,
 
-            # -------------------------------------------------
-            # Whether the confidence interval is displayed
-            # -------------------------------------------------
-
-            ci_active = FALSE
+            # True probability revealed?
+            reveal_true = FALSE
         )
 
 
@@ -702,56 +807,102 @@ chapter5_server <- function(id){
                 input$topic == "Inference"
             )
 
+
+            # -------------------------------------------------
+            # No experiment yet
+            # -------------------------------------------------
+
             if (is.null(rv$dice)) {
 
-                # ---------------------------------------------
-                # No experiment yet
-                # ---------------------------------------------
-
                 enable("roll")
+
+                disable("estimate")
+
                 disable("bootstrap")
+
                 disable("ci")
+
+                disable("reveal")
+
                 disable("restart")
 
-            } else {
+                return()
+            }
 
-                # ---------------------------------------------
-                # An experiment exists
-                # ---------------------------------------------
 
-                # The dice cannot be rerolled until the
-                # experiment is restarted.
+            # -------------------------------------------------
+            # Dice have been rolled, but probability has not
+            # yet been estimated
+            # -------------------------------------------------
+
+            if (is.null(rv$p_hat)) {
+
                 disable("roll")
 
-                # A new simulation can always be performed.
-                enable("bootstrap")
+                enable("estimate")
 
-                # The experiment can be restarted at any time.
+                disable("bootstrap")
+
+                disable("ci")
+
+                disable("reveal")
+
                 enable("restart")
 
-                # CI is only available after estimates have
-                # been simulated.
-                if (is.null(rv$bootstrap_p)) {
-
-                    disable("ci")
-
-                } else {
-
-                    enable("ci")
-                }
+                return()
             }
+
+
+            # -------------------------------------------------
+            # Estimate has been calculated, but no simulation
+            # has yet been performed
+            # -------------------------------------------------
+
+            if (is.null(rv$bootstrap_p)) {
+
+                disable("roll")
+
+                disable("estimate")
+
+                enable("bootstrap")
+
+                disable("ci")
+
+                enable("reveal")
+
+                enable("restart")
+
+                return()
+            }
+
+
+            # -------------------------------------------------
+            # Simulation exists
+            # -------------------------------------------------
+
+            disable("roll")
+
+            disable("estimate")
+
+            enable("bootstrap")
+
+            enable("ci")
+
+            enable("reveal")
+
+            enable("restart")
         })
 
 
 
         # =====================================================
-        # Inference: Roll Dice
+        # Roll Dice
         # =====================================================
 
         observeEvent(input$roll, {
 
             # -------------------------------------------------
-            # Generate a seed for this particular experiment
+            # Generate seed for this experiment
             # -------------------------------------------------
 
             new_seed <- sample(
@@ -771,14 +922,23 @@ chapter5_server <- function(id){
 
 
             # -------------------------------------------------
-            # Store the true probability used for THIS
-            # experiment.
-            #
-            # This value remains fixed even if the user later
-            # moves the p_true slider.
+            # Determine the true probability
             # -------------------------------------------------
 
-            rv$p_true_used <- input$p_true
+            if (
+                input$prob_mode == "fixed"
+            ) {
+
+                rv$p_true_used <- input$p_true
+
+            } else {
+
+                rv$p_true_used <- runif(
+                    1,
+                    min = 0.05,
+                    max = 0.50
+                )
+            }
 
 
             # -------------------------------------------------
@@ -806,24 +966,71 @@ chapter5_server <- function(id){
 
 
             # -------------------------------------------------
-            # Calculate the estimate from the observed data
+            # Store sample size and number of sixes
             #
-            # This belongs to the observed sample and does
-            # not depend on any simulation method.
+            # The estimate is deliberately NOT calculated yet.
             # -------------------------------------------------
 
-            rv$p_hat <- mean(
+            rv$n <- length(
+                rv$dice
+            )
+
+            rv$x <- sum(
                 rv$dice == 6
+            )
+
+            rv$p_hat <- NULL
+
+
+            # -------------------------------------------------
+            # Clear previous simulations
+            # -------------------------------------------------
+
+            rv$bootstrap_p <- NULL
+
+            rv$se <- NULL
+
+            rv$ci_active <- FALSE
+
+            rv$reveal_true <- FALSE
+        })
+
+
+
+        # =====================================================
+        # Estimate probability
+        # =====================================================
+
+        observeEvent(input$estimate, {
+
+            req(
+                rv$dice
             )
 
 
             # -------------------------------------------------
-            # Clear anything belonging to a previous
-            # simulation.
+            # Calculate the estimate explicitly as x / n
+            # -------------------------------------------------
+
+            rv$x <- sum(
+                rv$dice == 6
+            )
+
+            rv$n <- length(
+                rv$dice
+            )
+
+            rv$p_hat <- rv$x / rv$n
+
+
+            # -------------------------------------------------
+            # No simulation or CI from an earlier experiment
             # -------------------------------------------------
 
             rv$bootstrap_p <- NULL
+
             rv$se <- NULL
+
             rv$ci_active <- FALSE
         })
 
@@ -835,25 +1042,38 @@ chapter5_server <- function(id){
 
         observeEvent(input$restart, {
 
-            # -------------------------------------------------
-            # Clear the observed experiment
-            # -------------------------------------------------
-
             rv$dice <- NULL
 
             rv$p_true_used <- NULL
 
-            # -------------------------------------------------
-            # Clear the simulated results
-            # -------------------------------------------------
+            rv$p_hat <- NULL
+
+            rv$x <- NULL
+
+            rv$n <- NULL
 
             rv$bootstrap_p <- NULL
-
-            rv$p_hat <- NULL
 
             rv$se <- NULL
 
             rv$ci_active <- FALSE
+
+            rv$reveal_true <- FALSE
+        })
+
+
+
+        # =====================================================
+        # Reveal true probability
+        # =====================================================
+
+        observeEvent(input$reveal, {
+
+            req(
+                rv$p_true_used
+            )
+
+            rv$reveal_true <- TRUE
         })
 
 
@@ -865,8 +1085,10 @@ chapter5_server <- function(id){
         observeEvent(input$bootstrap, {
 
             req(
-                rv$dice
+                rv$dice,
+                rv$p_hat
             )
+
 
             n <- length(
                 rv$dice
@@ -880,48 +1102,10 @@ chapter5_server <- function(id){
                 {
 
                     # =========================================
-                    # Exact process simulation
+                    # Approximate process simulation
                     # =========================================
-                    #
-                    # Generate a new sample from the actual
-                    # process, using the true probability that
-                    # generated the observed data.
-                    #
 
                     if (
-                        input$boot_method == "true_p"
-                    ) {
-
-                        d <- sample(
-
-                            1:6,
-
-                            size = n,
-
-                            replace = TRUE,
-
-                            prob = c(
-
-                                rep(
-                                    (1 - rv$p_true_used) / 5,
-                                    5
-                                ),
-
-                                rv$p_true_used
-                            )
-                        )
-
-
-                        # =========================================
-                        # Approximate process simulation
-                        # =========================================
-                        #
-                        # Generate a new sample from a process
-                        # whose probability has been estimated
-                        # from the observed data.
-                        #
-
-                    } else if (
                         input$boot_method == "est_p"
                     ) {
 
@@ -948,10 +1132,6 @@ chapter5_server <- function(id){
                         # =========================================
                         # Resampling
                         # =========================================
-                        #
-                        # Generate a new sample by sampling with
-                        # replacement from the observed data.
-                        #
 
                     } else {
 
@@ -966,9 +1146,7 @@ chapter5_server <- function(id){
                     }
 
 
-                    # -----------------------------------------
-                    # Estimate p from the simulated sample
-                    # -----------------------------------------
+                    # Estimate p from simulated sample
 
                     mean(
                         d == 6
@@ -978,7 +1156,7 @@ chapter5_server <- function(id){
 
 
             # -------------------------------------------------
-            # Standard error of the simulated estimates
+            # Standard error
             # -------------------------------------------------
 
             rv$se <- sd(
@@ -987,8 +1165,7 @@ chapter5_server <- function(id){
 
 
             # -------------------------------------------------
-            # A new simulation means that any old CI should
-            # no longer be displayed.
+            # New simulation means any old CI disappears
             # -------------------------------------------------
 
             rv$ci_active <- FALSE
@@ -997,20 +1174,15 @@ chapter5_server <- function(id){
 
 
         # =====================================================
-        # Changing the simulation method
+        # Changing simulation method
         # =====================================================
 
         observeEvent(input$boot_method, {
 
             req(
-                rv$dice
+                rv$dice,
+                rv$p_hat
             )
-
-            # -------------------------------------------------
-            # Keep the observed data!
-            #
-            # Only clear the current simulated distribution.
-            # -------------------------------------------------
 
             rv$bootstrap_p <- NULL
 
@@ -1022,21 +1194,15 @@ chapter5_server <- function(id){
 
 
         # =====================================================
-        # Changing the number of simulations
+        # Changing number of simulations
         # =====================================================
 
         observeEvent(input$B, {
 
             req(
-                rv$dice
+                rv$dice,
+                rv$p_hat
             )
-
-            # -------------------------------------------------
-            # If B changes, the existing simulation no longer
-            # corresponds to the selected number of simulations.
-            #
-            # The observed data remain unchanged.
-            # -------------------------------------------------
 
             rv$bootstrap_p <- NULL
 
@@ -1104,9 +1270,9 @@ chapter5_server <- function(id){
                 input$topic == "Inference"
             ) {
 
+
                 # -------------------------------------------------
-                # Use the probability that actually generated
-                # the current experiment.
+                # Probability used for the current experiment
                 # -------------------------------------------------
 
                 if (
@@ -1115,24 +1281,27 @@ chapter5_server <- function(id){
 
                     p_used <- rv$p_true_used
 
-                } else {
+                } else if (
+                    input$prob_mode == "fixed"
+                ) {
 
                     p_used <- input$p_true
+
+                } else {
+
+                    p_used <- 0.25
                 }
 
 
                 # -------------------------------------------------
-                # Use the number of observations in the actual
-                # experiment if one exists.
+                # Number of observations
                 # -------------------------------------------------
 
                 if (
-                    !is.null(rv$dice)
+                    !is.null(rv$n)
                 ) {
 
-                    n_used <- length(
-                        rv$dice
-                    )
+                    n_used <- rv$n
 
                 } else {
 
@@ -1141,56 +1310,42 @@ chapter5_server <- function(id){
 
 
                 # -------------------------------------------------
+                # Probability-generation code
+                # -------------------------------------------------
+
+                if (
+                    input$prob_mode == "random"
+                ) {
+
+                    probability_code <- paste0(
+
+                        "# Randomly choose the true probability\n",
+
+                        "p_true <- runif(1, 0.05, 0.50)\n\n"
+                    )
+
+                } else {
+
+                    probability_code <- paste0(
+
+                        "# Choose the true probability\n",
+
+                        "p_true <- ", input$p_true, "\n\n"
+                    )
+                }
+
+
+                # -------------------------------------------------
                 # Simulation code
                 # -------------------------------------------------
 
                 if (
-                    input$boot_method == "true_p"
-                ) {
-
-                    bootstrap_code <- paste0(
-
-                        "# Exact process simulation\n",
-
-                        "bootstrap_p <- replicate(\n",
-
-                        "    ", input$B, ",\n",
-
-                        "    {\n",
-
-                        "        d <- sample(\n",
-
-                        "            1:6,\n",
-
-                        "            size = length(dice),\n",
-
-                        "            replace = TRUE,\n",
-
-                        "            prob = c(\n",
-
-                        "                rep((1 - ", p_used, ")/5, 5),\n",
-
-                        "                ", p_used, "\n",
-
-                        "            )\n",
-
-                        "        )\n",
-
-                        "        mean(d == 6)\n",
-
-                        "    }\n",
-
-                        ")"
-                    )
-
-
-                } else if (
                     input$boot_method == "est_p"
                 ) {
 
                     bootstrap_code <- paste0(
 
-                        "# Approximate process simulation\n",
+                        "# Approximate process simulation\n\n",
 
                         "p_hat <- mean(dice == 6)\n\n",
 
@@ -1230,7 +1385,7 @@ chapter5_server <- function(id){
 
                     bootstrap_code <- paste0(
 
-                        "# Resampling\n",
+                        "# Resampling\n\n",
 
                         "bootstrap_p <- replicate(\n",
 
@@ -1251,9 +1406,11 @@ chapter5_server <- function(id){
 
                     "## One-dice inference investigation\n\n",
 
-                    "# Generate observed dice rolls\n",
-
                     "set.seed(", input$seed, ")\n\n",
+
+                    probability_code,
+
+                    "# Generate observed dice rolls\n",
 
                     "dice <- sample(\n",
 
@@ -1265,9 +1422,9 @@ chapter5_server <- function(id){
 
                     "    prob = c(\n",
 
-                    "        rep((1 - ", p_used, ")/5, 5),\n",
+                    "        rep((1 - p_true)/5, 5),\n",
 
-                    "        ", p_used, "\n",
+                    "        p_true\n",
 
                     "    )\n",
 
@@ -1275,7 +1432,11 @@ chapter5_server <- function(id){
 
                     "# Estimate probability of rolling a six\n",
 
-                    "p_hat <- mean(dice == 6)\n\n",
+                    "x <- sum(dice == 6)\n",
+
+                    "n <- length(dice)\n",
+
+                    "p_hat <- x / n\n\n",
 
                     bootstrap_code,
 
@@ -1300,6 +1461,7 @@ chapter5_server <- function(id){
 
 
             } else {
+
 
                 # =================================================
                 # Regression code
@@ -1395,9 +1557,9 @@ chapter5_server <- function(id){
 
                     values = c(
 
-                        "FALSE" = "#A9BFE3",
+                        "FALSE" = pal_blue_soft,
 
-                        "TRUE" = "#D9534F"
+                        "TRUE" = pal_red
                     ),
 
                     guide = "none"
@@ -1460,8 +1622,7 @@ chapter5_server <- function(id){
 
 
             # -------------------------------------------------
-            # Add confidence interval only after the user
-            # presses the CI button.
+            # Confidence interval
             # -------------------------------------------------
 
             if (
@@ -1501,6 +1662,54 @@ chapter5_server <- function(id){
             }
 
 
+            # -------------------------------------------------
+            # Reveal true probability
+            # -------------------------------------------------
+
+            if (
+                isTRUE(rv$reveal_true)
+            ) {
+
+                p <- p +
+
+                    geom_vline(
+
+                        xintercept = rv$p_true_used,
+
+                        colour = pal_reveal,
+
+                        linewidth = 1.3,
+
+                        linetype = "dashed"
+                    ) +
+
+                    annotate(
+
+                        "text",
+
+                        x = rv$p_true_used,
+
+                        y = Inf,
+
+                        label = paste0(
+                            "True p = ",
+                            round(
+                                rv$p_true_used,
+                                3
+                            )
+                        ),
+
+                        colour = pal_reveal,
+
+                        vjust = 1.5,
+
+                        hjust = -0.05,
+
+                        fontface = "bold"
+                    )
+            }
+
+
             p
         })
 
@@ -1517,10 +1726,6 @@ chapter5_server <- function(id){
             )
 
 
-            # -------------------------------------------------
-            # No experiment yet
-            # -------------------------------------------------
-
             if (
                 is.null(rv$dice)
             ) {
@@ -1530,9 +1735,156 @@ chapter5_server <- function(id){
 
 
             # -------------------------------------------------
-            # The estimate is always available once the dice
-            # have been rolled.
+            # Basic information
             # -------------------------------------------------
+
+            result_items <- list()
+
+
+            # -------------------------------------------------
+            # Estimate
+            # -------------------------------------------------
+
+            if (
+                !is.null(rv$p_hat)
+            ) {
+
+                result_items <- append(
+
+                    result_items,
+
+                    list(
+
+                        p(
+
+                            strong(
+                                "Estimate p: "
+                            ),
+
+                            rv$x,
+
+                            " / ",
+
+                            rv$n,
+
+                            " = ",
+
+                            round(
+                                rv$p_hat,
+                                4
+                            )
+                        )
+                    )
+                )
+            }
+
+
+            # -------------------------------------------------
+            # Simulation standard error
+            # -------------------------------------------------
+
+            if (
+                !is.null(rv$se)
+            ) {
+
+                result_items <- append(
+
+                    result_items,
+
+                    list(
+
+                        p(
+
+                            strong(
+                                "Simulation SE: "
+                            ),
+
+                            round(
+                                rv$se,
+                                4
+                            )
+                        )
+                    )
+                )
+            }
+
+
+            # -------------------------------------------------
+            # Confidence interval
+            # -------------------------------------------------
+
+            if (
+                isTRUE(rv$ci_active)
+            ) {
+
+                ci <- ci_inference()
+
+
+                result_items <- append(
+
+                    result_items,
+
+                    list(
+
+                        p(
+
+                            strong(
+                                "Confidence Interval: "
+                            ),
+
+                            paste0(
+
+                                "[",
+
+                                round(
+                                    ci[1],
+                                    4
+                                ),
+
+                                ", ",
+
+                                round(
+                                    ci[2],
+                                    4
+                                ),
+
+                                "]"
+                            )
+                        )
+                    )
+                )
+            }
+
+
+            # -------------------------------------------------
+            # True probability
+            # -------------------------------------------------
+
+            if (
+                isTRUE(rv$reveal_true)
+            ) {
+
+                result_items <- append(
+
+                    result_items,
+
+                    list(
+
+                        p(
+
+                            strong(
+                                "True probability: "
+                            ),
+
+                            round(
+                                rv$p_true_used,
+                                4
+                            )
+                        )
+                    )
+                )
+            }
+
 
             card(
 
@@ -1540,77 +1892,7 @@ chapter5_server <- function(id){
                     "Inference Summary"
                 ),
 
-
-                p(
-
-                    strong(
-                        "Estimated p: "
-                    ),
-
-                    round(
-                        rv$p_hat,
-                        3
-                    )
-                ),
-
-
-                # -------------------------------------------------
-                # Standard error appears once estimates have
-                # been simulated.
-                # -------------------------------------------------
-
-                if (
-                    !is.null(rv$se)
-                ) {
-
-                    p(
-
-                        strong(
-                            "Simulation SE: "
-                        ),
-
-                        round(
-                            rv$se,
-                            4
-                        )
-                    )
-                },
-
-
-                # -------------------------------------------------
-                # CI appears only after CI button is pressed.
-                # -------------------------------------------------
-
-                if (
-                    isTRUE(rv$ci_active)
-                ) {
-
-                    p(
-
-                        strong(
-                            "Confidence Interval: "
-                        ),
-
-                        paste0(
-
-                            "[",
-
-                            round(
-                                ci_inference()[1],
-                                3
-                            ),
-
-                            ", ",
-
-                            round(
-                                ci_inference()[2],
-                                3
-                            ),
-
-                            "]"
-                        )
-                    )
-                }
+                result_items
             )
         })
 
@@ -1739,46 +2021,34 @@ chapter5_server <- function(id){
 
             ) +
 
+                geom_point(
+                    colour = pal_blue
+                ) +
 
-            # ---------------------------------------------
-            # Observations
-            # ---------------------------------------------
+                geom_ribbon(
 
-            geom_point(
-                colour = pal_blue
-            ) +
+                    data = plot_df,
 
+                    aes(
 
-            # ---------------------------------------------
-            # Confidence band
-            # ---------------------------------------------
+                        x = points_half1,
 
-            geom_ribbon(
+                        ymin = lwr,
 
-                data = plot_df,
+                        ymax = upr
+                    ),
 
-                aes(
+                    fill = pal_lav,
 
-                    x = points_half1,
+                    alpha = 0.20,
 
-                    ymin = lwr,
-
-                    ymax = upr
-                ),
-
-                fill = pal_lav,
-
-                alpha = 0.20,
-
-                inherit.aes = FALSE
-            )
+                    inherit.aes = FALSE
+                )
 
 
-            # ---------------------------------------------
-            # Optional diagonal reference line
-            # ---------------------------------------------
-
-            if (isTRUE(input$show_diagonal)) {
+            if (
+                isTRUE(input$show_diagonal)
+            ) {
 
                 p <- p +
 
@@ -1799,89 +2069,67 @@ chapter5_server <- function(id){
 
             p <- p +
 
+                geom_line(
 
-            # ---------------------------------------------
-            # Regression line
-            # ---------------------------------------------
+                    data = plot_df,
 
-            geom_line(
+                    aes(
 
-                data = plot_df,
+                        x = points_half1,
 
-                aes(
+                        y = fit
+                    ),
 
-                    x = points_half1,
+                    colour = pal_lav,
 
-                    y = fit
-                ),
+                    linewidth = 1.2,
 
-                colour = pal_lav,
+                    inherit.aes = FALSE
+                ) +
 
-                linewidth = 1.2,
+                geom_vline(
 
-                inherit.aes = FALSE
-            ) +
+                    xintercept = input$x_split,
 
+                    colour = pal_red,
 
-            # ---------------------------------------------
-            # Vertical prediction line
-            # ---------------------------------------------
+                    linetype = "dashed",
 
-            geom_vline(
+                    linewidth = 0.8
+                ) +
 
-                xintercept = input$x_split,
+                geom_hline(
 
-                colour = pal_red,
+                    yintercept =
+                        as.numeric(
+                            pr[1, "fit"]
+                        ),
 
-                linetype = "dashed",
+                    colour = pal_red,
 
-                linewidth = 0.8
-            ) +
+                    linetype = "dashed",
 
+                    linewidth = 0.8
+                ) +
 
-            # ---------------------------------------------
-            # Horizontal prediction line
-            # ---------------------------------------------
+                annotate(
 
-            geom_hline(
+                    "point",
 
-                yintercept =
-                    as.numeric(
+                    x = input$x_split,
+
+                    y = as.numeric(
                         pr[1, "fit"]
                     ),
 
-                colour = pal_red,
+                    colour = pal_red,
 
-                linetype = "dashed",
-
-                linewidth = 0.8
-            ) +
-
-
-            # ---------------------------------------------
-            # Prediction point
-            # ---------------------------------------------
-
-            annotate(
-
-                "point",
-
-                x = input$x_split,
-
-                y = as.numeric(
-                    pr[1, "fit"]
-                ),
-
-                colour = pal_red,
-
-                size = 4
-            ) +
-
+                    size = 4
+                ) +
 
                 theme_minimal(
                     base_size = 14
                 ) +
-
 
                 labs(
 
@@ -1893,7 +2141,6 @@ chapter5_server <- function(id){
 
             p
         })
-
 
 
         output$regression_results <- renderUI({
@@ -1909,7 +2156,6 @@ chapter5_server <- function(id){
                     "Regression Summary"
                 ),
 
-
                 p(
 
                     strong(
@@ -1920,7 +2166,6 @@ chapter5_server <- function(id){
                         reg_data()
                     )
                 ),
-
 
                 p(
 
@@ -1934,7 +2179,6 @@ chapter5_server <- function(id){
                     )
                 ),
 
-
                 p(
 
                     strong(
@@ -1947,7 +2191,6 @@ chapter5_server <- function(id){
                     )
                 ),
 
-
                 p(
 
                     strong(
@@ -1959,7 +2202,6 @@ chapter5_server <- function(id){
                         1
                     )
                 ),
-
 
                 p(
 
@@ -1991,3 +2233,4 @@ chapter5_server <- function(id){
 
     })
 }
+
