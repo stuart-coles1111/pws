@@ -1,10 +1,13 @@
 # =========================================================
+
 # Chapter 5 — Inference & Regression
-# =========================================================
-
 
 # =========================================================
+
+# =========================================================
+
 # Colours
+
 # =========================================================
 
 pal_blue <- "#7B9ACC"
@@ -12,20 +15,23 @@ pal_lav  <- "#CDB4DB"
 pal_red  <- "#D9534F"
 pal_blue_soft <- "#A9BFE3"
 
-# Button colours
-pal_roll    <- "#337AB7"   # blue
-pal_est     <- "#5CB85C"   # green
-pal_sim     <- "#8E44AD"   # purple
-pal_ci      <- "#5A6268"   # dark grey
-pal_reveal  <- "#E67E22"   # orange
-pal_restart <- "#D9534F"   # red
 
+# Button colours
+pal_roll    <- "#5B8DB8"   # soft blue
+pal_est     <- "#6FB286"   # soft green
+pal_sim     <- "#9B72B0"   # soft purple
+pal_ci      <- "#6F777D"   # soft charcoal
+pal_reveal  <- "#D99452"   # soft orange
+pal_restart <- "#C96B68"   # soft red
 
 # =========================================================
+
 # UI
+
 # =========================================================
 
 chapter5_ui <- function(id){
+
 
     ns <- NS(id)
     useShinyjs()
@@ -37,14 +43,13 @@ chapter5_ui <- function(id){
 
     sidebar_controls <- sidebar(
 
-        h4("Statistics"),
-
         numericInput(
             ns("seed"),
             "Random seed",
             value = sample(1:999, 1),
             min = 1,
-            max = 999
+            max = 999,
+            step = 1
         ),
 
         radioButtons(
@@ -58,9 +63,9 @@ chapter5_ui <- function(id){
         ),
 
 
-        # -------------------------------------------------
+        # =================================================
         # Inference controls
-        # -------------------------------------------------
+        # =================================================
 
         conditionalPanel(
             condition = sprintf(
@@ -79,11 +84,6 @@ chapter5_ui <- function(id){
                 min = 10
             ),
 
-
-            # -------------------------------------------------
-            # Choose how the true probability is determined
-            # -------------------------------------------------
-
             radioButtons(
                 ns("prob_mode"),
                 "Probability of rolling a six:",
@@ -94,7 +94,6 @@ chapter5_ui <- function(id){
                 selected = "fixed"
             ),
 
-
             conditionalPanel(
                 condition = sprintf(
                     "input['%s']=='fixed'",
@@ -103,14 +102,13 @@ chapter5_ui <- function(id){
 
                 sliderInput(
                     ns("p_true"),
-                    "True probability of rolling a 6",
+                    "True probability, p, of rolling a 6",
                     min = 0.05,
                     max = 0.50,
                     value = 0.167,
                     step = 0.01
                 )
             ),
-
 
             conditionalPanel(
                 condition = sprintf(
@@ -120,18 +118,13 @@ chapter5_ui <- function(id){
 
                 p(
                     style = "
-                        font-size: 0.9em;
-                        color: #777;
-                        margin-top: 5px;
-                    ",
+                    font-size: 0.9em;
+                    color: #777;
+                    margin-top: 5px;
+                ",
                     "The true probability of rolling a 6 will be chosen randomly."
                 )
             ),
-
-
-            # -------------------------------------------------
-            # Roll dice
-            # -------------------------------------------------
 
             actionButton(
                 ns("roll"),
@@ -143,13 +136,7 @@ chapter5_ui <- function(id){
                 )
             ),
 
-
             hr(),
-
-
-            # -------------------------------------------------
-            # Estimate probability
-            # -------------------------------------------------
 
             actionButton(
                 ns("estimate"),
@@ -161,16 +148,11 @@ chapter5_ui <- function(id){
                 )
             ),
 
-
-            # -------------------------------------------------
-            # Simulation method
-            # -------------------------------------------------
-
             hr(),
 
             selectInput(
                 ns("boot_method"),
-                "How should new samples be generated?",
+                "Simulation method:",
                 choices = c(
                     "Process simulation" = "est_p",
                     "Resampling" = "resample"
@@ -179,7 +161,7 @@ chapter5_ui <- function(id){
 
             numericInput(
                 ns("B"),
-                "Number of simulated estimates",
+                "Number of simulated estimates of p",
                 value = 5000,
                 min = 100
             ),
@@ -194,13 +176,7 @@ chapter5_ui <- function(id){
                 )
             ),
 
-
             hr(),
-
-
-            # -------------------------------------------------
-            # Confidence interval
-            # -------------------------------------------------
 
             sliderInput(
                 ns("conf"),
@@ -215,7 +191,7 @@ chapter5_ui <- function(id){
 
             actionButton(
                 ns("ci"),
-                "Confidence Interval",
+                "Confidence Interval for p",
                 class = "btn-secondary",
                 style = paste0(
                     "background-color:", pal_ci,
@@ -223,17 +199,12 @@ chapter5_ui <- function(id){
                 )
             ),
 
-
-            # -------------------------------------------------
-            # Reveal true probability
-            # -------------------------------------------------
-
             br(),
             br(),
 
             actionButton(
                 ns("reveal"),
-                "Reveal true probability",
+                "Reveal true probability, p",
                 class = "btn-warning",
                 style = paste0(
                     "background-color:", pal_reveal,
@@ -242,13 +213,7 @@ chapter5_ui <- function(id){
                 )
             ),
 
-
             hr(),
-
-
-            # -------------------------------------------------
-            # Restart
-            # -------------------------------------------------
 
             actionButton(
                 ns("restart"),
@@ -258,25 +223,13 @@ chapter5_ui <- function(id){
                     "background-color:", pal_restart,
                     "; border-color:", pal_restart, ";"
                 )
-            ),
-
-            br(),
-            br(),
-
-            p(
-                style = "
-                    font-size: 0.85em;
-                    color: #777;
-                    margin-top: 5px;
-                ",
-                "The observed dice remain fixed while you investigate the experiment."
             )
         ),
 
 
-        # -------------------------------------------------
+        # =================================================
         # Regression controls
-        # -------------------------------------------------
+        # =================================================
 
         conditionalPanel(
             condition = sprintf(
@@ -287,31 +240,31 @@ chapter5_ui <- function(id){
             h4("Regression Fitting"),
 
             selectInput(
-                ns("end_season"),
-                "Final season included",
-                choices = unique(pws::PL_points$season),
-                selected = tail(
-                    unique(pws::PL_points$season),
+                ns("start_season"),
+                "First season included",
+                choices = unique(
+                    pws::PL_points$season
+                ),
+                selected = head(
+                    unique(
+                        pws::PL_points$season
+                    ),
                     1
                 )
             ),
 
-            sliderInput(
-                ns("x_split"),
-                "Prediction point",
-                min = min(
-                    pws::PL_points$points_half1,
-                    na.rm = TRUE
+            selectInput(
+                ns("end_season"),
+                "Final season included",
+                choices = unique(
+                    pws::PL_points$season
                 ),
-                max = max(
-                    pws::PL_points$points_half1,
-                    na.rm = TRUE
-                ),
-                value = median(
-                    pws::PL_points$points_half1,
-                    na.rm = TRUE
-                ),
-                step = 1
+                selected = tail(
+                    unique(
+                        pws::PL_points$season
+                    ),
+                    1
+                )
             ),
 
             sliderInput(
@@ -327,9 +280,30 @@ chapter5_ui <- function(id){
                 ns("show_diagonal"),
                 "Show diagonal reference line (y = x)",
                 value = FALSE
-            )
-        )
+            ),
 
+            hr(),
+
+            h4("Second half of season prediction"),
+
+            sliderInput(
+                ns("x_split"),
+                "Points in first half of season",
+                min = min(
+                    pws::PL_points$points_half1,
+                    na.rm = TRUE
+                ),
+                max = max(
+                    pws::PL_points$points_half1,
+                    na.rm = TRUE
+                ),
+                value = median(
+                    pws::PL_points$points_half1,
+                    na.rm = TRUE
+                ),
+                step = 1
+            ),
+        )
     )
 
 
@@ -342,11 +316,11 @@ chapter5_ui <- function(id){
         card(
 
             style = "
-                border-radius: 16px;
-                border: none;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-                padding: 10px;
-            ",
+            border-radius: 16px;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 10px;
+        ",
 
             # =================================================
             # STATISTICAL INFERENCE
@@ -363,10 +337,10 @@ chapter5_ui <- function(id){
                     div(
                         "Module 5: Statistical inference",
                         style = "
-                            font-size: 1.4rem;
-                            font-weight: 700;
-                            color: #2c3e50;
-                        "
+                        font-size: 1.4rem;
+                        font-weight: 700;
+                        color: #2c3e50;
+                    "
                     )
                 ),
 
@@ -378,8 +352,8 @@ chapter5_ui <- function(id){
 
                 p(
                     "The underlying probability of rolling a six is not necessarily known.
-                    We observe a sample of dice rolls and use those observations to estimate
-                    the probability."
+                We observe a sample of dice rolls and use those observations to estimate
+                the probability."
                 ),
 
                 hr(),
@@ -388,31 +362,31 @@ chapter5_ui <- function(id){
 
                 p(
                     "You begin by choosing the number of dice rolls and deciding whether
-                    the true probability of rolling a six should be chosen by you or
-                    generated randomly. When you press ",
+                the true probability of rolling a six should be chosen by you or
+                generated randomly. When you press ",
                     strong("Roll Dice"),
                     ", the app generates one observed sample."
                 ),
 
                 p(
                     "The true probability is kept hidden when the random option is used.
-                    This allows you to make an estimate without knowing the value that
-                    generated the data."
+                This allows you to make an estimate without knowing the value that
+                generated the data."
                 ),
 
                 h5("Estimating the probability"),
 
                 p(
                     "After observing the dice, you can calculate the estimate of the
-                    probability of rolling a six. The estimate is simply the number of
-                    sixes divided by the total number of rolls."
+                probability of rolling a six. The estimate is simply the number of
+                sixes divided by the total number of rolls."
                 ),
 
                 h5("Simulating estimates"),
 
                 p(
                     "Once the probability has been estimated, the app can generate many
-                    new estimates using two different approaches:"
+                new estimates using two different approaches:"
                 ),
 
                 tags$ul(
@@ -430,8 +404,8 @@ chapter5_ui <- function(id){
 
                 p(
                     "The resulting estimates are displayed as a distribution. This gives
-                    a visual way to investigate how much estimates vary from one sample
-                    to another."
+                a visual way to investigate how much estimates vary from one sample
+                to another."
                 ),
 
                 hr(),
@@ -440,13 +414,13 @@ chapter5_ui <- function(id){
 
                 p(
                     "The simulated distribution can also be used to construct a confidence
-                    interval for the probability estimated from the observed data."
+                interval for the probability estimated from the observed data."
                 ),
 
                 p(
                     "Changing the confidence level changes the width of the interval.
-                    The simulation therefore provides an opportunity to explore the
-                    relationship between confidence and uncertainty."
+                The simulation therefore provides an opportunity to explore the
+                relationship between confidence and uncertainty."
                 ),
 
                 hr(),
@@ -454,11 +428,11 @@ chapter5_ui <- function(id){
                 div(
 
                     style = "
-                        background-color:#f8f9fa;
-                        border-left:5px solid #7B9ACC;
-                        padding:12px;
-                        border-radius:8px;
-                    ",
+                    background-color:#f8f9fa;
+                    border-left:5px solid #7B9ACC;
+                    padding:12px;
+                    border-radius:8px;
+                ",
 
                     h5("Questions to investigate"),
 
@@ -511,10 +485,10 @@ chapter5_ui <- function(id){
                     div(
                         "Module 5: Regression",
                         style = "
-                            font-size: 1.4rem;
-                            font-weight: 700;
-                            color: #2c3e50;
-                        "
+                        font-size: 1.4rem;
+                        font-weight: 700;
+                        color: #2c3e50;
+                    "
                     )
                 ),
 
@@ -526,51 +500,58 @@ chapter5_ui <- function(id){
 
                 p(
                     "The analysis examines the relationship between the number of points
-                    a team has accumulated in the first half of a season and the number
-                    of points accumulated in the second half."
+                a team has accumulated in the first half of a season and the number
+                of points accumulated in the second half."
                 ),
 
                 hr(),
 
-                h5("Fitting a regression model"),
+                h5("Choosing the seasons"),
 
                 p(
-                    "A linear regression model is fitted to the available seasons.
-                    The model describes the relationship between points in the first
-                    half and points in the second half."
+                    "You can choose the first and final seasons included in the analysis.
+                The final season is automatically restricted to be the same as or
+                later than the first season."
                 ),
 
                 p(
-                    "You can choose how many seasons are included in the analysis.
-                    This makes it possible to investigate how the fitted relationship
-                    changes when the amount of data is changed."
+                    "This allows you to investigate how the fitted relationship changes
+                when different periods of Premier League history are considered."
+                ),
+
+                h5("Fitting a regression model"),
+
+                p(
+                    "A linear regression model is fitted to the selected seasons.
+                The model describes the relationship between points in the first
+                half and points in the second half."
                 ),
 
                 h5("Predictions"),
 
                 p(
                     "The prediction tool allows you to choose a particular number of
-                    first-half points and obtain the corresponding predicted number
-                    of second-half points."
+                first-half points and obtain the corresponding predicted number
+                of second-half points."
                 ),
 
                 p(
                     "The prediction is shown graphically on the scatter plot, together
-                    with a confidence interval for the mean response at the selected
-                    prediction point."
+                with a confidence interval for the mean response at the selected
+                prediction point."
                 ),
 
                 h5("Confidence bands"),
 
                 p(
                     "The fitted regression line is surrounded by a confidence band.
-                    The width of this band reflects uncertainty in the estimated
-                    mean relationship."
+                The width of this band reflects uncertainty in the estimated
+                mean relationship."
                 ),
 
                 p(
                     "You can change the confidence level and observe how this affects
-                    the band. You can also display the diagonal line ",
+                the band. You can also display the diagonal line ",
                     tags$em("y = x"),
                     " as a reference for comparing first-half and second-half points."
                 ),
@@ -580,11 +561,11 @@ chapter5_ui <- function(id){
                 div(
 
                     style = "
-                        background-color:#f8f9fa;
-                        border-left:5px solid #7B9ACC;
-                        padding:12px;
-                        border-radius:8px;
-                    ",
+                    background-color:#f8f9fa;
+                    border-left:5px solid #7B9ACC;
+                    padding:12px;
+                    border-radius:8px;
+                ",
 
                     h5("Questions to investigate"),
 
@@ -596,6 +577,10 @@ chapter5_ui <- function(id){
 
                         tags$li(
                             "What happens to the fitted regression line when fewer seasons are included?"
+                        ),
+
+                        tags$li(
+                            "How does changing the selected time period affect the fitted relationship?"
                         ),
 
                         tags$li(
@@ -632,11 +617,11 @@ chapter5_ui <- function(id){
 
             tags$pre(
                 style = "
-                    background:#F8F9FA;
-                    padding:15px;
-                    border-radius:10px;
-                    font-size:15px;
-                ",
+                background:#F8F9FA;
+                padding:15px;
+                border-radius:10px;
+                font-size:15px;
+            ",
 
                 textOutput(
                     ns("generated_code")
@@ -665,7 +650,7 @@ chapter5_ui <- function(id){
 
                     card(
                         card_header(
-                            "Observed data — fixed until experiment is restarted"
+                            "Observed data"
                         ),
 
                         plotOutput(
@@ -680,7 +665,7 @@ chapter5_ui <- function(id){
 
                     card(
                         card_header(
-                            "Simulated estimates"
+                            "Simulated estimates of p"
                         ),
 
                         plotOutput(
@@ -697,7 +682,6 @@ chapter5_ui <- function(id){
                 ns("inference_results")
             )
         ),
-
 
         conditionalPanel(
             condition = sprintf(
@@ -748,17 +732,83 @@ chapter5_ui <- function(id){
 
         activity = activity_panel
     )
+
+
 }
 
-
-
 # =========================================================
+
 # SERVER
+
 # =========================================================
 
 chapter5_server <- function(id){
 
+
     moduleServer(id, function(input, output, session){
+
+
+        # =====================================================
+        # Regression season list
+        # =====================================================
+
+        seasons <- unique(
+            pws::PL_points$season
+        )
+
+
+        # =====================================================
+        # Keep final season >= first season
+        # =====================================================
+
+        observeEvent(
+            input$start_season,
+            {
+
+                req(
+                    input$start_season
+                )
+
+                start_index <- match(
+                    input$start_season,
+                    seasons
+                )
+
+                req(
+                    !is.na(start_index)
+                )
+
+                valid_end_seasons <- seasons[
+                    start_index:length(seasons)
+                ]
+
+                current_end <- input$end_season
+
+                if (
+                    is.null(current_end) ||
+                    !(current_end %in% valid_end_seasons)
+                ) {
+
+                    current_end <- tail(
+                        valid_end_seasons,
+                        1
+                    )
+                }
+
+                updateSelectInput(
+
+                    session,
+
+                    "end_season",
+
+                    choices = valid_end_seasons,
+
+                    selected = current_end
+                )
+            },
+
+            ignoreInit = FALSE
+        )
 
 
         # =====================================================
@@ -767,34 +817,24 @@ chapter5_server <- function(id){
 
         rv <- reactiveValues(
 
-            # Observed data
             dice = NULL,
 
-            # True probability actually used
             p_true_used = NULL,
 
-            # Estimated probability
             p_hat = NULL,
 
-            # Number of sixes
             x = NULL,
 
-            # Number of observations
             n = NULL,
 
-            # Simulated estimator distribution
             bootstrap_p = NULL,
 
-            # Standard error
             se = NULL,
 
-            # Confidence interval
             ci_active = FALSE,
 
-            # True probability revealed?
             reveal_true = FALSE
         )
-
 
 
         # =====================================================
@@ -807,12 +847,9 @@ chapter5_server <- function(id){
                 input$topic == "Inference"
             )
 
-
-            # -------------------------------------------------
-            # No experiment yet
-            # -------------------------------------------------
-
-            if (is.null(rv$dice)) {
+            if (
+                is.null(rv$dice)
+            ) {
 
                 enable("roll")
 
@@ -829,13 +866,9 @@ chapter5_server <- function(id){
                 return()
             }
 
-
-            # -------------------------------------------------
-            # Dice have been rolled, but probability has not
-            # yet been estimated
-            # -------------------------------------------------
-
-            if (is.null(rv$p_hat)) {
+            if (
+                is.null(rv$p_hat)
+            ) {
 
                 disable("roll")
 
@@ -852,13 +885,9 @@ chapter5_server <- function(id){
                 return()
             }
 
-
-            # -------------------------------------------------
-            # Estimate has been calculated, but no simulation
-            # has yet been performed
-            # -------------------------------------------------
-
-            if (is.null(rv$bootstrap_p)) {
+            if (
+                is.null(rv$bootstrap_p)
+            ) {
 
                 disable("roll")
 
@@ -875,11 +904,6 @@ chapter5_server <- function(id){
                 return()
             }
 
-
-            # -------------------------------------------------
-            # Simulation exists
-            # -------------------------------------------------
-
             disable("roll")
 
             disable("estimate")
@@ -894,36 +918,19 @@ chapter5_server <- function(id){
         })
 
 
-
         # =====================================================
         # Roll Dice
         # =====================================================
 
         observeEvent(input$roll, {
 
-            # -------------------------------------------------
-            # Generate seed for this experiment
-            # -------------------------------------------------
-
-            new_seed <- sample(
-                1:999,
-                1
-            )
-
-            updateNumericInput(
-                session,
-                "seed",
-                value = new_seed
+            req(
+                input$seed
             )
 
             set.seed(
-                new_seed
+                input$seed
             )
-
-
-            # -------------------------------------------------
-            # Determine the true probability
-            # -------------------------------------------------
 
             if (
                 input$prob_mode == "fixed"
@@ -939,11 +946,6 @@ chapter5_server <- function(id){
                     max = 0.50
                 )
             }
-
-
-            # -------------------------------------------------
-            # Generate observed dice
-            # -------------------------------------------------
 
             rv$dice <- sample(
 
@@ -964,13 +966,6 @@ chapter5_server <- function(id){
                 )
             )
 
-
-            # -------------------------------------------------
-            # Store sample size and number of sixes
-            #
-            # The estimate is deliberately NOT calculated yet.
-            # -------------------------------------------------
-
             rv$n <- length(
                 rv$dice
             )
@@ -981,11 +976,6 @@ chapter5_server <- function(id){
 
             rv$p_hat <- NULL
 
-
-            # -------------------------------------------------
-            # Clear previous simulations
-            # -------------------------------------------------
-
             rv$bootstrap_p <- NULL
 
             rv$se <- NULL
@@ -994,7 +984,6 @@ chapter5_server <- function(id){
 
             rv$reveal_true <- FALSE
         })
-
 
 
         # =====================================================
@@ -1007,11 +996,6 @@ chapter5_server <- function(id){
                 rv$dice
             )
 
-
-            # -------------------------------------------------
-            # Calculate the estimate explicitly as x / n
-            # -------------------------------------------------
-
             rv$x <- sum(
                 rv$dice == 6
             )
@@ -1022,11 +1006,6 @@ chapter5_server <- function(id){
 
             rv$p_hat <- rv$x / rv$n
 
-
-            # -------------------------------------------------
-            # No simulation or CI from an earlier experiment
-            # -------------------------------------------------
-
             rv$bootstrap_p <- NULL
 
             rv$se <- NULL
@@ -1035,12 +1014,22 @@ chapter5_server <- function(id){
         })
 
 
-
         # =====================================================
         # Restart Experiment
         # =====================================================
 
         observeEvent(input$restart, {
+
+            new_seed <- sample(
+                1:999,
+                1
+            )
+
+            updateNumericInput(
+                session,
+                "seed",
+                value = new_seed
+            )
 
             rv$dice <- NULL
 
@@ -1062,7 +1051,6 @@ chapter5_server <- function(id){
         })
 
 
-
         # =====================================================
         # Reveal true probability
         # =====================================================
@@ -1077,7 +1065,6 @@ chapter5_server <- function(id){
         })
 
 
-
         # =====================================================
         # Simulate Estimates
         # =====================================================
@@ -1089,21 +1076,15 @@ chapter5_server <- function(id){
                 rv$p_hat
             )
 
-
             n <- length(
                 rv$dice
             )
-
 
             rv$bootstrap_p <- replicate(
 
                 input$B,
 
                 {
-
-                    # =========================================
-                    # Approximate process simulation
-                    # =========================================
 
                     if (
                         input$boot_method == "est_p"
@@ -1128,11 +1109,6 @@ chapter5_server <- function(id){
                             )
                         )
 
-
-                        # =========================================
-                        # Resampling
-                        # =========================================
-
                     } else {
 
                         d <- sample(
@@ -1145,32 +1121,18 @@ chapter5_server <- function(id){
                         )
                     }
 
-
-                    # Estimate p from simulated sample
-
                     mean(
                         d == 6
                     )
                 }
             )
 
-
-            # -------------------------------------------------
-            # Standard error
-            # -------------------------------------------------
-
             rv$se <- sd(
                 rv$bootstrap_p
             )
 
-
-            # -------------------------------------------------
-            # New simulation means any old CI disappears
-            # -------------------------------------------------
-
             rv$ci_active <- FALSE
         })
-
 
 
         # =====================================================
@@ -1192,7 +1154,6 @@ chapter5_server <- function(id){
         })
 
 
-
         # =====================================================
         # Changing number of simulations
         # =====================================================
@@ -1212,7 +1173,6 @@ chapter5_server <- function(id){
         })
 
 
-
         # =====================================================
         # Confidence Interval button
         # =====================================================
@@ -1227,7 +1187,6 @@ chapter5_server <- function(id){
         })
 
 
-
         # =====================================================
         # Confidence interval calculation
         # =====================================================
@@ -1237,18 +1196,13 @@ chapter5_server <- function(id){
             req(
                 rv$bootstrap_p,
                 rv$p_hat,
-                rv$se
-            )
-
-            req(
+                rv$se,
                 rv$ci_active
             )
-
 
             z <- qnorm(
                 1 - (1 - input$conf) / 2
             )
-
 
             c(
 
@@ -1257,7 +1211,6 @@ chapter5_server <- function(id){
                 rv$p_hat + z * rv$se
             )
         })
-
 
 
         # =====================================================
@@ -1269,11 +1222,6 @@ chapter5_server <- function(id){
             if (
                 input$topic == "Inference"
             ) {
-
-
-                # -------------------------------------------------
-                # Probability used for the current experiment
-                # -------------------------------------------------
 
                 if (
                     !is.null(rv$p_true_used)
@@ -1292,11 +1240,6 @@ chapter5_server <- function(id){
                     p_used <- 0.25
                 }
 
-
-                # -------------------------------------------------
-                # Number of observations
-                # -------------------------------------------------
-
                 if (
                     !is.null(rv$n)
                 ) {
@@ -1307,11 +1250,6 @@ chapter5_server <- function(id){
 
                     n_used <- input$n
                 }
-
-
-                # -------------------------------------------------
-                # Probability-generation code
-                # -------------------------------------------------
 
                 if (
                     input$prob_mode == "random"
@@ -1333,11 +1271,6 @@ chapter5_server <- function(id){
                         "p_true <- ", input$p_true, "\n\n"
                     )
                 }
-
-
-                # -------------------------------------------------
-                # Simulation code
-                # -------------------------------------------------
 
                 if (
                     input$boot_method == "est_p"
@@ -1380,7 +1313,6 @@ chapter5_server <- function(id){
                         ")"
                     )
 
-
                 } else {
 
                     bootstrap_code <- paste0(
@@ -1396,11 +1328,6 @@ chapter5_server <- function(id){
                         ")"
                     )
                 }
-
-
-                # -------------------------------------------------
-                # Complete generated code
-                # -------------------------------------------------
 
                 code <- paste0(
 
@@ -1459,13 +1386,7 @@ chapter5_server <- function(id){
                     ")"
                 )
 
-
             } else {
-
-
-                # =================================================
-                # Regression code
-                # =================================================
 
                 code <- paste0(
 
@@ -1476,6 +1397,8 @@ chapter5_server <- function(id){
                     "data <- subset(\n",
 
                     "    pws::PL_points,\n",
+
+                    "    season >= '", input$start_season, "' &\n",
 
                     "    season <= '", input$end_season, "'\n",
 
@@ -1511,10 +1434,8 @@ chapter5_server <- function(id){
                 )
             }
 
-
             code
         })
-
 
 
         # =====================================================
@@ -1527,7 +1448,6 @@ chapter5_server <- function(id){
                 rv$dice
             )
 
-
             df <- data.frame(
 
                 face = factor(
@@ -1535,7 +1455,6 @@ chapter5_server <- function(id){
                     levels = 1:6
                 )
             )
-
 
             ggplot(
                 df,
@@ -1578,7 +1497,6 @@ chapter5_server <- function(id){
         })
 
 
-
         # =====================================================
         # Simulated estimates plot
         # =====================================================
@@ -1589,11 +1507,9 @@ chapter5_server <- function(id){
                 rv$bootstrap_p
             )
 
-
             df <- data.frame(
                 p = rv$bootstrap_p
             )
-
 
             p <- ggplot(
                 df,
@@ -1620,17 +1536,11 @@ chapter5_server <- function(id){
                     y = "Frequency"
                 )
 
-
-            # -------------------------------------------------
-            # Confidence interval
-            # -------------------------------------------------
-
             if (
                 isTRUE(rv$ci_active)
             ) {
 
                 ci <- ci_inference()
-
 
                 p <- p +
 
@@ -1660,11 +1570,6 @@ chapter5_server <- function(id){
                         linewidth = 1.2
                     )
             }
-
-
-            # -------------------------------------------------
-            # Reveal true probability
-            # -------------------------------------------------
 
             if (
                 isTRUE(rv$reveal_true)
@@ -1709,10 +1614,8 @@ chapter5_server <- function(id){
                     )
             }
 
-
             p
         })
-
 
 
         # =====================================================
@@ -1725,7 +1628,6 @@ chapter5_server <- function(id){
                 input$topic == "Inference"
             )
 
-
             if (
                 is.null(rv$dice)
             ) {
@@ -1733,17 +1635,7 @@ chapter5_server <- function(id){
                 return(NULL)
             }
 
-
-            # -------------------------------------------------
-            # Basic information
-            # -------------------------------------------------
-
             result_items <- list()
-
-
-            # -------------------------------------------------
-            # Estimate
-            # -------------------------------------------------
 
             if (
                 !is.null(rv$p_hat)
@@ -1778,11 +1670,6 @@ chapter5_server <- function(id){
                 )
             }
 
-
-            # -------------------------------------------------
-            # Simulation standard error
-            # -------------------------------------------------
-
             if (
                 !is.null(rv$se)
             ) {
@@ -1808,17 +1695,11 @@ chapter5_server <- function(id){
                 )
             }
 
-
-            # -------------------------------------------------
-            # Confidence interval
-            # -------------------------------------------------
-
             if (
                 isTRUE(rv$ci_active)
             ) {
 
                 ci <- ci_inference()
-
 
                 result_items <- append(
 
@@ -1855,11 +1736,6 @@ chapter5_server <- function(id){
                 )
             }
 
-
-            # -------------------------------------------------
-            # True probability
-            # -------------------------------------------------
-
             if (
                 isTRUE(rv$reveal_true)
             ) {
@@ -1885,7 +1761,6 @@ chapter5_server <- function(id){
                 )
             }
 
-
             card(
 
                 card_header(
@@ -1897,34 +1772,48 @@ chapter5_server <- function(id){
         })
 
 
-
         # =====================================================
-        # Regression
+        # Regression data
         # =====================================================
 
         reg_data <- reactive({
 
-            seasons <- unique(
-                pws::PL_points$season
+            req(
+                input$start_season,
+                input$end_season
             )
 
+            req(
+                input$start_season %in% seasons,
+                input$end_season %in% seasons
+            )
 
-            end_index <- match(
-
-                input$end_season,
-
+            start_index <- match(
+                input$start_season,
                 seasons
             )
 
+            end_index <- match(
+                input$end_season,
+                seasons
+            )
+
+            req(
+                start_index <= end_index
+            )
 
             pws::PL_points[
-
                 pws::PL_points$season %in%
-                    seasons[1:end_index],
-
+                    seasons[start_index:end_index],
+                ,
+                drop = FALSE
             ]
         })
 
+
+        # =====================================================
+        # Regression model
+        # =====================================================
 
         reg_fit <- reactive({
 
@@ -1936,6 +1825,10 @@ chapter5_server <- function(id){
             )
         })
 
+
+        # =====================================================
+        # Prediction
+        # =====================================================
 
         prediction <- reactive({
 
@@ -1956,12 +1849,15 @@ chapter5_server <- function(id){
         })
 
 
+        # =====================================================
+        # Regression prediction grid
+        # =====================================================
+
         plot_predictions <- reactive({
 
             fit <- reg_fit()
 
             df <- reg_data()
-
 
             grid <- data.frame(
 
@@ -1981,7 +1877,6 @@ chapter5_server <- function(id){
                 )
             )
 
-
             preds <- predict(
 
                 fit,
@@ -1993,13 +1888,16 @@ chapter5_server <- function(id){
                 level = input$conf_reg
             )
 
-
             cbind(
                 grid,
                 preds
             )
         })
 
+
+        # =====================================================
+        # Regression plot
+        # =====================================================
 
         output$reg_plot <- renderPlot({
 
@@ -2008,7 +1906,6 @@ chapter5_server <- function(id){
             plot_df <- plot_predictions()
 
             pr <- prediction()
-
 
             p <- ggplot(
 
@@ -2045,7 +1942,6 @@ chapter5_server <- function(id){
                     inherit.aes = FALSE
                 )
 
-
             if (
                 isTRUE(input$show_diagonal)
             ) {
@@ -2065,7 +1961,6 @@ chapter5_server <- function(id){
                         linewidth = 0.9
                     )
             }
-
 
             p <- p +
 
@@ -2138,9 +2033,13 @@ chapter5_server <- function(id){
                     y = "Points (Half 2)"
                 )
 
-
             p
         })
+
+
+        # =====================================================
+        # Regression summary
+        # =====================================================
 
 
         output$regression_results <- renderUI({
@@ -2149,88 +2048,65 @@ chapter5_server <- function(id){
 
             pr <- prediction()
 
-
             card(
 
+                style = "
+        background-color: #F5F7FB;
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    ",
+
                 card_header(
-                    "Regression Summary"
+                    "Regression Summary",
+                    style = "
+            background-color: #EEF2F8;
+            border-bottom: none;
+            font-weight: 600;
+        "
                 ),
 
                 p(
-
-                    strong(
-                        "Observations: "
-                    ),
-
-                    nrow(
-                        reg_data()
-                    )
+                    strong("Seasons: "),
+                    input$start_season,
+                    " to ",
+                    input$end_season,
+                    ",    ",
+                    strong("Observations: "),
+                    nrow(reg_data())
                 ),
 
                 p(
-
-                    strong(
-                        "Slope: "
-                    ),
-
-                    round(
-                        coef(fit)[2],
-                        3
-                    )
+                    strong("Intercept: "),
+                    round(coef(fit)[1], 1),
+                    ",    ",
+                    strong("Slope: "),
+                    round(coef(fit)[2], 3)
                 ),
 
                 p(
-
-                    strong(
-                        "Intercept: "
-                    ),
-
-                    round(
-                        coef(fit)[1],
-                        1
-                    )
+                    strong("Prediction for second half of season points: "),
+                    round(pr[1, "fit"], 1)
                 ),
 
                 p(
-
-                    strong(
-                        "Prediction: "
-                    ),
-
-                    round(
-                        pr[1, "fit"],
-                        1
-                    )
-                ),
-
-                p(
-
-                    strong(
-                        "Confidence Interval: "
-                    ),
-
+                    strong("Confidence Interval: "),
                     paste0(
-
                         "[",
-
-                        round(
-                            pr[1, "lwr"],
-                            1
-                        ),
-
+                        round(pr[1, "lwr"], 1),
                         ", ",
-
-                        round(
-                            pr[1, "upr"],
-                            1
-                        ),
-
+                        round(pr[1, "upr"], 1),
                         "]"
                     )
                 )
             )
         })
 
-    })
-}
 
+
+
+
+    })
+
+
+}
