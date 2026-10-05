@@ -38,6 +38,8 @@ chapter5_ui <- function(id){
 
     sidebar_controls <- sidebar(
 
+        width = 270,
+
         numericInput(
             ns("seed"),
             "Random seed",
@@ -1382,7 +1384,7 @@ chapter5_server <- function(id){
 
                 labs(
 
-                    x = "Face",
+                    x = "Score",
 
                     y = "Frequency"
                 )
