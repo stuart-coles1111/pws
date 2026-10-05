@@ -1,13 +1,10 @@
 # =========================================================
-
 # Chapter 5 — Inference & Regression
-
 # =========================================================
 
-# =========================================================
 
+# =========================================================
 # Colours
-
 # =========================================================
 
 pal_blue <- "#7B9ACC"
@@ -17,21 +14,19 @@ pal_blue_soft <- "#A9BFE3"
 
 
 # Button colours
-pal_roll    <- "#5B8DB8"   # soft blue
-pal_est     <- "#6FB286"   # soft green
-pal_sim     <- "#9B72B0"   # soft purple
-pal_ci      <- "#6F777D"   # soft charcoal
-pal_reveal  <- "#D99452"   # soft orange
-pal_restart <- "#C96B68"   # soft red
+pal_roll    <- "#5B8DB8"
+pal_est     <- "#6FB286"
+pal_sim     <- "#9B72B0"
+pal_ci      <- "#6F777D"
+pal_reveal  <- "#D99452"
+pal_restart <- "#C96B68"
+
 
 # =========================================================
-
 # UI
-
 # =========================================================
 
 chapter5_ui <- function(id){
-
 
     ns <- NS(id)
     useShinyjs()
@@ -150,25 +145,16 @@ chapter5_ui <- function(id){
 
             hr(),
 
-            selectInput(
-                ns("boot_method"),
-                "Simulation method:",
-                choices = c(
-                    "Process simulation" = "est_p",
-                    "Resampling" = "resample"
-                )
-            ),
-
             numericInput(
                 ns("B"),
-                "Number of simulated estimates of p",
+                "Number of bootstrap samples",
                 value = 5000,
                 min = 100
             ),
 
             actionButton(
                 ns("bootstrap"),
-                "Simulate Estimates",
+                "Bootstrap",
                 class = "btn-info",
                 style = paste0(
                     "background-color:", pal_sim,
@@ -302,7 +288,7 @@ chapter5_ui <- function(id){
                     na.rm = TRUE
                 ),
                 step = 1
-            ),
+            )
         )
     )
 
@@ -352,8 +338,8 @@ chapter5_ui <- function(id){
 
                 p(
                     "The underlying probability of rolling a six is not necessarily known.
-                We observe a sample of dice rolls and use those observations to estimate
-                the probability."
+                    We observe a sample of dice rolls and use those observations to estimate
+                    the probability."
                 ),
 
                 hr(),
@@ -362,50 +348,44 @@ chapter5_ui <- function(id){
 
                 p(
                     "You begin by choosing the number of dice rolls and deciding whether
-                the true probability of rolling a six should be chosen by you or
-                generated randomly. When you press ",
+                    the true probability of rolling a six should be chosen by you or
+                    generated randomly. When you press ",
                     strong("Roll Dice"),
                     ", the app generates one observed sample."
                 ),
 
                 p(
                     "The true probability is kept hidden when the random option is used.
-                This allows you to make an estimate without knowing the value that
-                generated the data."
+                    This allows you to make an estimate without knowing the value that
+                    generated the data."
                 ),
 
                 h5("Estimating the probability"),
 
                 p(
                     "After observing the dice, you can calculate the estimate of the
-                probability of rolling a six. The estimate is simply the number of
-                sixes divided by the total number of rolls."
+                    probability of rolling a six. The estimate is simply the number of
+                    sixes divided by the total number of rolls."
                 ),
 
-                h5("Simulating estimates"),
+                h5("Bootstrap"),
 
                 p(
-                    "Once the probability has been estimated, the app can generate many
-                new estimates using two different approaches:"
-                ),
-
-                tags$ul(
-
-                    tags$li(
-                        strong("Approximate process simulation: "),
-                        "new samples are generated using the probability estimated from the observed data."
-                    ),
-
-                    tags$li(
-                        strong("Resampling: "),
-                        "new samples are created by sampling with replacement from the observed data."
-                    )
+                    "Once the probability has been estimated, the app uses bootstrap
+                    resampling to investigate how much the estimate might vary from
+                    sample to sample."
                 ),
 
                 p(
-                    "The resulting estimates are displayed as a distribution. This gives
-                a visual way to investigate how much estimates vary from one sample
-                to another."
+                    "A bootstrap sample is created by sampling with replacement from
+                    the observed dice rolls. The probability of rolling a six is then
+                    estimated for this new sample. Repeating this process many times
+                    produces a distribution of bootstrap estimates."
+                ),
+
+                p(
+                    "The resulting distribution gives a visual picture of the
+                    sampling variability of the estimated probability."
                 ),
 
                 hr(),
@@ -413,14 +393,15 @@ chapter5_ui <- function(id){
                 h5("Confidence intervals"),
 
                 p(
-                    "The simulated distribution can also be used to construct a confidence
-                interval for the probability estimated from the observed data."
+                    "The bootstrap distribution can also be used to construct a
+                    confidence interval for the probability estimated from the
+                    observed data."
                 ),
 
                 p(
                     "Changing the confidence level changes the width of the interval.
-                The simulation therefore provides an opportunity to explore the
-                relationship between confidence and uncertainty."
+                    The simulation therefore provides an opportunity to explore the
+                    relationship between confidence and uncertainty."
                 ),
 
                 hr(),
@@ -432,7 +413,7 @@ chapter5_ui <- function(id){
                     border-left:5px solid #7B9ACC;
                     padding:12px;
                     border-radius:8px;
-                ",
+                    ",
 
                     h5("Questions to investigate"),
 
@@ -443,15 +424,15 @@ chapter5_ui <- function(id){
                         ),
 
                         tags$li(
-                            "What happens to the distribution of estimates when the number of observations is increased?"
+                            "What happens to the distribution of bootstrap estimates when the number of observations is increased?"
                         ),
 
                         tags$li(
-                            "How do the two methods of generating new estimates differ?"
+                            "What happens to the bootstrap standard error when the number of bootstrap samples is increased?"
                         ),
 
                         tags$li(
-                            "How does the standard error change as the number of simulated estimates increases?"
+                            "What does the bootstrap distribution tell us about the uncertainty in the estimated probability?"
                         ),
 
                         tags$li(
@@ -500,8 +481,8 @@ chapter5_ui <- function(id){
 
                 p(
                     "The analysis examines the relationship between the number of points
-                a team has accumulated in the first half of a season and the number
-                of points accumulated in the second half."
+                    a team has accumulated in the first half of a season and the number
+                    of points accumulated in the second half."
                 ),
 
                 hr(),
@@ -510,48 +491,48 @@ chapter5_ui <- function(id){
 
                 p(
                     "You can choose the first and final seasons included in the analysis.
-                The final season is automatically restricted to be the same as or
-                later than the first season."
+                    The final season is automatically restricted to be the same as or
+                    later than the first season."
                 ),
 
                 p(
                     "This allows you to investigate how the fitted relationship changes
-                when different periods of Premier League history are considered."
+                    when different periods of Premier League history are considered."
                 ),
 
                 h5("Fitting a regression model"),
 
                 p(
                     "A linear regression model is fitted to the selected seasons.
-                The model describes the relationship between points in the first
-                half and points in the second half."
+                    The model describes the relationship between points in the first
+                    half and points in the second half."
                 ),
 
                 h5("Predictions"),
 
                 p(
                     "The prediction tool allows you to choose a particular number of
-                first-half points and obtain the corresponding predicted number
-                of second-half points."
+                    first-half points and obtain the corresponding predicted number
+                    of second-half points."
                 ),
 
                 p(
                     "The prediction is shown graphically on the scatter plot, together
-                with a confidence interval for the mean response at the selected
-                prediction point."
+                    with a confidence interval for the mean response at the selected
+                    prediction point."
                 ),
 
                 h5("Confidence bands"),
 
                 p(
                     "The fitted regression line is surrounded by a confidence band.
-                The width of this band reflects uncertainty in the estimated
-                mean relationship."
+                    The width of this band reflects uncertainty in the estimated
+                    mean relationship."
                 ),
 
                 p(
                     "You can change the confidence level and observe how this affects
-                the band. You can also display the diagonal line ",
+                    the band. You can also display the diagonal line ",
                     tags$em("y = x"),
                     " as a reference for comparing first-half and second-half points."
                 ),
@@ -565,7 +546,7 @@ chapter5_ui <- function(id){
                     border-left:5px solid #7B9ACC;
                     padding:12px;
                     border-radius:8px;
-                ",
+                    ",
 
                     h5("Questions to investigate"),
 
@@ -621,7 +602,7 @@ chapter5_ui <- function(id){
                 padding:15px;
                 border-radius:10px;
                 font-size:15px;
-            ",
+                ",
 
                 textOutput(
                     ns("generated_code")
@@ -665,7 +646,7 @@ chapter5_ui <- function(id){
 
                     card(
                         card_header(
-                            "Simulated estimates of p"
+                            "Bootstrap estimates of p"
                         ),
 
                         plotOutput(
@@ -732,18 +713,14 @@ chapter5_ui <- function(id){
 
         activity = activity_panel
     )
-
-
 }
 
+
 # =========================================================
-
 # SERVER
-
 # =========================================================
 
 chapter5_server <- function(id){
-
 
     moduleServer(id, function(input, output, session){
 
@@ -1066,7 +1043,7 @@ chapter5_server <- function(id){
 
 
         # =====================================================
-        # Simulate Estimates
+        # Bootstrap
         # =====================================================
 
         observeEvent(input$bootstrap, {
@@ -1084,47 +1061,13 @@ chapter5_server <- function(id){
 
                 input$B,
 
-                {
-
-                    if (
-                        input$boot_method == "est_p"
-                    ) {
-
-                        d <- sample(
-
-                            1:6,
-
-                            size = n,
-
-                            replace = TRUE,
-
-                            prob = c(
-
-                                rep(
-                                    (1 - rv$p_hat) / 5,
-                                    5
-                                ),
-
-                                rv$p_hat
-                            )
-                        )
-
-                    } else {
-
-                        d <- sample(
-
-                            rv$dice,
-
-                            size = n,
-
-                            replace = TRUE
-                        )
-                    }
-
-                    mean(
-                        d == 6
-                    )
-                }
+                mean(
+                    sample(
+                        rv$dice,
+                        size = n,
+                        replace = TRUE
+                    ) == 6
+                )
             )
 
             rv$se <- sd(
@@ -1136,26 +1079,7 @@ chapter5_server <- function(id){
 
 
         # =====================================================
-        # Changing simulation method
-        # =====================================================
-
-        observeEvent(input$boot_method, {
-
-            req(
-                rv$dice,
-                rv$p_hat
-            )
-
-            rv$bootstrap_p <- NULL
-
-            rv$se <- NULL
-
-            rv$ci_active <- FALSE
-        })
-
-
-        # =====================================================
-        # Changing number of simulations
+        # Changing number of bootstrap samples
         # =====================================================
 
         observeEvent(input$B, {
@@ -1272,66 +1196,34 @@ chapter5_server <- function(id){
                     )
                 }
 
-                if (
-                    input$boot_method == "est_p"
-                ) {
+                bootstrap_code <- paste0(
 
-                    bootstrap_code <- paste0(
+                    "# Bootstrap resampling\n\n",
 
-                        "# Approximate process simulation\n\n",
+                    "bootstrap_p <- replicate(\n",
 
-                        "p_hat <- mean(dice == 6)\n\n",
+                    "    ", input$B, ",\n",
 
-                        "bootstrap_p <- replicate(\n",
+                    "    mean(\n",
 
-                        "    ", input$B, ",\n",
+                    "        sample(\n",
 
-                        "    {\n",
+                    "            dice,\n",
 
-                        "        d <- sample(\n",
+                    "            size = length(dice),\n",
 
-                        "            1:6,\n",
+                    "            replace = TRUE\n",
 
-                        "            size = length(dice),\n",
+                    "        ) == 6\n",
 
-                        "            replace = TRUE,\n",
+                    "    )\n",
 
-                        "            prob = c(\n",
-
-                        "                rep((1 - p_hat)/5, 5),\n",
-
-                        "                p_hat\n",
-
-                        "            )\n",
-
-                        "        )\n",
-
-                        "        mean(d == 6)\n",
-
-                        "    }\n",
-
-                        ")"
-                    )
-
-                } else {
-
-                    bootstrap_code <- paste0(
-
-                        "# Resampling\n\n",
-
-                        "bootstrap_p <- replicate(\n",
-
-                        "    ", input$B, ",\n",
-
-                        "    mean(sample(dice, replace = TRUE) == 6)\n",
-
-                        ")"
-                    )
-                }
+                    ")"
+                )
 
                 code <- paste0(
 
-                    "## One-dice inference investigation\n\n",
+                    "## One-dice bootstrap investigation\n\n",
 
                     "set.seed(", input$seed, ")\n\n",
 
@@ -1498,7 +1390,7 @@ chapter5_server <- function(id){
 
 
         # =====================================================
-        # Simulated estimates plot
+        # Bootstrap estimates plot
         # =====================================================
 
         output$bootstrap_plot <- renderPlot({
@@ -1683,7 +1575,7 @@ chapter5_server <- function(id){
                         p(
 
                             strong(
-                                "Simulation SE: "
+                                "Bootstrap SE: "
                             ),
 
                             round(
@@ -2041,7 +1933,6 @@ chapter5_server <- function(id){
         # Regression summary
         # =====================================================
 
-
         output$regression_results <- renderUI({
 
             fit <- reg_fit()
@@ -2051,19 +1942,19 @@ chapter5_server <- function(id){
             card(
 
                 style = "
-        background-color: #F5F7FB;
-        border: none;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    ",
+                background-color: #F5F7FB;
+                border: none;
+                border-radius: 12px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                ",
 
                 card_header(
                     "Regression Summary",
                     style = "
-            background-color: #EEF2F8;
-            border-bottom: none;
-            font-weight: 600;
-        "
+                    background-color: #EEF2F8;
+                    border-bottom: none;
+                    font-weight: 600;
+                    "
                 ),
 
                 p(
@@ -2102,11 +1993,5 @@ chapter5_server <- function(id){
             )
         })
 
-
-
-
-
     })
-
-
 }
