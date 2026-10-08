@@ -61,7 +61,7 @@ chapter5_ui <- function(id){
 
 
         # =================================================
-        # Inference controls
+        # One-Dice activities
         # =================================================
 
         conditionalPanel(
@@ -74,142 +74,215 @@ chapter5_ui <- function(id){
 
             h5("The One-Dice game"),
 
-            numericInput(
-                ns("n"),
-                "Number of dice rolls",
-                value = 1000,
-                min = 10
+            radioButtons(
+                ns("dice_activity"),
+                "Choose activity:",
+                choices = c(
+                    "Inference from observed data" = "inference",
+                    "Sampling distribution of the estimator" = "sampling"
+                ),
+                selected = "inference"
             ),
 
-            radioButtons(
-                ns("prob_mode"),
-                "Probability of rolling a six:",
-                choices = c(
-                    "Chosen manually" = "fixed",
-                    "Randomised" = "random"
-                ),
-                selected = "fixed"
-            ),
+
+            # =================================================
+            # INFERENCE ACTIVITY
+            # =================================================
 
             conditionalPanel(
                 condition = sprintf(
-                    "input['%s']=='fixed'",
-                    ns("prob_mode")
+                    "input['%s']=='inference'",
+                    ns("dice_activity")
+                ),
+
+                numericInput(
+                    ns("n"),
+                    "Number of dice rolls",
+                    value = 1000,
+                    min = 10
+                ),
+
+                radioButtons(
+                    ns("prob_mode"),
+                    "Probability of rolling a six:",
+                    choices = c(
+                        "Chosen manually" = "fixed",
+                        "Randomised" = "random"
+                    ),
+                    selected = "fixed"
+                ),
+
+                conditionalPanel(
+                    condition = sprintf(
+                        "input['%s']=='fixed'",
+                        ns("prob_mode")
+                    ),
+
+                    sliderInput(
+                        ns("p_true"),
+                        "True probability, θ, of rolling a 6",
+                        min = 0.05,
+                        max = 0.50,
+                        value = 0.167,
+                        step = 0.01
+                    )
+                ),
+
+                conditionalPanel(
+                    condition = sprintf(
+                        "input['%s']=='random'",
+                        ns("prob_mode")
+                    ),
+
+                    p(
+                        style = "
+                        font-size: 0.9em;
+                        color: #777;
+                        margin-top: 5px;
+                    ",
+                        "The true probability of rolling a six will be chosen randomly."
+                    )
+                ),
+
+                actionButton(
+                    ns("roll"),
+                    "Roll Dice",
+                    class = "btn-primary",
+                    style = paste0(
+                        "background-color:", pal_roll,
+                        "; border-color:", pal_roll, ";"
+                    )
+                ),
+
+                hr(),
+
+                actionButton(
+                    ns("estimate"),
+                    "Estimate probability",
+                    class = "btn-success",
+                    style = paste0(
+                        "background-color:", pal_est,
+                        "; border-color:", pal_est, ";"
+                    )
+                ),
+
+                hr(),
+
+                numericInput(
+                    ns("B"),
+                    "Number of bootstrap samples",
+                    value = 5000,
+                    min = 100
+                ),
+
+                actionButton(
+                    ns("bootstrap"),
+                    "Bootstrap",
+                    class = "btn-info",
+                    style = paste0(
+                        "background-color:", pal_sim,
+                        "; border-color:", pal_sim, ";"
+                    )
+                ),
+
+                hr(),
+
+                sliderInput(
+                    ns("conf"),
+                    "Confidence level",
+                    min = 0.80,
+                    max = 0.999,
+                    value = 0.95,
+                    step = 0.001
+                ),
+
+                br(),
+
+                actionButton(
+                    ns("ci"),
+                    "Confidence Interval for θ",
+                    class = "btn-secondary",
+                    style = paste0(
+                        "background-color:", pal_ci,
+                        "; border-color:", pal_ci, ";"
+                    )
+                ),
+
+                br(),
+                br(),
+
+                actionButton(
+                    ns("reveal"),
+                    "Reveal true probability, θ",
+                    class = "btn-warning",
+                    style = paste0(
+                        "background-color:", pal_reveal,
+                        "; border-color:", pal_reveal,
+                        "; color:white;"
+                    )
+                ),
+
+                hr(),
+
+                actionButton(
+                    ns("restart"),
+                    "Restart Experiment",
+                    class = "btn-danger",
+                    style = paste0(
+                        "background-color:", pal_restart,
+                        "; border-color:", pal_restart, ";"
+                    )
+                )
+            ),
+
+
+            # =================================================
+            # SAMPLING DISTRIBUTION ACTIVITY
+            # =================================================
+
+            conditionalPanel(
+                condition = sprintf(
+                    "input['%s']=='sampling'",
+                    ns("dice_activity")
                 ),
 
                 sliderInput(
-                    ns("p_true"),
-                    "True probability, p, of rolling a 6",
+                    ns("sampling_p"),
+                    "True probability, θ, of rolling a 6",
                     min = 0.05,
                     max = 0.50,
                     value = 0.167,
-                    step = 0.01
-                )
-            ),
-
-            conditionalPanel(
-                condition = sprintf(
-                    "input['%s']=='random'",
-                    ns("prob_mode")
+                    step = 0.001
                 ),
 
-                p(
-                    style = "
-                    font-size: 0.9em;
-                    color: #777;
-                    margin-top: 5px;
-                ",
-                    "The true probability of rolling a 6 will be chosen randomly."
-                )
-            ),
+                sliderInput(
+                    ns("sampling_n"),
+                    "Sample size, n",
+                    min = 10,
+                    max = 1000,
+                    value = 100,
+                    step = 10,
+                    sep = ","
+                ),
 
-            actionButton(
-                ns("roll"),
-                "Roll Dice",
-                class = "btn-primary",
-                style = paste0(
-                    "background-color:", pal_roll,
-                    "; border-color:", pal_roll, ";"
-                )
-            ),
+                sliderInput(
+                    ns("sampling_M"),
+                    "Number of simulated samples",
+                    min = 100,
+                    max = 20000,
+                    value = 5000,
+                    step = 100,
+                    sep = ","
+                ),
 
-            hr(),
-
-            actionButton(
-                ns("estimate"),
-                "Estimate probability",
-                class = "btn-success",
-                style = paste0(
-                    "background-color:", pal_est,
-                    "; border-color:", pal_est, ";"
-                )
-            ),
-
-            hr(),
-
-            numericInput(
-                ns("B"),
-                "Number of bootstrap samples",
-                value = 5000,
-                min = 100
-            ),
-
-            actionButton(
-                ns("bootstrap"),
-                "Bootstrap",
-                class = "btn-info",
-                style = paste0(
-                    "background-color:", pal_sim,
-                    "; border-color:", pal_sim, ";"
-                )
-            ),
-
-            hr(),
-
-            sliderInput(
-                ns("conf"),
-                "Confidence level",
-                min = 0.80,
-                max = 0.999,
-                value = 0.95,
-                step = 0.001
-            ),
-
-            br(),
-
-            actionButton(
-                ns("ci"),
-                "Confidence Interval for p",
-                class = "btn-secondary",
-                style = paste0(
-                    "background-color:", pal_ci,
-                    "; border-color:", pal_ci, ";"
-                )
-            ),
-
-            br(),
-            br(),
-
-            actionButton(
-                ns("reveal"),
-                "Reveal true probability, p",
-                class = "btn-warning",
-                style = paste0(
-                    "background-color:", pal_reveal,
-                    "; border-color:", pal_reveal,
-                    "; color:white;"
-                )
-            ),
-
-            hr(),
-
-            actionButton(
-                ns("restart"),
-                "Restart Experiment",
-                class = "btn-danger",
-                style = paste0(
-                    "background-color:", pal_restart,
-                    "; border-color:", pal_restart, ";"
+                actionButton(
+                    ns("sampling_simulate"),
+                    "Simulate sampling distribution",
+                    class = "btn-info",
+                    style = paste0(
+                        "background-color:", pal_sim,
+                        "; border-color:", pal_sim, ";"
+                    )
                 )
             )
         ),
@@ -370,6 +443,22 @@ chapter5_ui <- function(id){
                     sixes divided by the total number of rolls."
                 ),
 
+                h5("Sampling distribution of the estimator"),
+
+                p(
+                    "The sampling distribution activity illustrates what happens when
+                    we repeatedly collect samples from a population for which the true
+                    probability is known. Each simulated sample gives a new estimate of
+                    the probability."
+                ),
+
+                p(
+                    "By examining many such estimates, you can investigate two important
+                    properties of the estimator: whether its distribution is centred on
+                    the true probability, and whether its distribution is approximately
+                    Normal."
+                ),
+
                 h5("Bootstrap"),
 
                 p(
@@ -426,11 +515,19 @@ chapter5_ui <- function(id){
                         ),
 
                         tags$li(
-                            "What happens to the distribution of bootstrap estimates when the number of observations is increased?"
+                            "What happens to the distribution of the estimator when the number of observations is increased?"
                         ),
 
                         tags$li(
-                            "What happens to the bootstrap standard error when the number of bootstrap samples is increased?"
+                            "Is the mean of the simulated estimates close to the true probability?"
+                        ),
+
+                        tags$li(
+                            "How does the shape of the sampling distribution change when the sample size is increased?"
+                        ),
+
+                        tags$li(
+                            "What happens when the number of simulated samples is increased?"
                         ),
 
                         tags$li(
@@ -620,10 +717,16 @@ chapter5_ui <- function(id){
 
     results_panel <- div(
 
+        # =================================================
+        # OBSERVED-DATA INFERENCE
+        # =================================================
+
         conditionalPanel(
             condition = sprintf(
-                "input['%s']=='Inference'",
-                ns("topic")
+                "input['%s']=='Inference' &&
+                 input['%s']=='inference'",
+                ns("topic"),
+                ns("dice_activity")
             ),
 
             fluidRow(
@@ -648,7 +751,7 @@ chapter5_ui <- function(id){
 
                     card(
                         card_header(
-                            "Bootstrap estimates of p"
+                            "Bootstrap estimates of θ"
                         ),
 
                         plotOutput(
@@ -665,6 +768,43 @@ chapter5_ui <- function(id){
                 ns("inference_results")
             )
         ),
+
+
+        # =================================================
+        # SAMPLING DISTRIBUTION
+        # =================================================
+
+        conditionalPanel(
+            condition = sprintf(
+                "input['%s']=='Inference' &&
+                 input['%s']=='sampling'",
+                ns("topic"),
+                ns("dice_activity")
+            ),
+
+            card(
+
+                card_header(
+                    "Sampling distribution of the estimator"
+                ),
+
+                plotOutput(
+                    ns("sampling_plot"),
+                    height = 500
+                )
+            ),
+
+            br(),
+
+            uiOutput(
+                ns("sampling_results")
+            )
+        ),
+
+
+        # =================================================
+        # REGRESSION
+        # =================================================
 
         conditionalPanel(
             condition = sprintf(
@@ -725,6 +865,20 @@ chapter5_ui <- function(id){
 chapter5_server <- function(id){
 
     moduleServer(id, function(input, output, session){
+
+        # =====================================================
+        # Formatting helper
+        # =====================================================
+
+        fmt3 <- function(x) {
+
+            format(
+                x,
+                digits = 3,
+                trim = TRUE,
+                scientific = FALSE
+            )
+        }
 
 
         # =====================================================
@@ -796,6 +950,10 @@ chapter5_server <- function(id){
 
         rv <- reactiveValues(
 
+            # -----------------------------------------------
+            # Original inference experiment
+            # -----------------------------------------------
+
             dice = NULL,
 
             p_true_used = NULL,
@@ -812,7 +970,28 @@ chapter5_server <- function(id){
 
             ci_active = FALSE,
 
-            reveal_true = FALSE
+            reveal_true = FALSE,
+
+
+            # -----------------------------------------------
+            # Sampling distribution activity
+            # -----------------------------------------------
+
+            sampling_p = NULL,
+
+            sampling_n = NULL,
+
+            sampling_M = NULL,
+
+            sampling_estimates = NULL,
+
+            # Seed that actually generated the currently
+            # displayed sampling distribution.
+            #
+            # This is kept separately from input$seed because
+            # input$seed is changed after each simulation.
+
+            sampling_seed_used = NULL
         )
 
 
@@ -823,7 +1002,8 @@ chapter5_server <- function(id){
         observe({
 
             req(
-                input$topic == "Inference"
+                input$topic == "Inference",
+                input$dice_activity == "inference"
             )
 
             if (
@@ -1140,12 +1320,189 @@ chapter5_server <- function(id){
 
 
         # =====================================================
+        # Sampling distribution simulation
+        # =====================================================
+
+        observeEvent(input$sampling_simulate, {
+
+            req(
+                input$sampling_p,
+                input$sampling_n,
+                input$sampling_M,
+                input$seed
+            )
+
+            # -------------------------------------------------
+            # Store the seed that will actually generate this
+            # simulation.
+            # -------------------------------------------------
+
+            simulation_seed <- input$seed
+
+            set.seed(
+                simulation_seed
+            )
+
+            rv$sampling_p <- input$sampling_p
+
+            rv$sampling_n <- as.numeric(
+                input$sampling_n
+            )
+
+            rv$sampling_M <- as.numeric(
+                input$sampling_M
+            )
+
+            rv$sampling_seed_used <- simulation_seed
+
+
+            # -------------------------------------------------
+            # Simulate the sampling distribution.
+            #
+            # Each simulated sample contains n Bernoulli
+            # observations indicating whether a six was rolled.
+            #
+            # The estimator is the proportion of sixes:
+            #
+            #       p_hat = X / n
+            #
+            # This is equivalent to sampling from a binomial
+            # distribution and dividing by n.
+            # -------------------------------------------------
+
+            rv$sampling_estimates <- replicate(
+
+                rv$sampling_M,
+
+                mean(
+                    rbinom(
+                        rv$sampling_n,
+                        size = 1,
+                        prob = rv$sampling_p
+                    )
+                )
+            )
+
+
+            # -------------------------------------------------
+            # Generate a different seed for the next
+            # simulation.
+            #
+            # The displayed seed therefore changes every time
+            # the simulation button is pressed.
+            # -------------------------------------------------
+
+            possible_seeds <- setdiff(
+                1:999,
+                simulation_seed
+            )
+
+            next_seed <- sample(
+                possible_seeds,
+                1
+            )
+
+            updateNumericInput(
+                session,
+                "seed",
+                value = next_seed
+            )
+        })
+
+
+        # =====================================================
         # Generated R code
         # =====================================================
 
         output$generated_code <- renderText({
 
+            # =================================================
+            # SAMPLING DISTRIBUTION ACTIVITY
+            # =================================================
+
             if (
+                input$topic == "Inference" &&
+                input$dice_activity == "sampling"
+            ) {
+
+                # -------------------------------------------------
+                # Use the seed that actually generated the currently
+                # displayed simulation.
+                #
+                # If no simulation has yet been run, use the seed
+                # currently shown in the input box.
+                # -------------------------------------------------
+
+                if (
+                    !is.null(rv$sampling_seed_used)
+                ) {
+
+                    seed_used <- rv$sampling_seed_used
+
+                } else {
+
+                    seed_used <- input$seed
+                }
+
+                code <- paste0(
+
+                    "## Sampling distribution of the estimator\n\n",
+
+                    "set.seed(",
+                    seed_used,
+                    ")\n\n",
+
+                    "# True probability of rolling a six\n",
+
+                    "p_true <- ",
+                    input$sampling_p,
+                    "\n\n",
+
+                    "# Sample size\n",
+
+                    "n <- ",
+                    input$sampling_n,
+                    "\n\n",
+
+                    "# Number of simulated samples\n",
+
+                    "M <- ",
+                    input$sampling_M,
+                    "\n\n",
+
+                    "# Simulate the sampling distribution\n",
+
+                    "sampling_estimates <- replicate(\n",
+
+                    "    M,\n",
+
+                    "    mean(\n",
+
+                    "        rbinom(\n",
+
+                    "            n,\n",
+
+                    "            size = 1,\n",
+
+                    "            prob = p_true\n",
+
+                    "        )\n",
+
+                    "    )\n",
+
+                    ")\n\n",
+
+                    "# Mean of the simulated estimates\n",
+
+                    "mean(sampling_estimates)"
+                )
+
+
+                # =================================================
+                # ORIGINAL INFERENCE ACTIVITY
+                # =================================================
+
+            } else if (
                 input$topic == "Inference"
             ) {
 
@@ -1194,7 +1551,9 @@ chapter5_server <- function(id){
 
                         "# Choose the true probability\n",
 
-                        "p_true <- ", input$p_true, "\n\n"
+                        "p_true <- ",
+                        input$p_true,
+                        "\n\n"
                     )
                 }
 
@@ -1227,7 +1586,9 @@ chapter5_server <- function(id){
 
                     "## One-dice bootstrap investigation\n\n",
 
-                    "set.seed(", input$seed, ")\n\n",
+                    "set.seed(",
+                    input$seed,
+                    ")\n\n",
 
                     probability_code,
 
@@ -1237,7 +1598,9 @@ chapter5_server <- function(id){
 
                     "    1:6,\n",
 
-                    "    size = ", n_used, ",\n",
+                    "    size = ",
+                    n_used,
+                    ",\n",
 
                     "    replace = TRUE,\n",
 
@@ -1269,7 +1632,9 @@ chapter5_server <- function(id){
 
                     "# Confidence interval\n",
 
-                    "z <- qnorm(1 - (1 - ", input$conf, ")/2)\n\n",
+                    "z <- qnorm(1 - (1 - ",
+                    input$conf,
+                    ")/2)\n\n",
 
                     "c(\n",
 
@@ -1279,8 +1644,14 @@ chapter5_server <- function(id){
 
                     ")"
                 )
+            }
 
-            } else {
+
+            # =================================================
+            # REGRESSION
+            # =================================================
+
+            else {
 
                 code <- paste0(
 
@@ -1292,11 +1663,13 @@ chapter5_server <- function(id){
 
                     "    pws::PL_points,\n",
 
-                    "    season >= '", input$start_season, "' &\n",
+                    "    season >= '",
+                    input$start_season,
+                    "' &\n",
 
-                    "    season <= '", input$end_season, "'\n",
-
-                    ")\n\n",
+                    "    season <= '",
+                    input$end_season,
+                    "'\n\n",
 
                     "# Fit regression model\n\n",
 
@@ -1316,13 +1689,17 @@ chapter5_server <- function(id){
 
                     "    newdata = data.frame(\n",
 
-                    "        points_half1 = ", input$x_split, "\n",
+                    "        points_half1 = ",
+                    input$x_split,
+                    "\n",
 
                     "    ),\n",
 
                     "    interval = 'confidence',\n",
 
-                    "    level = ", input$conf_reg, "\n",
+                    "    level = ",
+                    input$conf_reg,
+                    "\n",
 
                     ")"
                 )
@@ -1424,9 +1801,7 @@ chapter5_server <- function(id){
                 ) +
 
                 labs(
-
-                    x = expression(hat(p)),
-
+                    x = expression(hat(theta)),
                     y = "Frequency"
                 )
 
@@ -1491,7 +1866,7 @@ chapter5_server <- function(id){
                         y = Inf,
 
                         label = paste0(
-                            "True p = ",
+                            "True θ = ",
                             round(
                                 rv$p_true_used,
                                 3
@@ -1519,7 +1894,8 @@ chapter5_server <- function(id){
         output$inference_results <- renderUI({
 
             req(
-                input$topic == "Inference"
+                input$topic == "Inference",
+                input$dice_activity == "inference"
             )
 
             if (
@@ -1544,7 +1920,7 @@ chapter5_server <- function(id){
                         p(
 
                             strong(
-                                "Estimate p: "
+                                "Estimate of θ: "
                             ),
 
                             rv$x,
@@ -1555,9 +1931,8 @@ chapter5_server <- function(id){
 
                             " = ",
 
-                            round(
-                                rv$p_hat,
-                                4
+                            fmt3(
+                                rv$p_hat
                             )
                         )
                     )
@@ -1580,9 +1955,8 @@ chapter5_server <- function(id){
                                 "Bootstrap SE: "
                             ),
 
-                            round(
-                                rv$se,
-                                4
+                            fmt3(
+                                rv$se
                             )
                         )
                     )
@@ -1604,23 +1978,24 @@ chapter5_server <- function(id){
                         p(
 
                             strong(
-                                "Confidence Interval: "
+                                paste0(
+                                    fmt3(input$conf * 100),
+                                    "% confidence interval: "
+                                )
                             ),
 
                             paste0(
 
                                 "[",
 
-                                round(
-                                    ci[1],
-                                    4
+                                fmt3(
+                                    ci[1]
                                 ),
 
                                 ", ",
 
-                                round(
-                                    ci[2],
-                                    4
+                                fmt3(
+                                    ci[2]
                                 ),
 
                                 "]"
@@ -1646,9 +2021,8 @@ chapter5_server <- function(id){
                                 "True probability: "
                             ),
 
-                            round(
-                                rv$p_true_used,
-                                4
+                            fmt3(
+                                rv$p_true_used
                             )
                         )
                     )
@@ -1662,6 +2036,366 @@ chapter5_server <- function(id){
                 ),
 
                 result_items
+            )
+        })
+
+        # =====================================================
+        # Sampling distribution plot
+        # =====================================================
+
+        output$sampling_plot <- renderPlot({
+
+            req(
+                rv$sampling_estimates,
+                rv$sampling_p,
+                rv$sampling_n
+            )
+
+            estimates <- rv$sampling_estimates
+
+            p_true <- rv$sampling_p
+
+            n <- rv$sampling_n
+
+            M <- length(
+                estimates
+            )
+
+
+            # -------------------------------------------------
+            # Mean of simulated estimates
+            # -------------------------------------------------
+
+            simulated_mean <- mean(
+                estimates
+            )
+
+
+            # -------------------------------------------------
+            # Theoretical standard deviation is used only to
+            # draw the Normal approximation.
+            #
+            # It is NOT reported to the user.
+            # -------------------------------------------------
+
+            theoretical_se <- sqrt(
+                p_true * (1 - p_true) / n
+            )
+
+
+            # -------------------------------------------------
+            # Create a discrete frequency distribution.
+            #
+            # p_hat can only take values:
+            #
+            # 0, 1/n, 2/n, ..., 1
+            #
+            # so an ordinary histogram can create misleading
+            # binning artefacts.
+            # -------------------------------------------------
+
+            plot_df <- as.data.frame(
+                table(
+                    estimates
+                ),
+                stringsAsFactors = FALSE
+            )
+
+            names(plot_df) <- c(
+                "p_hat",
+                "frequency"
+            )
+
+            plot_df$p_hat <- as.numeric(
+                as.character(
+                    plot_df$p_hat
+                )
+            )
+
+            plot_df$frequency <- as.numeric(
+                plot_df$frequency
+            )
+
+
+            # -------------------------------------------------
+            # Normal approximation
+            #
+            # Convert density to frequency scale.
+            #
+            # There are approximately n possible p_hat
+            # intervals per unit of p, so multiply the density
+            # by M/n to put the curve on the frequency scale.
+            # -------------------------------------------------
+
+            x_min <- max(
+                0,
+                min(
+                    estimates,
+                    p_true - 4 * theoretical_se
+                )
+            )
+
+            x_max <- min(
+                1,
+                max(
+                    estimates,
+                    p_true + 4 * theoretical_se
+                )
+            )
+
+            x_grid <- seq(
+                x_min,
+                x_max,
+                length.out = 500
+            )
+
+            normal_df <- data.frame(
+
+                x = x_grid,
+
+                y =
+                    dnorm(
+                        x_grid,
+                        mean = p_true,
+                        sd = theoretical_se
+                    ) *
+                    M / n
+            )
+
+
+            # -------------------------------------------------
+            # Set sensible annotation heights
+            # -------------------------------------------------
+
+            y_max <- max(
+                plot_df$frequency,
+                na.rm = TRUE
+            )
+
+
+            # -------------------------------------------------
+            # Plot
+            # -------------------------------------------------
+
+            ggplot() +
+
+                # ---------------------------------------------
+            # Discrete simulated distribution
+            # ---------------------------------------------
+
+            geom_col(
+
+                data = plot_df,
+
+                aes(
+                    x = p_hat,
+                    y = frequency
+                ),
+
+                width = 0.8 / n,
+
+                fill = pal_lav,
+
+                colour = "white",
+
+                linewidth = 0.3
+            ) +
+
+                # ---------------------------------------------
+            # Normal approximation
+            # ---------------------------------------------
+
+            geom_line(
+
+                data = normal_df,
+
+                aes(
+                    x = x,
+                    y = y
+                ),
+
+                colour = pal_blue,
+
+                linewidth = 1.3
+            ) +
+
+                # ---------------------------------------------
+            # True p
+            # ---------------------------------------------
+
+            geom_vline(
+
+                xintercept = p_true,
+
+                colour = pal_reveal,
+
+                linewidth = 1.2,
+
+                linetype = "dashed"
+            ) +
+
+                # ---------------------------------------------
+            # Simulated mean
+            # ---------------------------------------------
+
+            geom_vline(
+
+                xintercept = simulated_mean,
+
+                colour = pal_red,
+
+                linewidth = 1.2
+            ) +
+
+                # ---------------------------------------------
+            # True p label
+            # ---------------------------------------------
+
+            annotate(
+
+                "text",
+
+                x = p_true,
+
+                y = y_max * 0.98,
+
+                label = paste0(
+                    "True θ = ",
+                    round(
+                        p_true,
+                        3
+                    )
+                ),
+
+                colour = pal_reveal,
+
+                fontface = "bold",
+
+                hjust = -0.05,
+
+                vjust = 0
+            ) +
+
+                # ---------------------------------------------
+            # Mean label
+            # ---------------------------------------------
+
+            annotate(
+
+                "text",
+
+                x = simulated_mean,
+
+                y = y_max * 0.90,
+
+                label = paste0(
+                    "Mean = ",
+                    round(
+                        simulated_mean,
+                        3
+                    )
+                ),
+
+                colour = pal_red,
+
+                fontface = "bold",
+
+                hjust = -0.05,
+
+                vjust = 0
+            ) +
+
+                # ---------------------------------------------
+            # Theme
+            # ---------------------------------------------
+
+            theme_minimal(
+                base_size = 14
+            ) +
+
+                labs(
+
+                    title = expression(
+                        "Sampling distribution of " ~ hat(theta)
+                    ),
+
+                    subtitle = paste0(
+                        "n = ",
+                        n,
+                        ",  M = ",
+                        format(
+                            M,
+                            big.mark = ","
+                        )
+                    ),
+
+                    x = expression(hat(theta)),
+
+                    y = "Frequency"
+                )
+        })
+
+
+        # =====================================================
+        # Sampling distribution summary
+        # =====================================================
+
+        output$sampling_results <- renderUI({
+
+            req(
+                rv$sampling_estimates,
+                rv$sampling_p,
+                rv$sampling_n
+            )
+
+            estimates <- rv$sampling_estimates
+
+            p_true <- rv$sampling_p
+
+            n <- rv$sampling_n
+
+            simulated_mean <- mean(
+                estimates
+            )
+
+            mean_difference <-
+                simulated_mean - p_true
+
+
+            card(
+
+                style = "
+                background-color: #F5F7FB;
+                border: none;
+                border-radius: 12px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                ",
+
+                card_header(
+                    "Simulation summary"
+                ),
+
+                p(
+                    strong("True probability: "),
+                    fmt3(
+                        p_true
+                    )
+                ),
+
+                p(
+                    strong("Mean of simulated estimates: "),
+                    fmt3(
+                        simulated_mean
+                    )
+                ),
+
+                p(
+                    strong("Difference from true θ: "),
+                    fmt3(
+                        mean_difference
+                    )
+
+                )
             )
         })
 
@@ -1971,29 +2705,51 @@ chapter5_server <- function(id){
 
                 p(
                     strong("Intercept: "),
-                    round(coef(fit)[1], 1),
+                    fmt3(
+                        coef(fit)[1]
+                    ),
                     ",    ",
                     strong("Slope: "),
-                    round(coef(fit)[2], 3)
+                    fmt3(
+                        coef(fit)[2]
+                    )
                 ),
 
                 p(
-                    strong("Prediction for second half of season points: "),
-                    round(pr[1, "fit"], 1)
+                    strong(
+                        "Prediction for second half of season points: "
+                    ),
+                    fmt3(
+                        pr[1, "fit"]
+                    )
                 ),
 
                 p(
-                    strong("Confidence Interval: "),
+                    strong(
+                        paste0(
+                            fmt3(input$conf_reg * 100),
+                            "% confidence interval: "
+                        )
+                    ),
+
                     paste0(
+
                         "[",
-                        round(pr[1, "lwr"], 1),
+
+                        fmt3(
+                            pr[1, "lwr"]
+                        ),
+
                         ", ",
-                        round(pr[1, "upr"], 1),
+
+                        fmt3(
+                            pr[1, "upr"]
+                        ),
+
                         "]"
                     )
                 )
             )
         })
-
     })
 }
