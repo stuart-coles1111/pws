@@ -1,3 +1,4 @@
+
 # =========================================================
 # Chapter 6 UI
 # =========================================================
@@ -8,11 +9,9 @@ chapter6_ui <- function(id) {
 
     sidebar_controls <- sidebar(
 
-        h4("Statistics in Context"),
-
         selectInput(
             ns("demo"),
-            "Experiment",
+            "Experiment:",
             choices = c(
                 "Birthday Problem",
                 "Assessing the ITV jinx",
@@ -409,30 +408,14 @@ chapter6_ui <- function(id) {
                 h5("Confidence interval for the gradient"),
 
                 p(
-                    "The summary includes an approximate 95% confidence ",
-                    "interval for the selected gradient, calculated using ",
-                    "the normal approximation:"
-                ),
-
-                withMathJax(),
-
-                p(
-                    "$$\\hat{\\beta}_1 \\pm 1.96\\,SE(\\hat{\\beta}_1)$$"
-                ),
-
-                p(
-                    "The Normal approximation is generally more reliable ",
-                    "for reasonably large samples. As a rough guide, ",
-                    "30 or more observations is a useful rule of thumb, ",
-                    "although this does not guarantee accuracy. For smaller ",
-                    "samples, the approximation may be less reliable."
-                ),
+                    "The summary includes a conventional 95% confidence ",
+                    "interval for the selected gradient."),
 
                 p(
                     "This is the conventional interval for a regression ",
-                    "slope using the normal approximation. It does not ",
-                    "account for the fact that the regression was selected ",
-                    "because its gradient was the most extreme among m attempts."
+                    "slope. It does not account for the fact that the ",
+                    "regression was selected because its gradient was ",
+                    "the most extreme among m attempts."
                 ),
 
                 p(
@@ -460,8 +443,7 @@ chapter6_ui <- function(id) {
                     ),
                     tags$li(
                         "Press Summary to examine the selected gradient, its ",
-                        "approximate confidence interval and the results across ",
-                        "all regressions."
+                        "confidence interval and the results across all regressions."
                     ),
                     tags$li(
                         "Change the settings and press Analysis again."
@@ -484,8 +466,8 @@ chapter6_ui <- function(id) {
             p(
                 style = "color: #666;",
                 "This code reproduces the most recently completed analysis. ",
-                "For data dredging, it includes the normal-approximation ",
-                "confidence interval for the selected gradient."
+                "For data dredging, it includes the confidence interval ",
+                "for the selected gradient."
             ),
 
             tags$pre(
@@ -676,7 +658,13 @@ chapter6_server <- function(id) {
 
                 slopes[j] <- coefs[2, 1]
                 standard_errors[j] <- coefs[2, 2]
-                pvalues[j] <- coefs[2, 4]
+
+                # Two-sided P-value using the regression t-statistic.
+
+                pvalues[j] <- 2 * pt(
+                    -abs(slopes[j] / standard_errors[j]),
+                    df = n - 2
+                )
 
                 responses[[j]] <- y
             }
@@ -694,10 +682,15 @@ chapter6_server <- function(id) {
             selected_slope <- slopes[best]
             selected_se <- standard_errors[best]
 
-            # Approximate 95% CI using the normal approximation.
+            # Conventional 95% confidence interval.
+
+            t_critical <- qt(
+                0.975,
+                df = n - 2
+            )
 
             selected_ci <- selected_slope +
-                c(-1, 1) * 1.96 * selected_se
+                c(-1, 1) * t_critical * selected_se
 
             list(
                 type = "dredge",
@@ -1012,7 +1005,7 @@ chapter6_server <- function(id) {
                         "    coefs <- summary(fit)$coefficients\n",
                         "    slopes[j] <- coefs[2, 1]\n",
                         "    standard_errors[j] <- coefs[2, 2]\n",
-                        "    pvalues[j] <- coefs[2, 4]\n",
+                        "    pvalues[j] <- 2 * pt(-abs(slopes[j] / standard_errors[j]), df = n - 2)\n",
                         "    responses[[j]] <- y\n",
                         "}\n\n",
 
@@ -1025,9 +1018,9 @@ chapter6_server <- function(id) {
                         "selected_slope <- slopes[best]\n",
                         "selected_se <- standard_errors[best]\n\n",
 
-                        "# Approximate 95% normal confidence interval\n",
+                        "# 95% confidence interval\n",
                         "selected_ci <- selected_slope + ",
-                        "c(-1, 1) * 1.96 * selected_se\n\n",
+                        "c(-1, 1) * qt(0.975, df = n - 2) * selected_se\n\n",
 
                         "# Numerical results\n",
                         "list(\n",
@@ -1052,9 +1045,10 @@ chapter6_server <- function(id) {
                         "    x = seq(min(x), max(x), length.out = 200)\n",
                         ")\n",
                         "pred <- predict(fit_best, newdata, se.fit = TRUE)\n",
-                        "lines(newdata$x, pred$fit + 1.96 * pred$se.fit,\n",
+                        "t_critical <- qt(0.975, df = n - 2)\n",
+                        "lines(newdata$x, pred$fit + t_critical * pred$se.fit,\n",
                         "      col = 'red', lty = 2)\n",
-                        "lines(newdata$x, pred$fit - 1.96 * pred$se.fit,\n",
+                        "lines(newdata$x, pred$fit - t_critical * pred$se.fit,\n",
                         "      col = 'red', lty = 2)\n\n",
 
                         "# Note: the interval is not adjusted for selecting\n",
@@ -1260,7 +1254,8 @@ chapter6_server <- function(id) {
                     linewidth = 0.7
                 ) +
 
-                # Pointwise 95% confidence band for the mean response
+                # Pointwise 95% confidence band for the mean response.
+                # geom_smooth(method = "lm") uses the regression t-based interval.
 
                 geom_smooth(
                     method = "lm",
@@ -1462,7 +1457,7 @@ chapter6_server <- function(id) {
                     tags$li(
                         sprintf(
                             paste0(
-                                "Approximate 95%% confidence interval ",
+                                "95%% confidence interval ",
                                 "for the gradient: [%.4f, %.4f]"
                             ),
                             a$selected_ci[1],
@@ -1477,8 +1472,6 @@ chapter6_server <- function(id) {
                         )
                     )
                 )
-
-
             )
         })
     })
