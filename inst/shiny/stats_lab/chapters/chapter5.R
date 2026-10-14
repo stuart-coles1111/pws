@@ -602,6 +602,15 @@ chapter5_server <- function(id) {
             )
         }
 
+        fmt4 <- function(x) {
+            format(
+                x,
+                digits = 4,
+                trim = TRUE,
+                scientific = FALSE
+            )
+        }
+
 
         # =====================================================
         # Regression season list
@@ -1262,7 +1271,7 @@ chapter5_server <- function(id) {
 
                 p(
                     strong("Intercept: "),
-                    fmt3(coef(fit)[1]),
+                    fmt4(coef(fit)[1]),
                     "  |  ",
                     strong("Slope: "),
                     fmt3(coef(fit)[2])

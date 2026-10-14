@@ -1,4 +1,3 @@
-
 # =========================================================
 # Chapter 6 UI
 # =========================================================
@@ -9,9 +8,11 @@ chapter6_ui <- function(id) {
 
     sidebar_controls <- sidebar(
 
+        h4("Statistics in Context"),
+
         selectInput(
             ns("demo"),
-            "Example:",
+            "Experiment",
             choices = c(
                 "Birthday Problem",
                 "Assessing the ITV jinx",
@@ -19,13 +20,14 @@ chapter6_ui <- function(id) {
             )
         ),
 
-        # -------------------------------------------------------
-        # Birthday Problem
-        # -------------------------------------------------------
+        # -------------------------------------------------
+        # Birthday problem
+        # -------------------------------------------------
 
         conditionalPanel(
             condition = sprintf(
-                "input['%s'] == 'Birthday Problem'", ns("demo")
+                "input['%s'] == 'Birthday Problem'",
+                ns("demo")
             ),
 
             radioButtons(
@@ -33,45 +35,55 @@ chapter6_ui <- function(id) {
                 "Choose birthday investigation",
                 choices = c(
                     "Classic birthday problem" = "classic",
-                    "Non-Classic birthday problem" = "context"
+                    "Non-classic birthday problem" = "context"
                 ),
                 selected = "classic"
             ),
 
             conditionalPanel(
                 condition = sprintf(
-                    "input['%s'] == 'classic'", ns("birthday_type")
+                    "input['%s'] == 'classic'",
+                    ns("birthday_type")
                 ),
 
                 sliderInput(
                     ns("p_level"),
                     "Probability threshold (p)",
-                    min = 0.01, max = 0.99,
-                    value = 0.50, step = 0.01
+                    min = 0.01,
+                    max = 0.99,
+                    value = 0.50,
+                    step = 0.01
                 )
             ),
 
             conditionalPanel(
                 condition = sprintf(
-                    "input['%s'] == 'context'", ns("birthday_type")
+                    "input['%s'] == 'context'",
+                    ns("birthday_type")
                 ),
 
                 sliderInput(
                     ns("match_size"),
                     "Number sharing birthday",
-                    min = 2, max = 10, value = 4
+                    min = 2,
+                    max = 10,
+                    value = 4
                 ),
 
                 sliderInput(
                     ns("team_small"),
                     "Team size",
-                    min = 5, max = 100, value = 20
+                    min = 5,
+                    max = 100,
+                    value = 20
                 ),
 
                 sliderInput(
                     ns("team_large"),
                     "Company size",
-                    min = 10, max = 500, value = 100
+                    min = 10,
+                    max = 500,
+                    value = 100
                 ),
 
                 radioButtons(
@@ -79,7 +91,7 @@ chapter6_ui <- function(id) {
                     "Calculation method",
                     choices = c(
                         "Dynamic programming (exact)" = "dp",
-                        "Poisson approximation (fast)" = "poisson"
+                        "Poisson approximation" = "poisson"
                     ),
                     selected = "poisson"
                 ),
@@ -96,23 +108,30 @@ chapter6_ui <- function(id) {
             )
         ),
 
-        # -------------------------------------------------------
-        # Assessing the ITV jinx
-        # -------------------------------------------------------
+        # -------------------------------------------------
+        # ITV jinx
+        # -------------------------------------------------
 
         conditionalPanel(
             condition = sprintf(
-                "input['%s'] == 'Assessing the ITV jinx'", ns("demo")
+                "input['%s'] == 'Assessing the ITV jinx'",
+                ns("demo")
             ),
 
             h5("BBC"),
 
             numericInput(
-                ns("trial1"), "Number of Matches", 31, min = 1
+                ns("trial1"),
+                "Number of matches",
+                value = 31,
+                min = 1
             ),
 
             numericInput(
-                ns("count1"), "England Wins", 21, min = 0
+                ns("count1"),
+                "England wins",
+                value = 21,
+                min = 0
             ),
 
             hr(),
@@ -120,196 +139,332 @@ chapter6_ui <- function(id) {
             h5("ITV"),
 
             numericInput(
-                ns("trial2"), "Number of Matches", 23, min = 1
+                ns("trial2"),
+                "Number of matches",
+                value = 23,
+                min = 1
             ),
 
             numericInput(
-                ns("count2"), "England Wins", 9, min = 0
+                ns("count2"),
+                "England wins",
+                value = 9,
+                min = 0
             ),
 
             sliderInput(
                 ns("alpha"),
                 "Confidence level",
-                min = 0.80, max = 0.99,
-                value = 0.95, step = 0.01
+                min = 0.80,
+                max = 0.99,
+                value = 0.95,
+                step = 0.01
             ),
 
             numericInput(
                 ns("seed"),
                 "Random seed",
-                value = 123, min = 1, max = 999999
+                value = sample.int(999, 1),
+                min = 1,
+                max = 999
             )
         ),
 
-        # -------------------------------------------------------
-        # Data Dredging
-        # -------------------------------------------------------
+        # -------------------------------------------------
+        # Data dredging
+        # -------------------------------------------------
 
         conditionalPanel(
             condition = sprintf(
-                "input['%s'] == 'Data Dredging'", ns("demo")
-            ),
-
-            p(
-                "Keep X fixed and generate a new Y for every regression."
+                "input['%s'] == 'Data Dredging'",
+                ns("demo")
             ),
 
             numericInput(
                 ns("seed_dredge"),
                 "Random seed",
-                value = 123,
+                value = sample.int(999, 1),
                 min = 1,
-                max = 999999
+                max = 999
             ),
 
             sliderInput(
                 ns("n_data"),
                 "Observations per regression (n)",
-                min = 10, max = 500,
-                value = 100, step = 10
+                min = 10,
+                max = 500,
+                value = 100,
+                step = 10
             ),
 
             sliderInput(
                 ns("n_var"),
                 "Number of regressions (m)",
-                min = 5, max = 200,
-                value = 50, step = 5
-            ),
-
-            actionButton(
-                ns("run_analysis"),
-                "Analysis",
-                icon = icon("play"),
-                class = "btn-primary"
-            ),
-
-            br(),
-            br(),
-
-            actionButton(
-                ns("show_summary"),
-                "Summary",
-                icon = icon("book-open")
-            ),
-
-            br(),
-
-            helpText(
-                "Changing the controls does not rerun the analysis. ",
-                "Press Analysis when you are ready to run it."
+                min = 5,
+                max = 200,
+                value = 50,
+                step = 5
             )
+        ),
+
+        hr(),
+
+        actionButton(
+            ns("analyse"),
+            "Analysis",
+            icon = icon("play"),
+            class = "btn-primary"
+        ),
+
+        actionButton(
+            ns("show_summary"),
+            "Summary",
+            icon = icon("book-open")
+        ),
+
+        p(
+            style = "color: #666; font-size: 0.9em;",
+            "Changing the controls does not rerun the analysis. ",
+            "Press Analysis to use the current settings."
         )
     )
 
 
-    # =========================================================
+    # =====================================================
     # Overview
-    # =========================================================
+    # =====================================================
 
     overview_panel <- div(
 
         card(
-            card_header("Module 6: Statistics in Context"),
 
-            conditionalPanel(
-                condition = sprintf(
-                    "input['%s'] == 'Birthday Problem'", ns("demo")
-                ),
-
-                h4("The birthday problem"),
-
-                p(
-                    "The probability of a shared birthday depends on how ",
-                    "the event is defined. The classic problem asks how ",
-                    "large a group must be for the probability of at least ",
-                    "one shared birthday to reach a specified threshold."
-                ),
-
-                p(
-                    "The non-classic version considers whether any group ",
-                    "of a specified size shares a birthday. Compare group ",
-                    "sizes, calculation methods and probability scales."
-                )
+            style = paste(
+                "border-radius: 16px;",
+                "border: none;",
+                "box-shadow: 0 4px 12px rgba(0,0,0,0.08);",
+                "padding: 10px;"
             ),
 
-            conditionalPanel(
-                condition = sprintf(
-                    "input['%s'] == 'Assessing the ITV jinx'", ns("demo")
-                ),
-
-                h4("Assessing the ITV jinx"),
-
-                p(
-                    "This experiment compares England's observed win ",
-                    "proportions for BBC and ITV broadcasts. Simulated ",
-                    "differences illustrate how much results can vary ",
-                    "through sampling variation."
-                ),
-
-                p(
-                    "An observed difference does not establish that the ",
-                    "broadcaster caused the difference. The matches shown ",
-                    "and other factors may also matter."
-                )
-            ),
+            # -------------------------------------------------
+            # Birthday problem
+            # -------------------------------------------------
 
             conditionalPanel(
                 condition = sprintf(
-                    "input['%s'] == 'Data Dredging'", ns("demo")
+                    "input['%s'] == 'Birthday Problem'",
+                    ns("demo")
                 ),
 
-                h4("Data dredging"),
+                card_header("Module 6: The birthday problem"),
 
                 p(
-                    "This experiment demonstrates how searching across ",
-                    "many regressions can produce an apparently striking ",
-                    "relationship even when the variables are independent."
-                ),
-
-                p(
-                    "A single set of explanatory observations X is ",
-                    "generated and held fixed. The response variable Y ",
-                    "is generated independently again for every regression."
-                ),
-
-                p(
-                    "The experiment selects the regression with the largest ",
-                    "absolute gradient. Increasing m gives random variation ",
-                    "more opportunities to produce an extreme result."
-                ),
-
-                h5("How to use the experiment"),
-
-                tags$ol(
-                    tags$li("Choose the number of observations n."),
-                    tags$li("Choose the number of regressions m."),
-                    tags$li("Choose a random seed."),
-                    tags$li("Press Analysis to run the simulation."),
-                    tags$li(
-                        "Inspect the selected regression and its 95% confidence band."
-                    ),
-                    tags$li(
-                        "Press Summary to inspect the results across all regressions."
-                    ),
-                    tags$li(
-                        "Change the controls and press Analysis again to start a new simulation."
+                    strong(
+                        "How does the probability of a shared birthday ",
+                        "depend on how the question is defined?"
                     )
                 ),
 
-                h5("Questions to investigate"),
+                h5("Classic birthday problem"),
 
-                tags$ul(
+                p(
+                    "The classic problem asks how many people are needed ",
+                    "before there is a specified probability that at least ",
+                    "two people share a birthday."
+                ),
+
+                p(
+                    "Assuming 365 equally likely birthdays, we calculate ",
+                    "the probability that everybody has a different birthday ",
+                    "and subtract it from 1."
+                ),
+
+                p(
+                    "Use the probability threshold to investigate how ",
+                    "the required group size changes."
+                ),
+
+                hr(),
+
+                h5("Non-classic birthday problem"),
+
+                p(
+                    "We can instead ask whether any group contains a ",
+                    "specified number of people sharing a birthday. ",
+                    "This is different from asking whether a particular ",
+                    "set of people share a particular date."
+                ),
+
+                p(
+                    "Compare the probabilities for different group sizes ",
+                    "and numbers of people sharing a birthday."
+                ),
+
+                p(
+                    "Dynamic programming calculates the probability more ",
+                    "directly, while the Poisson method provides an approximation."
+                )
+            ),
+
+            # -------------------------------------------------
+            # ITV jinx
+            # -------------------------------------------------
+
+            conditionalPanel(
+                condition = sprintf(
+                    "input['%s'] == 'Assessing the ITV jinx'",
+                    ns("demo")
+                ),
+
+                card_header("Module 6: Assessing the ITV jinx"),
+
+                p(
+                    strong(
+                        "Could an apparent difference in England's win rates ",
+                        "under two broadcasters arise through random variation?"
+                    )
+                ),
+
+                p(
+                    "The example compares England's observed win proportions ",
+                    "for matches shown by the BBC and ITV."
+                ),
+
+                p(
+                    "An observed difference does not necessarily mean that ",
+                    "the underlying probabilities differ. Samples vary, and ",
+                    "some differences arise by chance."
+                ),
+
+                h5("Interpreting the results"),
+
+                p(
+                    "The Explorer simulates repeated samples using the ",
+                    "observed win proportions and displays the resulting ",
+                    "differences."
+                ),
+
+                p(
+                    "The confidence interval describes uncertainty under ",
+                    "the simulation model. It does not establish why any ",
+                    "observed difference occurred."
+                ),
+
+                p(
+                    "The choice of matches, the timing of games and the ",
+                    "process determining which broadcaster shows a match ",
+                    "may all matter when interpreting the results."
+                )
+            ),
+
+            # -------------------------------------------------
+            # Data dredging
+            # -------------------------------------------------
+
+            conditionalPanel(
+                condition = sprintf(
+                    "input['%s'] == 'Data Dredging'",
+                    ns("demo")
+                ),
+
+                card_header("Module 6: Data dredging"),
+
+                p(
+                    strong(
+                        "Repeated analyses can produce apparently strong ",
+                        "relationships even when the variables are independent."
+                    )
+                ),
+
+                p(
+                    "The experiment generates a single set of observations ",
+                    "for the explanatory variable X. These observations ",
+                    "remain fixed throughout the experiment."
+                ),
+
+                p(
+                    "A new response variable Y is generated independently ",
+                    "of X. A regression of Y on X is fitted, and its gradient ",
+                    "is recorded. This process is repeated m times, with ",
+                    "the same X observations and a newly generated Y each time."
+                ),
+
+                hr(),
+
+                h5("Selecting an extreme result"),
+
+                p(
+                    "The Explorer selects the regression with the largest ",
+                    "absolute gradient. This may be a positive or negative ",
+                    "gradient."
+                ),
+
+                p(
+                    "By performing many regressions and selecting the most ",
+                    "extreme result, we give random variation repeated ",
+                    "opportunities to produce an apparently striking relationship."
+                ),
+
+                hr(),
+
+                h5("Confidence interval for the gradient"),
+
+                p(
+                    "The summary includes an approximate 95% confidence ",
+                    "interval for the selected gradient, calculated using ",
+                    "the normal approximation:"
+                ),
+
+                withMathJax(),
+
+                p(
+                    "$$\\hat{\\beta}_1 \\pm 1.96\\,SE(\\hat{\\beta}_1)$$"
+                ),
+
+                p(
+                    "The Normal approximation is generally more reliable ",
+                    "for reasonably large samples. As a rough guide, ",
+                    "30 or more observations is a useful rule of thumb, ",
+                    "although this does not guarantee accuracy. For smaller ",
+                    "samples, the approximation may be less reliable."
+                ),
+
+                p(
+                    "This is the conventional interval for a regression ",
+                    "slope using the normal approximation. It does not ",
+                    "account for the fact that the regression was selected ",
+                    "because its gradient was the most extreme among m attempts."
+                ),
+
+                p(
+                    "Consequently, the interval should not be interpreted ",
+                    "as having guaranteed 95% coverage after selection. ",
+                    "This is an important part of the data-dredging experiment."
+                ),
+
+                hr(),
+
+                h5("How to use the Explorer"),
+
+                tags$ol(
                     tags$li(
-                        "How does the largest absolute gradient change as m increases?"
+                        "Choose the number of observations, n, per regression."
                     ),
                     tags$li(
-                        "Can the selected regression have a small p-value when X and Y are independent?"
+                        "Choose the number of regressions, m."
                     ),
                     tags$li(
-                        "How does increasing n affect the gradients?"
+                        "Press Analysis to run the experiment."
                     ),
                     tags$li(
-                        "Why does selecting the most extreme result create a risk of false discoveries?"
+                        "Inspect the selected regression and its confidence band."
+                    ),
+                    tags$li(
+                        "Press Summary to examine the selected gradient, its ",
+                        "approximate confidence interval and the results across ",
+                        "all regressions."
+                    ),
+                    tags$li(
+                        "Change the settings and press Analysis again."
                     )
                 )
             )
@@ -317,24 +472,28 @@ chapter6_ui <- function(id) {
     )
 
 
-    # =========================================================
+    # =====================================================
     # Generated R code
-    # =========================================================
+    # =====================================================
 
     code_panel <- div(
+
         card(
             card_header("Generated R code"),
 
             p(
-                "The code below reproduces the currently displayed analysis."
+                style = "color: #666;",
+                "This code reproduces the most recently completed analysis. ",
+                "For data dredging, it includes the normal-approximation ",
+                "confidence interval for the selected gradient."
             ),
 
             tags$pre(
                 style = paste(
-                    "background:#F8F9FA;",
-                    "padding:15px;",
-                    "border-radius:10px;",
-                    "white-space:pre-wrap;"
+                    "background: #F8F9FA;",
+                    "padding: 15px;",
+                    "border-radius: 10px;",
+                    "white-space: pre-wrap;"
                 ),
                 textOutput(ns("generated_code"))
             )
@@ -342,14 +501,19 @@ chapter6_ui <- function(id) {
     )
 
 
-    # =========================================================
+    # =====================================================
     # Results
-    # =========================================================
+    # =====================================================
 
     results_panel <- div(
+
         card(
-            card_header("Regression Analysis"),
-            plotOutput(ns("plot"), height = 450)
+            card_header("Visualisation"),
+
+            plotOutput(
+                ns("plot"),
+                height = 450
+            )
         ),
 
         br(),
@@ -358,58 +522,94 @@ chapter6_ui <- function(id) {
     )
 
 
-    # =========================================================
-    # Learning outcomes
-    # =========================================================
+    # =====================================================
+    # Learn
+    # =====================================================
 
     learn_panel <- div(
+
         card(
+
+            style = paste(
+                "border-radius: 16px;",
+                "border: none;",
+                "box-shadow: 0 4px 12px rgba(0,0,0,0.08);",
+                "padding: 10px;"
+            ),
+
             card_header("What should you have learned?"),
 
             h5("1. Rare events are not impossible"),
 
             p(
-                "Repeated experiments give unlikely events more opportunities to occur."
+                "Events that are unlikely in a single experiment can ",
+                "occur when experiments are repeated many times."
             ),
 
             hr(),
 
-            h5("2. Random data can look meaningful"),
+            h5("2. Statistical methods always produce answers"),
 
             p(
-                "Regression will estimate a relationship even when the variables are independent."
+                "Regression and confidence intervals produce numerical ",
+                "results even when there is no underlying relationship."
             ),
 
             hr(),
 
-            h5("3. Selection matters"),
+            h5("3. Significance does not guarantee truth"),
 
             p(
-                "Choosing the most extreme result from many analyses can exaggerate the apparent evidence."
+                "An apparently significant result can arise from random ",
+                "variation rather than a real effect."
             ),
 
             hr(),
 
-            h5("4. More tests mean more opportunities for false discoveries"),
+            h5("4. Searching creates false discoveries"),
 
             p(
-                "The number of analyses performed matters when interpreting a selected result."
+                "The more analyses we perform, the more opportunities ",
+                "we create to find a pattern that looks important by chance."
             ),
 
             hr(),
 
-            h5("5. Statistical results need context"),
+            h5("5. Selection affects interpretation"),
 
             p(
-                "A small p-value or an impressive graph is not, by itself, proof of a genuine relationship."
+                "A confidence interval calculated after selecting the ",
+                "most extreme result does not retain its usual nominal ",
+                "coverage automatically."
+            ),
+
+            hr(),
+
+            div(
+                style = paste(
+                    "background-color: #f8f9fa;",
+                    "border-left: 5px solid #dc3545;",
+                    "padding: 12px;",
+                    "border-radius: 8px;"
+                ),
+
+                h5("Key takeaway"),
+
+                p(
+                    strong("Structure can be an illusion."),
+                    " Statistical tools can reveal genuine patterns, ",
+                    "but repeated searching can also make random data ",
+                    "appear meaningful. How a result was obtained matters ",
+                    "as much as the result itself."
+                )
             )
         )
     )
 
 
-    # =========================================================
-    # Assemble page
-    # =========================================================
+    # =====================================================
+    # Assemble chapter page
+    # =====================================================
 
     chapter_page_ui(
         id = id,
@@ -431,154 +631,197 @@ chapter6_server <- function(id) {
 
     moduleServer(id, function(input, output, session) {
 
+        # -------------------------------------------------
+        # Stored results
+        # -------------------------------------------------
+
+        analysis_result <- reactiveVal(NULL)
+
         summary_visible <- reactiveVal(FALSE)
 
 
-        # -------------------------------------------------------
-        # Birthday control: keep company size above team size
-        # -------------------------------------------------------
+        # -------------------------------------------------
+        # Helpers
+        # -------------------------------------------------
 
-        observeEvent(input$team_small, {
+        make_dredge_analysis <- function(n, m, seed) {
 
-            req(input$team_small)
+            set.seed(seed)
 
-            required_min <- input$team_small + 1
+            # Generate X once; hold it fixed for all regressions.
 
-            if (input$team_large < required_min) {
+            x <- rnorm(
+                n,
+                mean = 0,
+                sd = 10
+            )
 
-                updateSliderInput(
-                    session,
-                    "team_large",
-                    min = required_min,
-                    value = required_min
+            slopes <- numeric(m)
+            pvalues <- numeric(m)
+            standard_errors <- numeric(m)
+
+            responses <- vector("list", m)
+
+            for (j in seq_len(m)) {
+
+                y <- rnorm(
+                    n,
+                    mean = 0,
+                    sd = 5
                 )
+
+                fit <- lm(y ~ x)
+
+                coefs <- summary(fit)$coefficients
+
+                slopes[j] <- coefs[2, 1]
+                standard_errors[j] <- coefs[2, 2]
+                pvalues[j] <- coefs[2, 4]
+
+                responses[[j]] <- y
+            }
+
+            # Select the most extreme gradient.
+
+            best <- which.max(abs(slopes))
+
+            y_best <- responses[[best]]
+
+            fit_best <- lm(y_best ~ x)
+
+            coef_best <- summary(fit_best)$coefficients
+
+            selected_slope <- slopes[best]
+            selected_se <- standard_errors[best]
+
+            # Approximate 95% CI using the normal approximation.
+
+            selected_ci <- selected_slope +
+                c(-1, 1) * 1.96 * selected_se
+
+            list(
+                type = "dredge",
+
+                x = x,
+                y = y_best,
+
+                coef = coef_best,
+
+                selected = best,
+                selected_slope = selected_slope,
+                selected_se = selected_se,
+                selected_p = pvalues[best],
+                selected_ci = selected_ci,
+
+                slopes = slopes,
+                pvalues = pvalues,
+                standard_errors = standard_errors,
+
+                n = n,
+                m = m,
+                seed = seed
+            )
+        }
+
+
+        # -------------------------------------------------
+        # Birthday analysis
+        # -------------------------------------------------
+
+        make_birthday_analysis <- function() {
+
+            if (input$birthday_type == "classic") {
+
+                nmax <- 60
+
+                df <- data.frame(
+                    N = seq_len(nmax),
+                    P = sapply(seq_len(nmax), bp)
+                )
+
+                eligible <- which(df$P >= input$p_level)
+
+                required_n <- if (length(eligible)) {
+                    df$N[eligible[1]]
+                } else {
+                    NA_integer_
+                }
+
+                return(
+                    list(
+                        type = "birthday",
+                        data = df,
+                        required_n = required_n,
+                        threshold = input$p_level
+                    )
+                )
+            }
+
+            m <- input$match_size
+
+            n1 <- input$team_small
+
+            n2 <- max(
+                input$team_large,
+                n1 + 1
+            )
+
+            if (input$birthday_method == "dp") {
+
+                p1 <- birthday_dp(n1, m)
+                p2 <- birthday_dp(n2, m)
 
             } else {
 
-                updateSliderInput(
-                    session,
-                    "team_large",
-                    min = required_min
-                )
-            }
-        })
-
-
-        # -------------------------------------------------------
-        # Switching experiments hides the optional summary
-        # -------------------------------------------------------
-
-        observeEvent(input$demo, {
-            summary_visible(FALSE)
-        }, ignoreInit = TRUE)
-
-
-        # -------------------------------------------------------
-        # Non-dredging analysis
-        #
-        # Birthday and ITV continue to respond to their inputs.
-        # Data Dredging is handled separately below.
-        # -------------------------------------------------------
-
-        other_analysis <- reactive({
-
-            req(input$demo != "Data Dredging")
-
-            # =====================================================
-            # Birthday Problem
-            # =====================================================
-
-            if (input$demo == "Birthday Problem") {
-
-                if (input$birthday_type == "classic") {
-
-                    nmax <- 60
-
-                    df <- data.frame(
-                        N = seq_len(nmax),
-                        P = vapply(
-                            seq_len(nmax),
-                            bp,
-                            numeric(1)
-                        )
-                    )
-
-                    eligible <- which(df$P >= input$p_level)
-
-                    required_n <- if (length(eligible)) {
-                        df$N[eligible[1]]
-                    } else {
-                        NA_integer_
-                    }
-
-                    return(list(
-                        type = "birthday",
-                        data = df,
-                        required_n = required_n
-                    ))
-                }
-
-                m <- input$match_size
-                n1 <- input$team_small
-                n2 <- max(input$team_large, n1 + 1)
-
-                if (input$birthday_method == "dp") {
-
-                    p1 <- birthday_dp(n1, m)
-                    p2 <- birthday_dp(n2, m)
-
-                } else {
-
-                    p1 <- birthday_poisson(n1, m)
-                    p2 <- birthday_poisson(n2, m)
-                }
-
-                scenarios <- c(
-                    paste(m, "specific people,\nspecific date"),
-                    paste(m, "specific people,\nany date"),
-                    paste("Any", m, "in group of", n1),
-                    paste("Any", m, "in group of", n2)
-                )
-
-                probabilities <- c(
-                    365^(-m),
-                    365^(1 - m),
-                    p1,
-                    p2
-                )
-
-                return(list(
-                    type = "birthday_context",
-
-                    data = data.frame(
-                        Scenario = factor(
-                            scenarios,
-                            levels = scenarios
-                        ),
-                        k = c(
-                            365^m,
-                            365^(m - 1),
-                            1 / pmax(p1, .Machine$double.xmin),
-                            1 / pmax(p2, .Machine$double.xmin)
-                        )
-                    ),
-
-                    probabilities = probabilities
-                ))
+                p1 <- birthday_poisson(n1, m)
+                p2 <- birthday_poisson(n2, m)
             }
 
+            scenario_names <- c(
+                paste(m, "specific people,\nspecific date"),
+                paste(m, "specific people,\nany date"),
+                paste("Any", m, "in group of", n1),
+                paste("Any", m, "in group of", n2)
+            )
 
-            # =====================================================
-            # Assessing the ITV jinx
-            # =====================================================
+            probabilities <- c(
+                1 / 365^m,
+                1 / 365^(m - 1),
+                p1,
+                p2
+            )
 
-            req(
-                input$trial1 > 0,
-                input$trial2 > 0,
-                input$count1 >= 0,
-                input$count2 >= 0,
-                input$count1 <= input$trial1,
-                input$count2 <= input$trial2
+            data <- data.frame(
+                Scenario = factor(
+                    scenario_names,
+                    levels = scenario_names
+                ),
+                k = 1 / probabilities
+            )
+
+            list(
+                type = "birthday_context",
+                data = data,
+                probabilities = probabilities,
+                method = input$birthday_method,
+                scale = input$birthday_scale
+            )
+        }
+
+
+        # -------------------------------------------------
+        # ITV analysis
+        # -------------------------------------------------
+
+        make_prop_analysis <- function() {
+
+            validate(
+                need(input$trial1 >= 1, "BBC matches must be at least 1."),
+                need(input$trial2 >= 1, "ITV matches must be at least 1."),
+                need(input$count1 >= 0 && input$count1 <= input$trial1,
+                     "BBC wins must be between 0 and the number of matches."),
+                need(input$count2 >= 0 && input$count2 <= input$trial2,
+                     "ITV wins must be between 0 and the number of matches.")
             )
 
             set.seed(input$seed)
@@ -608,8 +851,8 @@ chapter6_server <- function(id) {
             qv <- qnorm((1 + input$alpha) / 2)
 
             ci <- c(
-                estimate - qv * se,
-                estimate + qv * se
+                mean(d) - qv * se,
+                mean(d) + qv * se
             )
 
             list(
@@ -617,284 +860,294 @@ chapter6_server <- function(id) {
                 d = d,
                 se = se,
                 ci = ci,
-                estimate = estimate
+                estimate = estimate,
+                alpha = input$alpha,
+                count1 = input$count1,
+                count2 = input$count2,
+                trial1 = input$trial1,
+                trial2 = input$trial2,
+                seed = input$seed
             )
-        })
+        }
 
 
-        # -------------------------------------------------------
-        # Data Dredging: run only when Analysis is pressed
-        # -------------------------------------------------------
+        # -------------------------------------------------
+        # Run analysis only when Analysis is pressed
+        # -------------------------------------------------
 
-        dredge_analysis <- eventReactive(
-            input$run_analysis,
-            {
+        observeEvent(input$analyse, {
 
-                n <- input$n_data
-                m <- input$n_var
-                seed_used <- input$seed_dredge
+            summary_visible(FALSE)
 
-                set.seed(seed_used)
+            # Snapshot the current settings.
+            # Subsequent slider changes do not alter this run.
 
-                # Generate X exactly once for this analysis.
-                x <- rnorm(n, mean = 0, sd = 10)
+            result <- isolate({
 
-                slopes <- numeric(m)
-                pvalues <- numeric(m)
-                standard_errors <- numeric(m)
+                if (input$demo == "Birthday Problem") {
 
-                responses <- vector("list", m)
+                    make_birthday_analysis()
 
-                # Generate an independent Y for every regression.
-                for (j in seq_len(m)) {
+                } else if (
+                    input$demo == "Assessing the ITV jinx"
+                ) {
 
-                    y <- rnorm(n, mean = 0, sd = 5)
+                    make_prop_analysis()
 
-                    fit <- lm(y ~ x)
-                    coefs <- summary(fit)$coefficients
+                } else {
 
-                    slopes[j] <- coefs[2, 1]
-                    standard_errors[j] <- coefs[2, 2]
-                    pvalues[j] <- coefs[2, 4]
-
-                    responses[[j]] <- y
+                    make_dredge_analysis(
+                        n = input$n_data,
+                        m = input$n_var,
+                        seed = input$seed_dredge
+                    )
                 }
+            })
 
-                # Select the largest absolute gradient.
-                best <- which.max(abs(slopes))
+            # Save the completed result before changing the seed.
 
-                y_best <- responses[[best]]
+            analysis_result(result)
 
-                fit_best <- lm(y_best ~ x)
+            # Change the seed control for the NEXT analysis.
+            # The completed analysis keeps its original seed.
 
-                list(
-                    type = "dredge",
+            if (result$type == "dredge") {
 
-                    x = x,
-                    y = y_best,
-
-                    coef = summary(fit_best)$coefficients,
-
-                    selected = best,
-                    selected_slope = slopes[best],
-                    selected_se = standard_errors[best],
-                    selected_p = pvalues[best],
-
-                    slopes = slopes,
-                    pvalues = pvalues,
-                    standard_errors = standard_errors,
-
-                    n = n,
-                    m = m,
-                    seed = seed_used
+                updateNumericInput(
+                    session,
+                    "seed_dredge",
+                    value = sample(
+                        setdiff(1:999, result$seed),
+                        1
+                    )
                 )
 
-            },
-            ignoreInit = TRUE
-        )
+            } else if (result$type == "prop") {
+
+                updateNumericInput(
+                    session,
+                    "seed",
+                    value = sample(
+                        setdiff(1:999, result$seed),
+                        1
+                    )
+                )
+            }
+
+        }, ignoreInit = TRUE)
 
 
-        # Hide the optional summary when a new analysis is requested.
-        observeEvent(input$run_analysis, {
+        # -------------------------------------------------
+        # Summary button
+        # -------------------------------------------------
 
-            updateNumericInput(
+        observeEvent(input$show_summary, {
+
+            if (!is.null(analysis_result())) {
+                summary_visible(TRUE)
+            }
+
+        }, ignoreInit = TRUE)
+
+
+        # -------------------------------------------------
+        # Experiment change
+        # -------------------------------------------------
+
+        observeEvent(input$demo, {
+
+            analysis_result(NULL)
+            summary_visible(FALSE)
+
+            updateTabsetPanel(
                 session,
-                "seed_dredge",
-                value = sample.int(999, 1)
+                "chapter_tab",
+                selected = "Overview"
             )
 
         }, ignoreInit = TRUE)
 
 
-        # -------------------------------------------------------
-        # Show optional summary
-        # -------------------------------------------------------
-
-        observeEvent(input$show_summary, {
-            summary_visible(TRUE)
-        })
-
-
-        # -------------------------------------------------------
-        # Current analysis
-        # -------------------------------------------------------
-
-        analysis <- reactive({
-
-            if (input$demo == "Data Dredging") {
-                return(dredge_analysis())
-            }
-
-            other_analysis()
-        })
-
-
-        # =======================================================
+        # -------------------------------------------------
         # Generated R code
-        # =======================================================
+        # -------------------------------------------------
 
         output$generated_code <- renderText({
 
-            a <- analysis()
+            a <- analysis_result()
 
             if (is.null(a)) {
                 return(
                     paste(
-                        "No Data Dredging analysis has been run yet.",
-                        "Choose n, m and a random seed, then press Analysis."
+                        "No analysis has been run yet.",
+                        "Choose the settings and press Analysis."
                     )
                 )
             }
 
-            # -----------------------------------------------------
-            # Birthday
-            # -----------------------------------------------------
+            if (a$type == "dredge") {
+
+                return(
+                    paste0(
+                        "# Data dredging: fixed X, repeated Y\n\n",
+
+                        "set.seed(", a$seed, ")\n\n",
+
+                        "n <- ", a$n, "\n",
+                        "m <- ", a$m, "\n\n",
+
+                        "# Generate X once\n",
+                        "x <- rnorm(n, mean = 0, sd = 10)\n\n",
+
+                        "# Store regression results\n",
+                        "slopes <- numeric(m)\n",
+                        "pvalues <- numeric(m)\n",
+                        "standard_errors <- numeric(m)\n",
+                        "responses <- vector('list', m)\n\n",
+
+                        "# Generate a new Y for every regression\n",
+                        "for (j in seq_len(m)) {\n",
+                        "    y <- rnorm(n, mean = 0, sd = 5)\n",
+                        "    fit <- lm(y ~ x)\n",
+                        "    coefs <- summary(fit)$coefficients\n",
+                        "    slopes[j] <- coefs[2, 1]\n",
+                        "    standard_errors[j] <- coefs[2, 2]\n",
+                        "    pvalues[j] <- coefs[2, 4]\n",
+                        "    responses[[j]] <- y\n",
+                        "}\n\n",
+
+                        "# Select the largest absolute gradient\n",
+                        "best <- which.max(abs(slopes))\n\n",
+
+                        "# Selected regression\n",
+                        "y_best <- responses[[best]]\n",
+                        "fit_best <- lm(y_best ~ x)\n",
+                        "selected_slope <- slopes[best]\n",
+                        "selected_se <- standard_errors[best]\n\n",
+
+                        "# Approximate 95% normal confidence interval\n",
+                        "selected_ci <- selected_slope + ",
+                        "c(-1, 1) * 1.96 * selected_se\n\n",
+
+                        "# Numerical results\n",
+                        "list(\n",
+                        "    selected_regression = best,\n",
+                        "    selected_gradient = selected_slope,\n",
+                        "    standard_error = selected_se,\n",
+                        "    confidence_interval = selected_ci,\n",
+                        "    p_value = pvalues[best],\n",
+                        "    significant_at_5_percent = sum(pvalues < 0.05),\n",
+                        "    number_of_regressions = m\n",
+                        ")\n\n",
+
+                        "# Plot the selected regression\n",
+                        "plot(x, y_best,\n",
+                        "     xlab = 'Explanatory variable (X)',\n",
+                        "     ylab = 'Response variable (Y)')\n",
+                        "abline(fit_best, col = 'red', lwd = 2)\n",
+                        "abline(h = mean(y_best), col = 'grey40', lty = 2)\n\n",
+
+                        "# Pointwise 95% confidence band for the mean response\n",
+                        "newdata <- data.frame(\n",
+                        "    x = seq(min(x), max(x), length.out = 200)\n",
+                        ")\n",
+                        "pred <- predict(fit_best, newdata, se.fit = TRUE)\n",
+                        "lines(newdata$x, pred$fit + 1.96 * pred$se.fit,\n",
+                        "      col = 'red', lty = 2)\n",
+                        "lines(newdata$x, pred$fit - 1.96 * pred$se.fit,\n",
+                        "      col = 'red', lty = 2)\n\n",
+
+                        "# Note: the interval is not adjusted for selecting\n",
+                        "# the most extreme regression from m attempts."
+                    )
+                )
+            }
 
             if (a$type == "birthday") {
 
-                return(paste0(
-                    "birthday_classic(\n",
-                    "  threshold = ", input$p_level, "\n",
-                    ")"
-                ))
+                return(
+                    paste0(
+                        "# Classic birthday problem\n\n",
+                        "threshold <- ", a$threshold, "\n",
+                        "n <- 1:60\n",
+                        "probability <- sapply(n, bp)\n",
+                        "min(n[probability >= threshold])"
+                    )
+                )
             }
 
             if (a$type == "birthday_context") {
 
-                return(paste0(
-                    "birthday_context(\n",
-                    "  matches = ", input$match_size, ",\n",
-                    "  groups = c(",
-                    input$team_small, ", ", input$team_large, "),\n",
-                    "  method = \"", input$birthday_method, "\"\n",
-                    ")"
-                ))
+                return(
+                    paste0(
+                        "# Non-classic birthday problem\n\n",
+                        "matches <- ", input$match_size, "\n",
+                        "groups <- c(",
+                        input$team_small, ", ",
+                        input$team_large, ")\n",
+                        "method <- '", a$method, "'\n\n",
+                        "# Use the selected birthday calculation function\n",
+                        "if (method == 'dp') {\n",
+                        "    probabilities <- sapply(groups, function(n) ",
+                        "birthday_dp(n, matches))\n",
+                        "} else {\n",
+                        "    probabilities <- sapply(groups, function(n) ",
+                        "birthday_poisson(n, matches))\n",
+                        "}\n",
+                        "probabilities"
+                    )
+                )
             }
-
-            # -----------------------------------------------------
-            # ITV
-            # -----------------------------------------------------
-
-            if (a$type == "prop") {
-
-                return(paste0(
-                    "difference_in_proportions(\n",
-                    "  wins = c(", input$count1, ", ", input$count2, "),\n",
-                    "  matches = c(", input$trial1, ", ", input$trial2, "),\n",
-                    "  confidence_level = ", input$alpha, ",\n",
-                    "  seed = ", input$seed, "\n",
-                    ")"
-                ))
-            }
-
-            # -----------------------------------------------------
-            # Data Dredging
-            #
-            # IMPORTANT: use the submitted analysis settings stored
-            # in a, not the current unsubmitted slider values.
-            # -----------------------------------------------------
 
             paste0(
-                "# Data dredging: fixed X, repeated independent Y\n\n",
-
-                "set.seed(", a$seed, ")\n\n",
-
-                "n <- ", a$n, "\n",
-                "m <- ", a$m, "\n\n",
-
-                "# Generate X once\n",
-                "x <- rnorm(n, mean = 0, sd = 10)\n\n",
-
-                "# Store regression results\n",
-                "slopes <- numeric(m)\n",
-                "standard_errors <- numeric(m)\n",
-                "pvalues <- numeric(m)\n",
-                "responses <- vector('list', m)\n\n",
-
-                "for (j in seq_len(m)) {\n",
-                "  y <- rnorm(n, mean = 0, sd = 5)\n",
-                "  fit <- lm(y ~ x)\n",
-                "  coefs <- summary(fit)$coefficients\n",
-                "  slopes[j] <- coefs[2, 1]\n",
-                "  standard_errors[j] <- coefs[2, 2]\n",
-                "  pvalues[j] <- coefs[2, 4]\n",
-                "  responses[[j]] <- y\n",
-                "}\n\n",
-
-                "# Select the most extreme gradient\n",
-                "best <- which.max(abs(slopes))\n",
-                "y_best <- responses[[best]]\n",
-                "fit_best <- lm(y_best ~ x)\n\n",
-
-                "# Plot the selected regression\n",
-                "plot(x, y_best,\n",
-                "     xlab = 'Explanatory variable (X)',\n",
-                "     ylab = 'Response variable (Y)')\n",
-                "abline(h = mean(y_best), lty = 2, col = 'grey40')\n",
-                "abline(fit_best, col = 'red', lwd = 2)\n\n",
-
-                "# Add a 95% confidence band\n",
-                "xx <- seq(min(x), max(x), length.out = 200)\n",
-                "pred <- predict(\n",
-                "  fit_best,\n",
-                "  newdata = data.frame(x = xx),\n",
-                "  interval = 'confidence',\n",
-                "  level = 0.95\n",
-                ")\n",
-                "polygon(\n",
-                "  c(xx, rev(xx)),\n",
-                "  c(pred[, 'lwr'], rev(pred[, 'upr'])),\n",
-                "  col = adjustcolor('grey70', alpha.f = 0.5),\n",
-                "  border = NA\n",
-                ")\n",
-                "points(x, y_best)\n",
-                "abline(h = mean(y_best), lty = 2, col = 'grey40')\n",
-                "lines(xx, pred[, 'fit'], col = 'red', lwd = 2)\n\n",
-
-                "# Summary\n",
-                "c(\n",
-                "  selected_regression = best,\n",
-                "  selected_gradient = slopes[best],\n",
-                "  selected_p_value = pvalues[best],\n",
-                "  significant_at_5_percent = sum(pvalues < 0.05),\n",
-                "  number_of_regressions = m\n",
-                ")"
+                "# Difference in proportions\n\n",
+                "set.seed(", a$seed, ")\n",
+                "wins <- c(", a$count1, ", ", a$count2, ")\n",
+                "matches <- c(", a$trial1, ", ", a$trial2, ")\n",
+                "alpha <- ", a$alpha, "\n\n",
+                "p <- wins / matches\n",
+                "nsim <- 5000\n",
+                "s1 <- rbinom(nsim, matches[1], p[1]) / matches[1]\n",
+                "s2 <- rbinom(nsim, matches[2], p[2]) / matches[2]\n",
+                "d <- s1 - s2\n",
+                "se <- sd(d)\n",
+                "ci <- mean(d) + c(-1, 1) * ",
+                "qnorm((1 + alpha) / 2) * se\n",
+                "ci"
             )
         })
 
 
-        # =======================================================
+        # -------------------------------------------------
         # Plot
-        # =======================================================
+        # -------------------------------------------------
 
         output$plot <- renderPlot({
 
-            a <- analysis()
+            a <- analysis_result()
 
-            # Empty until Analysis is pressed for Data Dredging.
+            # Leave the plot blank until Analysis is pressed.
+
             if (is.null(a)) {
-                plot.new()
-                return(invisible(NULL))
+                return(NULL)
             }
-
-
-            # -----------------------------------------------------
-            # Classic birthday problem
-            # -----------------------------------------------------
 
             if (a$type == "birthday") {
 
-                req(!is.na(a$required_n))
-
-                print(
-                    ggplot(a$data, aes(N, P)) +
+                return(
+                    ggplot(
+                        a$data,
+                        aes(N, P)
+                    ) +
                         geom_line(
                             colour = "#7B9ACC",
                             linewidth = 1
                         ) +
-                        geom_point(colour = "#7B9ACC") +
+                        geom_point(
+                            colour = "#7B9ACC"
+                        ) +
                         geom_hline(
-                            yintercept = input$p_level,
+                            yintercept = a$threshold,
                             colour = "red",
                             linetype = "dashed"
                         ) +
@@ -909,27 +1162,34 @@ chapter6_server <- function(id) {
                             y = "Probability of a shared birthday"
                         )
                 )
+            }
 
-                # -----------------------------------------------------
-                # Context birthday problem
-                # -----------------------------------------------------
-
-            } else if (a$type == "birthday_context") {
+            if (a$type == "birthday_context") {
 
                 plot_data <- a$data
 
-                if (input$birthday_scale == "prob") {
+                if (a$scale == "prob") {
+
                     plot_data$value <- a$probabilities
                     ylab <- "Probability"
+
                 } else {
+
                     plot_data$value <- log10(
-                        pmax(a$probabilities, .Machine$double.xmin)
+                        pmax(
+                            a$probabilities,
+                            .Machine$double.xmin
+                        )
                     )
+
                     ylab <- "log10(Probability)"
                 }
 
-                print(
-                    ggplot(plot_data, aes(Scenario, value)) +
+                return(
+                    ggplot(
+                        plot_data,
+                        aes(Scenario, value)
+                    ) +
                         geom_point(
                             size = 4,
                             colour = "#7B9ACC"
@@ -938,33 +1198,31 @@ chapter6_server <- function(id) {
                             aes(group = 1),
                             colour = "#7B9ACC"
                         ) +
-                        labs(x = NULL, y = ylab) +
                         theme_minimal(base_size = 14) +
                         theme(
                             axis.text.x = element_text(
                                 angle = 30,
                                 hjust = 1
                             )
+                        ) +
+                        labs(
+                            x = NULL,
+                            y = ylab
                         )
                 )
+            }
 
-                # -----------------------------------------------------
-                # ITV jinx
-                # -----------------------------------------------------
+            if (a$type == "prop") {
 
-            } else if (a$type == "prop") {
-
-                print(
-                    ggplot(data.frame(d = a$d), aes(d)) +
+                return(
+                    ggplot(
+                        data.frame(d = a$d),
+                        aes(d)
+                    ) +
                         geom_histogram(
-                            bins = 30,
+                            bins = 20,
                             fill = "#7B9ACC",
                             colour = "white"
-                        ) +
-                        geom_vline(
-                            xintercept = a$estimate,
-                            colour = "darkred",
-                            linewidth = 1
                         ) +
                         geom_vline(
                             xintercept = a$ci,
@@ -973,87 +1231,81 @@ chapter6_server <- function(id) {
                         ) +
                         theme_minimal(base_size = 14) +
                         labs(
-                            x = "Simulated difference in proportions",
+                            x = "Difference in simulated proportions",
                             y = "Frequency"
                         )
                 )
-
-                # -----------------------------------------------------
-                # Data Dredging
-                # -----------------------------------------------------
-
-            } else if (a$type == "dredge") {
-
-                plot_data <- data.frame(
-                    x = a$x,
-                    y = a$y
-                )
-
-                suppressWarnings({
-                print(
-                    ggplot(plot_data, aes(x, y)) +
-
-                        # Mean of the selected simulated response.
-                        geom_hline(
-                            yintercept = mean(a$y),
-                            colour = "grey40",
-                            linetype = "dashed",
-                            linewidth = 0.7
-                        ) +
-
-                        # Fitted regression and 95% confidence band.
-                        geom_smooth(
-                            method = "lm",
-                            formula = y ~ x,
-                            se = TRUE,
-                            level = 0.95,
-                            colour = "red",
-                            fill = "grey70",
-                            alpha = 0.4
-                        ) +
-
-                        geom_point(
-                            colour = "#7B9ACC"
-                        ) +
-
-                        labs(
-                            title = paste0(
-                                "Selected regression ", a$selected,
-                                " of ", a$m
-                            ),
-                            subtitle = paste0(
-                                "n = ", a$n,
-                                "; gradient = ",
-                                sprintf("%.4f", a$selected_slope)
-                            ),
-                            x = "Explanatory variable (X)",
-                            y = "Response variable (Y)"
-                        ) +
-
-                        theme_minimal(base_size = 14)
-                )
-
-                })
             }
+
+            # -------------------------------------------------
+            # Data dredging
+            # -------------------------------------------------
+
+            plot_data <- data.frame(
+                x = a$x,
+                y = a$y
+            )
+
+            ggplot(
+                plot_data,
+                aes(x, y)
+            ) +
+
+                # Horizontal reference line at mean of selected Y
+
+                geom_hline(
+                    yintercept = mean(a$y),
+                    colour = "grey40",
+                    linetype = "dashed",
+                    linewidth = 0.7
+                ) +
+
+                # Pointwise 95% confidence band for the mean response
+
+                geom_smooth(
+                    method = "lm",
+                    formula = y ~ x,
+                    se = TRUE,
+                    level = 0.95,
+                    colour = "red",
+                    fill = "grey70",
+                    alpha = 0.4
+                ) +
+
+                geom_point(
+                    colour = "#7B9ACC"
+                ) +
+
+                theme_minimal(base_size = 14) +
+
+                labs(
+                    x = "Explanatory variable (X)",
+                    y = "Response variable (Y)",
+                    title = paste(
+                        "Selected regression:",
+                        a$selected,
+                        "of",
+                        a$m
+                    )
+                )
         })
 
 
-        # =======================================================
-        # Results panel
-        # =======================================================
+        # -------------------------------------------------
+        # Results and summary
+        # -------------------------------------------------
 
         output$results_panel <- renderUI({
 
-            a <- analysis()
+            a <- analysis_result()
 
             if (is.null(a)) {
-                return(NULL)
+                return(
+                    p(
+                        "Press Analysis to generate results."
+                    )
+                )
             }
-
-
-            # -----------------------------------------------------
-            # Classic birthday
-            # -----------------------------------------------------
 
             if (a$type == "birthday") {
 
@@ -1064,21 +1316,16 @@ chapter6_server <- function(id) {
                         p(
                             sprintf(
                                 paste0(
-                                    "The minimum group size for a probability ",
-                                    "of at least %.0f%% is %d."
+                                    "Minimum number of invitees for a ",
+                                    "%.0f%% probability of a shared birthday: %d."
                                 ),
-                                100 * input$p_level,
+                                100 * a$threshold,
                                 a$required_n
                             )
                         )
                     )
                 )
             }
-
-
-            # -----------------------------------------------------
-            # Context birthday
-            # -----------------------------------------------------
 
             if (a$type == "birthday_context") {
 
@@ -1095,34 +1342,35 @@ chapter6_server <- function(id) {
                                 tags$th("Reciprocal probability")
                             ),
 
-                            lapply(seq_len(nrow(a$data)), function(i) {
-                                tags$tr(
-                                    tags$td(as.character(a$data$Scenario[i])),
-                                    tags$td(
-                                        format(
-                                            a$probabilities[i],
-                                            scientific = TRUE,
-                                            digits = 5
-                                        )
-                                    ),
-                                    tags$td(
-                                        format(
-                                            round(a$data$k[i]),
-                                            big.mark = ",",
-                                            scientific = FALSE
+                            lapply(
+                                seq_along(a$probabilities),
+
+                                function(i) {
+
+                                    tags$tr(
+                                        tags$td(
+                                            as.character(a$data$Scenario[i])
+                                        ),
+                                        tags$td(
+                                            format(
+                                                a$probabilities[i],
+                                                scientific = TRUE,
+                                                digits = 5
+                                            )
+                                        ),
+                                        tags$td(
+                                            format(
+                                                round(a$data$k[i]),
+                                                big.mark = ","
+                                            )
                                         )
                                     )
-                                )
-                            })
+                                }
+                            )
                         )
                     )
                 )
             }
-
-
-            # -----------------------------------------------------
-            # ITV jinx
-            # -----------------------------------------------------
 
             if (a$type == "prop") {
 
@@ -1141,32 +1389,44 @@ chapter6_server <- function(id) {
                     card(
                         card_header("Difference in proportions"),
 
-                        p(sprintf(
-                            "Estimated difference (BBC - ITV): %.4f",
-                            a$estimate
-                        )),
+                        p(
+                            sprintf(
+                                "Estimated difference (BBC - ITV): %.3f",
+                                a$estimate
+                            )
+                        ),
 
-                        p(sprintf("Standard error: %.4f", a$se)),
+                        p(
+                            sprintf(
+                                "Standard error: %.4f",
+                                a$se
+                            )
+                        ),
 
-                        p(sprintf(
-                            "%.0f%% interval: [%.4f, %.4f]",
-                            100 * input$alpha,
-                            a$ci[1],
-                            a$ci[2]
-                        )),
+                        p(
+                            sprintf(
+                                "%.0f%% confidence interval: [%.3f, %.3f]",
+                                100 * a$alpha,
+                                a$ci[1],
+                                a$ci[2]
+                            )
+                        ),
+
+                        hr(),
 
                         strong(conclusion)
                     )
                 )
             }
 
-
-            # -----------------------------------------------------
-            # Data Dredging
-            # -----------------------------------------------------
+            # Data-dredging results are shown only when requested.
 
             if (!summary_visible()) {
-                return(NULL)
+                return(
+                    p(
+                        "Press Summary to display the numerical results."
+                    )
+                )
             }
 
             significant <- a$pvalues < 0.05
@@ -1176,38 +1436,49 @@ chapter6_server <- function(id) {
 
                 h5("Selected regression"),
 
-                p(sprintf(
-                    "The most extreme absolute gradient occurred in regression %d of %d.",
-                    a$selected,
-                    a$m
-                )),
-
-                tags$ul(
-                    tags$li(sprintf(
-                        "Gradient estimate: %.5f",
-                        a$selected_slope
-                    )),
-
-                    tags$li(sprintf(
-                        "Standard error: %.5f",
-                        a$selected_se
-                    )),
-
-                    tags$li(sprintf(
-                        "P-value: %.6f",
-                        a$selected_p
-                    ))
-
+                p(
+                    sprintf(
+                        "The regression with the largest absolute gradient was repetition %d of %d.",
+                        a$selected,
+                        a$m
+                    )
                 ),
 
-                hr(),
+                tags$ul(
+                    tags$li(
+                        sprintf(
+                            "Gradient estimate: %.4f",
+                            a$selected_slope
+                        )
+                    ),
 
-                p(
-                    "The X variables were generated once and held fixed throughout this ",
-                    "analysis. Each regression used a newly generated set of Y variables. ",
-                    "The selected regression is the one with the largest ",
-                    "absolute gradient, not a randomly chosen regression."
+                    tags$li(
+                        sprintf(
+                            "Standard error: %.4f",
+                            a$selected_se
+                        )
+                    ),
+
+                    tags$li(
+                        sprintf(
+                            paste0(
+                                "Approximate 95%% confidence interval ",
+                                "for the gradient: [%.4f, %.4f]"
+                            ),
+                            a$selected_ci[1],
+                            a$selected_ci[2]
+                        )
+                    ),
+
+                    tags$li(
+                        sprintf(
+                            "P-value: %.5f",
+                            a$selected_p
+                        )
+                    )
                 )
+
+
             )
         })
     })
