@@ -850,37 +850,47 @@ chapter7_ui <- function(id){
 
                 hr(),
 
+
                 h5("Four ways to model the scores"),
 
                 tags$ul(
 
                     tags$li(
                         strong("Model N — Null: "),
-                        "assumes that all nine scores are equally likely."
+                        "assumes that all nine possible scores are equally likely, ",
+                        "with probability 1/9 for each score."
                     ),
 
                     tags$li(
                         strong("Model S — Saturated: "),
-                        "estimates a separate probability for every possible score."
+                        "estimates a separate probability for each of the nine possible scores, ",
+                        "using the observed proportion of plays resulting in that score."
                     ),
 
                     tags$li(
-                        strong("Model D — Data-driven: "),
-                        "groups the scores into three regions and estimates probabilities from the observed data."
+                        strong("Model D — Grouped: "),
+                        "groups the scores into three intervals, 1–3, 4–6 and 7–9. ",
+                        "It estimates the probability of each interval from the observed data ",
+                        "and assigns equal probabilities to the three scores within each interval."
                     ),
 
                     tags$li(
                         strong("Model P — Process-driven: "),
-                        "uses the structure of the dice game to construct a probability distribution."
+                        "uses the known structure of the dice game. ",
+                        "It estimates the probability of selecting the red dice from the observed ",
+                        "frequencies of scores that can arise only from the red or only from the blue dice, ",
+                        "and uses the game's structure to calculate the probabilities of all nine scores."
                     )
 
                 ),
 
+
                 p(
-                    "These models differ in how much structure they impose. ",
-                    "The saturated model is very flexible because it estimates each score separately. ",
-                    "The process-driven model makes stronger assumptions because it uses knowledge about ",
-                    "how the game itself works."
+                    "These models differ in the assumptions they make about how the scores are generated. ",
+                    "Model S is the most flexible because it estimates every score probability separately. ",
+                    "Model D imposes a simpler structure by treating scores within each group as equally likely. ",
+                    "Model P uses information about the dice-generating process, while Model N provides ",
+                    "a simple benchmark in which every score is equally likely."
                 ),
 
                 hr(),
@@ -2072,6 +2082,11 @@ chapter7_server <- function(id){
             # TWO-DICE PROBABILITY TABLE
             # =================================================
 
+
+            # =====================================================
+            # TWO-DICE PROBABILITY TABLE
+            # =====================================================
+
             output$prob_table <- DT::renderDT({
 
                 req(
@@ -2084,29 +2099,43 @@ chapter7_server <- function(id){
 
                     Score = 1:9,
 
-                    "N" =
-                        round(
-                            ests$p_N,
-                            3
-                        ),
+                    N = round(ests$p_N, 3),
 
-                    "S" =
-                        round(
-                            ests$p_S,
-                            3
-                        ),
+                    S = round(ests$p_S, 3),
 
-                    "D" =
-                        round(
-                            ests$p_D,
-                            3
-                        ),
+                    D = round(ests$p_D, 3),
 
-                    "P" =
-                        round(
-                            ests$p_P,
-                            3
+                    P = round(ests$p_P, 3),
+
+                    check.names = FALSE
+                )
+
+                # Two-level header: Score and Model
+
+
+                table_header <- htmltools::withTags(
+                    table(
+                        thead(
+                            tr(
+                                th(
+                                    "Score",
+                                    rowspan = 2,
+                                    style = "text-align: center; vertical-align: middle;"
+                                ),
+                                th(
+                                    "Model",
+                                    colspan = 4,
+                                    style = "text-align: center !important; vertical-align: middle;"
+                                )
+                            ),
+                            tr(
+                                th("N", style = "text-align: center;"),
+                                th("S", style = "text-align: center;"),
+                                th("D", style = "text-align: center;"),
+                                th("P", style = "text-align: center;")
+                            )
                         )
+                    )
                 )
 
                 DT::datatable(
@@ -2115,8 +2144,13 @@ chapter7_server <- function(id){
 
                     rownames = FALSE,
 
+                    container = table_header,
+
                     options = list(
-                        dom = "t"
+                        dom = "t",
+                        paging = FALSE,
+                        ordering = FALSE,
+                        autoWidth = TRUE
                     )
                 ) |>
 
@@ -2127,7 +2161,6 @@ chapter7_server <- function(id){
                         `text-align` = "center"
                     )
             })
-
 
             # =================================================
             # TWO-DICE DIAGNOSTICS
