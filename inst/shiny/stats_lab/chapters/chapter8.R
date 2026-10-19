@@ -640,11 +640,15 @@ dynamic_league_sim <- function(
 
 # =========================================================
 
+# =========================================================
+
+# UI
+
+# =========================================================
+
 chapter8_ui <- function(id) {
 
-
     ns <- NS(id)
-
 
     # =====================================================
     # SIDEBAR
@@ -653,6 +657,11 @@ chapter8_ui <- function(id) {
     sidebar_controls <- sidebar(
 
         h4("Football League Simulation"),
+
+        p(
+            "Explore possible league outcomes by simulating
+        complete football seasons."
+        ),
 
         hr(),
 
@@ -681,14 +690,12 @@ chapter8_ui <- function(id) {
 
         ),
 
-
         conditionalPanel(
 
             condition =
                 "input.data_source == 'upload'",
 
             ns = ns,
-
 
             fileInput(
 
@@ -700,13 +707,9 @@ chapter8_ui <- function(id) {
 
             ),
 
-
             helpText(
-
                 "Required columns: teams, alpha, beta"
-
             ),
-
 
             downloadButton(
 
@@ -716,6 +719,7 @@ chapter8_ui <- function(id) {
 
             ),
 
+            hr(),
 
             fileInput(
 
@@ -727,13 +731,9 @@ chapter8_ui <- function(id) {
 
             ),
 
-
             helpText(
-
                 "Required columns: Round, Home.Team, Away.Team"
-
             ),
-
 
             downloadButton(
 
@@ -745,6 +745,9 @@ chapter8_ui <- function(id) {
 
         ),
 
+        hr(),
+
+        h5("Match settings"),
 
         sliderInput(
 
@@ -762,12 +765,14 @@ chapter8_ui <- function(id) {
 
         ),
 
+        helpText(
+            "Controls the home advantage in the expected
+        number of goals scored."
+        ),
 
         hr(),
 
-
         h5("Simulation settings"),
-
 
         numericInput(
 
@@ -779,6 +784,10 @@ chapter8_ui <- function(id) {
 
         ),
 
+        helpText(
+            "The same seed and settings allow you to reproduce
+        a simulation."
+        ),
 
         numericInput(
 
@@ -794,19 +803,19 @@ chapter8_ui <- function(id) {
 
         ),
 
+        helpText(
+            "More simulations generally provide more stable
+        estimates of finishing-position probabilities."
+        ),
 
         hr(),
 
-
-        h5("Static model"),
-
+        h5("1. Static model"),
 
         p(
-
-            "Team strengths remain fixed throughout the season."
-
+            "Team attacking and defensive strengths remain
+        fixed throughout the season."
         ),
-
 
         actionButton(
 
@@ -818,12 +827,15 @@ chapter8_ui <- function(id) {
 
         ),
 
-
         hr(),
 
+        h5("2. Dynamic model"),
 
-        h5("Dynamic model"),
-
+        p(
+            "Team attacking and defensive strengths can change
+        during the season, introducing additional
+        uncertainty."
+        ),
 
         sliderInput(
 
@@ -841,13 +853,10 @@ chapter8_ui <- function(id) {
 
         ),
 
-
-        p(
-
-            "Team strengths are allowed to change during the season."
-
+        helpText(
+            "Larger values allow greater changes in team
+        strengths from one round to the next."
         ),
-
 
         actionButton(
 
@@ -859,19 +868,14 @@ chapter8_ui <- function(id) {
 
         ),
 
-
         hr(),
 
-
-
-        # =====================================================
-        # COMPARISON
-        # =====================================================
-
-        h5("Comparison"),
+        h5("3. Compare the models"),
 
         p(
-            "Compare probability distributions based on the static and dynamic models."
+            "After running both models, compare their
+        distributions of possible finishing positions
+        for an individual team."
         ),
 
         selectInput(
@@ -887,7 +891,6 @@ chapter8_ui <- function(id) {
         ),
 
         hr(),
-
 
         actionButton(
 
@@ -911,50 +914,60 @@ chapter8_ui <- function(id) {
         card(
 
             style = "
-        border-radius: 16px;
-        border: none;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        padding: 10px;
+            border-radius: 16px;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 10px;
         ",
 
             card_header(
 
                 div(
 
-                    "🕸️ Studying Complexity in a Football Model",
+                    "🕸 Studying Simulation in a Football Model",
 
                     style = "
-                font-size: 1.4rem;
-                font-weight: 700;
-                color: #2c3e50;
+                    font-size: 1.4rem;
+                    font-weight: 700;
+                    color: #2c3e50;
                 "
 
                 )
 
             ),
 
-
             p(
 
                 strong("Main idea: "),
 
-                "This module explores how a statistical model of football matches can be used to simulate an entire league season. Rather than treating a single simulated season as a prediction of exactly what will happen, repeated simulations show the range of outcomes that could plausibly occur given the assumptions of the model."
+                "How can we explore the possible outcomes of
+            a football season when the results of
+            individual matches are uncertain? This module
+            uses a statistical model of football scores
+            to simulate entire league seasons repeatedly.
+            By examining the resulting distributions of
+            final league positions, we can investigate how
+            team strength and random variation combine
+            to produce different outcomes."
 
             ),
-
 
             hr(),
 
-
             h5("Background"),
-
 
             p(
 
-                "The model used in this module is a simplified version of the Dixon–Coles approach to modelling football scores. It assumes that the goals scored by the home and away teams are independent Poisson random variables, with their expected values determined by the attacking and defensive strengths of the teams and an additional home advantage."
+                "The model used in this module is a simplified
+            version of the Dixon–Coles approach to
+            modelling football scores. It assumes that
+            the goals scored by the home and away teams
+            are independent Poisson random variables,
+            with their expected values determined by
+            the attacking and defensive strengths of the
+            teams and an additional home advantage."
 
             ),
-
 
             tags$ul(
 
@@ -962,7 +975,10 @@ chapter8_ui <- function(id) {
 
                     strong("Match model: "),
 
-                    "expected goals depend on the attacking strength of one team, the defensive strength of the other team, and the home advantage."
+                    "expected goals depend on the attacking
+                strength of one team, the defensive
+                strength of the other team, and home
+                advantage."
 
                 ),
 
@@ -970,72 +986,84 @@ chapter8_ui <- function(id) {
 
                     strong("Team strengths: "),
 
-                    "each team has parameters describing its attacking and defensive ability."
+                    "each team has parameters describing its
+                attacking and defensive ability."
 
                 ),
 
                 tags$li(
 
-                    strong("League simulation: "),
+                    strong("Season simulation: "),
 
-                    "the model can be used repeatedly to simulate an entire season and examine the distribution of possible final league positions."
-
-                ),
-
-                tags$li(
-
-                    strong("Static model: "),
-
-                    "team strengths remain fixed throughout the season."
+                    "the model generates match results across
+                an entire fixture list, allowing us to
+                calculate a final league table."
 
                 ),
 
                 tags$li(
 
-                    strong("Dynamic model: "),
+                    strong("Repeated simulation: "),
 
-                    "team strengths are allowed to change over the course of a season, introducing an additional source of uncertainty."
+                    "simulating many seasons reveals the range
+                and relative probabilities of possible
+                final league positions."
+
+                ),
+
+                tags$li(
+
+                    strong("Static and dynamic models: "),
+
+                    "the static model keeps team strengths
+                fixed, while the dynamic model allows
+                them to change during the season."
 
                 )
 
             ),
 
-
             p(
 
-                "The module therefore provides a way to explore how assumptions about model complexity affect the range of possible outcomes."
+                "Simulation allows us to move beyond a single
+            prediction and investigate uncertainty.
+            Comparing the two models also helps us
+            explore how different assumptions about team
+            strengths affect the results."
 
             ),
-
 
             hr(),
 
-
             h5("Your options"),
-
 
             p(
 
-                "You can choose between pre-specified Premier League data or provide your own team parameters and fixture list."
+                "You can use the supplied Premier League data
+            or provide your own team parameters and
+            fixture list."
 
             ),
-
 
             tags$ul(
 
                 tags$li(
 
-                    strong("Use the current Premier League data: "),
+                    strong("Current Premier League data: "),
 
-                    "use fitted parameters from the 2025/26 season to explore possible outcomes for the 2026/27 season."
+                    "use parameters fitted to the 2025/26
+                season to explore possible outcomes for
+                the 2026/27 season."
 
                 ),
 
                 tags$li(
 
-                    strong("Use the previous Premier League data: "),
+                    strong("Previous Premier League data: "),
 
-                    "use fitted parameters from the 2024/25 season to explore possible outcomes for the 2025/26 season."
+                    "use parameters fitted to the 2024/25
+                season to explore possible outcomes for
+                the 2025/26 season."
 
                 ),
 
@@ -1043,91 +1071,196 @@ chapter8_ui <- function(id) {
 
                     strong("Upload your own data: "),
 
-                    "provide team attack and defence parameters together with a fixture list, allowing the model to be applied to another league or season."
+                    "provide team attack and defence
+                parameters together with a fixture list,
+                allowing the model to be applied to
+                another league or season."
 
                 )
 
             ),
 
-
             p(
 
-                "You can then simulate many complete seasons using either a static or dynamic model."
+                "Choose how many seasons to simulate, run
+            either model, and examine the distributions
+            of possible finishing positions. Once both
+            models have been run, you can compare their
+            results for an individual team."
 
             ),
-
 
             hr(),
 
-
-            h5("A note on model complexity"),
-
+            h5("Understanding simulation"),
 
             p(
 
-                "The dynamic model is more complicated than the static model because it allows team strengths to change during the season. However, greater complexity does not automatically make a model better."
+                "A simulated season is one possible outcome
+            generated under the assumptions of the model.
+            It is not a forecast of exactly what will
+            happen. Individual match results vary
+            randomly, so repeating the simulation
+            produces different league tables even when
+            the underlying team strengths remain
+            unchanged."
 
             ),
-
 
             p(
 
-                "A more complicated model introduces additional assumptions and sources of variation. The useful question is therefore whether that additional complexity provides a more informative representation of the process we are trying to understand."
+                "The static model isolates the variation
+            arising from random match results when team
+            strengths are fixed. The dynamic model
+            introduces an additional source of uncertainty
+            by allowing team strengths to change during
+            the season."
 
             ),
-
 
             p(
 
-                "As you explore the results, consider what assumptions are responsible for the differences between the static and dynamic simulations."
+                "Comparing the results helps us investigate
+            how this additional uncertainty changes the
+            distribution of possible league positions.
+            A wider distribution, for example, would
+            indicate a greater range of possible
+            finishing positions under that model."
 
             ),
 
+            p(
+
+                "Simulated probabilities are conditional on
+            the model and its assumptions. They describe
+            what the model considers plausible rather
+            than guaranteeing what will happen in the
+            real league."
+
+            ),
 
             hr(),
 
+            h5("A suggested way to explore the module"),
+
+            tags$ol(
+
+                tags$li(
+
+                    strong("Start with the static model. "),
+
+                    "Simulate a large number of seasons and
+                examine the distribution of finishing
+                positions for each team."
+
+                ),
+
+                tags$li(
+
+                    strong("Look beyond the most likely result. "),
+
+                    "Identify teams that could finish in a
+                wide range of positions, even if their
+                most likely position is relatively high
+                or low."
+
+                ),
+
+                tags$li(
+
+                    strong("Run the dynamic model. "),
+
+                    "Allow team strengths to change during
+                the season and examine how the results
+                differ."
+
+                ),
+
+                tags$li(
+
+                    strong("Compare the models. "),
+
+                    "Choose a team and compare its
+                distributions under the two models."
+
+                ),
+
+                tags$li(
+
+                    strong("Interpret the differences. "),
+
+                    "Consider whether changes in the
+                distributions are consistent with the
+                additional variation introduced by the
+                dynamic model."
+
+                )
+
+            ),
+
+            hr(),
 
             div(
 
                 style = "
-            background-color: #f8f9fa;
-            border-left: 5px solid #7B9ACC;
-            padding: 12px;
-            border-radius: 8px;
+                background-color: #f8f9fa;
+                border-left: 5px solid #7B9ACC;
+                padding: 12px;
+                border-radius: 8px;
             ",
 
                 h5("Questions to investigate"),
-
 
                 tags$ul(
 
                     tags$li(
 
-                        "How much of a football season's outcome is determined by team strength and how much by random variation?"
+                        "How much variation in final league
+                    positions can arise from random match
+                    results alone?"
 
                     ),
 
                     tags$li(
 
-                        "Why can a team with a high expected finishing position still have a substantial probability of finishing much lower?"
+                        "Why can a team with a high expected
+                    finishing position still have a
+                    substantial probability of finishing
+                    much lower?"
 
                     ),
 
                     tags$li(
 
-                        "How does allowing team strength to change over time affect the distribution of possible league positions?"
+                        "How does allowing team strength to
+                    change over time affect the
+                    distribution of possible league
+                    positions?"
 
                     ),
 
                     tags$li(
 
-                        "Why might two teams with different strengths still have overlapping distributions of possible finishing positions?"
+                        "Why might two teams with different
+                    strengths still have overlapping
+                    distributions of possible finishing
+                    positions?"
 
                     ),
 
                     tags$li(
 
-                        "When does a more complicated model provide useful additional information?"
+                        "How many seasons should we simulate
+                    to obtain a useful estimate of
+                    possible outcomes?"
+
+                    ),
+
+                    tags$li(
+
+                        "What can simulation tell us, and
+                    what can it not tell us, about the
+                    actual outcome of a season?"
 
                     )
 
@@ -1141,7 +1274,7 @@ chapter8_ui <- function(id) {
 
 
     # =====================================================
-    # CODE PANEL
+    # GENERATED CODE PANEL
     # =====================================================
 
     code_panel <- div(
@@ -1150,7 +1283,21 @@ chapter8_ui <- function(id) {
 
             card_header("Generated R Code"),
 
+            p(
+
+                "The code below illustrates how the selected
+            data and model settings can be used in R."
+
+            ),
+
             tags$pre(
+
+                style = "
+                background-color: #f8f9fa;
+                padding: 14px;
+                border-radius: 8px;
+                overflow-x: auto;
+            ",
 
                 textOutput(
                     ns("generated_code")
@@ -1163,7 +1310,6 @@ chapter8_ui <- function(id) {
     )
 
 
-
     # =====================================================
     # RESULTS PANEL
     # =====================================================
@@ -1174,14 +1320,19 @@ chapter8_ui <- function(id) {
             ns("sim_banner")
         ),
 
-        # -------------------------------------------------
-        # MODEL RESULTS
-        # -------------------------------------------------
-
         card(
 
-            card_header(
-                "Final League Positions"
+            card_header("Simulated Final League Positions"),
+
+            p(
+
+                "Each distribution shows how frequently
+            teams finish in different league positions
+            across the simulated seasons. The results
+            represent probabilities under the selected
+            model, not certainties about the actual
+            season."
+
             ),
 
             uiOutput(
@@ -1193,8 +1344,6 @@ chapter8_ui <- function(id) {
     )
 
 
-
-
     # =====================================================
     # LEARNING PANEL
     # =====================================================
@@ -1204,110 +1353,112 @@ chapter8_ui <- function(id) {
         card(
 
             style = "
-        border-radius: 16px;
-        border: none;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        padding: 10px;
+            border-radius: 16px;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 10px;
         ",
 
             card_header(
 
                 div(
 
-                    "What should you have learned?",
+                    "What have you learned?",
 
                     style = "
-                font-size: 1.3rem;
-                font-weight: 700;
-                color: #2c3e50;
+                    font-size: 1.3rem;
+                    font-weight: 700;
+                    color: #2c3e50;
                 "
 
                 )
 
             ),
 
+            h5("1. Simulation explores possible outcomes"),
 
-            tags$div(
+            p(
 
-                h5(
-                    "1. Complex models introduce additional assumptions"
-                ),
+                "A statistical model can generate a possible
+            season of match results. Repeating this
+            process produces many possible league tables,
+            helping us understand the range of outcomes
+            consistent with the model."
 
-                p(
+            ),
 
-                    "A model becomes more complex when we allow additional features of the data-generating process to vary. In the dynamic model, team strengths are allowed to change during the season."
+            hr(),
 
-                ),
+            h5("2. Random variation creates uncertainty"),
 
+            p(
 
-                hr(),
+                "Even when team strengths remain fixed,
+            match results vary randomly. Consequently,
+            a team's final league position is uncertain
+            rather than predetermined."
 
+            ),
 
-                h5(
-                    "2. Random variation can produce a wide range of outcomes"
-                ),
+            hr(),
 
-                p(
+            h5("3. Distributions provide more information than a single prediction"),
 
-                    "Even when team strengths are fixed, individual matches contain random variation. Repeated simulation allows us to see the range of league positions that can result from this uncertainty."
+            p(
 
-                ),
+                "The distribution of simulated finishing
+            positions shows which outcomes are more or
+            less likely under the model. It also reveals
+            the possibility of unexpectedly good or
+            poor seasons."
 
+            ),
 
-                hr(),
+            hr(),
 
+            h5("4. Model assumptions affect simulated outcomes"),
 
-                h5(
-                    "3. A single simulation is not a prediction of exactly what will happen"
-                ),
+            p(
 
-                p(
+                "The static and dynamic models make different
+            assumptions about team strengths. Comparing
+            their results helps us investigate how
+            allowing strengths to change during a season
+            affects the uncertainty in final league
+            positions."
 
-                    "The purpose of simulation is to explore the distribution of possible outcomes. Repeating the simulation many times gives a clearer picture of uncertainty than looking at one simulated season."
+            ),
 
-                ),
+            hr(),
 
+            h5("Key takeaway"),
 
-                hr(),
+            div(
 
-
-                h5(
-                    "4. More complexity changes the distribution of predictions"
-                ),
-
-                p(
-
-                    "Allowing team strengths to vary introduces another source of uncertainty. This can change the spread and shape of the distribution of possible finishing positions."
-
-                ),
-
-
-                hr(),
-
-
-                h5("Key takeaway"),
-
-
-                div(
-
-                    style = "
+                style = "
                 background-color: #f8f9fa;
                 border-left: 5px solid #28a745;
                 padding: 12px;
                 border-radius: 8px;
-                ",
+            ",
 
-                    p(
+                p(
 
-                        strong(
-                            "More complicated models make different assumptions about the process."
-                        ),
+                    strong(
 
-                        br(),
+                        "Simulation helps us explore
+                    uncertainty by generating many
+                    possible outcomes."
 
-                        "Simulation helps us understand how those assumptions affect the predictions produced by the model."
+                    ),
 
-                    )
+                    br(),
+
+                    "The results depend on the assumptions
+                of the model, so simulated probabilities
+                should be interpreted as conditional
+                estimates rather than guarantees about
+                what will happen."
 
                 )
 
@@ -1326,7 +1477,7 @@ chapter8_ui <- function(id) {
 
         id = id,
 
-        title = "🕸️ Module 8: Complexity",
+        title = "🕸 Module 8: Simulation",
 
         sidebar = sidebar_controls,
 
@@ -1342,6 +1493,7 @@ chapter8_ui <- function(id) {
 
 
 }
+
 
 # =========================================================
 
