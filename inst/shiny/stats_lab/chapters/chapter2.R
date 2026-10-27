@@ -33,7 +33,7 @@ chapter2_ui <- function(id){
         conditionalPanel(
             condition = sprintf("input['%s'] == 'Binomial'", ns("dist")),
 
-            sliderInput(ns("n"), "n (trials)", min = 1, max = 100, value = 10, step = 1),
+            sliderInput(ns("n"), "m (trials)", min = 1, max = 100, value = 10, step = 1),
             sliderInput(ns("p"), "p (success probability)", min = 0, max = 1, value = 0.5, step = 0.01),
             sliderInput(
                 ns("x_bin"),
@@ -191,7 +191,7 @@ chapter2_ui <- function(id){
 
                 tags$li(
                     strong("Binomial distribution: "),
-                    "n, the number of trials; p, the probability of success in each trial."
+                    "m, the number of trials; p, the probability of success in each trial."
                 ),
 
                 tags$li(
