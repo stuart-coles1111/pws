@@ -28,6 +28,7 @@ chapter4_ui <- function(id){
             "Choose an example",
             choices = c(
                 "Binomial simulation" = "binom",
+                "Binomial PMF and likelihood" = "likelihood",
                 "Bayesian updating" = "bayes"
             ),
             selected = "binom"
@@ -102,6 +103,60 @@ chapter4_ui <- function(id){
                 ns("overlay_binom"),
                 "Overlay theoretical and simulated distributions",
                 value = FALSE
+            )
+        ),
+
+
+        # =================================================
+        # BINOMIAL PMF AND LIKELIHOOD CONTROLS
+        # =================================================
+
+        conditionalPanel(
+
+            condition = sprintf(
+                "input['%s'] == 'likelihood'",
+                ns("example")
+            ),
+
+            hr(),
+
+            h5("Binomial model"),
+
+            numericInput(
+                ns("m_lik"),
+                "Number of trials (m)",
+                value = 100,
+                min = 1,
+                max = 1000,
+                step = 1
+            ),
+
+            actionButton(
+                ns("set_m_lik"),
+                "Set m",
+                class = "btn-primary"
+            ),
+
+            br(),
+            br(),
+
+            sliderInput(
+                ns("x_lik"),
+                "Observed number of sixes (x)",
+                min = 0,
+                max = 100,
+                value = 15,
+                step = 1
+            ),
+
+            sliderInput(
+                ns("theta_lik"),
+                "Probability of six (θ)",
+                min = 0,
+                max = 1,
+                value = 1/6,
+                step = 0.001,
+                ticks = TRUE
             )
         ),
 
@@ -462,6 +517,65 @@ chapter4_ui <- function(id){
 
 
             # =================================================
+            # BINOMIAL PMF AND LIKELIHOOD
+            # =================================================
+
+            conditionalPanel(
+
+                condition = sprintf(
+                    "input['%s'] == 'likelihood'",
+                    ns("example")
+                ),
+
+                card_header(
+                    div(
+                        "Module 4: Binomial probability and likelihood",
+                        style = "
+                            font-size: 1.4rem;
+                            font-weight: 700;
+                            color: #2c3e50;
+                        "
+                    )
+                ),
+
+                p(
+                    strong(
+                        "This example explores the relationship between the binomial probability mass function and the likelihood."
+                    )
+                ),
+
+                p(
+                    "Choose the number of trials, m, to display the graphs. Then use the sliders to choose the observed number of successes, x, and the success probability, θ."
+                ),
+
+                p(
+                    "The left-hand graph shows the binomial probability mass function for the selected value of θ. The selected value of x is highlighted in a contrasting colour."
+                ),
+
+                p(
+                    "The right-hand graph shows the likelihood of the observed value x as a function of θ. The selected value of θ is marked on the likelihood curve."
+                ),
+
+                p(
+                    "Notice that the probability mass function describes the distribution of possible observations for a fixed θ, whereas the likelihood considers how the observed data support different values of θ."
+                ),
+
+                hr(),
+
+                h5("How to use the Explorer"),
+
+                tags$ol(
+                    tags$li("Choose the number of trials, m, to reveal the plots."),
+                    tags$li("Choose the observed number of successes, x."),
+                    tags$li("Choose a value of θ."),
+                    tags$li("Compare the probability mass function with the likelihood curve."),
+                    tags$li("Change x and observe how the likelihood curve changes."),
+                    tags$li("Change θ and observe how the probability mass function changes.")
+                )
+            ),
+
+
+            # =================================================
             # BAYESIAN
             # =================================================
 
@@ -767,6 +881,80 @@ chapter4_ui <- function(id){
 
 
         # =================================================
+        # BINOMIAL PMF AND LIKELIHOOD RESULTS
+        # =================================================
+
+        conditionalPanel(
+
+            condition = sprintf(
+                "input['%s'] == 'likelihood'",
+                ns("example")
+            ),
+
+            accordion(
+                open = FALSE,
+                accordion_panel(
+                    title = "📖 The One-Dice game and binomial model",
+                    p(
+                        "The binomial model describes X, the number of sixes obtained ",
+                        "in m independent plays of the One-Dice game."
+                    ),
+                    p(
+                        "On each play, θ is the probability of rolling a six. ",
+                        "The probability θ is assumed to be the same on every play. ",
+                        "If the dice is fair, θ = 1/6; a loaded dice may have ",
+                        "a different value of θ."
+                    ),
+                    p(
+                        "Choose m, the number of plays, and x, the observed number ",
+                        "of sixes. The probability mass function shows the ",
+                        "probabilities of different values of X for a fixed θ. ",
+                        "The likelihood function shows how the probability of the ",
+                        "observed x varies with θ."
+                    )
+                )
+            ),
+
+            card(
+
+                style = "
+                    border-radius: 16px;
+                    border: none;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+                    padding: 10px;
+                ",
+
+                card_header("Binomial PMF and likelihood"),
+
+                p(
+                    "The left panel shows the probability mass function for the selected value of θ. The right panel shows the likelihood of the selected observation x."
+                ),
+
+                fluidRow(
+
+                    column(
+                        6,
+
+                        plotOutput(
+                            ns("binom_pmf_likelihood_plot"),
+                            height = "450px"
+                        )
+                    ),
+
+                    column(
+                        6,
+
+                        plotOutput(
+                            ns("binom_likelihood_plot"),
+                            height = "450px"
+                        )
+                    )
+                )
+            )
+        ),
+
+
+        # =================================================
         # BAYESIAN RESULTS
         # =================================================
 
@@ -836,6 +1024,8 @@ chapter4_server <- function(id){
         # =================================================
         # STATE
         # =================================================
+
+        likelihood_m <- reactiveVal(NULL)
 
         binom_values <- reactiveVal(NULL)
 
@@ -962,6 +1152,155 @@ chapter4_server <- function(id){
             once = TRUE
 
         )
+
+
+        # Lock the number of trials only after Set m is pressed.
+        observeEvent(input$set_m_lik, {
+            m <- input$m_lik
+            if (is.null(m) || length(m) != 1 || is.na(m) ||
+                !is.finite(m) || m < 1 || m > 1000 || m != floor(m)) {
+                showNotification("Choose a whole number of trials between 1 and 1000.",
+                                 type = "error")
+                return()
+            }
+
+            likelihood_m(as.integer(m))
+            shinyjs::disable("m_lik")
+            shinyjs::disable("set_m_lik")
+            updateSliderInput(session, "x_lik", min = 0, max = m,
+                              value = min(15, m))
+        })
+
+        # Display a clean 0-to-1 scale, but keep theta strictly inside (0, 1).
+        observeEvent(input$theta_lik, {
+            req(input$theta_lik)
+            if (input$theta_lik <= 0) {
+                updateSliderInput(session, "theta_lik", value = 0.001)
+            } else if (input$theta_lik >= 1) {
+                updateSliderInput(session, "theta_lik", value = 0.999)
+            }
+        })
+
+        # =================================================
+        # BINOMIAL PMF AND LIKELIHOOD PLOTS
+        # =================================================
+
+        output$binom_pmf_likelihood_plot <- renderPlot({
+
+            m <- likelihood_m()
+            req(m)
+            x_obs <- min(input$x_lik, m)
+            theta <- input$theta_lik
+
+            pmf_data <- data.frame(
+                x = 0:m,
+                probability = dbinom(0:m, size = m, prob = theta)
+            )
+
+            # Focus the PMF display around its main mass, while
+            # ensuring that the selected observation remains visible.
+            pmf_sd <- sqrt(m * theta * (1 - theta))
+            x_min <- max(0, floor(min(m * theta - 4 * pmf_sd, x_obs) - 1))
+            x_max <- min(m, ceiling(max(m * theta + 4 * pmf_sd, x_obs) + 1))
+
+            ggplot(pmf_data, aes(x = x, y = probability)) +
+                geom_segment(
+                    aes(xend = x, y = 0, yend = probability),
+                    colour = "grey50"
+                ) +
+                geom_point(
+                    colour = "indianred4",
+                    size = 1.5
+                ) +
+                geom_segment(
+                    data = pmf_data[pmf_data$x == x_obs, ],
+                    aes(xend = x, y = 0, yend = probability),
+                    colour = "#2474B5",
+                    linewidth = 1.4
+                ) +
+                geom_point(
+                    data = pmf_data[pmf_data$x == x_obs, ],
+                    colour = "#2474B5",
+                    size = 3
+                ) +
+                labs(
+                    title = bquote(bold("Binomial PMF: " * theta == .(round(theta, 3)))),
+                    subtitle = paste0("m = ", m, ", selected x = ", x_obs),
+                    x = "Number of sixes (x)",
+                    y = "Probability"
+                ) +
+                coord_cartesian(
+                    xlim = c(x_min, x_max),
+                    ylim = c(0, max(pmf_data$probability) * 1.1)
+                ) +
+                theme_minimal(base_size = 13) +
+                theme(
+                    plot.title = element_text(face = "bold"),
+                    panel.grid.minor = element_blank()
+                )
+        })
+
+
+        output$binom_likelihood_plot <- renderPlot({
+
+            m <- likelihood_m()
+            req(m)
+            x_obs <- min(input$x_lik, m)
+            theta_selected <- input$theta_lik
+
+            theta_grid <- seq(0, 1, length.out = 1001)
+
+            lik_data <- data.frame(
+                theta = theta_grid,
+                likelihood = dbinom(
+                    x_obs,
+                    size = m,
+                    prob = theta_grid
+                )
+            )
+
+            selected_likelihood <- dbinom(
+                x_obs,
+                size = m,
+                prob = theta_selected
+            )
+
+            ggplot(lik_data, aes(x = theta, y = likelihood)) +
+                geom_line(
+                    linewidth = 0.9,
+                    colour = "indianred4"
+                ) +
+                geom_vline(
+                    xintercept = theta_selected,
+                    linetype = "dashed",
+                    colour = "grey40"
+                ) +
+                geom_point(
+                    data = data.frame(
+                        theta = theta_selected,
+                        likelihood = selected_likelihood
+                    ),
+                    aes(x = theta, y = likelihood),
+                    inherit.aes = FALSE,
+                    colour = "black",
+                    size = 2.5
+                ) +
+                labs(
+                    title = paste0("Likelihood: x = ", x_obs),
+                    subtitle = paste0("Selected θ = ", round(theta_selected, 3)),
+                    x = expression(theta),
+                    y = "Likelihood"
+                ) +
+                coord_cartesian(
+                    xlim = c(0, 1),
+                    ylim = c(0, max(lik_data$likelihood) * 1.1)
+                ) +
+                theme_minimal(base_size = 13) +
+                theme(
+                    plot.title = element_text(face = "bold"),
+                    panel.grid.minor = element_blank()
+                )
+        })
 
 
         # =================================================
@@ -2741,6 +3080,35 @@ chapter4_server <- function(id){
 
 
                 # -----------------------------------------
+                # Reset binomial PMF and likelihood settings
+                # -----------------------------------------
+
+                likelihood_m(NULL)
+                shinyjs::enable("m_lik")
+                shinyjs::enable("set_m_lik")
+
+                updateNumericInput(
+                    session,
+                    "m_lik",
+                    value = 100
+                )
+
+                updateSliderInput(
+                    session,
+                    "x_lik",
+                    min = 0,
+                    max = 100,
+                    value = 15
+                )
+
+                updateSliderInput(
+                    session,
+                    "theta_lik",
+                    value = 1/6
+                )
+
+
+                # -----------------------------------------
                 # Reset Bayesian settings
                 # -----------------------------------------
 
@@ -3070,6 +3438,28 @@ chapter4_server <- function(id){
 
                     "simulated_sd <- sd(simulated)"
 
+                )
+
+            } else if (input$example == "likelihood") {
+
+                m <- likelihood_m()
+                if (is.null(m)) {
+                    return("# Press Set m to display the binomial PMF and likelihood code.")
+                }
+                x_obs <- min(input$x_lik, m)
+                theta <- input$theta_lik
+
+                paste0(
+                    "# Binomial model and observed data\n\n",
+                    "m <- ", m, "\n",
+                    "x <- ", x_obs, "\n",
+                    "theta <- ", format(theta, digits = 4), "\n\n",
+                    "# Probability mass function\n\n",
+                    "x_values <- 0:m\n",
+                    "pmf <- dbinom(x_values, size = m, prob = theta)\n\n",
+                    "# Likelihood function\n\n",
+                    "theta_values <- seq(0, 1, length.out = 1001)\n",
+                    "likelihood <- dbinom(x, size = m, prob = theta_values)"
                 )
 
             } else {

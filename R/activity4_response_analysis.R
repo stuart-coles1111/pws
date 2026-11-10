@@ -43,8 +43,8 @@ activity4_response_analysis <- function(G,
             ggplot2::ggplot(ggplot2::aes(x = x, y = y), data = m) +
             ggplot2::geom_line(colour = "indianred4") +
             ggplot2::geom_vline(xintercept = Theta, color = 'red') +
-            ggplot2::xlab("T") + ggplot2::ylab('') +
-            ggplot2::ggtitle(paste0('Normal Score: G = ', G, ', S = ',S)) +
+            ggplot2::xlab(expression(theta)) + ggplot2::ylab('') +
+            ggplot2::ggtitle(paste0('Normal Score: g = ', G, ', s = ',S)) +
             pws:::shade_curve(m, G - S, G + S, fill = "lightblue") +
             ggplot2::xlim(min(x), max(x)) +
             ggplot2::theme(axis.text = ggplot2::element_text(size = 12),
@@ -55,7 +55,7 @@ activity4_response_analysis <- function(G,
             ggplot2::ggplot(ggplot2::aes(x = x, y = z), data = m) +
             ggplot2::geom_line(colour = "indianred4") +
             ggplot2::geom_vline(xintercept = Theta, color = 'red') +
-            ggplot2::xlab("T") +
+            ggplot2::xlab(expression(theta)) +
             ggplot2::ylab('') +
             ggplot2::ggtitle(paste0('Final Score = ', round(score, 2))) +
             ggplot2::geom_hline(yintercept = score, color = 'green') +
@@ -67,8 +67,8 @@ activity4_response_analysis <- function(G,
         p1 <-
             ggplot2::ggplot(ggplot2::aes(x = x, y = y), data = m) +
             ggplot2::geom_line(colour = "indianred4") +
-            ggplot2::xlab("T") + ylab('') +
-            ggplot2::ggtitle(paste0('Normal Score: G = ', G, ', S = ',S)) +
+            ggplot2::xlab(expression(theta)) + ylab('') +
+            ggplot2::ggtitle(paste0('Normal Score: g = ', G, ', s = ',S)) +
             pws:::shade_curve(m, G - S, G + S, fill = "lightblue") +
             ggplot2::xlim(min(x), max(x)) +
             ggplot2::theme(axis.text = ggplot2::element_text(size = 12),
@@ -77,7 +77,7 @@ activity4_response_analysis <- function(G,
         p2 <-
             ggplot2::ggplot(ggplot2::aes(x = x, y = z), data = m) +
             ggplot2::geom_line(colour = "indianred4") +
-            ggplot2::xlab("T") +
+            ggplot2::xlab(expression(theta)) +
             ggplot2::ylab('') +
             ggplot2::ggtitle(paste0('Final Score = ', round(score, 2))) +
             ggplot2::xlim(min(x), max(x)) +
