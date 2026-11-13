@@ -243,10 +243,10 @@ ui <- page_navbar(
 
             p("This activity explores the importance of both accuracy and the quantification of uncertainty in estimation."),
 
-            p("The activity comprises a 10-question quiz. When answering each question, participants must give a best guess (G) for the answer, as well as
-              a measure of accuracy (S) for their best guess. Accuracy of estimates can be defined in different ways: here, it is defined so that if T is the true
-              answer to a question, P(G - S < T < G + S) = 0.95. In other words, particpants choose S such that they believe there to be a 95% chance that the true value
-              lies within a distance S of their best guess."),
+            p("The activity comprises a 10-question quiz. For each question, participants give a best guess (μ) for the answer, together with
+              a measure of uncertainty (s) around that guess. The measure s is chosen so that, if θ is the true answer,
+              P(μ - s ≤ θ ≤ μ + s) = 0.95. In other words, participants choose s so that they assign 95% probability to the true answer
+              lying within a distance s of their best guess."),
 
             p("By default, the questions in the quiz are sports-based. They can, however, be replaced by country-related questions, or with a user-supplied set of questions
               and answers. See the discussion in Section ?.? of Playing With Statistics for details."),
@@ -256,9 +256,9 @@ ui <- page_navbar(
         ),
 
         individual = tagList(
-            p("The app is designed for easy individual entry of quiz answers (G) and accuracy estimates (S)."),
+            p("The app is designed for easy individual entry of best guesses (μ) and uncertainty measures (s)."),
             tags$ol(
-                tags$li("Complete the sports quiz by entering your values of G and S for each question directly into the app interface."),
+                tags$li("Complete the sports quiz by entering your values of μ and s for each question directly into the app interface."),
                 tags$li("Examine your score for each question in the Score Explorer"),
                 tags$li("Upload the answers provided by Smartodds employees. How do your scores compare to theirs?")
             ),
@@ -280,8 +280,8 @@ ui <- page_navbar(
 
             tags$ol(
                 tags$li("Compare resul"),
-                tags$li("Enter a best estimate (G)."),
-                tags$li("Enter uncertainty (S)."),
+                tags$li("Enter a best estimate (μ)."),
+                tags$li("Enter uncertainty (s)."),
                 tags$li("Submit forecasts in the Activity tab.")
             )
         ),
@@ -445,7 +445,7 @@ ui <- page_navbar(
                                 6,
                                 numericInput(
                                     "explore_G",
-                                    "Best estimate (G)",
+                                    "Best estimate (μ)",
                                     value = NA
                                 )
                             ),
@@ -454,7 +454,7 @@ ui <- page_navbar(
                                 6,
                                 numericInput(
                                     "explore_S",
-                                    "Uncertainty width (S)",
+                                    "Uncertainty measure (s)",
                                     value = NA,
                                     min = 0.01
                                 )
@@ -624,7 +624,7 @@ server <- function(input, output, session){
 
                             numericInput(
                                 paste0("G_", i),
-                                "Best estimate (G)",
+                                "Best estimate (μ)",
                                 value = NA
                             )
                         ),
@@ -634,7 +634,7 @@ server <- function(input, output, session){
 
                             numericInput(
                                 paste0("S_", i),
-                                "Uncertainty width (S)",
+                                "Uncertainty measure (s)",
                                 value = NA,
                                 min = 0.01
                             )
@@ -717,9 +717,21 @@ server <- function(input, output, session){
         )
 
 
+        # CSVs now use μ1,s1,...,μ10,s10. Accept older G1,S1,...
+        # and ASCII mu1,s1,... as well, normalising to the internal G/S names.
+        for (i in seq_len(10)) {
+            names(d)[names(d) %in% c(paste0("μ", i), paste0("mu", i))] <- paste0("G", i)
+            names(d)[names(d) == paste0("s", i)] <- paste0("S", i)
+        }
+
+        validate(
+            need(!anyDuplicated(names(d)),
+                 "Duplicate response columns: use only one naming style per question.")
+        )
+
         expected <- c(
             "team",
-            paste0(rep(c("G","S"),10), rep(1:10, each=2))
+            paste0(rep(c("G", "S"), 10), rep(1:10, each = 2))
         )
 
 
@@ -728,7 +740,8 @@ server <- function(input, output, session){
                 all(expected %in% names(d)),
                 paste(
                     "CSV must contain columns:",
-                    paste(expected, collapse=", ")
+                    paste(c("team", paste0(rep(c("μ", "s"), 10), rep(1:10, each = 2))), collapse=", "),
+                    "(older G1/S1 columns are also accepted)"
                 )
             )
         )
@@ -736,9 +749,9 @@ server <- function(input, output, session){
 
         # Convert wide format:
         #
-        # team G1 S1 G2 S2 ...
+        # team μ1 s1 μ2 s2 ... (or legacy G1 S1 ...)
         #
-        # into:
+        # into internal columns:
         #
         # team question G S
 
@@ -1059,6 +1072,7 @@ server <- function(input, output, session){
         DT::datatable(
             d,
             rownames = FALSE,
+            colnames = c("team", "question", "label", "μ", "s", "answer", "score"),
             options = list(
                 pageLength = 10,
                 scrollX = TRUE
@@ -1129,19 +1143,15 @@ server <- function(input, output, session){
 
             for(i in 1:10){
 
-                template[[paste0("G", i)]] <- NA_real_
+                template[[paste0("μ", i)]] <- NA_real_
 
-                template[[paste0("S", i)]] <- NA_real_
+                template[[paste0("s", i)]] <- NA_real_
 
             }
 
 
-            write.csv(
-                template,
-                file,
-                row.names = FALSE,
-                na = ""
-            )
+            # Excel-friendly UTF-8 CSV preserves the Greek μ in column headers.
+            readr::write_excel_csv(template, file, na = "")
 
         }
 
