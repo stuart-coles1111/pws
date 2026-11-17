@@ -1965,7 +1965,7 @@ server <- function(input, output, session){
                     method = "lm",
                     formula = y ~ x,
                     colour = "#E63946",
-                    se = FALSE,
+                    se = TRUE,
                     linewidth = 1.2
                 ) +
 
