@@ -92,7 +92,7 @@ chapter6_ui <- function(id) {
                         "Dynamic programming (exact)" = "dp",
                         "Poisson approximation" = "poisson"
                     ),
-                    selected = "poisson"
+                    selected = "dp"
                 ),
 
                 radioButtons(
@@ -215,10 +215,17 @@ chapter6_ui <- function(id) {
             class = "btn-primary"
         ),
 
-        actionButton(
-            ns("show_summary"),
-            "Summary",
-            icon = icon("book-open")
+        # Summary is used only for the data-dredging analysis.
+        conditionalPanel(
+            condition = sprintf(
+                "input['%s'] == 'Data Dredging'",
+                ns("demo")
+            ),
+            actionButton(
+                ns("show_summary"),
+                "Summary",
+                icon = icon("book-open")
+            )
         ),
 
         p(
@@ -490,8 +497,6 @@ chapter6_ui <- function(id) {
     results_panel <- div(
 
         card(
-            card_header("Visualisation"),
-
             plotOutput(
                 ns("plot"),
                 height = 450
@@ -723,32 +728,24 @@ chapter6_server <- function(id) {
 
         make_birthday_analysis <- function() {
 
+
             if (input$birthday_type == "classic") {
 
-                nmax <- 60
-
-                df <- data.frame(
-                    N = seq_len(nmax),
-                    P = sapply(seq_len(nmax), bp)
+                result <- pws::plot_bp(
+                    nmax = 60,
+                    p_target = input$p_level
                 )
-
-                eligible <- which(df$P >= input$p_level)
-
-                required_n <- if (length(eligible)) {
-                    df$N[eligible[1]]
-                } else {
-                    NA_integer_
-                }
 
                 return(
                     list(
                         type = "birthday",
-                        data = df,
-                        required_n = required_n,
+                        data = result$data,
+                        required_n = result$required_n,
                         threshold = input$p_level
                     )
                 )
             }
+
 
             m <- input$match_size
 
@@ -761,13 +758,13 @@ chapter6_server <- function(id) {
 
             if (input$birthday_method == "dp") {
 
-                p1 <- birthday_dp(n1, m)
-                p2 <- birthday_dp(n2, m)
+                p1 <- pws:::birthday_dp(n1, m)
+                p2 <- pws:::birthday_dp(n2, m)
 
             } else {
 
-                p1 <- birthday_poisson(n1, m)
-                p2 <- birthday_poisson(n2, m)
+                p1 <- pws:::birthday_poisson(n1, m)
+                p2 <- pws:::birthday_poisson(n2, m)
             }
 
             scenario_names <- c(
@@ -957,6 +954,20 @@ chapter6_server <- function(id) {
                 "chapter_tab",
                 selected = "Overview"
             )
+
+        }, ignoreInit = TRUE)
+
+
+        # -------------------------------------------------
+        # Birthday investigation change
+        # -------------------------------------------------
+
+        observeEvent(input$birthday_type, {
+
+            # Switching between classic and non-classic birthday
+            # problems invalidates the previous analysis.
+            analysis_result(NULL)
+            summary_visible(FALSE)
 
         }, ignoreInit = TRUE)
 
@@ -1306,7 +1317,7 @@ chapter6_server <- function(id) {
 
                 return(
                     card(
-                        card_header("Key result"),
+                        card_header("Summary"),
 
                         p(
                             sprintf(

@@ -11,21 +11,6 @@
 #' @export
 #'
 
-plot_bp <- function(nmax = 60) {
-    bp <- function(n) {
-        p <- 1
-        if (n > 1) {
-            for (i in 1:n)
-                p <- p * (365 - i + 1) / 365
-        }
-        p <- 1 - p
-        p
-    }
-    df <- cbind(N = 1:nmax, P = sapply(1:nmax, bp)) %>% data.frame
-    ggplot(df, aes(N, P)) + geom_point(colour = "steelblue") + geom_hline(yintercept = 0.5, color = "red") +
-        theme(axis.title = element_text(face = "italic"))
-}
-
 
 plot_bp <- function(nmax = 60, p_target = 0.5){
 
